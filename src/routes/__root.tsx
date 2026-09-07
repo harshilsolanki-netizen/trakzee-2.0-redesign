@@ -15,6 +15,7 @@ import { AppSidebar } from "@/components/chrome/AppSidebar";
 import { NotificationPanel } from "@/components/chrome/NotificationPanel";
 import { UserProfileMenu, applyTheme } from "@/components/chrome/UserProfileMenu";
 import { ZioLogo } from "@/components/zio/ZioLogo";
+import { AskZioTopBarButton } from "@/components/zio/AskZioCTA";
 import { ZioPanel } from "@/components/zio/ZioPanel";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -160,7 +161,7 @@ function AppLayout() {
       if (saved) applyTheme(saved);
     } catch {}
   }, []);
-  const { isOpen, mode } = useZio();
+  const { isOpen, mode, openZio } = useZio();
   const location = useRouterState({ select: (s) => s.location });
   const isZioStandaloneRoute = location.pathname.startsWith("/zio");
 
@@ -232,7 +233,13 @@ function TopBar() {
           </span>
         </button>
 
-        {/* Divider */}
+        {/* Divider 1 */}
+        <div className="h-4.5 w-px bg-white/20" />
+
+        {/* Ask Zio CTA in Header */}
+        <AskZioTopBarButton />
+
+        {/* Divider 2 */}
         <div className="h-4.5 w-px bg-white/20" />
 
         {/* User Profile Menu */}
