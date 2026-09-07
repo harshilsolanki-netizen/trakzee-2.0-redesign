@@ -1,13 +1,29 @@
-import { Copy, Maximize2, PanelRight, Send, Trash2, X } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import {
+  ArrowLeft,
+  Clock,
+  Copy,
+  History,
+  Maximize2,
+  MessageSquare,
+  PanelRight,
+  Plus,
+  Search,
+  Send,
+  Trash2,
+  X,
+} from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useZio, type ZioPanelMode } from "@/zio/ZioContext";
-import { ZioLogo } from "./ZioLogo";
+import {
+  useZio,
+  type ZioChatSession,
+  type ZioPanelMode,
+} from "@/zio/ZioContext";
 import { ApplicationScreenPreview } from "./ApplicationScreenPreview";
 import { cn } from "@/lib/utils";
 
@@ -100,6 +116,236 @@ function FormattedZioMessage({
   );
 }
 
+function formatSessionTimestamp(timestamp: number): string {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffHours = diffMs / (1000 * 60 * 60);
+
+  if (diffHours < 24 && date.getDate() === now.getDate()) {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (yesterday.toDateString() === date.toDateString()) {
+    return "Yesterday";
+  }
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+}
+
+function ZioHistoryView({
+  isFullscreen,
+}: {
+  isFullscreen: boolean;
+}) {
+  const {
+    sessions,
+    activeSessionId,
+    loadChatSession,
+    deleteChatSession,
+    clearAllHistory,
+    createNewChat,
+    setIsHistoryOpen,
+  } = useZio();
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredSessions = useMemo(() => {
+    if (!searchQuery.trim()) return sessions;
+    const q = searchQuery.toLowerCase();
+    return sessions.filter((s) => {
+      const matchTitle = s.title.toLowerCase().includes(q);
+      const matchMessages = s.messages.some((m) =>
+        m.content.toLowerCase().includes(q),
+      );
+      return matchTitle || matchMessages;
+    });
+  }, [sessions, searchQuery]);
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col h-full w-full animate-in fade-in duration-200",
+        isFullscreen ? "max-w-3xl mx-auto py-2" : "max-w-full",
+      )}
+    >
+      {/* History Header & Search */}
+      <div className="flex flex-col gap-3 pb-3 border-b border-violet-100/80 shrink-0">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <History className="h-4 w-4 text-violet-600" />
+            <span className="text-sm font-bold text-foreground">
+              Chat History
+            </span>
+            <span className="text-[11px] font-medium text-muted-foreground bg-violet-50 text-violet-700 px-1.5 py-0.5 rounded-md border border-violet-100">
+              {sessions.length} {sessions.length === 1 ? "session" : "sessions"}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={createNewChat}
+            className="inline-flex items-center gap-1.5 rounded-md bg-[#111c38] px-2.5 py-1 text-xs font-semibold text-white shadow-2xs hover:bg-[#1e2c52] transition-colors cursor-pointer"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>New Chat</span>
+          </button>
+        </div>
+
+        {/* Search input */}
+        <div className="relative w-full">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search conversations..."
+            className="h-8 w-full rounded-md border border-input bg-background pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1.5 focus:ring-primary/40"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Sessions list */}
+      <div className="flex-1 min-h-0 overflow-y-auto py-3 space-y-2 scrollbar-thin scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300">
+        {filteredSessions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-48 text-center p-4">
+            <div className="h-10 w-10 rounded-md bg-violet-50 flex items-center justify-center text-violet-600 mb-2 border border-violet-100">
+              <MessageSquare className="h-5 w-5" />
+            </div>
+            <p className="text-xs font-semibold text-foreground">
+              {searchQuery ? "No matching conversations" : "No chat history yet"}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 max-w-xs">
+              {searchQuery
+                ? "Try searching for a different keyword or prompt."
+                : "Your conversations with Zio will be saved here automatically."}
+            </p>
+            <button
+              type="button"
+              onClick={createNewChat}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground shadow-2xs hover:bg-muted transition-colors cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Start new conversation</span>
+            </button>
+          </div>
+        ) : (
+          filteredSessions.map((session) => {
+            const isActive = session.id === activeSessionId;
+            const lastMsg =
+              session.messages[session.messages.length - 1]?.content || "";
+            const cleanSnippet = lastMsg.replace(/[#*`_]/g, "").trim();
+
+            return (
+              <div
+                key={session.id}
+                onClick={() => loadChatSession(session.id)}
+                className={cn(
+                  "group relative flex items-start justify-between gap-3 rounded-md border p-2.5 transition-all duration-150 cursor-pointer text-left select-none",
+                  isActive
+                    ? "border-violet-300 bg-violet-50/70 shadow-2xs"
+                    : "border-border/70 bg-card hover:bg-muted/60 hover:border-border",
+                )}
+              >
+                <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                  <div
+                    className={cn(
+                      "h-7 w-7 rounded-md flex items-center justify-center shrink-0 mt-0.5 border",
+                      isActive
+                        ? "bg-violet-600 text-white border-violet-600"
+                        : "bg-white text-muted-foreground border-slate-200 group-hover:border-violet-200 group-hover:text-violet-600",
+                    )}
+                  >
+                    <MessageSquare className="h-3.5 w-3.5" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h5
+                        className={cn(
+                          "text-xs font-semibold truncate leading-tight",
+                          isActive ? "text-violet-950 font-bold" : "text-foreground",
+                        )}
+                      >
+                        {session.title}
+                      </h5>
+                      <span className="text-[10px] text-muted-foreground shrink-0 flex items-center gap-1">
+                        <Clock className="h-2.5 w-2.5" />
+                        {formatSessionTimestamp(session.updatedAt || session.createdAt)}
+                      </span>
+                    </div>
+
+                    {cleanSnippet && (
+                      <p className="text-[11px] text-muted-foreground line-clamp-1 mt-1 leading-snug">
+                        {cleanSnippet}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="text-[10px] text-muted-foreground/80 font-medium">
+                        {session.messages.length} messages
+                      </span>
+                      {isActive && (
+                        <span className="text-[9.5px] font-bold uppercase tracking-wider text-violet-700 bg-violet-100/80 px-1.5 py-0.2 rounded">
+                          Active
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Delete session button */}
+                <button
+                  type="button"
+                  title="Delete chat"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteChatSession(session.id);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-muted-foreground hover:bg-red-50 hover:text-red-600 transition-all cursor-pointer shrink-0 mt-0.5"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* History Footer */}
+      {sessions.length > 0 && (
+        <div className="pt-3 border-t border-violet-100/80 flex items-center justify-between shrink-0">
+          <button
+            type="button"
+            onClick={clearAllHistory}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-600 transition-colors cursor-pointer px-1 py-1 rounded-md"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>Clear all history</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsHistoryOpen(false)}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-md hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
+          >
+            <span>Back to Chat</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ZioPanel({
   mode: forcedMode,
   className,
@@ -116,6 +362,10 @@ export function ZioPanel({
     setMode,
     sendMessage,
     clearMessages,
+    isHistoryOpen,
+    setIsHistoryOpen,
+    toggleHistory,
+    createNewChat,
   } = useZio();
 
   const mode = forcedMode || contextMode;
@@ -126,15 +376,17 @@ export function ZioPanel({
 
   // Auto-scroll on new messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isStreaming]);
+    if (!isHistoryOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isStreaming, isHistoryOpen]);
 
   // Focus input on open
   useEffect(() => {
-    if (isOpen || mode === "fullscreen") {
+    if ((isOpen || mode === "fullscreen") && !isHistoryOpen) {
       setTimeout(() => inputRef.current?.focus(), 150);
     }
-  }, [isOpen, mode]);
+  }, [isOpen, mode, isHistoryOpen]);
 
   const handleSend = () => {
     if (!input.trim() || isStreaming) return;
@@ -186,17 +438,55 @@ export function ZioPanel({
       {/* Header */}
       <header
         className={cn(
-          "flex items-center justify-end border-b border-violet-100/70 bg-white/80 px-5 py-3 backdrop-blur-xs transition-all duration-300 ease-out shrink-0 select-none z-10",
-          isFullscreen && "px-6 py-3.5",
+          "flex items-center justify-between border-b border-violet-100/70 bg-white/80 px-4 py-2.5 backdrop-blur-xs transition-all duration-300 ease-out shrink-0 select-none z-10",
+          isFullscreen && "px-6 py-3",
         )}
       >
+        {/* Left header controls: History Toggle + New Chat */}
+        <div className="flex items-center gap-1.5">
+          {isHistoryOpen ? (
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(false)}
+              className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-violet-100 hover:text-slate-950 cursor-pointer"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Back to Chat</span>
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={toggleHistory}
+                title="View Chat History"
+                aria-label="View Chat History"
+                className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-medium text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer"
+              >
+                <History className="h-3.5 w-3.5 text-slate-700" />
+                <span className="hidden sm:inline">History</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={createNewChat}
+                title="Start New Chat"
+                aria-label="Start New Chat"
+                className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-medium text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5 text-slate-700" />
+                <span className="hidden sm:inline">New Chat</span>
+              </button>
+            </>
+          )}
+        </div>
+
         {/* Right controls: Trash (if messages) + Layout Switcher Dropdown + Close */}
         <div className="flex items-center gap-1.5">
-          {messages.length > 0 && (
+          {!isHistoryOpen && messages.length > 0 && (
             <button
               type="button"
               onClick={clearMessages}
-              title="Clear chat"
+              title="Clear chat messages"
               className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-violet-50 hover:text-foreground cursor-pointer"
             >
               <Trash2 className="h-4 w-4" />
@@ -270,7 +560,7 @@ export function ZioPanel({
         </div>
       </header>
 
-      {/* Body scroll area */}
+      {/* Body area: either History view or Chat view */}
       <div
         className={cn(
           "flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 transition-all duration-300 ease-out z-10 flex flex-col",
@@ -278,7 +568,9 @@ export function ZioPanel({
           isFullscreen ? "p-6" : "space-y-4",
         )}
       >
-        {messages.length === 0 ? (
+        {isHistoryOpen ? (
+          <ZioHistoryView isFullscreen={isFullscreen} />
+        ) : messages.length === 0 ? (
           isFullscreen ? (
             /* Fullscreen Initial View matching original UI */
             <div className="flex flex-col items-center justify-end h-full py-6 w-full max-w-4xl mx-auto mt-auto animate-in fade-in duration-200">
@@ -496,8 +788,8 @@ export function ZioPanel({
         )}
       </div>
 
-      {/* Input Footer: Pinned cleanly to the bottom */}
-      {(!isFullscreen || messages.length > 0) && (
+      {/* Input Footer: Pinned cleanly to the bottom when not in history view */}
+      {!isHistoryOpen && (!isFullscreen || messages.length > 0) && (
         <footer
           className={cn(
             "p-3 sm:p-4 pt-1 bg-transparent transition-all duration-300 ease-out shrink-0 z-10",
@@ -546,3 +838,4 @@ export function ZioPanel({
     </div>
   );
 }
+

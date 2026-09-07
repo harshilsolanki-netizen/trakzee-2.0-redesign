@@ -21,10 +21,10 @@ export function AskZioTopBarButton({ className }: { className?: string }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "group relative hidden h-7.5 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-white transition-all duration-200 sm:flex cursor-pointer select-none",
-        "bg-[#131d38] border border-violet-400/50 hover:border-violet-300 hover:bg-[#1e2c52] shadow-sm hover:shadow-violet-500/20 active:scale-95",
+        "group relative hidden h-[30px] items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold text-nav-foreground transition-colors duration-150 sm:flex cursor-pointer select-none",
+        "bg-white/10 border border-white/15 hover:bg-white/15 hover:border-white/30 shadow-2xs",
         isOpen &&
-          "ring-2 ring-violet-400/80 ring-offset-1 ring-offset-nav border-violet-300 bg-[#1e2c52]",
+          "ring-1.5 ring-white/40 border-white/40 bg-white/20",
         className,
       )}
     >
@@ -37,8 +37,8 @@ export function AskZioTopBarButton({ className }: { className?: string }) {
         <ZioLogo size="sm" />
       </div>
 
-      <span className="font-semibold text-white tracking-tight text-xs whitespace-nowrap">
-        Ask zio
+      <span className="font-semibold text-nav-foreground tracking-tight text-xs whitespace-nowrap">
+        Ask Zio
       </span>
     </button>
   );
