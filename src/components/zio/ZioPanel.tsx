@@ -579,7 +579,7 @@ export function ZioPanel({
                   <button
                     type="button"
                     onClick={() => sendMessage("Show me the fleet dashboard")}
-                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
+                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
                   >
                     Show me the fleet dashboard
                   </button>
@@ -588,7 +588,7 @@ export function ZioPanel({
                     onClick={() =>
                       sendMessage("Where are my vehicles right now?")
                     }
-                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
+                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
                   >
                     Where are my vehicles right now?
                   </button>
@@ -597,28 +597,28 @@ export function ZioPanel({
                     onClick={() =>
                       sendMessage("Show me the trip summary with dashboard")
                     }
-                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
+                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
                   >
                     Show me the trip summary with dashboard
                   </button>
                   <button
                     type="button"
                     onClick={() => sendMessage("Why is the Safety low?")}
-                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
+                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
                   >
                     Why is the Safety low?
                   </button>
                   <button
                     type="button"
                     onClick={() => sendMessage("How to improve vehicle score?")}
-                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
+                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
                   >
                     How to improve vehicle score?
                   </button>
                 </div>
 
                 <div className="w-full max-w-3xl">
-                  <div className="flex items-center gap-2 rounded-md border border-input bg-background p-1.5 shadow-2xs focus-within:border-primary focus-within:ring-1.5 focus-within:ring-primary/40">
+                  <div className="flex items-center gap-2 rounded-md border border-violet-100/80 bg-white/80 backdrop-blur-xs p-1.5 shadow-2xs focus-within:border-primary focus-within:bg-white focus-within:ring-1.5 focus-within:ring-primary/40">
                     <input
                       ref={inputRef}
                       type="text"
@@ -664,7 +664,7 @@ export function ZioPanel({
                 <button
                   type="button"
                   onClick={() => sendMessage("Show me the fleet dashboard")}
-                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
+                  className="flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left"
                 >
                   <span>Show me the fleet dashboard</span>
                 </button>
@@ -673,7 +673,7 @@ export function ZioPanel({
                   onClick={() =>
                     sendMessage("Where are my vehicles right now?")
                   }
-                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
+                  className="flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left"
                 >
                   <span>Where are my vehicles right now?</span>
                 </button>
@@ -682,21 +682,21 @@ export function ZioPanel({
                   onClick={() =>
                     sendMessage("Show me the trip summary with dashboard")
                   }
-                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
+                  className="flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left"
                 >
                   <span>Show me the trip summary with dashboard</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => sendMessage("Why is the Safety low?")}
-                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
+                  className="flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left"
                 >
                   <span>Why is the Safety low?</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => sendMessage("How to improve vehicle score?")}
-                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
+                  className="flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left"
                 >
                   <span>How to improve vehicle score?</span>
                 </button>
@@ -794,7 +794,7 @@ export function ZioPanel({
           >
             <div
               className={cn(
-                "flex items-center gap-2 rounded-md bg-background p-1.5 shadow-2xs border border-input focus-within:border-primary focus-within:ring-1.5 focus-within:ring-primary/40",
+                "flex items-center gap-2 rounded-md bg-white/80 backdrop-blur-xs p-1.5 shadow-2xs border border-violet-100/80 focus-within:border-primary focus-within:bg-white focus-within:ring-1.5 focus-within:ring-primary/40",
               )}
             >
               <input
