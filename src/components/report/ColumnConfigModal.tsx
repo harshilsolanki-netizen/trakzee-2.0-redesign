@@ -833,32 +833,32 @@ export function ColumnConfigModal({
           <div className="flex-1 min-h-0 flex flex-col bg-surface overflow-hidden">
             <div className="flex-1 min-h-0 overflow-y-auto select-none">
               <table className="w-full border-collapse text-left text-xs">
-                <thead className="sticky top-0 z-20 bg-[#111c38] text-white border-b border-[#1b2a4e] shadow-sm select-none">
+                <thead className="sticky top-0 z-20 bg-slate-100 text-slate-700 border-b border-slate-200 shadow-2xs select-none">
                   <tr>
                     <th className="w-10 px-2 py-2.5 text-center text-slate-400 font-semibold text-[11px]">
                       #
                     </th>
-                    <th className="px-3.5 py-2.5 font-semibold text-slate-100 text-xs">
+                    <th className="px-3.5 py-2.5 font-semibold text-slate-800 text-xs">
                       Column
                     </th>
 
-                    <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
+                    <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-700 text-xs">
                       Showable
                     </th>
 
-                    <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
+                    <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-700 text-xs">
                       Printable
                     </th>
 
-                    <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
+                    <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-700 text-xs">
                       Sortable
                     </th>
 
-                    <th className="w-24 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
+                    <th className="w-24 px-2 py-2.5 text-center font-semibold text-slate-700 text-xs">
                       Sort Priority
                     </th>
 
-                    <th className="w-24 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
+                    <th className="w-24 px-2 py-2.5 text-center font-semibold text-slate-700 text-xs">
                       Sorting
                     </th>
                   </tr>
