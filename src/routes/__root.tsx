@@ -13,12 +13,8 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { AppSidebar } from "@/components/chrome/AppSidebar";
 import { NotificationPanel } from "@/components/chrome/NotificationPanel";
-import {
-  UserProfileMenu,
-  applyTheme,
-} from "@/components/chrome/UserProfileMenu";
+import { UserProfileMenu, applyTheme } from "@/components/chrome/UserProfileMenu";
 import { ZioLogo } from "@/components/zio/ZioLogo";
-import { AskZioTopBarButton } from "@/components/zio/AskZioCTA";
 import { ZioPanel } from "@/components/zio/ZioPanel";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -211,7 +207,6 @@ function AppLayout() {
 
 function TopBar() {
   const [notifOpen, setNotifOpen] = useState(false);
-  const { openZio } = useZio();
 
   return (
     <header className="flex h-[45px] shrink-0 items-center gap-3 bg-nav px-3.5 text-nav-foreground">
@@ -237,16 +232,10 @@ function TopBar() {
           </span>
         </button>
 
-        {/* Divider 1 */}
+        {/* Divider */}
         <div className="h-4.5 w-px bg-white/20" />
 
-        {/* Ask Zio CTA matching reference image */}
-        <AskZioTopBarButton />
-
-        {/* Divider 2 */}
-        <div className="h-4.5 w-px bg-white/20" />
-
-        {/* User Profile Menu matching reference image */}
+        {/* User Profile Menu */}
         <UserProfileMenu />
       </div>
       <NotificationPanel open={notifOpen} onOpenChange={setNotifOpen} />

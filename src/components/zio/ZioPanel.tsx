@@ -285,28 +285,31 @@ export function ZioPanel({
       {/* Body scroll area */}
       <div
         className={cn(
-          "flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 transition-all duration-300 ease-out z-10",
-          "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-violet-200/80 hover:scrollbar-thumb-violet-300",
+          "flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 transition-all duration-300 ease-out z-10 flex flex-col",
+          "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300",
           isFullscreen ? "p-6" : "space-y-4",
         )}
       >
         {messages.length === 0 ? (
           isFullscreen ? (
             /* Fullscreen Initial View matching original UI */
-            <div className="flex flex-col items-center justify-between h-full py-8 w-full max-w-5xl mx-auto">
-              <div className="flex-1 flex items-center justify-center">
-                <h3 className="text-xl md:text-2xl font-semibold text-slate-800 tracking-tight text-center">
+            <div className="flex flex-col items-center justify-end h-full py-6 w-full max-w-4xl mx-auto mt-auto animate-in fade-in duration-200">
+              <div className="mb-6 text-center space-y-1">
+                <h3 className="text-2xl font-bold text-foreground tracking-tight">
                   Hi, I’m Zio. How can I help?
                 </h3>
+                <p className="text-xs text-muted-foreground">
+                  How can I help you analyze your fleet today?
+                </p>
               </div>
 
               {/* Suggestion Chips + Bottom Input */}
               <div className="w-full flex flex-col items-center gap-4">
-                <div className="flex flex-wrap items-center justify-center gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => sendMessage("Show me the fleet dashboard")}
-                    className="rounded-lg border border-slate-200/80 bg-white/90 px-4 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer"
+                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
                   >
                     Show me the fleet dashboard
                   </button>
@@ -315,7 +318,7 @@ export function ZioPanel({
                     onClick={() =>
                       sendMessage("Where are my vehicles right now?")
                     }
-                    className="rounded-lg border border-slate-200/80 bg-white/90 px-4 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer"
+                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
                   >
                     Where are my vehicles right now?
                   </button>
@@ -324,28 +327,28 @@ export function ZioPanel({
                     onClick={() =>
                       sendMessage("Show me the trip summary with dashboard")
                     }
-                    className="rounded-lg border border-slate-200/80 bg-white/90 px-4 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer"
+                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
                   >
                     Show me the trip summary with dashboard
                   </button>
                   <button
                     type="button"
                     onClick={() => sendMessage("Why is the Safety low?")}
-                    className="rounded-lg border border-slate-200/80 bg-white/90 px-4 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer"
+                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
                   >
                     Why is the Safety low?
                   </button>
                   <button
                     type="button"
                     onClick={() => sendMessage("How to improve vehicle score?")}
-                    className="rounded-lg border border-slate-200/80 bg-white/90 px-4 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer"
+                    className="rounded-md border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer"
                   >
                     How to improve vehicle score?
                   </button>
                 </div>
 
-                <div className="w-full max-w-4xl">
-                  <div className="flex items-center gap-2 rounded-lg border border-[#111c38]/40 bg-white p-2 shadow-xs focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200/50">
+                <div className="w-full max-w-3xl">
+                  <div className="flex items-center gap-2 rounded-md border border-input bg-background p-1.5 shadow-2xs focus-within:border-primary focus-within:ring-1.5 focus-within:ring-primary/40">
                     <input
                       ref={inputRef}
                       type="text"
@@ -354,7 +357,7 @@ export function ZioPanel({
                       onKeyDown={handleKeyDown}
                       disabled={isStreaming}
                       placeholder="Ask me ..."
-                      className="flex-1 bg-transparent px-3 py-1.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                      className="flex-1 bg-transparent px-2.5 py-1 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     />
                     <button
                       type="button"
@@ -362,10 +365,10 @@ export function ZioPanel({
                       disabled={!input.trim() || isStreaming}
                       aria-label="Send message"
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-md transition-all duration-150 cursor-pointer shadow-2xs shrink-0",
+                        "flex h-8 w-8 items-center justify-center rounded-md transition-colors cursor-pointer shadow-2xs shrink-0",
                         input.trim()
                           ? "bg-[#111c38] text-white hover:bg-[#0c1429]"
-                          : "bg-[#111c38] text-white opacity-90",
+                          : "bg-[#111c38] text-white opacity-80 cursor-not-allowed",
                       )}
                     >
                       <Send className="h-4 w-4 fill-white text-white" />
@@ -375,23 +378,23 @@ export function ZioPanel({
               </div>
             </div>
           ) : (
-            /* Floating / Sidebar Initial View matching reference */
-            <div className="flex flex-col space-y-3 py-1 text-left">
-              <div className="space-y-0.5">
-                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 leading-snug">
+            /* Floating / Sidebar Initial View matching reference: docked at the bottom */
+            <div className="mt-auto flex flex-col space-y-3 pb-2 text-left justify-end animate-in fade-in duration-200">
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold tracking-tight text-foreground leading-snug">
                   Hi, I’m Zio
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   How can I help you analyze your fleet today?
                 </p>
               </div>
 
-              {/* Suggestion Chips */}
+              {/* Suggestion Prompt Buttons matching Application standard ADS CTAs */}
               <div className="flex flex-col gap-2 pt-1 w-full">
                 <button
                   type="button"
                   onClick={() => sendMessage("Show me the fleet dashboard")}
-                  className="rounded-lg border border-white/90 bg-white/70 px-3.5 py-2.5 text-xs font-medium text-slate-800 backdrop-blur-xs shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer w-full text-left flex items-center justify-between"
+                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
                 >
                   <span>Show me the fleet dashboard</span>
                 </button>
@@ -400,7 +403,7 @@ export function ZioPanel({
                   onClick={() =>
                     sendMessage("Where are my vehicles right now?")
                   }
-                  className="rounded-lg border border-white/90 bg-white/70 px-3.5 py-2.5 text-xs font-medium text-slate-800 backdrop-blur-xs shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer w-full text-left flex items-center justify-between"
+                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
                 >
                   <span>Where are my vehicles right now?</span>
                 </button>
@@ -409,21 +412,21 @@ export function ZioPanel({
                   onClick={() =>
                     sendMessage("Show me the trip summary with dashboard")
                   }
-                  className="rounded-lg border border-white/90 bg-white/70 px-3.5 py-2.5 text-xs font-medium text-slate-800 backdrop-blur-xs shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer w-full text-left flex items-center justify-between"
+                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
                 >
                   <span>Show me the trip summary with dashboard</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => sendMessage("Why is the Safety low?")}
-                  className="rounded-lg border border-white/90 bg-white/70 px-3.5 py-2.5 text-xs font-medium text-slate-800 backdrop-blur-xs shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer w-full text-left flex items-center justify-between"
+                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
                 >
                   <span>Why is the Safety low?</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => sendMessage("How to improve vehicle score?")}
-                  className="rounded-lg border border-white/90 bg-white/70 px-3.5 py-2.5 text-xs font-medium text-slate-800 backdrop-blur-xs shadow-2xs transition-all hover:bg-white hover:border-violet-300 hover:shadow-xs active:scale-98 cursor-pointer w-full text-left flex items-center justify-between"
+                  className="flex items-center justify-between rounded-md border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted hover:border-border/80 cursor-pointer w-full text-left"
                 >
                   <span>How to improve vehicle score?</span>
                 </button>
@@ -521,10 +524,7 @@ export function ZioPanel({
           >
             <div
               className={cn(
-                "flex items-center gap-2 rounded-lg bg-white p-2 shadow-xs",
-                isFullscreen
-                  ? "border border-[#111c38]/40 focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200/50"
-                  : "border border-violet-300/80 focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200/50",
+                "flex items-center gap-2 rounded-md bg-background p-1.5 shadow-2xs border border-input focus-within:border-primary focus-within:ring-1.5 focus-within:ring-primary/40",
               )}
             >
               <input
@@ -535,7 +535,7 @@ export function ZioPanel({
                 onKeyDown={handleKeyDown}
                 disabled={isStreaming}
                 placeholder="Ask me ..."
-                className="flex-1 bg-transparent px-3 py-1.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                className="flex-1 bg-transparent px-2.5 py-1 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
               <button
                 type="button"
@@ -543,13 +543,13 @@ export function ZioPanel({
                 disabled={!input.trim() || isStreaming}
                 aria-label="Send message"
                 className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-md transition-all duration-150 cursor-pointer shadow-2xs shrink-0",
+                  "flex h-7.5 w-7.5 items-center justify-center rounded-md transition-colors cursor-pointer shadow-2xs shrink-0",
                   input.trim()
                     ? "bg-[#111c38] text-white hover:bg-[#0c1429]"
                     : "bg-[#111c38] text-white opacity-80 cursor-not-allowed",
                 )}
               >
-                <Send className="h-4 w-4 fill-white text-white" />
+                <Send className="h-3.5 w-3.5 fill-white text-white" />
               </button>
             </div>
           </div>

@@ -51,7 +51,7 @@ export function AskZioCTA({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-2xl border border-violet-500/20 bg-gradient-to-r from-violet-500/10 via-purple-500/5 to-blue-500/10 p-3 transition-all duration-200 hover:border-violet-500/30 hover:shadow-md backdrop-blur-sm",
+        "rounded-md border border-border bg-card p-2.5 transition-colors shadow-2xs",
         className,
       )}
     >
@@ -62,8 +62,8 @@ export function AskZioCTA({ className }: { className?: string }) {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           className={cn(
-            "relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md shadow-violet-500/25 transition-all duration-200 hover:from-violet-500 hover:to-indigo-500 active:scale-95 cursor-pointer",
-            isOpen && "ring-2 ring-violet-400/60",
+            "relative inline-flex items-center gap-2 rounded-md bg-[#111c38] px-3 py-1.5 text-xs font-semibold text-white shadow-2xs transition-colors hover:bg-[#1e2c52] cursor-pointer",
+            isOpen && "ring-1.5 ring-primary",
           )}
         >
           <div
@@ -72,7 +72,7 @@ export function AskZioCTA({ className }: { className?: string }) {
               isHovered && "spin-clockwise",
             )}
           >
-            <ZioLogo size="md" />
+            <ZioLogo size="sm" />
           </div>
           <span className="font-semibold text-white text-xs">Ask zio</span>
         </button>
