@@ -192,14 +192,6 @@ export function ZioPanel({
       >
         <div className="flex items-center gap-2.5">
           <ZioLogo size={isFullscreen ? "md" : "sm"} />
-          <h2
-            className={cn(
-              "font-bold tracking-tight text-slate-900",
-              isFullscreen ? "text-base" : "text-sm",
-            )}
-          >
-            Ask Zio
-          </h2>
         </div>
 
         {/* Right controls: Trash (if messages) + Layout Switcher Dropdown + Close */}
