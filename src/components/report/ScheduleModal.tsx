@@ -7,15 +7,20 @@ import {
   ChevronDown,
   ChevronRight,
   Clock,
+  Copy,
   Download,
   FileSpreadsheet,
   FileText,
+  Fuel,
   GripVertical,
   HelpCircle,
   Italic,
   Layers,
   List,
   Mail,
+  Map,
+  MoreVertical,
+  Pencil,
   Plus,
   RotateCcw,
   Search,
@@ -206,11 +211,11 @@ const INITIAL_SCHEDULES: ScheduleItem[] = [
     id: "sched-1",
     name: "Weekly Travel Summary",
     status: "ACTIVE",
-    nextRun: "21/08/2026 03:00 PM",
+    nextRun: "21 Aug 2026, 03:00 PM",
     relativeType: "This Week",
     timezone: "Asia/Kolkata (UTC+05:30)",
     scheduleType: "Weekly",
-    selectedDays: ["Mo", "Fr"],
+    selectedDays: ["Mo"],
     hasTimeRange: true,
     timeRangeStart: "12:00 AM",
     timeRangeEnd: "11:59 PM",
@@ -229,7 +234,7 @@ const INITIAL_SCHEDULES: ScheduleItem[] = [
     id: "sched-2",
     name: "Daily Fuel & Distance Audit",
     status: "ACTIVE",
-    nextRun: "03/09/2026 06:00 AM",
+    nextRun: "03 Sep 2026, 06:00 AM",
     relativeType: "Yesterday",
     timezone: "Asia/Kolkata (UTC+05:30)",
     scheduleType: "Daily",
@@ -245,6 +250,27 @@ const INITIAL_SCHEDULES: ScheduleItem[] = [
     subject: "Daily Fuel & Distance Audit",
     message: "Attached is the automated daily audit log.",
     selectedVehicles: ["KA01AB9988", "MH03DE4242"],
+  },
+  {
+    id: "sched-3",
+    name: "Vehicle Idle Report",
+    status: "ACTIVE",
+    nextRun: "22 Aug 2026, 11:00 PM",
+    relativeType: "Yesterday",
+    timezone: "Asia/Kolkata (UTC+05:30)",
+    scheduleType: "Daily",
+    hasTimeRange: true,
+    timeRangeStart: "00:00",
+    timeRangeEnd: "23:59",
+    generationTime: "23:00",
+    reportType: "Detail",
+    format: "PDF",
+    actionType: "Email",
+    toAddress: "ops@company.com",
+    emailRetryWindow: "15",
+    subject: "Vehicle Idle Report",
+    message: "Attached is the latest vehicle idle activity report.",
+    selectedVehicles: ["KA01AB9988", "MH12AB1234"],
   },
 ];
 
@@ -627,6 +653,127 @@ function VehicleMultiSelectDropdown({
   );
 }
 
+function formatRecurrence(item: ScheduleItem): string {
+  if (item.scheduleType === "Weekly") {
+    const dayMap: Record<string, string> = {
+      Mo: "Mon",
+      Tu: "Tue",
+      We: "Wed",
+      Th: "Thu",
+      Fr: "Fri",
+      Sa: "Sat",
+      Su: "Sun",
+    };
+    const days = (item.selectedDays || []).map((d) => dayMap[d] || d);
+    return `Every week (${days.length > 0 ? days.join(", ") : "Mon"})`;
+  }
+  if (item.scheduleType === "Monthly") {
+    const dates = item.selectedDates || [1];
+    return `Every month (${dates.join(", ")})`;
+  }
+  return "Every day";
+}
+
+function getScheduleIconScheme(item: ScheduleItem) {
+  const nameLower = (item.name || "").toLowerCase();
+  if (
+    nameLower.includes("fuel") ||
+    nameLower.includes("distance") ||
+    nameLower.includes("audit")
+  ) {
+    return {
+      badgeBg: "bg-emerald-500/10",
+      borderColor: "border-emerald-500/20",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
+      icon: <Fuel className="h-5 w-5" />,
+    };
+  }
+  if (
+    nameLower.includes("idle") ||
+    nameLower.includes("location") ||
+    nameLower.includes("map") ||
+    nameLower.includes("route")
+  ) {
+    return {
+      badgeBg: "bg-purple-500/10",
+      borderColor: "border-purple-500/20",
+      iconColor: "text-purple-600 dark:text-purple-400",
+      icon: <Map className="h-5 w-5" />,
+    };
+  }
+  return {
+    badgeBg: "bg-blue-500/10",
+    borderColor: "border-blue-500/20",
+    iconColor: "text-[#0089FF]",
+    icon: <FileText className="h-5 w-5" />,
+  };
+}
+
+function ScheduleItemActionsMenu({
+  onDuplicate,
+  onDelete,
+}: {
+  onDuplicate: () => void;
+  onDelete: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={cn(
+          "h-8.5 w-8.5 rounded-xl border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-95",
+          open && "border-[#0089FF] bg-muted/60 text-foreground",
+        )}
+        aria-label="More actions"
+      >
+        <MoreVertical className="h-4 w-4" />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1.5 w-36 rounded-xl border border-border/80 bg-popover/98 backdrop-blur-xl p-1.5 shadow-xl z-50 animate-in fade-in-80 zoom-in-95 text-xs select-none">
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              onDuplicate();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-foreground hover:bg-muted cursor-pointer transition-colors font-medium"
+          >
+            <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+            <span>Duplicate</span>
+          </button>
+          <div className="my-1 h-px bg-border/60" />
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              onDelete();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-destructive hover:bg-destructive/10 cursor-pointer transition-colors font-medium"
+          >
+            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+            <span>Delete</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ScheduleModal({
   open,
   onClose,
@@ -635,12 +782,36 @@ export function ScheduleModal({
   onClose: () => void;
 }) {
   const [schedules, setSchedules] = useState<ScheduleItem[]>(INITIAL_SCHEDULES);
+  const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<"list" | "form">("list");
   const [step, setStep] = useState<1 | 2>(1);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Omit<ScheduleItem, "id">>(DEFAULT_DRAFT);
   const [copyFrom, setCopyFrom] = useState<string>("None");
   const [errors, setErrors] = useState<{ name?: string; toAddress?: string }>({});
+
+  const filteredSchedules = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return schedules;
+    return schedules.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.actionType.toLowerCase().includes(q) ||
+        s.format.toLowerCase().includes(q) ||
+        (s.toAddress && s.toAddress.toLowerCase().includes(q)) ||
+        s.relativeType.toLowerCase().includes(q),
+    );
+  }, [schedules, searchQuery]);
+
+  const handleDuplicate = (item: ScheduleItem) => {
+    const duplicated: ScheduleItem = {
+      ...item,
+      id: `sched-${Date.now()}`,
+      name: `${item.name} (Copy)`,
+    };
+    setSchedules((prev) => [...prev, duplicated]);
+    toast.success(`Duplicated "${item.name}"`);
+  };
 
   // Advance Configuration Sub-Modal State
   const [advanceModalOpen, setAdvanceModalOpen] = useState(false);
@@ -874,12 +1045,14 @@ export function ScheduleModal({
           if (e.target === e.currentTarget) onClose();
         }}
       >
-        {/* Main Modal Window - Fixed Width to Avoid Unnecessary Blank Spaces on Sides */}
+        {/* Main Modal Window - Responsive Sizing matching reference */}
         <div
           className={cn(
             "relative flex flex-col bg-background border border-border/80 text-foreground shadow-2xl rounded-2xl overflow-hidden transition-all duration-300 ease-out",
             view === "list"
-              ? "w-full max-w-xl max-h-[85vh]"
+              ? schedules.length === 0
+                ? "w-full max-w-lg"
+                : "w-[94vw] max-w-2xl max-h-[85vh]"
               : "w-[94vw] max-w-3xl h-[88vh] max-h-[860px]",
           )}
         >
@@ -964,70 +1137,212 @@ export function ScheduleModal({
           {/* Modal Body Content Area */}
           <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
             {view === "list" ? (
-              /* VIEW 1: Scheduled Reports List */
-              <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                <button
-                  type="button"
-                  onClick={startCreate}
-                  className="w-full rounded-xl border-2 border-dashed border-[#0089FF]/30 bg-[#0089FF]/5 py-4 px-5 text-center text-xs font-bold text-[#0089FF] transition-all hover:bg-[#0089FF]/10 hover:border-[#0089FF] cursor-pointer flex items-center justify-center gap-2 shadow-2xs active:scale-98"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Create New Schedule</span>
-                </button>
+              schedules.length === 0 ? (
+                /* VIEW 1A: Empty State View matching reference */
+                <div className="flex flex-col items-center justify-center py-12 px-8 text-center animate-in fade-in-50 duration-200 select-none">
+                  {/* Clean Graphic/Illustration with soft accents */}
+                  <div className="relative mb-5 flex items-center justify-center">
+                    <div className="absolute -inset-4 rounded-full bg-[#0089FF]/10 blur-xl pointer-events-none" />
+                    <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-blue-500/[0.07] border border-blue-500/20 shadow-xs text-[#0089FF]">
+                      {/* Soft burst dashes */}
+                      <span className="absolute -top-1 -right-1 h-1.5 w-1.5 rounded-full bg-[#0089FF]/60" />
+                      <span className="absolute -left-2 top-7 h-1 w-2.5 rounded-full bg-[#0089FF]/40 -rotate-12" />
+                      <span className="absolute -right-2 top-11 h-1 w-2.5 rounded-full bg-[#0089FF]/40 rotate-12" />
 
-                <div className="space-y-3">
-                  {schedules.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-xl border border-border/80 bg-card p-4.5 shadow-2xs transition-all hover:shadow-md hover:border-[#0089FF]/40"
+                      <svg
+                        className="h-12 w-12"
+                        viewBox="0 0 48 48"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M13 7C13 5.89543 13.8954 5 15 5H27L35 13V41C35 42.1046 34.1046 43 33 43H15C13.8954 43 13 42.1046 13 41V7Z"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M27 5V13H35"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <rect
+                          x="19"
+                          y="23"
+                          width="3"
+                          height="10"
+                          rx="1"
+                          fill="currentColor"
+                        />
+                        <rect
+                          x="24.5"
+                          y="18"
+                          width="3"
+                          height="15"
+                          rx="1"
+                          fill="currentColor"
+                        />
+                        <rect
+                          x="30"
+                          y="26"
+                          width="3"
+                          height="7"
+                          rx="1"
+                          fill="currentColor"
+                        />
+                        <line
+                          x1="18"
+                          y1="37"
+                          x2="26"
+                          y2="37"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <h3 className="text-base font-bold text-foreground tracking-tight">
+                    No scheduled reports yet
+                  </h3>
+
+                  <p className="mt-2 text-xs text-muted-foreground max-w-xs leading-relaxed">
+                    Create a schedule to receive reports automatically at your preferred time and frequency.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={startCreate}
+                    className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0089FF] px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-blue-500/20 hover:bg-[#0077e6] hover:shadow-lg hover:shadow-blue-500/25 active:scale-98 cursor-pointer transition-all"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Create New Schedule</span>
+                  </button>
+                </div>
+              ) : (
+                /* VIEW 1B: Scheduled Reports List View matching reference */
+                <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                  {/* Top Action Toolbar */}
+                  <div className="flex items-center justify-between gap-3 p-5 pb-3 shrink-0">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search scheduled reports..."
+                        className="h-10 w-full rounded-xl border border-input bg-background pl-10 pr-9 text-xs text-foreground placeholder:text-muted-foreground/70 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-md cursor-pointer"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={startCreate}
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#0089FF] px-4.5 h-10 text-xs font-semibold text-white shadow-xs hover:bg-[#0077e6] active:scale-98 cursor-pointer transition-all shrink-0"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-sm font-bold text-foreground">
-                            {item.name}
-                          </h3>
-                          <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
-                            <Clock className="h-3.5 w-3.5 opacity-70" />
-                            <span>Next: {item.nextRun}</span>
-                            <span>•</span>
-                            <span className="font-semibold text-foreground">
-                              {item.relativeType}
-                            </span>
+                      <Plus className="h-4 w-4" />
+                      <span>Create New Schedule</span>
+                    </button>
+                  </div>
+
+                  {/* Cards List */}
+                  <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-5 space-y-3 custom-scrollbar">
+                    {filteredSchedules.map((item) => {
+                      const iconScheme = getScheduleIconScheme(item);
+                      const recurrenceText = formatRecurrence(item);
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between gap-4 shadow-2xs transition-all hover:border-[#0089FF]/40 hover:shadow-xs group"
+                        >
+                          {/* Left section: Icon badge + Details */}
+                          <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                            <div
+                              className={cn(
+                                "h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-105",
+                                iconScheme.badgeBg,
+                                iconScheme.borderColor,
+                                iconScheme.iconColor,
+                              )}
+                            >
+                              {iconScheme.icon}
+                            </div>
+
+                            <div className="min-w-0 flex-1 space-y-1">
+                              <h3 className="text-sm font-bold text-foreground truncate">
+                                {item.name}
+                              </h3>
+
+                              {/* Row 1: Next run + Recurrence */}
+                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                                <span className="inline-flex items-center gap-1.5 font-medium">
+                                  <Calendar className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                                  <span>Next run: {item.nextRun}</span>
+                                </span>
+                                <span className="text-muted-foreground/40">•</span>
+                                <span className="inline-flex items-center gap-1.5 font-medium">
+                                  <RotateCcw className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                                  <span>{recurrenceText}</span>
+                                </span>
+                              </div>
+
+                              {/* Row 2: Delivery + Format */}
+                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                                <span className="inline-flex items-center gap-1.5 font-medium">
+                                  <Mail className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                                  <span>{item.actionType}</span>
+                                </span>
+                                <span className="text-muted-foreground/40">•</span>
+                                <span className="inline-flex items-center gap-1.5 font-medium">
+                                  <FileSpreadsheet className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                                  <span>{item.format}</span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right section: Actions (NO status toggle/dropdown) */}
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => startEdit(item)}
+                              className="inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-98"
+                            >
+                              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span>Edit</span>
+                            </button>
+
+                            <ScheduleItemActionsMenu
+                              onDuplicate={() => handleDuplicate(item)}
+                              onDelete={() => handleDelete(item.id)}
+                            />
                           </div>
                         </div>
-                        <span className="rounded-md bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                          {item.status}
-                        </span>
-                      </div>
+                      );
+                    })}
 
-                      <div className="mt-4 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">
-                          Delivery:{" "}
-                          <strong className="font-semibold text-foreground">
-                            {item.actionType}
-                          </strong>{" "}
-                          ({item.format})
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => startEdit(item)}
-                            className="text-xs font-semibold text-[#0089FF] hover:underline cursor-pointer"
-                          >
-                            Edit settings
-                          </button>
-                        </div>
+                    {filteredSchedules.length === 0 && schedules.length > 0 && (
+                      <div className="py-12 text-center text-xs text-muted-foreground">
+                        No scheduled reports found matching &quot;{searchQuery}&quot;.
                       </div>
-                    </div>
-                  ))}
-
-                  {schedules.length === 0 && (
-                    <div className="py-12 text-center text-xs text-muted-foreground">
-                      No scheduled reports configured. Click above to create one.
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
+              )
             ) : step === 1 ? (
               /* VIEW 2 - STEP 1: Redesigned Unified Form with Expandable Vehicle Dropdown */
               <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-6 custom-scrollbar w-full select-none">
