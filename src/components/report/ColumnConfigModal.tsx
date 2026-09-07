@@ -558,31 +558,6 @@ export function ColumnConfigModal({
     );
   }, [currentColumns, searchQuery]);
 
-  const selectableColumns = currentColumns.filter((c) => !c.isGroupHeader);
-  const allShowable =
-    selectableColumns.length > 0 && selectableColumns.every((c) => c.showable);
-  const someShowable =
-    selectableColumns.some((c) => c.showable) && !allShowable;
-
-  const allPrintable =
-    selectableColumns.length > 0 && selectableColumns.every((c) => c.printable);
-  const somePrintable =
-    selectableColumns.some((c) => c.printable) && !allPrintable;
-
-  const toggleAllShowable = () => {
-    const target = !allShowable;
-    setCurrentColumns((prev) =>
-      prev.map((c) => (c.isGroupHeader ? c : { ...c, showable: target })),
-    );
-  };
-
-  const toggleAllPrintable = () => {
-    const target = !allPrintable;
-    setCurrentColumns((prev) =>
-      prev.map((c) => (c.isGroupHeader ? c : { ...c, printable: target })),
-    );
-  };
-
   const updateColumn = (id: string, patch: Partial<ColumnConfigItem>) => {
     setCurrentColumns((prev) =>
       prev.map((c) => (c.id === id ? { ...c, ...patch } : c)),
@@ -868,38 +843,12 @@ export function ColumnConfigModal({
                       Column
                     </th>
 
-                    <th className="w-28 px-2.5 py-2.5 text-center">
-                      <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={allShowable}
-                          ref={(el) => {
-                            if (el) el.indeterminate = someShowable;
-                          }}
-                          onChange={toggleAllShowable}
-                          className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#0089FF]"
-                        />
-                        <span className="font-semibold text-foreground">
-                          Showable
-                        </span>
-                      </label>
+                    <th className="w-28 px-2.5 py-2.5 text-center font-semibold text-foreground">
+                      Showable
                     </th>
 
-                    <th className="w-28 px-2.5 py-2.5 text-center">
-                      <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={allPrintable}
-                          ref={(el) => {
-                            if (el) el.indeterminate = somePrintable;
-                          }}
-                          onChange={toggleAllPrintable}
-                          className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#0089FF]"
-                        />
-                        <span className="font-semibold text-foreground">
-                          Printable
-                        </span>
-                      </label>
+                    <th className="w-28 px-2.5 py-2.5 text-center font-semibold text-foreground">
+                      Printable
                     </th>
 
                     <th className="w-24 px-2.5 py-2.5 text-center font-semibold text-foreground">
@@ -990,12 +939,15 @@ export function ColumnConfigModal({
                             setDragOverIndex(null);
                           }}
                           className={cn(
-                            "group transition-colors duration-75 hover:bg-muted/40",
+                            "group transition-colors duration-75",
                             isDragging && "opacity-30 bg-brand/10",
                             isDragOver &&
-                              "border-t-2 border-[#0089FF] bg-blue-50/5",
-                            isFrozen && "bg-blue-50/30 dark:bg-blue-950/15",
-                            col.group && "bg-background/40",
+                              "border-t-2 border-[#155dfc] bg-[#155dfc]/5",
+                            isFrozen
+                              ? "bg-[#155dfc]/[0.06] hover:bg-[#155dfc]/[0.10] border-l-2 border-l-[#155dfc]"
+                              : "hover:bg-muted/40",
+                            col.group &&
+                              (isFrozen ? "bg-[#155dfc]/[0.04]" : "bg-background/40"),
                           )}
                         >
                           <td className="px-3 py-2 text-center">
@@ -1030,7 +982,7 @@ export function ColumnConfigModal({
                               {isFrozen && (
                                 <span
                                   title="Column is frozen on table"
-                                  className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+                                  className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold bg-[#155dfc]/10 text-[#155dfc] border border-[#155dfc]/25 dark:bg-[#155dfc]/20 dark:text-blue-300"
                                 >
                                   <Snowflake className="h-2.5 w-2.5" />
                                   <span>Frozen</span>
@@ -1049,7 +1001,7 @@ export function ColumnConfigModal({
                                 })
                               }
                               aria-label={`Toggle showable for ${col.label}`}
-                              className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#0089FF]"
+                              className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#155dfc]"
                             />
                           </td>
 
@@ -1063,7 +1015,7 @@ export function ColumnConfigModal({
                                 })
                               }
                               aria-label={`Toggle printable for ${col.label}`}
-                              className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#0089FF]"
+                              className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#155dfc]"
                             />
                           </td>
 
@@ -1081,7 +1033,7 @@ export function ColumnConfigModal({
                                 });
                               }}
                               aria-label={`Toggle sortable for ${col.label}`}
-                              className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#0089FF]"
+                              className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#155dfc]"
                             />
                           </td>
 
@@ -1097,7 +1049,7 @@ export function ColumnConfigModal({
                                   <button
                                     type="button"
                                     aria-label={`Sort priority for ${col.label}`}
-                                    className="h-6.5 rounded-md border border-input/80 bg-background px-2 text-[11px] font-semibold text-foreground hover:border-[#0089FF]/60 hover:bg-muted/40 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none cursor-pointer shadow-2xs inline-flex items-center gap-1 select-none transition-all active:scale-98"
+                                    className="h-6.5 rounded-md border border-input/80 bg-background px-2 text-[11px] font-semibold text-foreground hover:border-[#155dfc]/60 hover:bg-muted/40 focus:border-[#155dfc] focus:ring-2 focus:ring-[#155dfc]/20 focus:outline-none cursor-pointer shadow-2xs inline-flex items-center gap-1 select-none transition-all active:scale-98"
                                   >
                                     <span>{col.sortPriority ?? "--"}</span>
                                     <ChevronDown className="h-2.5 w-2.5 text-muted-foreground opacity-70" />
@@ -1123,13 +1075,13 @@ export function ColumnConfigModal({
                                         className={cn(
                                           "flex w-full items-center justify-between px-2 py-1 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
                                           isSelected
-                                            ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
+                                            ? "bg-[#155dfc]/10 text-[#155dfc] font-bold hover:bg-[#155dfc]/15"
                                             : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
                                         )}
                                       >
                                         <span>{pVal ?? "--"}</span>
                                         {isSelected && (
-                                          <Check className="h-3 w-3 text-[#0089FF]" />
+                                          <Check className="h-3 w-3 text-[#155dfc]" />
                                         )}
                                       </button>
                                     );
@@ -1150,7 +1102,7 @@ export function ColumnConfigModal({
                                 className={cn(
                                   "px-2 py-1 text-[10px] font-bold transition-all cursor-pointer",
                                   col.sortable && col.sortDir === "asc"
-                                    ? "bg-[#0089FF] text-white shadow-2xs"
+                                    ? "bg-[#155dfc] text-white shadow-2xs"
                                     : "bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground",
                                   !col.sortable &&
                                     "opacity-30 cursor-not-allowed",
@@ -1167,7 +1119,7 @@ export function ColumnConfigModal({
                                 className={cn(
                                   "px-2 py-1 text-[10px] font-bold transition-all border-l border-input cursor-pointer",
                                   col.sortable && col.sortDir === "desc"
-                                    ? "bg-[#0089FF] text-white shadow-2xs"
+                                    ? "bg-[#155dfc] text-white shadow-2xs"
                                     : "bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground",
                                   !col.sortable &&
                                     "opacity-30 cursor-not-allowed",
@@ -1180,18 +1132,19 @@ export function ColumnConfigModal({
                         </tr>
 
                         {showFreezeDividerAfter && (
-                          <tr className="bg-blue-50/80 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 select-none border-y border-blue-200 dark:border-blue-800">
+                          <tr className="bg-[#155dfc]/[0.08] dark:bg-[#155dfc]/20 text-[#155dfc] dark:text-blue-300 select-none border-y border-[#155dfc]/25">
                             <td
                               colSpan={7}
                               className="px-4 py-1.5 text-center text-[11px] font-medium tracking-wide"
                             >
                               <div className="flex items-center justify-center gap-3">
-                                <span className="h-px flex-1 bg-blue-300 dark:bg-blue-700" />
-                                <span className="flex items-center gap-1.5 font-bold">
+                                <span className="h-px flex-1 bg-[#155dfc]/30 dark:bg-[#155dfc]/50" />
+                                <span className="flex items-center gap-1.5 font-bold text-[#155dfc] dark:text-blue-300">
+                                  <Snowflake className="h-3 w-3" />
                                   Above {currentFrozenCount} column
                                   {currentFrozenCount > 1 ? "s" : ""} are frozen
                                 </span>
-                                <span className="h-px flex-1 bg-blue-300 dark:bg-blue-700" />
+                                <span className="h-px flex-1 bg-[#155dfc]/30 dark:bg-[#155dfc]/50" />
                               </div>
                             </td>
                           </tr>
