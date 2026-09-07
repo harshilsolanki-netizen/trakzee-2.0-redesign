@@ -623,9 +623,8 @@ export function ColumnConfigModal({
         onClick={onClose}
         className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity cursor-pointer"
       />
-
-      <div className="relative z-10 flex h-[620px] max-h-[92vh] w-[960px] max-w-[96vw] flex-col rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
+      <div className="relative z-10 flex h-[580px] max-h-[88vh] w-[780px] max-w-[92vw] flex-col rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
           <h2 className="text-sm font-bold tracking-tight text-foreground">
             Settings
           </h2>
@@ -641,8 +640,8 @@ export function ColumnConfigModal({
         </header>
 
         {/* Dedicated Tab Bar for Summary, Detail and Preference + Frozen Columns on the Right */}
-        <div className="border-b border-border/80 bg-muted/10 px-6 flex items-center justify-between gap-4 text-xs select-none shrink-0 h-12">
-          <div className="flex items-center gap-8 h-full">
+        <div className="border-b border-border/80 bg-muted/10 px-5 flex items-center justify-between gap-4 text-xs select-none shrink-0 h-11">
+          <div className="flex items-center gap-6 h-full">
             <button
               type="button"
               onClick={() => {
@@ -774,7 +773,7 @@ export function ColumnConfigModal({
                 <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
                   Download Layout
                 </label>
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <label
                     onClick={() => setDetailDownloadMode("multiple")}
                     className={cn(
@@ -793,10 +792,10 @@ export function ColumnConfigModal({
                     />
                     <div className="flex flex-col">
                       <span className="text-xs font-semibold text-foreground">
-                        Multiple Sheets
+                        Multiple Sheets (By Branch)
                       </span>
                       <span className="text-[11px] text-muted-foreground font-normal">
-                        Separate worksheet per sheet in Excel
+                        Each branch in a separate Excel worksheet
                       </span>
                     </div>
                   </label>
@@ -834,32 +833,32 @@ export function ColumnConfigModal({
           <div className="flex-1 min-h-0 flex flex-col bg-surface overflow-hidden">
             <div className="flex-1 min-h-0 overflow-y-auto select-none">
               <table className="w-full border-collapse text-left text-xs">
-                <thead className="sticky top-0 z-20 bg-surface-muted border-b border-border shadow-xs">
+                <thead className="sticky top-0 z-20 bg-[#111c38] text-white border-b border-[#1b2a4e] shadow-sm select-none">
                   <tr>
-                    <th className="w-11 px-3 py-2.5 text-center text-muted-foreground">
+                    <th className="w-10 px-2 py-2.5 text-center text-slate-400 font-semibold text-[11px]">
                       #
                     </th>
-                    <th className="px-4 py-2.5 min-w-[200px] font-semibold text-foreground">
+                    <th className="px-3.5 py-2.5 font-semibold text-slate-100 text-xs">
                       Column
                     </th>
 
-                    <th className="w-28 px-2.5 py-2.5 text-center font-semibold text-foreground">
+                    <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
                       Showable
                     </th>
 
-                    <th className="w-28 px-2.5 py-2.5 text-center font-semibold text-foreground">
+                    <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
                       Printable
                     </th>
 
-                    <th className="w-24 px-2.5 py-2.5 text-center font-semibold text-foreground">
+                    <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
                       Sortable
                     </th>
 
-                    <th className="w-28 px-2.5 py-2.5 text-center font-semibold text-foreground">
+                    <th className="w-24 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
                       Sort Priority
                     </th>
 
-                    <th className="w-28 px-2.5 py-2.5 text-center font-semibold text-foreground">
+                    <th className="w-24 px-2 py-2.5 text-center font-semibold text-slate-100 text-xs">
                       Sorting
                     </th>
                   </tr>
