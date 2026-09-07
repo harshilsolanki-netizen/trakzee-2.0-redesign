@@ -442,56 +442,59 @@ export function ZioPanel({
           isFullscreen && "px-6 py-3",
         )}
       >
-        {/* Left header controls: History Toggle + New Chat */}
-        <div className="flex items-center gap-1.5">
-          {isHistoryOpen ? (
-            <button
-              type="button"
-              onClick={() => setIsHistoryOpen(false)}
-              className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-violet-100 hover:text-slate-950 cursor-pointer"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Back to Chat</span>
-            </button>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={toggleHistory}
-                title="View Chat History"
-                aria-label="View Chat History"
-                className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-medium text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer"
-              >
-                <History className="h-3.5 w-3.5 text-slate-700" />
-                <span className="hidden sm:inline">History</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={createNewChat}
-                title="Start New Chat"
-                aria-label="Start New Chat"
-                className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-medium text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer"
-              >
-                <Plus className="h-3.5 w-3.5 text-slate-700" />
-                <span className="hidden sm:inline">New Chat</span>
-              </button>
-            </>
+        {/* Left header area: Show Title when in History view, clean empty space when in Chat view */}
+        <div className="flex items-center gap-2 min-w-0">
+          {isHistoryOpen && (
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
+              <History className="h-3.5 w-3.5 text-violet-600 shrink-0" />
+              <span>Chat History</span>
+            </div>
           )}
         </div>
 
-        {/* Right controls: Trash (if messages) + Layout Switcher Dropdown + Close */}
-        <div className="flex items-center gap-1.5">
+        {/* Right header controls: All action buttons consistently formatted */}
+        <div className="flex items-center gap-1">
+          {/* New Chat Icon Button */}
+          <button
+            type="button"
+            onClick={createNewChat}
+            title="New chat"
+            aria-label="New chat"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer"
+          >
+            <Plus className="h-4 w-4 text-slate-700" />
+          </button>
+
+          {/* History Toggle Icon Button */}
+          <button
+            type="button"
+            onClick={toggleHistory}
+            title={isHistoryOpen ? "Back to chat" : "Chat history"}
+            aria-label="Chat history"
+            className={cn(
+              "inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer",
+              isHistoryOpen &&
+                "bg-violet-100 text-violet-900 ring-1 ring-violet-200",
+            )}
+          >
+            <History className="h-4 w-4 text-slate-700" />
+          </button>
+
+          {/* Clear Active Chat */}
           {!isHistoryOpen && messages.length > 0 && (
             <button
               type="button"
               onClick={clearMessages}
               title="Clear chat messages"
-              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-violet-50 hover:text-foreground cursor-pointer"
+              aria-label="Clear chat messages"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 text-slate-700" />
             </button>
           )}
+
+          {/* Subtle separator */}
+          <div className="h-3.5 w-px bg-violet-200/70 mx-0.5" />
 
           {/* Mode Switcher Dropdown */}
           <DropdownMenu>
