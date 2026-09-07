@@ -183,17 +183,13 @@ export function ZioPanel({
         />
       )}
 
-      {/* Header: Exact label "Ask Zio", NO extra information */}
+      {/* Header */}
       <header
         className={cn(
-          "flex items-center justify-between border-b border-violet-100/70 bg-white/80 px-5 py-3.5 backdrop-blur-xs transition-all duration-300 ease-out shrink-0 select-none z-10",
+          "flex items-center justify-end border-b border-violet-100/70 bg-white/80 px-5 py-3 backdrop-blur-xs transition-all duration-300 ease-out shrink-0 select-none z-10",
           isFullscreen && "px-6 py-3.5",
         )}
       >
-        <div className="flex items-center gap-2.5">
-          <ZioLogo size={isFullscreen ? "md" : "sm"} />
-        </div>
-
         {/* Right controls: Trash (if messages) + Layout Switcher Dropdown + Close */}
         <div className="flex items-center gap-1.5">
           {messages.length > 0 && (
