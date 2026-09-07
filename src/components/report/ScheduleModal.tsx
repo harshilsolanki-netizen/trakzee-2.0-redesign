@@ -489,7 +489,11 @@ function VehicleMultiSelectDropdown({
         <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
           {selectedVehicles.length === 0 ? (
             <span className="text-muted-foreground font-normal">
-              Search vehicles...
+              Select vehicles...
+            </span>
+          ) : isAllSelected ? (
+            <span className="font-semibold text-foreground">
+              All Vehicles Selected ({allVisibleVehicleIds.length})
             </span>
           ) : (
             <>
@@ -1344,150 +1348,140 @@ export function ScheduleModal({
                 </div>
               )
             ) : step === 1 ? (
-              /* VIEW 2 - STEP 1: Redesigned Unified Form with Expandable Vehicle Dropdown */
+              /* VIEW 2 - STEP 1: Unified Form with 3-in-a-row layout and clean filters */
               <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-6 custom-scrollbar w-full select-none">
-                {/* Section 1: Vehicle & Branch Selection */}
-                <div className="space-y-4">
-                  <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    Vehicle & Organization Selection
-                  </h3>
+                {/* 3-in-a-row Filter Selectors */}
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Company */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
+                      Company
+                    </label>
+                    <SelectDropdown
+                      value={criteriaCompany}
+                      options={COMPANIES}
+                      onChange={setCriteriaCompany}
+                    />
+                  </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Company */}
-                    <div className="space-y-1.5">
+                  {/* Branch */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
+                      Branch
+                    </label>
+                    <SelectDropdown
+                      value={criteriaBranch}
+                      options={[
+                        "All",
+                        ...getBranchesForCompanies(
+                          criteriaCompany === "All"
+                            ? ["ABC Logistic"]
+                            : [criteriaCompany],
+                        ),
+                      ]}
+                      onChange={setCriteriaBranch}
+                    />
+                  </div>
+
+                  {/* Vehicle Group */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
+                      Vehicle Group
+                    </label>
+                    <SelectDropdown
+                      value={criteriaGroup}
+                      options={[
+                        "All",
+                        "HP Group",
+                        "Trucks",
+                        "Buses",
+                        "Cars",
+                        "Cold Chain",
+                      ]}
+                      onChange={setCriteriaGroup}
+                    />
+                  </div>
+
+                  {/* Vehicle Type */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
+                      Vehicle Type
+                    </label>
+                    <SelectDropdown
+                      value={criteriaType}
+                      options={[
+                        "All",
+                        "Dumper",
+                        "Truck",
+                        "Bus",
+                        "SUV",
+                        "Taxi",
+                      ]}
+                      onChange={setCriteriaType}
+                    />
+                  </div>
+
+                  {/* Vehicle Brand */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
+                      Vehicle Brand
+                    </label>
+                    <SelectDropdown
+                      value={criteriaBrand}
+                      options={[
+                        "All",
+                        "Ashok Leyland",
+                        "Tata Motors",
+                        "BharatBenz",
+                        "Volvo",
+                      ]}
+                      onChange={setCriteriaBrand}
+                    />
+                  </div>
+
+                  {/* Vehicle Model */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
+                      Vehicle Model
+                    </label>
+                    <SelectDropdown
+                      value={criteriaModel}
+                      options={[
+                        "All",
+                        "10 Wheel",
+                        "12 Wheel",
+                        "6 Wheel",
+                        "4 Wheel",
+                      ]}
+                      onChange={setCriteriaModel}
+                    />
+                  </div>
+
+                  {/* Select Vehicle: Full Width Tree Dropdown */}
+                  <div className="col-span-3 space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between">
                       <label className="block text-xs font-semibold text-foreground">
-                        Company
+                        Select Vehicle
                       </label>
-                      <SelectDropdown
-                        value={criteriaCompany}
-                        options={COMPANIES}
-                        onChange={setCriteriaCompany}
-                      />
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        {draft.selectedVehicles.length} of {allVisibleVehicleIds.length} Selected
+                      </span>
                     </div>
-
-                    {/* Branch */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Branch
-                      </label>
-                      <SelectDropdown
-                        value={criteriaBranch}
-                        options={[
-                          "All",
-                          ...getBranchesForCompanies(
-                            criteriaCompany === "All"
-                              ? ["ABC Logistic"]
-                              : [criteriaCompany],
-                          ),
-                        ]}
-                        onChange={setCriteriaBranch}
-                      />
-                    </div>
-
-                    {/* Vehicle Group */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Vehicle Group
-                      </label>
-                      <SelectDropdown
-                        value={criteriaGroup}
-                        options={[
-                          "All",
-                          "HP Group",
-                          "Trucks",
-                          "Buses",
-                          "Cars",
-                          "Cold Chain",
-                        ]}
-                        onChange={setCriteriaGroup}
-                      />
-                    </div>
-
-                    {/* Vehicle Type */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Vehicle Type
-                      </label>
-                      <SelectDropdown
-                        value={criteriaType}
-                        options={[
-                          "All",
-                          "Dumper",
-                          "Truck",
-                          "Bus",
-                          "SUV",
-                          "Taxi",
-                        ]}
-                        onChange={setCriteriaType}
-                      />
-                    </div>
-
-                    {/* Vehicle Brand */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Vehicle Brand
-                      </label>
-                      <SelectDropdown
-                        value={criteriaBrand}
-                        options={[
-                          "All",
-                          "Ashok Leyland",
-                          "Tata Motors",
-                          "BharatBenz",
-                          "Volvo",
-                        ]}
-                        onChange={setCriteriaBrand}
-                      />
-                    </div>
-
-                    {/* Vehicle Model */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Vehicle Model
-                      </label>
-                      <SelectDropdown
-                        value={criteriaModel}
-                        options={[
-                          "All",
-                          "10 Wheel",
-                          "12 Wheel",
-                          "6 Wheel",
-                          "4 Wheel",
-                        ]}
-                        onChange={setCriteriaModel}
-                      />
-                    </div>
-
-                    {/* Select Vehicle: Expandable / Collapsible Tree Dropdown matching reference */}
-                    <div className="col-span-2 space-y-1.5 pt-1">
-                      <div className="flex items-center justify-between">
-                        <label className="block text-xs font-semibold text-foreground">
-                          Select Vehicle
-                        </label>
-                        <span className="text-[11px] font-medium text-muted-foreground">
-                          {draft.selectedVehicles.length} of {allVisibleVehicleIds.length} Selected
-                        </span>
-                      </div>
-                      <VehicleMultiSelectDropdown
-                        selectedVehicles={draft.selectedVehicles}
-                        onToggleVehicle={toggleSingleVehicle}
-                        onToggleRegion={toggleRegionVehicles}
-                        regionGroups={regionGroups}
-                        allVisibleVehicleIds={allVisibleVehicleIds}
-                        isAllSelected={isAllVehiclesSelected}
-                        onToggleSelectAll={toggleSelectAllVehicles}
-                      />
-                    </div>
+                    <VehicleMultiSelectDropdown
+                      selectedVehicles={draft.selectedVehicles}
+                      onToggleVehicle={toggleSingleVehicle}
+                      onToggleRegion={toggleRegionVehicles}
+                      regionGroups={regionGroups}
+                      allVisibleVehicleIds={allVisibleVehicleIds}
+                      isAllSelected={isAllVehiclesSelected}
+                      onToggleSelectAll={toggleSelectAllVehicles}
+                    />
                   </div>
                 </div>
 
-                {/* Section 2: Duration & Distance Filters */}
-                <div className="pt-5 border-t border-border/60 space-y-4">
-                  <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    Duration & Distance Filters
-                  </h3>
-
-                  <div className="grid grid-cols-2 gap-4">
+                {/* Duration & Distance Filters - Clean 3-Column Layout */}
+                <div className="pt-4 border-t border-border/60">
+                  <div className="grid grid-cols-3 gap-4">
                     {/* Duration Status */}
                     <div className="space-y-1.5">
                       <label className="block text-xs font-semibold text-foreground">
@@ -1500,43 +1494,12 @@ export function ScheduleModal({
                       />
                     </div>
 
-                    {/* Duration Format */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Duration Format
-                      </label>
-                      <div className="flex items-center gap-6 h-9">
-                        <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
-                          <input
-                            type="radio"
-                            name="durationFormat"
-                            checked={criteriaDurationFormat === "hhmm"}
-                            onChange={() => setCriteriaDurationFormat("hhmm")}
-                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                          />
-                          <span>HH:MM</span>
-                        </label>
-                        <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
-                          <input
-                            type="radio"
-                            name="durationFormat"
-                            checked={criteriaDurationFormat === "decimal"}
-                            onChange={() =>
-                              setCriteriaDurationFormat("decimal")
-                            }
-                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                          />
-                          <span>Decimal</span>
-                        </label>
-                      </div>
-                    </div>
-
                     {/* Duration Filter */}
                     <div className="space-y-1.5">
                       <label className="block text-xs font-semibold text-foreground">
                         Duration Filter
                       </label>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-1.5">
                         <SelectDropdown
                           value={criteriaDurationCompare}
                           options={COMPARATORS}
@@ -1554,7 +1517,7 @@ export function ScheduleModal({
                             setCriteriaDurationValue(e.target.value)
                           }
                           placeholder="e.g. 5"
-                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                          className="h-9 w-full rounded-md border border-input bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                         />
                       </div>
                     </div>
@@ -1564,7 +1527,7 @@ export function ScheduleModal({
                       <label className="block text-xs font-semibold text-foreground">
                         Distance Filter
                       </label>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-1.5">
                         <SelectDropdown
                           value={criteriaDistanceCompare}
                           options={COMPARATORS}
@@ -1577,9 +1540,38 @@ export function ScheduleModal({
                             setCriteriaDistanceValue(e.target.value)
                           }
                           placeholder="e.g. 100"
-                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                          className="h-9 w-full rounded-md border border-input bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                         />
                       </div>
+                    </div>
+
+                    {/* Duration Format Radio */}
+                    <div className="col-span-3 flex items-center gap-6 pt-1">
+                      <span className="text-xs font-semibold text-foreground">
+                        Duration Format:
+                      </span>
+                      <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
+                        <input
+                          type="radio"
+                          name="durationFormat"
+                          checked={criteriaDurationFormat === "hhmm"}
+                          onChange={() => setCriteriaDurationFormat("hhmm")}
+                          className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                        />
+                        <span>HH:MM</span>
+                      </label>
+                      <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
+                        <input
+                          type="radio"
+                          name="durationFormat"
+                          checked={criteriaDurationFormat === "decimal"}
+                          onChange={() =>
+                            setCriteriaDurationFormat("decimal")
+                          }
+                          className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                        />
+                        <span>Decimal</span>
+                      </label>
                     </div>
                   </div>
                 </div>
