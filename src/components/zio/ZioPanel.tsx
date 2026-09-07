@@ -216,8 +216,8 @@ function ZioHistoryView({
         )}
       </div>
 
-      {/* Sessions list: Clean transparent list items without card backgrounds */}
-      <div className="flex-1 min-h-0 overflow-y-auto py-1 divide-y divide-slate-100 scrollbar-thin scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300">
+      {/* Sessions list: Clean single-line items with title on left and duration aligned on the right */}
+      <div className="flex-1 min-h-0 overflow-y-auto py-1 divide-y divide-slate-100/80 scrollbar-thin scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300">
         {filteredSessions.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-center p-4">
             <div className="h-9 w-9 rounded-md bg-violet-50 flex items-center justify-center text-violet-600 mb-2 border border-violet-100">
@@ -243,9 +243,6 @@ function ZioHistoryView({
         ) : (
           filteredSessions.map((session) => {
             const isActive = session.id === activeSessionId;
-            const lastMsg =
-              session.messages[session.messages.length - 1]?.content || "";
-            const cleanSnippet = lastMsg.replace(/[#*`_]/g, "").trim();
 
             return (
               <div
@@ -255,16 +252,17 @@ function ZioHistoryView({
                   setIsHistoryOpen(false);
                 }}
                 className={cn(
-                  "group relative flex items-start justify-between gap-3 px-2.5 py-2.5 rounded-md transition-colors cursor-pointer text-left select-none",
+                  "group relative flex items-center justify-between gap-3 px-2.5 py-2.5 rounded-md transition-colors cursor-pointer text-left select-none w-full",
                   isActive
-                    ? "bg-violet-50/90 text-violet-950"
+                    ? "bg-violet-50/90 text-violet-950 font-semibold"
                     : "bg-transparent hover:bg-slate-100/70 text-slate-800",
                 )}
               >
-                <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                {/* Left side: Icon + Title */}
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <div
                     className={cn(
-                      "h-6 w-6 rounded flex items-center justify-center shrink-0 mt-0.5",
+                      "h-5.5 w-5.5 rounded flex items-center justify-center shrink-0",
                       isActive
                         ? "bg-violet-600 text-white"
                         : "bg-slate-100 text-slate-500 group-hover:bg-violet-100 group-hover:text-violet-600 transition-colors",
@@ -273,58 +271,39 @@ function ZioHistoryView({
                     <MessageSquare className="h-3 w-3" />
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <h5
-                        className={cn(
-                          "text-xs truncate leading-snug font-sans",
-                          isActive
-                            ? "text-violet-950 font-semibold"
-                            : "text-slate-900 font-medium group-hover:text-violet-900",
-                        )}
-                      >
-                        {session.title}
-                      </h5>
-                      <span className="text-[10px] text-slate-400 font-normal shrink-0">
-                        {formatRelativeTime(
-                          session.updatedAt || session.createdAt,
-                        )}
-                      </span>
-                    </div>
-
-                    {cleanSnippet && (
-                      <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 leading-normal font-normal">
-                        {cleanSnippet}
-                      </p>
+                  <span
+                    className={cn(
+                      "text-xs truncate leading-snug font-sans",
+                      isActive
+                        ? "text-violet-950 font-semibold"
+                        : "text-slate-900 font-medium group-hover:text-violet-900",
                     )}
-
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] text-slate-400 font-normal">
-                        {session.messages.length}{" "}
-                        {session.messages.length === 1 ? "message" : "messages"}
-                      </span>
-                      {isActive && (
-                        <span className="text-[9.5px] font-semibold uppercase tracking-wider text-violet-700 bg-violet-100/90 px-1.5 py-0.2 rounded">
-                          Active
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  >
+                    {session.title}
+                  </span>
                 </div>
 
-                {/* Delete session button */}
-                <button
-                  type="button"
-                  title="Delete chat"
-                  aria-label="Delete chat"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteChatSession(session.id);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 p-1 rounded text-slate-400 hover:bg-red-50 hover:text-red-600 transition-opacity cursor-pointer shrink-0 mt-0.5"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                {/* Right side: Duration + Delete action on hover */}
+                <div className="flex items-center gap-2 shrink-0 text-right">
+                  <span className="text-[11px] text-slate-400 font-normal shrink-0 font-sans">
+                    {formatRelativeTime(
+                      session.updatedAt || session.createdAt,
+                    )}
+                  </span>
+
+                  <button
+                    type="button"
+                    title="Delete chat"
+                    aria-label="Delete chat"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteChatSession(session.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1 -mr-1 rounded text-slate-400 hover:bg-red-50 hover:text-red-600 transition-opacity cursor-pointer shrink-0"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
             );
           })
