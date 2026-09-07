@@ -18,7 +18,7 @@ import {
   Layers,
   List,
   Mail,
-  Map,
+  Map as MapIcon,
   MoreVertical,
   Pencil,
   Plus,
@@ -698,7 +698,7 @@ function getScheduleIconScheme(item: ScheduleItem) {
       badgeBg: "bg-purple-500/10",
       borderColor: "border-purple-500/20",
       iconColor: "text-purple-600 dark:text-purple-400",
-      icon: <Map className="h-5 w-5" />,
+      icon: <MapIcon className="h-5 w-5" />,
     };
   }
   return {
