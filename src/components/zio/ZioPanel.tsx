@@ -252,45 +252,37 @@ function ZioHistoryView({
                   setIsHistoryOpen(false);
                 }}
                 className={cn(
-                  "group relative flex items-center justify-between gap-3 px-2.5 py-2.5 rounded-md transition-colors cursor-pointer text-left select-none w-full",
+                  "group relative flex items-center justify-between gap-3 px-1.5 py-2.5 rounded-md transition-colors cursor-pointer text-left select-none w-full",
                   isActive
                     ? "bg-violet-50/90 text-violet-950 font-semibold"
                     : "bg-transparent hover:bg-slate-100/70 text-slate-800",
                 )}
               >
-                {/* Left side: Icon + Title */}
+                {/* Left side: Icon (no background, larger) + Title */}
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div
+                  <MessageSquare
                     className={cn(
-                      "h-5.5 w-5.5 rounded flex items-center justify-center shrink-0",
+                      "h-4 w-4 shrink-0 transition-colors",
                       isActive
-                        ? "bg-violet-600 text-white"
-                        : "bg-slate-100 text-slate-500 group-hover:bg-violet-100 group-hover:text-violet-600 transition-colors",
+                        ? "text-violet-600"
+                        : "text-slate-400 group-hover:text-slate-600",
                     )}
-                  >
-                    <MessageSquare className="h-3 w-3" />
-                  </div>
+                  />
 
                   <span
                     className={cn(
-                      "text-xs truncate leading-snug font-sans",
+                      "text-xs truncate leading-none font-sans",
                       isActive
                         ? "text-violet-950 font-semibold"
-                        : "text-slate-900 font-medium group-hover:text-violet-900",
+                        : "text-slate-800 font-medium group-hover:text-slate-950",
                     )}
                   >
                     {session.title}
                   </span>
                 </div>
 
-                {/* Right side: Duration + Delete action on hover */}
-                <div className="flex items-center gap-2 shrink-0 text-right">
-                  <span className="text-[11px] text-slate-400 font-normal shrink-0 font-sans">
-                    {formatRelativeTime(
-                      session.updatedAt || session.createdAt,
-                    )}
-                  </span>
-
+                {/* Right side: Delete action on hover + Duration directly aligned to right */}
+                <div className="flex items-center gap-1.5 shrink-0 text-right">
                   <button
                     type="button"
                     title="Delete chat"
@@ -299,10 +291,16 @@ function ZioHistoryView({
                       e.stopPropagation();
                       deleteChatSession(session.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 -mr-1 rounded text-slate-400 hover:bg-red-50 hover:text-red-600 transition-opacity cursor-pointer shrink-0"
+                    className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:bg-red-50 hover:text-red-600 transition-opacity cursor-pointer shrink-0"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
+
+                  <span className="text-[11px] text-slate-400 font-normal shrink-0 font-sans">
+                    {formatRelativeTime(
+                      session.updatedAt || session.createdAt,
+                    )}
+                  </span>
                 </div>
               </div>
             );
