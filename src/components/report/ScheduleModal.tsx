@@ -415,7 +415,7 @@ function SelectDropdown({
   );
 }
 
-// Expandable / Collapsible Multi-Select Vehicle Dropdown matching Reference
+// Expandable / Collapsible Multi-Select Vehicle Panel matching Reference Mockup
 function VehicleMultiSelectDropdown({
   selectedVehicles,
   onToggleVehicle,
@@ -433,32 +433,8 @@ function VehicleMultiSelectDropdown({
   isAllSelected: boolean;
   onToggleSelectAll: () => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [search, setSearch] = useState("");
-  const [collapsedRegions, setCollapsedRegions] = useState<string[]>([]);
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    if (open) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
-
-  const toggleCollapseRegion = (r: string) => {
-    setCollapsedRegions((prev) =>
-      prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r],
-    );
-  };
-
-  // Find first selected vehicle name for summary (e.g. "GJ21HS1609+200")
-  const firstSelectedObj = useMemo(() => {
-    if (selectedVehicles.length === 0) return null;
-    return fleetObjects.find((v) => v.id === selectedVehicles[0]);
-  }, [selectedVehicles]);
 
   const filteredGroups = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -477,180 +453,117 @@ function VehicleMultiSelectDropdown({
   }, [regionGroups, search]);
 
   return (
-    <div ref={ref} className="relative w-full">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className={cn(
-          "flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-xs text-foreground shadow-2xs transition-all hover:border-[#0089FF] hover:bg-muted/30 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none cursor-pointer select-none",
-          open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/30",
-        )}
-      >
-        <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-          {selectedVehicles.length === 0 ? (
-            <span className="text-muted-foreground font-normal">
-              Select vehicles...
-            </span>
-          ) : isAllSelected ? (
-            <span className="font-semibold text-foreground">
-              All Vehicles Selected ({allVisibleVehicleIds.length})
-            </span>
-          ) : (
-            <>
-              <span className="font-semibold text-foreground truncate">
-                {firstSelectedObj?.name || selectedVehicles[0]}
-              </span>
-              {selectedVehicles.length > 1 && (
-                <span className="rounded-md bg-[#0089FF]/10 px-1.5 py-0.5 text-[10px] font-bold text-[#0089FF] shrink-0">
-                  +{selectedVehicles.length - 1}
-                </span>
-              )}
-            </>
-          )}
-        </div>
-        <ChevronDown
-          className={cn(
-            "h-3.5 w-3.5 text-muted-foreground shrink-0 ml-1 transition-transform duration-200",
-            open && "rotate-180 text-[#0089FF]",
-          )}
+    <div className="rounded-lg border border-border/80 bg-background overflow-hidden shadow-2xs">
+      {/* Top Search & Toggle Bar matching mockup */}
+      <div className="flex h-9.5 items-center px-3 gap-2 bg-background border-b border-border/60 transition-colors">
+        <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search vehicles..."
+          className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/70 focus:outline-none font-medium"
         />
-      </button>
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
+          aria-label={isExpanded ? "Collapse vehicle list" : "Expand vehicle list"}
+        >
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 text-muted-foreground transition-transform duration-200",
+              isExpanded && "rotate-180",
+            )}
+          />
+        </button>
+      </div>
 
-      {open && (
-        <div className="absolute top-full left-0 right-0 z-[100] mt-1.5 max-h-72 overflow-hidden rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl shadow-xl animate-in fade-in-80 flex flex-col select-none">
-          {/* Internal Search Bar */}
-          <div className="p-2 border-b border-border/60 bg-muted/20 shrink-0">
-            <div className="flex h-8 items-center gap-2 rounded-md border border-input bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
-              <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search vehicles..."
-                className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none font-medium"
-                onClick={(e) => e.stopPropagation()}
-              />
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch("")}
-                  className="p-0.5 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              )}
-            </div>
-          </div>
+      {/* Expanded Tree List matching reference image */}
+      {isExpanded && (
+        <div className="max-h-52 overflow-y-auto p-3 space-y-3.5 custom-scrollbar bg-background">
+          {filteredGroups.map(({ region, vehicles }) => {
+            const groupIds = vehicles.map((v) => v.id);
+            const allChecked =
+              groupIds.length > 0 &&
+              groupIds.every((id) => selectedVehicles.includes(id));
+            const someChecked =
+              groupIds.some((id) => selectedVehicles.includes(id)) &&
+              !allChecked;
 
-          {/* Select All Checkbox */}
-          <div className="flex items-center justify-between border-b border-border/40 bg-muted/10 px-3 py-1.5 shrink-0">
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground">
-              <input
-                type="checkbox"
-                checked={isAllSelected}
-                onChange={onToggleSelectAll}
-                className="h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
-              />
-              <span>Select All Vehicles</span>
-            </label>
-            <span className="text-[11px] font-semibold text-muted-foreground tabular-nums">
-              {selectedVehicles.length} / {allVisibleVehicleIds.length}
-            </span>
-          </div>
+            return (
+              <div key={region} className="space-y-2">
+                {/* Region Group Header */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={allChecked}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someChecked;
+                    }}
+                    onChange={() => onToggleRegion(vehicles)}
+                    className="h-4 w-4 rounded border-border/80 text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
+                  />
+                  <span className="text-xs font-semibold text-foreground">
+                    {region}
+                  </span>
+                  <span className="text-xs text-muted-foreground font-normal">
+                    [{vehicles.length}]
+                  </span>
+                </div>
 
-          {/* Hierarchical Group Tree */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-1.5 space-y-1.5 custom-scrollbar max-h-56">
-            {filteredGroups.map(({ region, vehicles }) => {
-              const isCollapsed = collapsedRegions.includes(region) && !search;
-              const groupIds = vehicles.map((v) => v.id);
-              const allChecked =
-                groupIds.length > 0 &&
-                groupIds.every((id) => selectedVehicles.includes(id));
-              const someChecked =
-                groupIds.some((id) => selectedVehicles.includes(id)) &&
-                !allChecked;
-
-              return (
-                <div
-                  key={region}
-                  className="rounded-md border border-border/60 bg-card/40 overflow-hidden"
-                >
-                  <div className="flex items-center justify-between px-2.5 py-1.5 bg-muted/30 border-b border-border/30 text-xs">
-                    <label className="flex items-center gap-2 cursor-pointer font-semibold text-foreground">
-                      <input
-                        type="checkbox"
-                        checked={allChecked}
-                        ref={(el) => {
-                          if (el) el.indeterminate = someChecked;
-                        }}
-                        onChange={() => onToggleRegion(vehicles)}
-                        className="h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
-                      />
-                      <span>{region}</span>
-                      <span className="text-[11px] text-muted-foreground font-normal">
-                        [{vehicles.length}]
-                      </span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => toggleCollapseRegion(region)}
-                      className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs hover:bg-muted"
-                    >
-                      <ChevronDown
-                        className={cn(
-                          "h-3.5 w-3.5 transition-transform duration-200",
-                          isCollapsed && "-rotate-90",
-                        )}
-                      />
-                    </button>
-                  </div>
-
-                  {!isCollapsed && (
-                    <div className="p-1 space-y-0.5">
-                      {vehicles.map((v) => {
-                        const isChecked = selectedVehicles.includes(v.id);
-                        return (
-                          <label
-                            key={v.id}
+                {/* Indented Vehicles List */}
+                <div className="pl-6 space-y-2.5">
+                  {vehicles.map((v) => {
+                    const isChecked = selectedVehicles.includes(v.id);
+                    return (
+                      <label
+                        key={v.id}
+                        className="flex items-start gap-2.5 cursor-pointer select-none group"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => onToggleVehicle(v.id)}
+                          className="h-4 w-4 mt-0.5 rounded border-border/80 text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                        />
+                        <div className="flex flex-col min-w-0">
+                          <span
                             className={cn(
-                              "flex items-center gap-2 px-2.5 py-1.5 rounded-sm hover:bg-muted cursor-pointer transition-colors text-xs",
-                              isChecked && "bg-[#0089FF]/5",
+                              "text-xs leading-tight transition-colors truncate",
+                              isChecked
+                                ? "font-semibold text-[#0089FF]"
+                                : "font-medium text-foreground group-hover:text-foreground",
                             )}
                           >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => onToggleVehicle(v.id)}
-                              className="h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <span
-                                className={cn(
-                                  "block text-xs text-foreground truncate",
-                                  isChecked && "font-semibold text-[#0089FF]",
-                                )}
-                              >
-                                {v.name}
-                              </span>
-                              <span className="block text-[10px] text-muted-foreground truncate">
-                                {v.imei}
-                              </span>
-                            </div>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
+                            {v.name}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground leading-tight mt-0.5 font-mono">
+                            {v.imei}
+                          </span>
+                        </div>
+                      </label>
+                    );
+                  })}
                 </div>
-              );
-            })}
-
-            {filteredGroups.length === 0 && (
-              <div className="p-4 text-center text-xs text-muted-foreground">
-                No vehicles found.
               </div>
-            )}
-          </div>
+            );
+          })}
+
+          {filteredGroups.length === 0 && (
+            <div className="py-6 text-center text-xs text-muted-foreground">
+              No vehicles found matching &quot;{search}&quot;.
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1479,10 +1392,10 @@ export function ScheduleModal({
                   </div>
                 </div>
 
-                {/* Duration & Distance Filters - Clean 3-Column Layout */}
-                <div className="pt-4 border-t border-border/60">
-                  <div className="grid grid-cols-3 gap-4">
-                    {/* Duration Status */}
+                {/* Duration & Distance Filters - 2 Columns Layout matching reference mockup */}
+                <div className="pt-2">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                    {/* Row 1, Col 1: Duration Status */}
                     <div className="space-y-1.5">
                       <label className="block text-xs font-semibold text-foreground">
                         Duration Status
@@ -1494,12 +1407,43 @@ export function ScheduleModal({
                       />
                     </div>
 
-                    {/* Duration Filter */}
+                    {/* Row 1, Col 2: Duration Format */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
+                        Duration Format
+                      </label>
+                      <div className="flex items-center gap-6 h-9">
+                        <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none font-medium">
+                          <input
+                            type="radio"
+                            name="durationFormat"
+                            checked={criteriaDurationFormat === "hhmm"}
+                            onChange={() => setCriteriaDurationFormat("hhmm")}
+                            className="h-4 w-4 accent-[#0089FF] cursor-pointer"
+                          />
+                          <span>HH:MM</span>
+                        </label>
+                        <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none font-medium">
+                          <input
+                            type="radio"
+                            name="durationFormat"
+                            checked={criteriaDurationFormat === "decimal"}
+                            onChange={() =>
+                              setCriteriaDurationFormat("decimal")
+                            }
+                            className="h-4 w-4 accent-[#0089FF] cursor-pointer"
+                          />
+                          <span>Decimal</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Row 2, Col 1: Duration Filter */}
                     <div className="space-y-1.5">
                       <label className="block text-xs font-semibold text-foreground">
                         Duration Filter
                       </label>
-                      <div className="grid grid-cols-3 gap-1.5">
+                      <div className="grid grid-cols-3 gap-2">
                         <SelectDropdown
                           value={criteriaDurationCompare}
                           options={COMPARATORS}
@@ -1517,17 +1461,17 @@ export function ScheduleModal({
                             setCriteriaDurationValue(e.target.value)
                           }
                           placeholder="e.g. 5"
-                          className="h-9 w-full rounded-md border border-input bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                         />
                       </div>
                     </div>
 
-                    {/* Distance Filter */}
+                    {/* Row 2, Col 2: Distance Filter */}
                     <div className="space-y-1.5">
                       <label className="block text-xs font-semibold text-foreground">
                         Distance Filter
                       </label>
-                      <div className="grid grid-cols-2 gap-1.5">
+                      <div className="grid grid-cols-2 gap-2">
                         <SelectDropdown
                           value={criteriaDistanceCompare}
                           options={COMPARATORS}
@@ -1540,38 +1484,9 @@ export function ScheduleModal({
                             setCriteriaDistanceValue(e.target.value)
                           }
                           placeholder="e.g. 100"
-                          className="h-9 w-full rounded-md border border-input bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                         />
                       </div>
-                    </div>
-
-                    {/* Duration Format Radio */}
-                    <div className="col-span-3 flex items-center gap-6 pt-1">
-                      <span className="text-xs font-semibold text-foreground">
-                        Duration Format:
-                      </span>
-                      <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
-                        <input
-                          type="radio"
-                          name="durationFormat"
-                          checked={criteriaDurationFormat === "hhmm"}
-                          onChange={() => setCriteriaDurationFormat("hhmm")}
-                          className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                        />
-                        <span>HH:MM</span>
-                      </label>
-                      <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
-                        <input
-                          type="radio"
-                          name="durationFormat"
-                          checked={criteriaDurationFormat === "decimal"}
-                          onChange={() =>
-                            setCriteriaDurationFormat("decimal")
-                          }
-                          className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                        />
-                        <span>Decimal</span>
-                      </label>
                     </div>
                   </div>
                 </div>
