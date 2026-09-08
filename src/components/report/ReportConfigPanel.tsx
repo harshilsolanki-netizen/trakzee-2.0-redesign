@@ -466,7 +466,7 @@ export function ReportConfigPanel({
           type="button"
           aria-label="Close filter"
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
+          className="fixed top-[45px] bottom-0 left-0 sm:left-[68px] right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
         />
       ) : null}
 
@@ -474,13 +474,13 @@ export function ReportConfigPanel({
         aria-hidden={!open}
         aria-label="Report filter options"
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-screen w-full max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
         {/* Standardized 45px Header matching Side Panel Design System */}
-        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
-          <h2 className="text-sm font-bold tracking-tight text-foreground">
+        <header className="flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">
             Filter Options
           </h2>
           <button
@@ -494,17 +494,15 @@ export function ReportConfigPanel({
         </header>
 
         {/* Main Body with visually matched sleeker field controls */}
-        <div className="min-h-0 flex-1 flex flex-col p-5 space-y-3.5 overflow-y-auto custom-scrollbar">
+        <div className="min-h-0 flex-1 flex flex-col p-5 space-y-4 overflow-y-auto custom-scrollbar">
           {/* Field 1: Group */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Group
             </label>
             <UniversalMultiSelectDropdown
               label="Group"
-              selected={
-                filters.groups || ["HP Group", "Trucks", "Buses", "Cars"]
-              }
+              selected={filters.groups || []}
               options={groupOptions}
               onChange={(groups) => onChange({ groups })}
               placeholder="Select Group"
@@ -513,7 +511,7 @@ export function ReportConfigPanel({
 
           {/* Field 2: Type */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Type
             </label>
             <UniversalMultiSelectDropdown
@@ -527,7 +525,7 @@ export function ReportConfigPanel({
 
           {/* Field 3: Brand */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Brand
             </label>
             <SelectDropdown
@@ -540,7 +538,7 @@ export function ReportConfigPanel({
 
           {/* Field 4: Model */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Model
             </label>
             <SelectDropdown
@@ -552,11 +550,11 @@ export function ReportConfigPanel({
           </div>
 
           {/* Field 5: Duration Threshold */}
-          <div className="space-y-1.5 pt-1 border-t border-border/60">
-            <label className="block text-xs font-bold text-foreground">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">
               Duration Threshold
             </label>
-            <div className="grid grid-cols-12 gap-1.5">
+            <div className="grid grid-cols-12 gap-2">
               <div className="col-span-5">
                 <SelectDropdown
                   value={filters.durationCompare}
@@ -577,18 +575,18 @@ export function ReportConfigPanel({
                   value={filters.durationValue}
                   onChange={(e) => onChange({ durationValue: e.target.value })}
                   placeholder="e.g. 5"
-                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                 />
               </div>
             </div>
           </div>
 
           {/* Field 6: Distance Threshold */}
-          <div className="space-y-1.5 pt-1 border-t border-border/60">
-            <label className="block text-xs font-bold text-foreground">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">
               Distance Threshold (km)
             </label>
-            <div className="grid grid-cols-12 gap-1.5">
+            <div className="grid grid-cols-12 gap-2">
               <div className="col-span-7">
                 <SelectDropdown
                   value={filters.distanceCompare}
@@ -602,7 +600,7 @@ export function ReportConfigPanel({
                   value={filters.distanceValue}
                   onChange={(e) => onChange({ distanceValue: e.target.value })}
                   placeholder="e.g. 5"
-                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                 />
               </div>
             </div>
@@ -610,11 +608,11 @@ export function ReportConfigPanel({
         </div>
 
         {/* Standardized Drawer Footer matching Side Panel Design System */}
-        <footer className="flex items-center justify-between border-t border-border bg-card/60 px-5 py-3.5 shrink-0 select-none">
+        <footer className="flex items-center justify-between border-t border-border bg-background px-5 py-3.5 shrink-0 select-none">
           <button
             type="button"
             onClick={handleReset}
-            className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98"
+            className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3.5 py-1.5 text-xs font-medium text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98"
           >
             <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
             <span>Reset</span>
@@ -623,7 +621,7 @@ export function ReportConfigPanel({
           <button
             type="button"
             onClick={handleDrawerApply}
-            className="h-8.5 rounded-md bg-[#155dfc] px-6 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
+            className="h-8 rounded-md bg-[#155dfc] px-5 text-xs font-medium text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
           >
             Apply Filters
           </button>

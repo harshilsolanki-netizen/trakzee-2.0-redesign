@@ -102,14 +102,14 @@ export function ChartFilterDrawer({
           type="button"
           aria-label="Close filter"
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/20"
+          className="fixed top-[45px] bottom-0 left-0 sm:left-[68px] right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
         />
       ) : null}
       <aside
         aria-hidden={!open}
         aria-label="Chart filter panel"
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-screen w-full max-w-[430px] flex-col border-l border-border bg-surface shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >

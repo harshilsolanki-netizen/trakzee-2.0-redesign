@@ -482,7 +482,7 @@ export function DashboardFilterDrawer({
           type="button"
           aria-label="Close filter"
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
+          className="fixed top-[45px] bottom-0 left-0 sm:left-[68px] right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
         />
       ) : null}
 
@@ -490,13 +490,13 @@ export function DashboardFilterDrawer({
         aria-hidden={!open}
         aria-label="Dashboard Filter Options"
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-screen w-full max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
         {/* 1. Header (Matching Reference Screenshot & 45px standard) */}
-        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
-          <h2 className="text-sm font-bold tracking-tight text-foreground">
+        <header className="flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">
             Filter Options
           </h2>
           <button
