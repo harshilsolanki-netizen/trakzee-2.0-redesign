@@ -2013,8 +2013,8 @@ export function ScheduleModal({
                   {/* Delivery Configuration Details: FTP */}
                   {draft.actionType === "FTP" && (
                     <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="col-span-2 space-y-1.5">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
                           <label className="block text-xs font-semibold text-foreground">
                             Host Address <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
