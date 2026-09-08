@@ -1754,7 +1754,8 @@ export function ScheduleModal({
                         </div>
                       </div>
                     )}
-                  </div>
+                    </div>
+                  )}
 
                   {/* Time Range Checkbox & Aligned Inputs */}
                   <div className="pt-2 space-y-3">
