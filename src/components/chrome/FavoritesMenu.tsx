@@ -85,9 +85,7 @@ export function FavoritesMenu() {
               "flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 relative",
               open
                 ? "bg-[#0089FF] text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400/40"
-                : hasFavorites
-                  ? "text-amber-400 hover:bg-white/10 hover:text-amber-300"
-                  : "text-slate-400 group-hover:bg-white/10 group-hover:text-white",
+                : "text-slate-400 group-hover:bg-white/10 group-hover:text-white",
             )}
           >
             <Star
@@ -101,10 +99,8 @@ export function FavoritesMenu() {
             className={cn(
               "text-[10px] leading-tight tracking-tight transition-colors",
               open
-                ? "font-bold text-white"
-                : hasFavorites
-                  ? "font-bold text-amber-400 group-hover:text-amber-300"
-                  : "font-medium text-slate-400 group-hover:text-white",
+                ? "font-semibold text-white"
+                : "font-medium text-slate-400 group-hover:text-white",
             )}
           >
             Favourites
