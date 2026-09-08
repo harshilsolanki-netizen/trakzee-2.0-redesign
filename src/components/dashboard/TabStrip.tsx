@@ -228,9 +228,12 @@ export function TabStrip() {
   };
 
   return (
-    <div className="flex items-end justify-between gap-3 border-b border-slate-200/90 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-950 px-4 pt-2.5 pb-0 text-xs select-none shrink-0 relative">
+    <div className="flex items-end justify-between gap-3 bg-slate-100/90 dark:bg-slate-950 px-4 pt-2.5 pb-0 text-xs select-none shrink-0 relative">
+      {/* 0. Continuous Baseline Line underneath tabs (masked out solely by active tab) */}
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-slate-300 dark:bg-slate-700 pointer-events-none z-0" />
+
       {/* 1. Left Tab Bar */}
-      <div className="flex min-w-0 flex-1 items-end gap-2 pl-4 pr-3 overflow-x-auto overflow-y-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="relative z-10 flex min-w-0 flex-1 items-end gap-2 pl-4 pr-3 overflow-x-auto overflow-y-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {visibleTabs.map((tab) => {
           const isActive = tab.id === activeTab.id;
           return (
@@ -271,9 +274,9 @@ export function TabStrip() {
               {isActive && <ChromeTabFlareLeft />}
               {isActive && <ChromeTabFlareRight />}
 
-              {/* Seamless bottom mask to completely remove the baseline under the selected tab */}
+              {/* Seamless bottom mask spanning the full tab and flare width to eliminate baseline under selected tab */}
               {isActive && (
-                <div className="absolute -bottom-[2px] left-0 right-0 h-[3px] bg-card dark:bg-slate-900 z-10 pointer-events-none" />
+                <div className="absolute -bottom-[2px] -left-[12px] -right-[12px] h-[4px] bg-card dark:bg-slate-900 z-10 pointer-events-none" />
               )}
 
               {renamingId === tab.id ? (

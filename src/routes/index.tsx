@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
 
 function DashboardPage() {
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto bg-background/50 flex flex-col">
+    <div className="flex-1 min-h-0 overflow-y-auto bg-card dark:bg-slate-900 flex flex-col">
       <TabStrip />
       <div className="flex-1 min-h-0 p-4">
         <DashboardGrid />
