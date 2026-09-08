@@ -90,35 +90,35 @@ const SEARCHABLE_COLUMNS: { id: string; label: string }[] = [
 const PAGE_SIZES = [10, 20, 50];
 
 const DEFAULT_COLUMN_WIDTHS: Record<string, number> = {
-  vehicleNo: 140,
-  employeeNo: 110,
-  imei: 130,
+  vehicleNo: 145,
+  employeeNo: 130,
+  imei: 135,
   startLocation: 170,
-  startOdometer: 110,
-  firstIgnitionOn: 110,
-  distance: 100,
-  idleVsInactive: 120,
-  running: 100,
-  idle: 90,
-  stop: 90,
-  inactive: 90,
-  duration: 90,
-  workDuration: 100,
-  workingDays: 90,
-  maxStoppage: 100,
-  noOfIdle: 90,
-  endOdometer: 110,
-  lastIgnitionOff: 110,
-  overSpeedTimes: 110,
-  costDistance: 110,
-  costDuration: 110,
-  driver: 130,
+  startOdometer: 135,
+  firstIgnitionOn: 140,
+  distance: 110,
+  idleVsInactive: 160,
+  running: 145,
+  idle: 135,
+  stop: 135,
+  inactive: 145,
+  duration: 135,
+  workDuration: 130,
+  workingDays: 115,
+  maxStoppage: 125,
+  noOfIdle: 105,
+  endOdometer: 135,
+  lastIgnitionOff: 140,
+  overSpeedTimes: 140,
+  costDistance: 115,
+  costDuration: 115,
+  driver: 140,
   company: 140,
   endLocation: 170,
-  avgSpeed: 90,
-  maxSpeed: 90,
-  tollCost: 90,
-  alerts: 80,
+  avgSpeed: 100,
+  maxSpeed: 100,
+  tollCost: 105,
+  alerts: 90,
 };
 
 const objectOptions = fleetObjects.map((o) => ({
@@ -626,7 +626,7 @@ export function ReportPage() {
     <div className="flex h-full min-h-0 flex-1 flex-col gap-3 p-3 overflow-hidden">
       {/* Top Header & Sub-Header Frame with minimal subtle slate tint */}
       <header className="h-[76px] flex flex-col justify-between rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 px-4 py-2 shadow-2xs shrink-0 select-none backdrop-blur-xs">
-        {/* Row 1: Title on left, Utilities + Search + Download + Pagination on right */}
+        {/* Row 1: Title on left, Utilities + Search + Download on right */}
         <div className="flex items-center justify-between gap-3 min-w-0 h-7">
           {/* Left: Star + Report Title / Breadcrumb */}
           <nav
@@ -711,9 +711,8 @@ export function ReportPage() {
             )}
           </nav>
 
-          {/* Right: Utilities Icons, Field Search, Download, Pagination, Refresh */}
-          {/* Right: Field Search, Download, Utilities Icons, Page Size, Pagination, Refresh */}
-          <div className="flex flex-wrap items-center gap-2 ml-auto">
+          {/* Right: Field Search, Download, Utilities Icons */}
+          <div className="flex items-center gap-2 ml-auto shrink-0">
             {/* 1. Integrated Field-Specific Search Control */}
             <div className="relative flex h-7 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
               <DropdownMenu>
@@ -824,8 +823,25 @@ export function ReportPage() {
                 <BarChart3 className="h-3.5 w-3.5" />
               </IconButton>
             </div>
+          </div>
+        </div>
 
-            {/* 4. Page size custom popover */}
+        {/* Row 2: Sub-Header Quick Filter Bar on left + Pagination & Refresh on right */}
+        <div className="flex items-center justify-between gap-3 min-w-0 h-7">
+          <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none">
+            <ReportQuickFilterBar
+              filters={filters}
+              onChange={(patch) => {
+                setFilters((prev) => ({ ...prev, ...patch }));
+                load("Filters updated");
+              }}
+              onOpenFilterDrawer={() => setConfigOpen(true)}
+            />
+          </div>
+
+          {/* Right: Page Size, Page counter & Navigation */}
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
+            {/* Page size custom popover */}
             <Popover open={pageSizeOpen} onOpenChange={setPageSizeOpen}>
               <PopoverTrigger asChild>
                 <button
@@ -879,7 +895,7 @@ export function ReportPage() {
               </PopoverContent>
             </Popover>
 
-            {/* 5. Page counter & Navigation */}
+            {/* Page counter & Navigation */}
             <div className="flex items-center gap-1.5">
               <span className="px-1 text-xs font-semibold tabular-nums text-muted-foreground whitespace-nowrap">
                 {first}–{last} of {rows.length}
@@ -911,18 +927,6 @@ export function ReportPage() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Row 2: Sub-Header Quick Filter Bar */}
-        <div className="flex items-center min-w-0 h-7">
-          <ReportQuickFilterBar
-            filters={filters}
-            onChange={(patch) => {
-              setFilters((prev) => ({ ...prev, ...patch }));
-              load("Filters updated");
-            }}
-            onOpenFilterDrawer={() => setConfigOpen(true)}
-          />
         </div>
       </header>
 
@@ -972,7 +976,7 @@ export function ReportPage() {
                             "bg-white/15 font-semibold text-white",
                           isFrozen &&
                             cn(
-                              "sticky z-30 bg-nav",
+                              "sticky z-30 bg-slate-900 dark:bg-slate-950",
                               colIdx === frozenCount - 1 &&
                                 "shadow-[2px_0_4px_rgba(0,0,0,0.2)]",
                             ),
@@ -1546,7 +1550,7 @@ function ReportRow({
 
     const frozenClass = isFrozen
       ? cn(
-          "sticky z-10 bg-surface group-hover:bg-muted shadow-xs",
+          "sticky z-10 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/90 shadow-xs",
           colIdx === frozenCount - 1 && "shadow-[2px_0_4px_rgba(0,0,0,0.08)]",
         )
       : "";
