@@ -1546,8 +1546,8 @@ export function ScheduleModal({
             ) : (
               /* VIEW 2 - STEP 2: Configure Settings */
               <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-5 custom-scrollbar w-full select-none">
-                {/* 1. Report Information */}
-                <div className="space-y-4">
+                {/* 1. Report Information - Side by Side */}
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="block text-xs font-semibold text-foreground">
                       Report Name <span className="text-red-500 font-bold ml-0.5">*</span>
@@ -1589,7 +1589,7 @@ export function ScheduleModal({
                   </div>
                 </div>
 
-                {/* 2. Schedule Timing & Timezone (3-in-a-row layout) */}
+                {/* 2. Schedule Timing (Relative Type -> Timezone -> Generation Time) */}
                 <div className="pt-2 space-y-4">
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-1.5">
@@ -1605,19 +1605,6 @@ export function ScheduleModal({
 
                     <div className="space-y-1.5">
                       <label className="block text-xs font-semibold text-foreground">
-                        Generation Time
-                      </label>
-                      <SelectDropdown
-                        value={draft.generationTime}
-                        options={GENERATION_TIMES}
-                        onChange={(generationTime) =>
-                          setDraft((d) => ({ ...d, generationTime }))
-                        }
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
                         Timezone
                       </label>
                       <SelectDropdown
@@ -1625,6 +1612,19 @@ export function ScheduleModal({
                         options={TIMEZONES}
                         onChange={(timezone) =>
                           setDraft((d) => ({ ...d, timezone }))
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
+                        Generation Time
+                      </label>
+                      <SelectDropdown
+                        value={draft.generationTime}
+                        options={GENERATION_TIMES}
+                        onChange={(generationTime) =>
+                          setDraft((d) => ({ ...d, generationTime }))
                         }
                       />
                     </div>
