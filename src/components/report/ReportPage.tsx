@@ -14,6 +14,7 @@ import {
   HelpCircle,
   Loader2,
   MoreVertical,
+  Pin,
   Play,
   RefreshCw,
   Search,
@@ -991,12 +992,10 @@ export function ReportPage() {
                         >
                           <span className="truncate">{c.label}</span>
                           {isFrozen && (
-                            <span
-                              title="Frozen column on left"
-                              className="text-[10px] opacity-75 shrink-0"
-                            >
-                              ❄️
-                            </span>
+                            <Pin
+                              className="h-3 w-3 fill-blue-400 text-blue-400 shrink-0"
+                              title="Pinned column on left"
+                            />
                           )}
                           {c.sortable &&
                             (sort.key === c.id ? (
