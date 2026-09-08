@@ -1687,19 +1687,9 @@ export function ScheduleModal({
                   </div>
 
                   {/* Dynamic Timing Sub-Section Based on Relative Type */}
-                  <div className="pt-1 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-foreground">
-                        Schedule Frequency:
-                      </span>
-                      <span className="rounded-md bg-[#0089FF]/10 px-2 py-0.5 text-[11px] font-bold text-[#0089FF] border border-[#0089FF]/20">
-                        {draft.scheduleType === "Weekly"
-                          ? "Every Week"
-                          : draft.scheduleType === "Monthly"
-                            ? "Every Month"
-                            : "Every Day"}
-                      </span>
-                    </div>
+                  {(draft.scheduleType === "Weekly" ||
+                    draft.scheduleType === "Monthly") && (
+                    <div className="pt-1 space-y-3">
 
                     {/* If Weekly: Clickable Day-of-Week Buttons with Hover & Active styling */}
                     {draft.scheduleType === "Weekly" && (
