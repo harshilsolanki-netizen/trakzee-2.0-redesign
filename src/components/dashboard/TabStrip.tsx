@@ -47,36 +47,38 @@ import {
 
 /**
  * Chrome-style bottom-left concave flare SVG.
- * Seamlessly curves from the horizontal baseline up into the active tab's left vertical border.
+ * Curves smoothly outwards from the horizontal baseline up into the active tab's left vertical border.
+ * Perfectly symmetric with ChromeTabFlareRight.
  */
 function ChromeTabFlareLeft() {
   return (
     <svg
-      className="absolute -left-[10px] -bottom-[1px] h-[10px] w-[11px] pointer-events-none z-20"
-      viewBox="0 0 11 10"
+      className="absolute -left-[12px] -bottom-[1px] h-[12px] w-[12px] pointer-events-none z-20"
+      viewBox="0 0 12 12"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Outer corner background fill matching the active tab card background */}
+      {/* Outer corner background fill matching active tab */}
       <path
-        d="M 10 0 A 10 10 0 0 0 0 10 L 11 10 L 11 0 Z"
+        d="M 12 0 A 12 12 0 0 1 0 12 L 12 12 Z"
         className="fill-card dark:fill-slate-900"
       />
       {/* Curved border stroke */}
       <path
-        d="M 0 10 A 10 10 0 0 1 10 0"
+        d="M 0 12 A 12 12 0 0 0 12 0"
         className="stroke-slate-300 dark:stroke-slate-700"
         strokeWidth="1"
+        vectorEffect="non-scaling-stroke"
         fill="none"
       />
-      {/* Baseline mask matching card background to cleanly cover the bottom border */}
+      {/* Baseline mask matching card background */}
       <line
         x1="0"
-        y1="10"
-        x2="11"
-        y2="10"
+        y1="12"
+        x2="12"
+        y2="12"
         className="stroke-card dark:stroke-slate-900"
-        strokeWidth="1.5"
+        strokeWidth="2"
       />
     </svg>
   );
@@ -84,36 +86,38 @@ function ChromeTabFlareLeft() {
 
 /**
  * Chrome-style bottom-right concave flare SVG.
- * Seamlessly curves from the active tab's right vertical border down into the horizontal baseline.
+ * Curves smoothly outwards from the active tab's right vertical border down into the horizontal baseline.
+ * Perfectly symmetric with ChromeTabFlareLeft.
  */
 function ChromeTabFlareRight() {
   return (
     <svg
-      className="absolute -right-[10px] -bottom-[1px] h-[10px] w-[11px] pointer-events-none z-20"
-      viewBox="0 0 11 10"
+      className="absolute -right-[12px] -bottom-[1px] h-[12px] w-[12px] pointer-events-none z-20"
+      viewBox="0 0 12 12"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Outer corner background fill matching the active tab card background */}
+      {/* Outer corner background fill matching active tab */}
       <path
-        d="M 1 0 A 10 10 0 0 0 11 10 L 0 10 L 0 0 Z"
+        d="M 0 0 A 12 12 0 0 0 12 12 L 0 12 Z"
         className="fill-card dark:fill-slate-900"
       />
       {/* Curved border stroke */}
       <path
-        d="M 1 0 A 10 10 0 0 0 11 10"
+        d="M 0 0 A 12 12 0 0 0 12 12"
         className="stroke-slate-300 dark:stroke-slate-700"
         strokeWidth="1"
+        vectorEffect="non-scaling-stroke"
         fill="none"
       />
-      {/* Baseline mask matching card background to cleanly cover the bottom border */}
+      {/* Baseline mask matching card background */}
       <line
         x1="0"
-        y1="10"
-        x2="11"
-        y2="10"
+        y1="12"
+        x2="12"
+        y2="12"
         className="stroke-card dark:stroke-slate-900"
-        strokeWidth="1.5"
+        strokeWidth="2"
       />
     </svg>
   );
@@ -226,7 +230,7 @@ export function TabStrip() {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-slate-200/90 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-950 px-4 pt-2 text-xs select-none shrink-0">
       {/* 1. Left Tab Bar */}
-      <div className="flex min-w-0 flex-1 items-center gap-1.5 pl-3 pr-2 overflow-x-auto overflow-y-visible">
+      <div className="flex min-w-0 flex-1 items-center gap-2 pl-4 pr-3 overflow-x-auto overflow-y-visible">
         {visibleTabs.map((tab) => {
           const isActive = tab.id === activeTab.id;
           return (
