@@ -228,9 +228,9 @@ export function TabStrip() {
   };
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-slate-200/90 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-950 px-4 pt-2 text-xs select-none shrink-0">
+    <div className="flex items-end justify-between gap-3 border-b border-slate-200/90 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-950 px-4 pt-2.5 pb-0 text-xs select-none shrink-0 relative">
       {/* 1. Left Tab Bar */}
-      <div className="flex min-w-0 flex-1 items-center gap-2 pl-4 pr-3 overflow-x-auto overflow-y-visible">
+      <div className="flex min-w-0 flex-1 items-end gap-2 pl-4 pr-3 overflow-x-auto overflow-y-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {visibleTabs.map((tab) => {
           const isActive = tab.id === activeTab.id;
           return (
@@ -261,8 +261,8 @@ export function TabStrip() {
               className={cn(
                 "group relative flex shrink-0 cursor-pointer items-center gap-2 px-4 py-2 text-xs font-semibold transition-all duration-150",
                 isActive
-                  ? "bg-card dark:bg-slate-900 rounded-t-[10px] border-t border-l border-r border-slate-300 dark:border-slate-700 -mb-px z-10 shadow-xs text-[#1e40af] dark:text-blue-400"
-                  : "bg-transparent hover:bg-slate-200/60 dark:hover:bg-slate-800/60 rounded-t-[8px] text-[#1e40af] dark:text-blue-400",
+                  ? "bg-card dark:bg-slate-900 rounded-t-[10px] border-t border-l border-r border-slate-300 dark:border-slate-700 -mb-[1px] z-10 shadow-xs text-[#1e40af] dark:text-blue-400"
+                  : "bg-transparent hover:bg-slate-200/60 dark:hover:bg-slate-800/60 rounded-t-[8px] text-[#1e40af] dark:text-blue-400 mb-0.5",
                 dragId === tab.id ? "opacity-40" : "",
                 overId === tab.id ? "ring-2 ring-primary/40" : "",
               )}
@@ -270,6 +270,11 @@ export function TabStrip() {
               {/* Chrome-style outward curved flares for active tab */}
               {isActive && <ChromeTabFlareLeft />}
               {isActive && <ChromeTabFlareRight />}
+
+              {/* Seamless bottom mask to completely remove the baseline under the selected tab */}
+              {isActive && (
+                <div className="absolute -bottom-[2px] left-0 right-0 h-[3px] bg-card dark:bg-slate-900 z-10 pointer-events-none" />
+              )}
 
               {renamingId === tab.id ? (
                 <input
@@ -485,7 +490,7 @@ export function TabStrip() {
       </div>
 
       {/* 2. Right Toolbar: ONLY TWO BUTTONS (Filter & Configuration) */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 mb-1.5">
         {/* Filter Button */}
         <button
           type="button"
