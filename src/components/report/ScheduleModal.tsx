@@ -1544,14 +1544,10 @@ export function ScheduleModal({
                 </div>
               </div>
             ) : (
-              /* VIEW 2 - STEP 2: Configure Settings (Aligned & Full Width without Side Wasted Margins) */
-              <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-6 custom-scrollbar w-full select-none">
-                {/* SECTION A: Report Information */}
+              /* VIEW 2 - STEP 2: Configure Settings */
+              <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-5 custom-scrollbar w-full select-none">
+                {/* 1. Report Information */}
                 <div className="space-y-4">
-                  <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    Report Information
-                  </h3>
-
                   <div className="space-y-1.5">
                     <label className="block text-xs font-semibold text-foreground">
                       Report Name <span className="text-red-500 font-bold ml-0.5">*</span>
@@ -1581,40 +1577,21 @@ export function ScheduleModal({
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Copy Settings From
-                      </label>
-                      <SelectDropdown
-                        value={copyFrom}
-                        options={["None", ...schedules.map((s) => s.name)]}
-                        onChange={handleCopySettings}
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Timezone
-                      </label>
-                      <SelectDropdown
-                        value={draft.timezone}
-                        options={TIMEZONES}
-                        onChange={(timezone) =>
-                          setDraft((d) => ({ ...d, timezone }))
-                        }
-                      />
-                    </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
+                      Copy From
+                    </label>
+                    <SelectDropdown
+                      value={copyFrom}
+                      options={["None", ...schedules.map((s) => s.name)]}
+                      onChange={handleCopySettings}
+                    />
                   </div>
                 </div>
 
-                {/* SECTION B: Schedule Timing */}
-                <div className="pt-5 border-t border-border/60 space-y-4">
-                  <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    Schedule Timing
-                  </h3>
-
-                  <div className="grid grid-cols-2 gap-4">
+                {/* 2. Schedule Timing & Timezone (3-in-a-row layout) */}
+                <div className="pt-2 space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-1.5">
                       <label className="block text-xs font-semibold text-foreground">
                         Relative Type
@@ -1635,6 +1612,19 @@ export function ScheduleModal({
                         options={GENERATION_TIMES}
                         onChange={(generationTime) =>
                           setDraft((d) => ({ ...d, generationTime }))
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
+                        Timezone
+                      </label>
+                      <SelectDropdown
+                        value={draft.timezone}
+                        options={TIMEZONES}
+                        onChange={(timezone) =>
+                          setDraft((d) => ({ ...d, timezone }))
                         }
                       />
                     </div>
@@ -1720,7 +1710,7 @@ export function ScheduleModal({
                     )}
                   </div>
 
-                  {/* Specific Time Range Checkbox & Aligned Inputs */}
+                  {/* Time Range Checkbox & Aligned Inputs */}
                   <div className="pt-2 space-y-3">
                     <label className="flex items-center gap-2.5 cursor-pointer select-none text-xs font-semibold text-foreground">
                       <input
@@ -1734,7 +1724,7 @@ export function ScheduleModal({
                         }
                         className="h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
                       />
-                      <span>Use Specific Time Range for Data Scope</span>
+                      <span>Time Range</span>
                     </label>
 
                     {draft.hasTimeRange && (
@@ -1783,13 +1773,9 @@ export function ScheduleModal({
                   </div>
                 </div>
 
-                {/* SECTION C: Output & Delivery */}
-                <div className="pt-5 border-t border-border/60 space-y-4">
-                  <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    Output & Delivery
-                  </h3>
-
-                  {/* 1. Report Detail Level */}
+                {/* 3. Output & Delivery */}
+                <div className="pt-2 space-y-4">
+                  {/* Report Detail Level */}
                   <div className="space-y-1.5">
                     <label className="block text-xs font-semibold text-foreground">
                       Report Detail Level
@@ -1817,33 +1803,7 @@ export function ScheduleModal({
                     </div>
                   </div>
 
-                  {/* 2. File Format */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
-                      File Format
-                    </label>
-                    <div className="flex items-center gap-6 h-8">
-                      {(["XLS", "PDF", "CSV"] as const).map((fmt) => (
-                        <label
-                          key={fmt}
-                          className="flex items-center gap-2 cursor-pointer text-xs text-foreground select-none"
-                        >
-                          <input
-                            type="radio"
-                            name="format"
-                            checked={draft.format === fmt}
-                            onChange={() =>
-                              setDraft((d) => ({ ...d, format: fmt }))
-                            }
-                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                          />
-                          <span className="font-medium">{fmt}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 3. Delivery Method */}
+                  {/* Delivery Method */}
                   <div className="space-y-1.5">
                     <label className="block text-xs font-semibold text-foreground">
                       Delivery Method
@@ -1873,7 +1833,7 @@ export function ScheduleModal({
 
                   {/* Dynamic Delivery Configuration Details */}
                   {draft.actionType === "Email" && (
-                    <div className="pt-2 space-y-4">
+                    <div className="pt-1 space-y-4">
                       <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-2 space-y-1.5">
                           <label className="block text-xs font-semibold text-foreground">
@@ -2002,6 +1962,32 @@ export function ScheduleModal({
                       </div>
                     </div>
                   )}
+
+                  {/* File Format - Positioned in the last above Advance Configuration */}
+                  <div className="space-y-1.5 pt-1">
+                    <label className="block text-xs font-semibold text-foreground">
+                      File Format
+                    </label>
+                    <div className="flex items-center gap-6 h-8">
+                      {(["XLS", "PDF", "CSV"] as const).map((fmt) => (
+                        <label
+                          key={fmt}
+                          className="flex items-center gap-2 cursor-pointer text-xs text-foreground select-none"
+                        >
+                          <input
+                            type="radio"
+                            name="format"
+                            checked={draft.format === fmt}
+                            onChange={() =>
+                              setDraft((d) => ({ ...d, format: fmt }))
+                            }
+                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                          />
+                          <span className="font-medium">{fmt}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
 
                   {/* Advance Configuration Button */}
                   <div className="pt-2">
