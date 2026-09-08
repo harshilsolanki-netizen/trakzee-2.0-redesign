@@ -70,10 +70,21 @@ export type ScheduleItem = {
   subject: string;
   message: string;
   selectedVehicles: string[];
-  // FTP / API details
+  // FTP Configuration
   ftpHost?: string;
   ftpPort?: string;
-  apiEndpoint?: string;
+  ftpUsername?: string;
+  ftpPassword?: string;
+  ftpFolder?: string;
+  // SFTP Configuration (Cloud Storage)
+  sftpPlatform?: string;
+  sftpAccessKey?: string;
+  sftpSecretKey?: string;
+  sftpRegion?: string;
+  sftpBucketName?: string;
+  // Media API Configuration
+  mediaGateway?: string;
+  mediaRecipientNumber?: string;
 };
 
 export type ReportColumnConfig = {
@@ -314,6 +325,20 @@ const GENERATION_TIMES = [
   "21:00",
 ];
 
+const SFTP_PLATFORMS = [
+  "Amazon S3",
+  "Google Cloud Storage",
+  "Azure Blob Storage",
+  "Custom SFTP Server",
+];
+
+const MEDIA_GATEWAYS = [
+  "WhatsApp",
+  "Telegram",
+  "SMS Gateway",
+  "Slack Webhook",
+];
+
 const DEFAULT_DRAFT: Omit<ScheduleItem, "id"> = {
   name: "",
   status: "ACTIVE",
@@ -335,6 +360,21 @@ const DEFAULT_DRAFT: Omit<ScheduleItem, "id"> = {
   subject: "Scheduled Travel Report",
   message: "Please find attached the scheduled report.",
   selectedVehicles: [],
+  // FTP defaults
+  ftpHost: "",
+  ftpPort: "21",
+  ftpUsername: "",
+  ftpPassword: "",
+  ftpFolder: "/reports",
+  // SFTP defaults
+  sftpPlatform: "Amazon S3",
+  sftpAccessKey: "",
+  sftpSecretKey: "",
+  sftpRegion: "ap-south-1",
+  sftpBucketName: "",
+  // Media API defaults
+  mediaGateway: "WhatsApp",
+  mediaRecipientNumber: "",
 };
 
 // Reusable Select Dropdown Component with Unified Theme
@@ -967,12 +1007,28 @@ export function ScheduleModal({
   };
 
   const handleSave = () => {
-    const newErrors: { name?: string; toAddress?: string } = {};
+    const newErrors: Record<string, string | undefined> = {};
     if (!draft.name.trim()) {
       newErrors.name = "Please enter report name";
     }
     if (draft.actionType === "Email" && !draft.toAddress.trim()) {
       newErrors.toAddress = "Please enter recipient email address";
+    }
+    if (draft.actionType === "FTP") {
+      if (!draft.ftpHost?.trim()) newErrors.ftpHost = "Please enter host address";
+      if (!draft.ftpPort?.trim()) newErrors.ftpPort = "Please enter port";
+      if (!draft.ftpUsername?.trim()) newErrors.ftpUsername = "Please enter username";
+      if (!draft.ftpPassword?.trim()) newErrors.ftpPassword = "Please enter password";
+      if (!draft.ftpFolder?.trim()) newErrors.ftpFolder = "Please enter folder name";
+    }
+    if (draft.actionType === "SFTP") {
+      if (!draft.sftpAccessKey?.trim()) newErrors.sftpAccessKey = "Please enter Access key ID";
+      if (!draft.sftpSecretKey?.trim()) newErrors.sftpSecretKey = "Please enter Secret Access Key";
+      if (!draft.sftpRegion?.trim()) newErrors.sftpRegion = "Please enter region";
+      if (!draft.sftpBucketName?.trim()) newErrors.sftpBucketName = "Please enter bucket name";
+    }
+    if (draft.actionType === "Media API") {
+      if (!draft.mediaRecipientNumber?.trim()) newErrors.mediaRecipientNumber = "Please enter recipient number(s)";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -1775,10 +1831,10 @@ export function ScheduleModal({
 
                 {/* 3. Output & Delivery */}
                 <div className="pt-2 space-y-4">
-                  {/* Report Detail Level */}
+                  {/* Report Type */}
                   <div className="space-y-1.5">
                     <label className="block text-xs font-semibold text-foreground">
-                      Report Detail Level
+                      Report Type
                     </label>
                     <div className="flex items-center gap-6 h-8">
                       {(["Summary", "Daily", "Detail"] as const).map(
@@ -1831,9 +1887,9 @@ export function ScheduleModal({
                     </div>
                   </div>
 
-                  {/* Dynamic Delivery Configuration Details */}
+                  {/* Delivery Configuration Details: EMAIL */}
                   {draft.actionType === "Email" && (
-                    <div className="pt-1 space-y-4">
+                    <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
                       <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-2 space-y-1.5">
                           <label className="block text-xs font-semibold text-foreground">
@@ -1959,6 +2015,326 @@ export function ScheduleModal({
                           placeholder="Write your email body message here..."
                           className="w-full rounded-md border border-input bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar font-medium"
                         />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Delivery Configuration Details: FTP */}
+                  {draft.actionType === "FTP" && (
+                    <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="col-span-2 space-y-1.5">
+                          <label className="block text-xs font-semibold text-foreground">
+                            Host Address <span className="text-red-500 font-bold ml-0.5">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={draft.ftpHost || ""}
+                            onChange={(e) => {
+                              setDraft((d) => ({ ...d, ftpHost: e.target.value }));
+                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpHost: undefined }));
+                            }}
+                            placeholder="e.g. ftp.example.com"
+                            className={cn(
+                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              errors.ftpHost
+                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                            )}
+                          />
+                          {errors.ftpHost && (
+                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                              <span>{errors.ftpHost}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-foreground">
+                            Port <span className="text-red-500 font-bold ml-0.5">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={draft.ftpPort || "21"}
+                            onChange={(e) => {
+                              setDraft((d) => ({ ...d, ftpPort: e.target.value }));
+                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpPort: undefined }));
+                            }}
+                            placeholder="21"
+                            className={cn(
+                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              errors.ftpPort
+                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                            )}
+                          />
+                          {errors.ftpPort && (
+                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                              <span>{errors.ftpPort}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-foreground">
+                            Username <span className="text-red-500 font-bold ml-0.5">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={draft.ftpUsername || ""}
+                            onChange={(e) => {
+                              setDraft((d) => ({ ...d, ftpUsername: e.target.value }));
+                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpUsername: undefined }));
+                            }}
+                            placeholder="e.g. ftp_user"
+                            className={cn(
+                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              errors.ftpUsername
+                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                            )}
+                          />
+                          {errors.ftpUsername && (
+                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                              <span>{errors.ftpUsername}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-foreground">
+                            Password <span className="text-red-500 font-bold ml-0.5">*</span>
+                          </label>
+                          <input
+                            type="password"
+                            value={draft.ftpPassword || ""}
+                            onChange={(e) => {
+                              setDraft((d) => ({ ...d, ftpPassword: e.target.value }));
+                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpPassword: undefined }));
+                            }}
+                            placeholder="••••••••"
+                            className={cn(
+                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              errors.ftpPassword
+                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                            )}
+                          />
+                          {errors.ftpPassword && (
+                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                              <span>{errors.ftpPassword}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-foreground">
+                          Folder Name <span className="text-red-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={draft.ftpFolder || ""}
+                          onChange={(e) => {
+                            setDraft((d) => ({ ...d, ftpFolder: e.target.value }));
+                            if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpFolder: undefined }));
+                          }}
+                          placeholder="e.g. /reports/daily"
+                          className={cn(
+                            "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                            errors.ftpFolder
+                              ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                              : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                          )}
+                        />
+                        {errors.ftpFolder && (
+                          <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                            <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <span>{errors.ftpFolder}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Delivery Configuration Details: SFTP (Cloud Storage) */}
+                  {draft.actionType === "SFTP" && (
+                    <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-foreground">
+                          Platform <span className="text-red-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <SelectDropdown
+                          value={draft.sftpPlatform || "Amazon S3"}
+                          options={SFTP_PLATFORMS}
+                          onChange={(sftpPlatform) => setDraft((d) => ({ ...d, sftpPlatform }))}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-foreground">
+                            Access key ID <span className="text-red-500 font-bold ml-0.5">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={draft.sftpAccessKey || ""}
+                            onChange={(e) => {
+                              setDraft((d) => ({ ...d, sftpAccessKey: e.target.value }));
+                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpAccessKey: undefined }));
+                            }}
+                            placeholder="e.g. AKIAIOSFODNN7EXAMPLE"
+                            className={cn(
+                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              errors.sftpAccessKey
+                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                            )}
+                          />
+                          {errors.sftpAccessKey && (
+                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                              <span>{errors.sftpAccessKey}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-foreground">
+                            Secret Access Key <span className="text-red-500 font-bold ml-0.5">*</span>
+                          </label>
+                          <input
+                            type="password"
+                            value={draft.sftpSecretKey || ""}
+                            onChange={(e) => {
+                              setDraft((d) => ({ ...d, sftpSecretKey: e.target.value }));
+                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpSecretKey: undefined }));
+                            }}
+                            placeholder="••••••••••••••••••••••••"
+                            className={cn(
+                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              errors.sftpSecretKey
+                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                            )}
+                          />
+                          {errors.sftpSecretKey && (
+                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                              <span>{errors.sftpSecretKey}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-foreground">
+                            Region <span className="text-red-500 font-bold ml-0.5">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={draft.sftpRegion || ""}
+                            onChange={(e) => {
+                              setDraft((d) => ({ ...d, sftpRegion: e.target.value }));
+                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpRegion: undefined }));
+                            }}
+                            placeholder="e.g. ap-south-1"
+                            className={cn(
+                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              errors.sftpRegion
+                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                            )}
+                          />
+                          {errors.sftpRegion && (
+                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                              <span>{errors.sftpRegion}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-foreground">
+                            Bucket Name <span className="text-red-500 font-bold ml-0.5">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={draft.sftpBucketName || ""}
+                            onChange={(e) => {
+                              setDraft((d) => ({ ...d, sftpBucketName: e.target.value }));
+                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpBucketName: undefined }));
+                            }}
+                            placeholder="e.g. company-fleet-reports"
+                            className={cn(
+                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              errors.sftpBucketName
+                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                            )}
+                          />
+                          {errors.sftpBucketName && (
+                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                              <span>{errors.sftpBucketName}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Delivery Configuration Details: MEDIA API */}
+                  {draft.actionType === "Media API" && (
+                    <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-foreground">
+                          Gateway <span className="text-red-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <SelectDropdown
+                          value={draft.mediaGateway || "WhatsApp"}
+                          options={MEDIA_GATEWAYS}
+                          onChange={(mediaGateway) => setDraft((d) => ({ ...d, mediaGateway }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs font-semibold text-foreground">
+                            Recipient Number <span className="text-red-500 font-bold ml-0.5">*</span>
+                          </label>
+                          <span className="text-[11px] text-muted-foreground font-medium">
+                            Comma (,) for multiple recipient numbers
+                          </span>
+                        </div>
+                        <textarea
+                          rows={3}
+                          value={draft.mediaRecipientNumber || ""}
+                          onChange={(e) => {
+                            setDraft((d) => ({ ...d, mediaRecipientNumber: e.target.value }));
+                            if (e.target.value.trim()) setErrors((prev) => ({ ...prev, mediaRecipientNumber: undefined }));
+                          }}
+                          placeholder="+91 9876543210, +1 5550192834"
+                          className={cn(
+                            "w-full rounded-md border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs custom-scrollbar focus:outline-none",
+                            errors.mediaRecipientNumber
+                              ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                              : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                          )}
+                        />
+                        {errors.mediaRecipientNumber && (
+                          <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
+                            <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <span>{errors.mediaRecipientNumber}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
