@@ -410,18 +410,25 @@ export function UserProfileMenu() {
               <DropdownMenuSubTrigger className="flex items-center justify-between px-3 py-2 text-xs font-medium text-foreground cursor-pointer hover:bg-muted/80 rounded transition-colors">
                 <span>Applications</span>
               </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="w-56 max-h-[380px] overflow-y-auto p-1 text-xs rounded-lg border border-border/80 bg-surface shadow-2xl z-[95] divide-y divide-border/40">
+              <DropdownMenuSubContent
+                sideOffset={6}
+                alignOffset={-4}
+                className="w-56 max-h-[380px] overflow-y-auto p-1 text-xs rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl shadow-2xl z-[100] divide-y divide-border/40"
+              >
                 {APPLICATIONS.map((app) => (
                   <DropdownMenuItem
                     key={app.id}
                     onClick={() => toast.info(`Switching to ${app.name}`)}
                     className={cn(
-                      "px-3 py-2 cursor-pointer text-xs transition-colors hover:bg-muted/80 rounded",
+                      "px-3 py-2 cursor-pointer text-xs transition-colors hover:bg-muted/80 rounded flex items-center justify-between",
                       app.isPrimary &&
-                        "font-bold text-slate-950 dark:text-white",
+                        "font-bold text-brand bg-brand/10 hover:bg-brand/15",
                     )}
                   >
                     <span>{app.name}</span>
+                    {app.isPrimary && (
+                      <Check className="h-3.5 w-3.5 text-brand shrink-0" />
+                    )}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuSubContent>
