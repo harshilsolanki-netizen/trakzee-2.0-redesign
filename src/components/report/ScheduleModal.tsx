@@ -452,41 +452,93 @@ function VehicleMultiSelectDropdown({
       .filter((g) => g.vehicles.length > 0);
   }, [regionGroups, search]);
 
+  // Selected vehicle summary when collapsed (e.g., "Fuel - 1001 +3" / "GJ21HS1609+100")
+  const collapsedSummary = useMemo(() => {
+    if (selectedVehicles.length === 0) return null;
+    const vehicleMap = new Map<string, FleetObject>();
+    for (const g of regionGroups) {
+      for (const v of g.vehicles) {
+        vehicleMap.set(v.id, v);
+      }
+    }
+    const firstVehicle =
+      vehicleMap.get(selectedVehicles[0]) ||
+      fleetObjects.find((f) => f.id === selectedVehicles[0]);
+    const firstName = firstVehicle ? firstVehicle.name : selectedVehicles[0];
+    const extraCount = selectedVehicles.length - 1;
+    return {
+      firstName,
+      extraCount,
+    };
+  }, [regionGroups, selectedVehicles]);
+
   return (
-    <div className="rounded-lg border border-border/80 bg-background overflow-hidden shadow-2xs">
+    <div className="rounded-lg border border-border/80 bg-background overflow-hidden shadow-2xs transition-all">
       {/* Top Search & Toggle Bar matching mockup */}
-      <div className="flex h-9.5 items-center px-3 gap-2 bg-background border-b border-border/60 transition-colors">
-        <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search vehicles..."
-          className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/70 focus:outline-none font-medium"
-        />
-        {search && (
+      {isExpanded ? (
+        <div className="flex h-9.5 items-center px-3 gap-2 bg-background border-b border-border/60 transition-colors">
+          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search vehicles..."
+            className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/70 focus:outline-none font-medium"
+            autoFocus
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => setSearch("")}
+            onClick={() => setIsExpanded(false)}
             className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
+            aria-label="Collapse vehicle list"
           >
-            <X className="h-3.5 w-3.5" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground rotate-180 transition-transform duration-200" />
           </button>
-        )}
-        <button
-          type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
-          aria-label={isExpanded ? "Collapse vehicle list" : "Expand vehicle list"}
+        </div>
+      ) : (
+        <div
+          onClick={() => setIsExpanded(true)}
+          className="flex h-9.5 items-center px-3 gap-2 bg-background cursor-pointer hover:bg-muted/30 transition-colors select-none group"
         >
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 text-muted-foreground transition-transform duration-200",
-              isExpanded && "rotate-180",
-            )}
-          />
-        </button>
-      </div>
+          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+          {collapsedSummary ? (
+            <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden">
+              <span className="text-xs font-semibold text-foreground truncate">
+                {collapsedSummary.firstName}
+              </span>
+              {collapsedSummary.extraCount > 0 && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[11px] font-bold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                  +{collapsedSummary.extraCount}
+                </span>
+              )}
+            </div>
+          ) : (
+            <span className="flex-1 text-xs text-muted-foreground/70 font-medium truncate">
+              Search vehicles...
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(true);
+            }}
+            className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
+            aria-label="Expand vehicle list"
+          >
+            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+          </button>
+        </div>
+      )}
 
       {/* Expanded Tree List matching reference image */}
       {isExpanded && (
@@ -970,7 +1022,7 @@ export function ScheduleModal({
               ? schedules.length === 0
                 ? "w-full max-w-lg"
                 : "w-[94vw] max-w-2xl max-h-[85vh]"
-              : "w-[94vw] max-w-3xl h-[88vh] max-h-[860px]",
+              : "w-[94vw] max-w-3xl max-h-[88vh]",
           )}
         >
           {/* Modern Seamless Modal Header (45px) */}
