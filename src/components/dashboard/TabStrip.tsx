@@ -10,6 +10,7 @@ import {
   Plus,
   Settings,
   SlidersHorizontal,
+  SquarePen,
   Trash2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -43,6 +44,80 @@ import {
   DashboardConfigDrawer,
   type DashboardConfigTarget,
 } from "./DashboardConfigDrawer";
+
+/**
+ * Chrome-style bottom-left concave flare SVG.
+ * Seamlessly curves from the horizontal baseline up into the active tab's left vertical border.
+ */
+function ChromeTabFlareLeft() {
+  return (
+    <svg
+      className="absolute -left-[10px] -bottom-[1px] h-[10px] w-[11px] pointer-events-none z-10"
+      viewBox="0 0 11 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Outer corner background fill matching the active tab card background */}
+      <path
+        d="M 10 0 A 10 10 0 0 0 0 10 L 11 10 L 11 0 Z"
+        className="fill-card"
+      />
+      {/* Curved border stroke */}
+      <path
+        d="M 0 10 A 10 10 0 0 1 10 0"
+        className="stroke-border/80"
+        strokeWidth="1"
+        fill="none"
+      />
+      {/* Baseline mask matching card background to cleanly cover the bottom border */}
+      <line
+        x1="0"
+        y1="10"
+        x2="11"
+        y2="10"
+        className="stroke-card"
+        strokeWidth="1.5"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Chrome-style bottom-right concave flare SVG.
+ * Seamlessly curves from the active tab's right vertical border down into the horizontal baseline.
+ */
+function ChromeTabFlareRight() {
+  return (
+    <svg
+      className="absolute -right-[10px] -bottom-[1px] h-[10px] w-[11px] pointer-events-none z-10"
+      viewBox="0 0 11 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Outer corner background fill matching the active tab card background */}
+      <path
+        d="M 1 0 A 10 10 0 0 0 11 10 L 0 10 L 0 0 Z"
+        className="fill-card"
+      />
+      {/* Curved border stroke */}
+      <path
+        d="M 1 0 A 10 10 0 0 0 11 10"
+        className="stroke-border/80"
+        strokeWidth="1"
+        fill="none"
+      />
+      {/* Baseline mask matching card background to cleanly cover the bottom border */}
+      <line
+        x1="0"
+        y1="10"
+        x2="11"
+        y2="10"
+        className="stroke-card"
+        strokeWidth="1.5"
+      />
+    </svg>
+  );
+}
 
 export function TabStrip() {
   const {
@@ -151,7 +226,7 @@ export function TabStrip() {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-border/80 bg-background px-4 pt-1.5 text-xs select-none shrink-0">
       {/* 1. Left Tab Bar */}
-      <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+      <div className="flex min-w-0 flex-1 items-center gap-2 pl-3 pr-2 overflow-x-auto overflow-y-visible">
         {visibleTabs.map((tab) => {
           const isActive = tab.id === activeTab.id;
           return (
@@ -182,12 +257,16 @@ export function TabStrip() {
               className={cn(
                 "group relative flex shrink-0 cursor-pointer items-center gap-2 px-4 py-2 text-xs font-semibold transition-all duration-150",
                 isActive
-                  ? "bg-card rounded-t-xl border-t border-l border-r border-border -mb-px z-10 shadow-2xs"
-                  : "bg-transparent hover:bg-muted/40 rounded-t-lg text-[#1e40af] dark:text-blue-400",
+                  ? "bg-card rounded-t-xl border-t border-l border-r border-border/80 -mb-px z-10 shadow-2xs text-[#1e40af] dark:text-blue-400"
+                  : "bg-transparent hover:bg-muted/50 rounded-t-lg text-[#1e40af] dark:text-blue-400",
                 dragId === tab.id ? "opacity-40" : "",
                 overId === tab.id ? "ring-2 ring-primary/40" : "",
               )}
             >
+              {/* Chrome-style outward curved flares for active tab */}
+              {isActive && <ChromeTabFlareLeft />}
+              {isActive && <ChromeTabFlareRight />}
+
               {renamingId === tab.id ? (
                 <input
                   ref={inputRef}
@@ -239,7 +318,7 @@ export function TabStrip() {
                     onClick={() => startRename(tab.id, tab.name)}
                     className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-foreground hover:bg-muted/80 cursor-pointer font-medium"
                   >
-                    <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                    <SquarePen className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>Rename</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
