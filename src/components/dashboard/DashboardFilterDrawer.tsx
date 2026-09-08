@@ -19,7 +19,7 @@ import {
 import { fleetObjects } from "@/data/fleet";
 import { cn } from "@/lib/utils";
 
-interface MultiSelectDropdownProps {
+interface UniversalMultiSelectDropdownProps {
   label: string;
   selected: string[];
   options: string[];
@@ -28,16 +28,31 @@ interface MultiSelectDropdownProps {
   className?: string;
 }
 
-function MultiSelectDropdown({
+/**
+ * Universal Multi-Select Dropdown matching the exact design and behavior
+ * from the reference screenshots (with search, select all, 0-selection warning banner,
+ * Clear/Cancel/Apply footer, and "+N" closed state formatting e.g. "GJ21HS1609+100").
+ */
+function UniversalMultiSelectDropdown({
   label,
   selected,
   options,
   onChange,
   placeholder,
   className,
-}: MultiSelectDropdownProps) {
+}: UniversalMultiSelectDropdownProps) {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [draft, setDraft] = useState<string[]>(selected);
   const ref = useRef<HTMLDivElement | null>(null);
+
+  // Sync draft when opened or when parent selection changes
+  useEffect(() => {
+    if (open) {
+      setDraft(selected);
+      setSearch("");
+    }
+  }, [open, selected]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -53,22 +68,53 @@ function MultiSelectDropdown({
     };
   }, [open]);
 
-  const toggle = (opt: string) => {
-    if (selected.includes(opt)) {
-      onChange(selected.filter((s) => s !== opt));
+  const filteredOptions = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return options;
+    return options.filter((opt) => opt.toLowerCase().includes(q));
+  }, [options, search]);
+
+  const isAllDraftSelected =
+    filteredOptions.length > 0 &&
+    filteredOptions.every((opt) => draft.includes(opt));
+
+  const toggleDraft = (opt: string) => {
+    if (draft.includes(opt)) {
+      setDraft(draft.filter((s) => s !== opt));
     } else {
-      onChange([...selected, opt]);
+      setDraft([...draft, opt]);
     }
   };
 
-  const isAll = selected.length === options.length && options.length > 0;
+  const toggleAllDraft = () => {
+    if (isAllDraftSelected) {
+      setDraft(draft.filter((s) => !filteredOptions.includes(s)));
+    } else {
+      setDraft([...new Set([...draft, ...filteredOptions])]);
+    }
+  };
 
+  const handleApply = () => {
+    onChange(draft);
+    setOpen(false);
+  };
+
+  const handleCancel = () => {
+    setDraft(selected);
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    setDraft([]);
+  };
+
+  // Closed trigger display text: e.g. "GJ21HS1609+100", "HP Group+7", "Dumper+2"
   const displayText = useMemo(() => {
     if (!selected || selected.length === 0) {
       return placeholder || `Select ${label}`;
     }
     if (selected.length === 1) return selected[0];
-    return `${selected[0]} +${selected.length - 1}`;
+    return `${selected[0]}+${selected.length - 1}`;
   }, [selected, label, placeholder]);
 
   return (
@@ -91,43 +137,117 @@ function MultiSelectDropdown({
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-56 overflow-y-auto rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-lg animate-in fade-in-0 zoom-in-95 select-none">
-          <label className="flex items-center gap-2.5 rounded-sm px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/80 hover:text-foreground cursor-pointer transition-colors select-none">
-            <input
-              type="checkbox"
-              checked={isAll}
-              onChange={() => {
-                if (isAll) onChange([]);
-                else onChange([...options]);
-              }}
-              className="rounded-md border-input text-brand cursor-pointer h-4 w-4 accent-[#0089FF]"
-            />
-            <span>Select All</span>
-          </label>
+        <div className="absolute top-full left-0 right-0 z-50 mt-1.5 w-full rounded-xl border border-border/80 bg-popover/98 backdrop-blur-xl shadow-2xl animate-in fade-in-0 zoom-in-95 select-none overflow-hidden flex flex-col">
+          {/* Header Row: Title on left, N selected on right */}
+          <div className="p-3 pb-2 border-b border-border/60 bg-muted/20 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-foreground">
+                Select {label}
+              </span>
+              <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+                {draft.length} selected
+              </span>
+            </div>
 
-          <div className="my-1 border-t border-border/60" />
-          {options.map((opt) => {
-            const isChecked = selected.includes(opt);
-            return (
-              <label
-                key={opt}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-sm px-2.5 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none",
-                  isChecked
-                    ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
-                    : "hover:bg-muted/80 hover:text-foreground font-medium",
-                )}
+            {/* Search Box */}
+            <div className="flex h-8 items-center gap-1.5 rounded-md border border-input bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+              <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={`Search ${label.toLowerCase()}...`}
+                className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="rounded-md p-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Select All Checkbox */}
+          <div className="px-3.5 py-1.5 border-b border-border/60 flex items-center justify-between bg-muted/10">
+            <label className="flex items-center gap-2 cursor-pointer select-none w-full text-xs font-semibold text-foreground">
+              <input
+                type="checkbox"
+                checked={isAllDraftSelected}
+                onChange={toggleAllDraft}
+                className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand accent-[#0089FF] cursor-pointer"
+              />
+              <span>Select All</span>
+            </label>
+          </div>
+
+          {/* Reference Warning Message when 0 items selected */}
+          {draft.length === 0 && (
+            <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug">
+              Select at least one item, or all items will be selected by default.
+            </div>
+          )}
+
+          {/* Options List */}
+          <div className="max-h-48 overflow-y-auto p-1.5 space-y-0.5 custom-scrollbar">
+            {filteredOptions.map((opt) => {
+              const isChecked = draft.includes(opt);
+              return (
+                <label
+                  key={opt}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none",
+                    isChecked
+                      ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
+                      : "hover:bg-muted/80 hover:text-foreground font-medium",
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => toggleDraft(opt)}
+                    className="rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                  />
+                  <span className="truncate">{opt}</span>
+                </label>
+              );
+            })}
+
+            {filteredOptions.length === 0 && (
+              <div className="p-4 text-center text-xs text-muted-foreground italic">
+                No {label.toLowerCase()} found
+              </div>
+            )}
+          </div>
+
+          {/* Footer Toolbar: Clear, Cancel, Apply */}
+          <div className="p-2.5 px-3.5 border-t border-border/70 flex items-center justify-between bg-muted/20">
+            <button
+              type="button"
+              onClick={handleClear}
+              className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors"
+            >
+              Clear
+            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-3 py-1.5 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
               >
-                <input
-                  type="checkbox"
-                  checked={isChecked}
-                  onChange={() => toggle(opt)}
-                  className="rounded-md border-input text-brand cursor-pointer h-4 w-4 accent-[#0089FF]"
-                />
-                <span className="truncate">{opt}</span>
-              </label>
-            );
-          })}
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleApply}
+                className="px-4 py-1.5 text-xs rounded-md font-semibold text-white bg-[#155dfc] hover:bg-[#124ecf] shadow-xs transition-all active:scale-98 cursor-pointer"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -370,7 +490,7 @@ export function DashboardFilterDrawer({
         aria-hidden={!open}
         aria-label="Dashboard Filter Options"
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-screen w-full max-w-[420px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-0 z-50 flex h-screen w-full max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
@@ -389,67 +509,70 @@ export function DashboardFilterDrawer({
           </button>
         </header>
 
-        {/* 2. Main Scrollable Content */}
-        <div className="min-h-0 flex-1 flex flex-col p-5 space-y-4 overflow-y-auto">
-          {/* Field 1: Company */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-foreground">
-              Company
-            </label>
-            <MultiSelectDropdown
-              label="Company"
-              selected={selectedCompanies}
-              options={companyOptions}
-              onChange={setSelectedCompanies}
-              placeholder="Select Company"
-            />
+        {/* 2. Main Content Area (Stretches smoothly with side padding) */}
+        <div className="min-h-0 flex-1 flex flex-col p-5 space-y-3.5 overflow-y-auto">
+          {/* Top Dropdowns Container */}
+          <div className="space-y-3 shrink-0">
+            {/* Field 1: Company */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-foreground">
+                Company
+              </label>
+              <UniversalMultiSelectDropdown
+                label="Company"
+                selected={selectedCompanies}
+                options={companyOptions}
+                onChange={setSelectedCompanies}
+                placeholder="Select Company"
+              />
+            </div>
+
+            {/* Field 2: Branch */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-foreground">
+                Branch
+              </label>
+              <UniversalMultiSelectDropdown
+                label="Branch"
+                selected={selectedBranches}
+                options={branchOptions}
+                onChange={setSelectedBranches}
+                placeholder="Select Branch"
+              />
+            </div>
+
+            {/* Field 3: Group */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-foreground">
+                Group
+              </label>
+              <UniversalMultiSelectDropdown
+                label="Group"
+                selected={selectedGroups}
+                options={groupOptions}
+                onChange={setSelectedGroups}
+                placeholder="Select Group"
+              />
+            </div>
+
+            {/* Field 4: Type */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-foreground">
+                Type
+              </label>
+              <UniversalMultiSelectDropdown
+                label="Type"
+                selected={selectedTypes}
+                options={typeOptions}
+                onChange={setSelectedTypes}
+                placeholder="Select Type"
+              />
+            </div>
           </div>
 
-          {/* Field 2: Branch */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-foreground">
-              Branch
-            </label>
-            <MultiSelectDropdown
-              label="Branch"
-              selected={selectedBranches}
-              options={branchOptions}
-              onChange={setSelectedBranches}
-              placeholder="Select Branch"
-            />
-          </div>
-
-          {/* Field 3: Group */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-foreground">
-              Group
-            </label>
-            <MultiSelectDropdown
-              label="Group"
-              selected={selectedGroups}
-              options={groupOptions}
-              onChange={setSelectedGroups}
-              placeholder="Select Group"
-            />
-          </div>
-
-          {/* Field 4: Type */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-foreground">
-              Type
-            </label>
-            <MultiSelectDropdown
-              label="Type"
-              selected={selectedTypes}
-              options={typeOptions}
-              onChange={setSelectedTypes}
-              placeholder="Select Type"
-            />
-          </div>
-
-          {/* Field 5: Vehicle List Section */}
+          {/* Field 5: Vehicle List Section (Stretches all the way down to the footer) */}
           <div className="space-y-2 pt-2 border-t border-border/60 flex-1 min-h-0 flex flex-col">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between shrink-0">
               <label className="block text-xs font-bold text-foreground">
                 Vehicle List
               </label>
@@ -482,8 +605,8 @@ export function DashboardFilterDrawer({
               </div>
             </div>
 
-            {/* Tree / Grouped Vehicle Checkbox Container */}
-            <div className="min-h-[220px] max-h-[320px] flex-1 flex flex-col rounded-lg border border-border/80 bg-card overflow-hidden shadow-2xs">
+            {/* Tree / Grouped Vehicle Checkbox Container (Extends to bottom) */}
+            <div className="flex-1 min-h-[200px] flex flex-col rounded-lg border border-border/80 bg-card overflow-hidden shadow-2xs">
               {/* Select all header toolbar */}
               <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none">
                 <button
@@ -498,7 +621,14 @@ export function DashboardFilterDrawer({
                 </span>
               </div>
 
-              {/* Scrollable Vehicle List */}
+              {/* Reference Warning Message when 0 vehicles selected */}
+              {selectedVehicleIds.length === 0 && (
+                <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug shrink-0">
+                  Select at least one item, or all items will be selected by default.
+                </div>
+              )}
+
+              {/* Scrollable Vehicle List extending smoothly */}
               <div className="flex-1 min-h-0 overflow-y-auto p-1 divide-y divide-border/40">
                 {groupedVehicles.map(({ branch, vehicles }) => {
                   const isExpanded =
@@ -599,7 +729,7 @@ export function DashboardFilterDrawer({
           </div>
         </div>
 
-        {/* 3. Sticky Drawer Footer Actions (Matching Reference Screenshot) */}
+        {/* 3. Sticky Drawer Footer Actions */}
         <footer className="flex items-center justify-between border-t border-border bg-card/60 px-5 py-3.5 shrink-0 select-none">
           <button
             type="button"
