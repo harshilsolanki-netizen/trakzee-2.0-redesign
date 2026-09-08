@@ -1,5 +1,13 @@
-import { Check, ChevronDown, X } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   COMPARATORS,
   DURATION_UNITS,
@@ -59,6 +67,9 @@ export const DEFAULT_FILTERS: ReportFilters = {
 export type ExportFormat = "XLS" | "PDF" | "CSV";
 export type ExportScope = "summary" | "detail";
 
+/**
+ * Single Select Dropdown visually matching the report title frame dropdowns
+ */
 function SelectDropdown({
   value,
   options,
@@ -95,21 +106,21 @@ function SelectDropdown({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex h-9 w-full items-center justify-between rounded-md border border-input/80 bg-background px-3 text-xs text-foreground font-semibold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-semibold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
           open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
         )}
       >
         <span className="truncate">{value || placeholder || "Select"}</span>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200",
+            "h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1",
             open && "rotate-180",
           )}
         />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-lg animate-in fade-in-0 zoom-in-95 select-none">
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
           {options.map((opt) => (
             <button
               key={opt}
@@ -119,15 +130,15 @@ function SelectDropdown({
                 setOpen(false);
               }}
               className={cn(
-                "flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-left text-xs transition-colors cursor-pointer select-none",
+                "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none",
                 value === opt
                   ? "bg-[#0089FF]/10 font-bold text-[#0089FF] hover:bg-[#0089FF]/15"
                   : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
               )}
             >
-              <span>{opt}</span>
+              <span className="truncate">{opt}</span>
               {value === opt && (
-                <Check className="h-3.5 w-3.5 text-[#0089FF]" />
+                <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
               )}
             </button>
           ))}
@@ -137,21 +148,41 @@ function SelectDropdown({
   );
 }
 
-function MultiSelectDropdown({
+/**
+ * Universal Multi-Select Dropdown matching the title frame styling visually:
+ * - h-7.5 / h-8 sleek trigger
+ * - FirstItem +Count formatted display (e.g. "HP Group +7", "Dumper +2")
+ * - Real-time search box
+ * - Select all checkbox
+ * - Red warning message when 0 items selected
+ * - Clear / Cancel / Apply footer
+ */
+function UniversalMultiSelectDropdown({
   label,
   selected,
   options,
   onChange,
   className,
+  placeholder,
 }: {
   label: string;
   selected: string[];
   options: string[];
   onChange: (next: string[]) => void;
   className?: string;
+  placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [draft, setDraft] = useState<string[]>(selected);
   const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setDraft(selected);
+      setSearch("");
+    }
+  }, [open, selected]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -167,25 +198,53 @@ function MultiSelectDropdown({
     };
   }, [open]);
 
-  const toggle = (opt: string) => {
-    if (selected.includes(opt)) {
-      onChange(selected.filter((s) => s !== opt));
+  const filteredOptions = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return options;
+    return options.filter((opt) => opt.toLowerCase().includes(q));
+  }, [options, search]);
+
+  const isAllDraftSelected =
+    filteredOptions.length > 0 &&
+    filteredOptions.every((opt) => draft.includes(opt));
+
+  const toggleDraft = (opt: string) => {
+    if (draft.includes(opt)) {
+      setDraft(draft.filter((s) => s !== opt));
     } else {
-      onChange([...selected, opt]);
+      setDraft([...draft, opt]);
     }
   };
 
-  const isAll = selected.length === options.length && options.length > 0;
+  const toggleAllDraft = () => {
+    if (isAllDraftSelected) {
+      setDraft(draft.filter((s) => !filteredOptions.includes(s)));
+    } else {
+      setDraft([...new Set([...draft, ...filteredOptions])]);
+    }
+  };
+
+  const handleApply = () => {
+    onChange(draft);
+    setOpen(false);
+  };
+
+  const handleCancel = () => {
+    setDraft(selected);
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    setDraft([]);
+  };
 
   const displayText = useMemo(() => {
     if (!selected || selected.length === 0) {
-      const first = options[0] || label;
-      const remaining = Math.max(0, options.length - 1);
-      return remaining > 0 ? `${first} +${remaining}` : first;
+      return placeholder || `Select ${label}`;
     }
     if (selected.length === 1) return selected[0];
     return `${selected[0]} +${selected.length - 1}`;
-  }, [selected, options, label]);
+  }, [selected, label, placeholder]);
 
   return (
     <div ref={ref} className={cn("relative", className)}>
@@ -193,65 +252,131 @@ function MultiSelectDropdown({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex h-9 w-full items-center justify-between rounded-md border border-input/80 bg-background px-3 text-xs text-foreground font-semibold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-semibold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
           open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
         )}
       >
         <span className="truncate">{displayText}</span>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200",
+            "h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1",
             open && "rotate-180",
           )}
         />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-56 overflow-y-auto rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-lg animate-in fade-in-0 zoom-in-95 select-none">
-          <label className="flex items-center gap-2.5 rounded-sm px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/80 hover:text-foreground cursor-pointer transition-colors select-none">
-            <input
-              type="checkbox"
-              checked={isAll}
-              onChange={() => {
-                if (isAll) onChange([]);
-                else onChange([...options]);
-              }}
-              className="rounded-md border-input text-brand cursor-pointer h-4 w-4 accent-[#0089FF]"
-            />
-            <span>Select All</span>
-          </label>
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 w-full rounded-xl border border-border/80 bg-popover/98 backdrop-blur-xl shadow-2xl animate-in fade-in-0 zoom-in-95 select-none overflow-hidden flex flex-col">
+          {/* Header Row */}
+          <div className="p-2.5 pb-2 border-b border-border/60 bg-muted/20 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-foreground">
+                Select {label}
+              </span>
+              <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+                {draft.length} selected
+              </span>
+            </div>
 
-          {/* Red helper message when 0 selected */}
-          {selected.length === 0 && (
-            <div className="mx-2 my-1 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug">
-              Select at least one item, or all items will be selected by
-              default.
+            {/* Search Box */}
+            <div className="flex h-7 items-center gap-1.5 rounded-md border border-input bg-background px-2 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+              <Search className="h-3 w-3 text-muted-foreground shrink-0" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={`Search ${label.toLowerCase()}...`}
+                className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="rounded-md p-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Select All Checkbox */}
+          <div className="px-3 py-1.5 border-b border-border/60 flex items-center justify-between bg-muted/10">
+            <label className="flex items-center gap-2 cursor-pointer select-none w-full text-xs font-semibold text-foreground">
+              <input
+                type="checkbox"
+                checked={isAllDraftSelected}
+                onChange={toggleAllDraft}
+                className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand accent-[#0089FF] cursor-pointer"
+              />
+              <span>Select All</span>
+            </label>
+          </div>
+
+          {/* Warning Message when 0 items selected */}
+          {draft.length === 0 && (
+            <div className="mx-2.5 my-1.5 px-2 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug">
+              Select at least one item, or all items will be selected by default.
             </div>
           )}
 
-          <div className="my-1 border-t border-border/60" />
-          {options.map((opt) => {
-            const isChecked = selected.includes(opt);
-            return (
-              <label
-                key={opt}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-sm px-2.5 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none",
-                  isChecked
-                    ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
-                    : "hover:bg-muted/80 hover:text-foreground font-medium",
-                )}
+          {/* Options List */}
+          <div className="max-h-48 overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
+            {filteredOptions.map((opt) => {
+              const isChecked = draft.includes(opt);
+              return (
+                <label
+                  key={opt}
+                  className={cn(
+                    "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none",
+                    isChecked
+                      ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
+                      : "hover:bg-muted/80 hover:text-foreground font-medium",
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => toggleDraft(opt)}
+                    className="rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                  />
+                  <span className="truncate">{opt}</span>
+                </label>
+              );
+            })}
+
+            {filteredOptions.length === 0 && (
+              <div className="p-3 text-center text-xs text-muted-foreground italic">
+                No {label.toLowerCase()} found
+              </div>
+            )}
+          </div>
+
+          {/* Footer Toolbar */}
+          <div className="p-2 px-3 border-t border-border/70 flex items-center justify-between bg-muted/20">
+            <button
+              type="button"
+              onClick={handleClear}
+              className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors"
+            >
+              Clear
+            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-2.5 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
               >
-                <input
-                  type="checkbox"
-                  checked={isChecked}
-                  onChange={() => toggle(opt)}
-                  className="rounded-md border-input text-brand cursor-pointer h-4 w-4 accent-[#0089FF]"
-                />
-                <span className="truncate">{opt}</span>
-              </label>
-            );
-          })}
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleApply}
+                className="px-3.5 py-1 text-xs rounded-md font-semibold text-white bg-[#155dfc] hover:bg-[#124ecf] shadow-xs transition-all active:scale-98 cursor-pointer"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -287,7 +412,7 @@ export function ReportConfigPanel({
   }, [availableGroups]);
 
   const typeOptions = useMemo(() => {
-    return ["Dumper", "Truck", "Bus", "SUV", "Taxi"];
+    return ["Dumper", "Truck", "Bus", "SUV", "Taxi", "Trailer"];
   }, []);
 
   const brandOptions = useMemo(() => {
@@ -303,6 +428,21 @@ export function ReportConfigPanel({
       ...VEHICLE_MODELS.filter((m) => m !== "All" && m !== "10 Wheel"),
     ];
   }, []);
+
+  const handleReset = () => {
+    onChange({
+      groups: ["HP Group", "Trucks", "Buses", "Cars"],
+      types: ["Dumper", "Truck", "Bus"],
+      brands: ["Ashok Leyland"],
+      models: ["10 Wheel"],
+      durationCompare: "Greater Than",
+      durationUnit: "Hour",
+      durationValue: "",
+      distanceCompare: "Greater Than",
+      distanceValue: "",
+    });
+    toast.info("Report filter options reset to default");
+  };
 
   const handleDrawerApply = () => {
     const patch: Partial<ReportFilters> = {};
@@ -332,14 +472,14 @@ export function ReportConfigPanel({
 
       <aside
         aria-hidden={!open}
-        aria-label="Report filter"
+        aria-label="Report filter options"
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-screen w-full max-w-[400px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-0 z-50 flex h-screen w-full max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
-        {/* Modern Clean Drawer Header (45px) */}
-        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
+        {/* Standardized 45px Header matching Side Panel Design System */}
+        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
           <h2 className="text-sm font-bold tracking-tight text-foreground">
             Filter Options
           </h2>
@@ -353,20 +493,21 @@ export function ReportConfigPanel({
           </button>
         </header>
 
-        {/* Main Body */}
-        <div className="min-h-0 flex-1 flex flex-col p-6 space-y-4.5 overflow-y-auto">
+        {/* Main Body with visually matched sleeker field controls */}
+        <div className="min-h-0 flex-1 flex flex-col p-5 space-y-3.5 overflow-y-auto custom-scrollbar">
           {/* Field 1: Group */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-foreground">
               Group
             </label>
-            <MultiSelectDropdown
+            <UniversalMultiSelectDropdown
               label="Group"
               selected={
                 filters.groups || ["HP Group", "Trucks", "Buses", "Cars"]
               }
               options={groupOptions}
               onChange={(groups) => onChange({ groups })}
+              placeholder="Select Group"
             />
           </div>
 
@@ -375,11 +516,12 @@ export function ReportConfigPanel({
             <label className="block text-xs font-bold text-foreground">
               Type
             </label>
-            <MultiSelectDropdown
+            <UniversalMultiSelectDropdown
               label="Type"
               selected={filters.types || ["Dumper", "Truck", "Bus"]}
               options={typeOptions}
               onChange={(types) => onChange({ types })}
+              placeholder="Select Type"
             />
           </div>
 
@@ -392,6 +534,7 @@ export function ReportConfigPanel({
               value={filters.brands?.[0] || "Ashok Leyland"}
               options={brandOptions}
               onChange={(b) => onChange({ brands: [b] })}
+              placeholder="Select Brand"
             />
           </div>
 
@@ -404,73 +547,83 @@ export function ReportConfigPanel({
               value={filters.models?.[0] || "10 Wheel"}
               options={modelOptions}
               onChange={(m) => onChange({ models: [m] })}
+              placeholder="Select Model"
             />
           </div>
 
-          {/* Field 5: Duration */}
-          <div className="space-y-1.5">
+          {/* Field 5: Duration Threshold */}
+          <div className="space-y-1.5 pt-1 border-t border-border/60">
             <label className="block text-xs font-bold text-foreground">
               Duration Threshold
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
+            <div className="grid grid-cols-12 gap-1.5">
+              <div className="col-span-5">
                 <SelectDropdown
                   value={filters.durationCompare}
                   options={COMPARATORS}
                   onChange={(durationCompare) => onChange({ durationCompare })}
                 />
               </div>
-              <div>
+              <div className="col-span-4">
                 <SelectDropdown
                   value={filters.durationUnit}
                   options={DURATION_UNITS}
                   onChange={(durationUnit) => onChange({ durationUnit })}
                 />
               </div>
-              <div>
+              <div className="col-span-3">
                 <input
                   type="text"
                   value={filters.durationValue}
                   onChange={(e) => onChange({ durationValue: e.target.value })}
                   placeholder="e.g. 5"
-                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                 />
               </div>
             </div>
           </div>
 
-          {/* Field 6: Distance */}
-          <div className="space-y-1.5">
+          {/* Field 6: Distance Threshold */}
+          <div className="space-y-1.5 pt-1 border-t border-border/60">
             <label className="block text-xs font-bold text-foreground">
               Distance Threshold (km)
             </label>
-            <div className="grid grid-cols-2 gap-2.5">
-              <div>
+            <div className="grid grid-cols-12 gap-1.5">
+              <div className="col-span-7">
                 <SelectDropdown
                   value={filters.distanceCompare}
                   options={COMPARATORS}
                   onChange={(distanceCompare) => onChange({ distanceCompare })}
                 />
               </div>
-              <div>
+              <div className="col-span-5">
                 <input
                   type="text"
                   value={filters.distanceValue}
                   onChange={(e) => onChange({ distanceValue: e.target.value })}
                   placeholder="e.g. 5"
-                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Drawer Footer Actions */}
-        <footer className="flex items-center justify-end border-t border-border bg-muted/20 px-6 py-4 shrink-0 select-none">
+        {/* Standardized Drawer Footer matching Side Panel Design System */}
+        <footer className="flex items-center justify-between border-t border-border bg-card/60 px-5 py-3.5 shrink-0 select-none">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98"
+          >
+            <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
+            <span>Reset</span>
+          </button>
+
           <button
             type="button"
             onClick={handleDrawerApply}
-            className="h-9 rounded-md bg-[#155dfc] px-6 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
+            className="h-8.5 rounded-md bg-[#155dfc] px-6 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
           >
             Apply Filters
           </button>
