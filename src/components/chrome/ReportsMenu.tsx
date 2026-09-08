@@ -42,6 +42,7 @@ import { useDashboard } from "@/dashboard/store";
 import {
   REPORT_CATEGORIES,
   ALL_REPORTS,
+  findReport,
   type ReportCategoryNode,
   type ReportTreeItem,
 } from "@/data/reports";
