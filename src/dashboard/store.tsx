@@ -87,7 +87,7 @@ const DEFAULT_STATE: State = {
     autoExpandNewTabs: true,
   },
   pinnedMoreItems: [],
-  favorites: [],
+  favorites: ["today-activity"],
 };
 
 const STORAGE_KEY = "fleet-dashboard-state-v2";
@@ -135,8 +135,19 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as State;
-        if (parsed?.tabs?.length) setState({ ...DEFAULT_STATE, ...parsed });
+        const parsed = JSON.parse(raw) as Partial<State>;
+        if (parsed?.tabs?.length) {
+          setState((prev) => ({
+            ...DEFAULT_STATE,
+            ...parsed,
+            favorites: Array.isArray(parsed.favorites)
+              ? parsed.favorites
+              : DEFAULT_STATE.favorites,
+            pinnedMoreItems: Array.isArray(parsed.pinnedMoreItems)
+              ? parsed.pinnedMoreItems
+              : [],
+          }));
+        }
       }
     } catch {
       /* ignore corrupt storage */
@@ -336,13 +347,15 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     updateSettings: (patch) =>
       setState((s) => ({ ...s, settings: { ...s.settings, ...patch } })),
     toggleFavorite: (id) =>
-      setState((s) => ({
-        ...s,
-        favorites: s.favorites.includes(id)
-          ? s.favorites.filter((i) => i !== id)
-          : [...s.favorites, id],
-      })),
-    isFavorite: (id) => state.favorites.includes(id),
+      setState((s) => {
+        const currentFavs = Array.isArray(s.favorites) ? s.favorites : [];
+        const next = currentFavs.includes(id)
+          ? currentFavs.filter((i) => i !== id)
+          : [...currentFavs, id];
+        return { ...s, favorites: next };
+      }),
+    isFavorite: (id) =>
+      Array.isArray(state.favorites) ? state.favorites.includes(id) : false,
     toggleMorePin: (id) =>
       setState((s) => ({
         ...s,

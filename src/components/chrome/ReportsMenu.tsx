@@ -28,6 +28,7 @@ import {
   Search,
   Check,
   ArrowRight,
+  Star,
   X,
   Sparkles,
 } from "lucide-react";
@@ -37,6 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useDashboard } from "@/dashboard/store";
 import {
   REPORT_CATEGORIES,
   ALL_REPORTS,
@@ -117,6 +119,7 @@ const CATEGORY_GROUPS = [
 ];
 
 export function ReportsMenu() {
+  const { favorites = [], toggleFavorite, isFavorite } = useDashboard();
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("activity");
   const [searchQuery, setSearchQuery] = useState("");
@@ -126,6 +129,10 @@ export function ReportsMenu() {
 
   const isReportsRoute = location.pathname.startsWith("/report");
   const currentReportType = search?.type || "travel";
+
+  const favoriteItems = useMemo(() => {
+    return (favorites ?? []).map(findReport).filter(Boolean) as ReportTreeItem[];
+  }, [favorites]);
 
   // Automatically switch active category to the currently active report's category when opening
   useEffect(() => {
@@ -144,11 +151,18 @@ export function ReportsMenu() {
   }, [open, currentReportType]);
 
   const selectedCategoryNode: ReportCategoryNode = useMemo(() => {
+    if (activeCategory === "favorites") {
+      return {
+        category: "favorites",
+        label: "Favourites",
+        items: favoriteItems,
+      };
+    }
     return (
       REPORT_CATEGORIES.find((c) => c.category === activeCategory) ??
       REPORT_CATEGORIES[0]!
     );
-  }, [activeCategory]);
+  }, [activeCategory, favoriteItems]);
 
   // Global search filtering across all 105 reports
   const searchResults = useMemo(() => {
@@ -247,32 +261,53 @@ export function ReportsMenu() {
               searchResults.map((item) => {
                 const isSelected =
                   item.id === currentReportType && isReportsRoute;
+                const fav = isFavorite(item.id);
                 return (
-                  <button
+                  <div
                     key={item.id}
-                    type="button"
-                    onClick={() => handleSelectReport(item)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-all cursor-pointer group",
+                      "flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-left text-xs transition-all group",
                       isSelected
                         ? "bg-blue-600 text-white font-semibold shadow-md"
                         : "text-slate-200 hover:bg-slate-800/80 hover:text-white",
                     )}
                   >
-                    <div className="flex items-center gap-2 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectReport(item)}
+                      className="flex flex-1 items-center gap-2 min-w-0 text-left cursor-pointer"
+                    >
                       <span className="font-medium truncate">{item.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
+                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
                         {item.category}
                       </span>
+                      <button
+                        type="button"
+                        title={fav ? "Remove from favourites" : "Add to favourites"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(item.id);
+                        }}
+                        className="p-1 text-slate-400 hover:text-amber-400 cursor-pointer rounded transition-all"
+                      >
+                        <Star
+                          className={cn(
+                            "h-3.5 w-3.5 transition-colors",
+                            fav
+                              ? "fill-amber-400 text-amber-400"
+                              : "opacity-0 group-hover:opacity-70 hover:opacity-100",
+                          )}
+                        />
+                      </button>
                       {isSelected ? (
-                        <Check className="h-3.5 w-3.5 text-white" />
+                        <Check className="h-3.5 w-3.5 text-white ml-1" />
                       ) : (
-                        <ArrowRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400" />
+                        <ArrowRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 ml-1" />
                       )}
                     </div>
-                  </button>
+                  </div>
                 );
               })
             )}
@@ -282,6 +317,37 @@ export function ReportsMenu() {
           <div className="flex divide-x divide-slate-800/80 text-xs">
             {/* Left Column: Categories List with Groups & Badges */}
             <div className="flex w-[205px] flex-col py-2 max-h-[72vh] overflow-y-auto overscroll-contain space-y-3 scrollbar-thin scrollbar-thumb-slate-800">
+              {/* Top Section: Favourites category if any reports are saved */}
+              {favoriteItems.length > 0 && (
+                <div className="space-y-0.5 px-1.5 pb-1 border-b border-slate-800/60">
+                  <div className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-400/80">
+                    FAVOURITES
+                  </div>
+                  <button
+                    type="button"
+                    onMouseEnter={() => setActiveCategory("favorites")}
+                    onClick={() => setActiveCategory("favorites")}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left transition-all duration-100 cursor-pointer group",
+                      activeCategory === "favorites"
+                        ? "bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/40 shadow-xs"
+                        : "text-amber-400/90 hover:bg-amber-500/10 hover:text-amber-300 border border-transparent",
+                    )}
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />
+                      <span className="truncate font-semibold">Favourites</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold">
+                        {favoriteItems.length}
+                      </span>
+                      <ChevronRight className="h-3 w-3 shrink-0 text-amber-400/60" />
+                    </div>
+                  </button>
+                </div>
+              )}
+
               {CATEGORY_GROUPS.map((group) => (
                 <div key={group.groupLabel} className="space-y-0.5 px-1.5">
                   <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -352,7 +418,10 @@ export function ReportsMenu() {
             <div className="flex w-[245px] flex-col py-2 bg-slate-950/40 max-h-[72vh] overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-slate-800">
               {/* Category Subtitle Header */}
               <div className="px-3 pb-2 mb-1 border-b border-slate-800/60 flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-300">
+                <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
+                  {selectedCategoryNode.category === "favorites" ? (
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                  ) : null}
                   {selectedCategoryNode.label} Reports
                 </span>
                 <span className="text-[10px] font-mono text-slate-400">
@@ -362,32 +431,63 @@ export function ReportsMenu() {
 
               {/* Sub-report Items */}
               <div className="space-y-0.5 px-1.5">
-                {selectedCategoryNode.items.map((item: ReportTreeItem) => {
-                  // Exactly highlight active report only when viewing that specific report
-                  const isSelected =
-                    item.id === currentReportType && isReportsRoute;
+                {selectedCategoryNode.items.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-slate-400">
+                    No favourite reports yet. Click the star on any report to save it here.
+                  </div>
+                ) : (
+                  selectedCategoryNode.items.map((item: ReportTreeItem) => {
+                    // Exactly highlight active report only when viewing that specific report
+                    const isSelected =
+                      item.id === currentReportType && isReportsRoute;
+                    const fav = isFavorite(item.id);
 
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => handleSelectReport(item)}
-                      className={cn(
-                        "flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-all duration-100 cursor-pointer group",
-                        isSelected
-                          ? "bg-blue-600 text-white font-semibold shadow-md shadow-blue-600/25"
-                          : "text-slate-300 hover:bg-slate-800/80 hover:text-white",
-                      )}
-                    >
-                      <span className="truncate">{item.name}</span>
-                      {isSelected ? (
-                        <Check className="h-3.5 w-3.5 shrink-0 text-white" />
-                      ) : (
-                        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      )}
-                    </button>
-                  );
-                })}
+                    return (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-100 group",
+                          isSelected
+                            ? "bg-blue-600 text-white font-semibold shadow-md shadow-blue-600/25"
+                            : "text-slate-300 hover:bg-slate-800/80 hover:text-white",
+                        )}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleSelectReport(item)}
+                          className="flex flex-1 items-center gap-1.5 min-w-0 text-left cursor-pointer"
+                        >
+                          <span className="truncate">{item.name}</span>
+                        </button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            title={fav ? "Remove from favourites" : "Add to favourites"}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(item.id);
+                            }}
+                            className="p-1 text-slate-400 hover:text-amber-400 cursor-pointer rounded transition-all"
+                          >
+                            <Star
+                              className={cn(
+                                "h-3.5 w-3.5 transition-colors",
+                                fav
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "opacity-0 group-hover:opacity-70 hover:opacity-100",
+                              )}
+                            />
+                          </button>
+                          {isSelected ? (
+                            <Check className="h-3.5 w-3.5 shrink-0 text-white ml-0.5" />
+                          ) : (
+                            <ArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
