@@ -712,6 +712,7 @@ export function ReportPage() {
           </nav>
 
           {/* Right: Field Search, Download, Utilities Icons */}
+          {/* Right: Search, Utilities Icons, Download, and Pagination Controls (Kept upside on Row 1) */}
           <div className="flex items-center gap-2 ml-auto shrink-0">
             {/* 1. Integrated Field-Specific Search Control */}
             <div className="relative flex h-7 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
@@ -785,7 +786,7 @@ export function ReportPage() {
                     ? "Search in all fields..."
                     : `Search ${selectedSearchFieldLabel}...`
                 }
-                className="h-full w-40 sm:w-48 bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+                className="h-full w-36 sm:w-44 bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
               />
               {query && (
                 <button
@@ -823,32 +824,18 @@ export function ReportPage() {
                 <BarChart3 className="h-3.5 w-3.5" />
               </IconButton>
             </div>
-          </div>
-        </div>
 
-        {/* Row 2: Sub-Header Quick Filter Bar on left + Pagination & Refresh on right */}
-        <div className="flex items-center justify-between gap-3 min-w-0 h-7">
-          <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none">
-            <ReportQuickFilterBar
-              filters={filters}
-              onChange={(patch) => {
-                setFilters((prev) => ({ ...prev, ...patch }));
-                load("Filters updated");
-              }}
-              onOpenFilterDrawer={() => setConfigOpen(true)}
-            />
-          </div>
+            {/* Vertical Divider */}
+            <div className="h-4 w-px bg-border/80 mx-0.5 shrink-0" />
 
-          {/* Right: Page Size, Page counter & Navigation */}
-          <div className="flex items-center gap-2 shrink-0 ml-auto">
-            {/* Page size custom popover */}
+            {/* 4. Page Size & Pagination Controls (Upside on Row 1) */}
             <Popover open={pageSizeOpen} onOpenChange={setPageSizeOpen}>
               <PopoverTrigger asChild>
                 <button
                   type="button"
                   aria-label="Rows per page"
                   className={cn(
-                    "h-7 inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground cursor-pointer shadow-2xs transition-all select-none hover:bg-muted hover:border-[#0089FF]/50 active:scale-98",
+                    "h-7 inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-background px-2 text-xs font-semibold text-foreground cursor-pointer shadow-2xs transition-all select-none hover:bg-muted hover:border-[#0089FF]/50 active:scale-98",
                     pageSizeOpen &&
                       "bg-muted border-[#0089FF]/50 ring-2 ring-[#0089FF]/20",
                   )}
@@ -896,36 +883,48 @@ export function ReportPage() {
             </Popover>
 
             {/* Page counter & Navigation */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <span className="px-1 text-xs font-semibold tabular-nums text-muted-foreground whitespace-nowrap">
                 {first}–{last} of {rows.length}
               </span>
-              <div className="flex items-center gap-1">
-                <IconButton
-                  label="Previous page"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={level !== 0 || page === 1}
-                >
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                </IconButton>
-                <IconButton
-                  label="Next page"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={level !== 0 || page >= totalPages}
-                >
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </IconButton>
-                <IconButton
-                  label="Refresh data"
-                  onClick={() => load("Report refreshed")}
-                  disabled={loading}
-                >
-                  <RefreshCw
-                    className={cn("h-3.5 w-3.5", loading && "animate-spin")}
-                  />
-                </IconButton>
-              </div>
+              <IconButton
+                label="Previous page"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={level !== 0 || page === 1}
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+              </IconButton>
+              <IconButton
+                label="Next page"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={level !== 0 || page >= totalPages}
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </IconButton>
+              <IconButton
+                label="Refresh data"
+                onClick={() => load("Report refreshed")}
+                disabled={loading}
+              >
+                <RefreshCw
+                  className={cn("h-3.5 w-3.5", loading && "animate-spin")}
+                />
+              </IconButton>
             </div>
+          </div>
+        </div>
+
+        {/* Row 2: Sub-Header Quick Filter Bar */}
+        <div className="flex items-center justify-between gap-3 min-w-0 h-7">
+          <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none">
+            <ReportQuickFilterBar
+              filters={filters}
+              onChange={(patch) => {
+                setFilters((prev) => ({ ...prev, ...patch }));
+                load("Filters updated");
+              }}
+              onOpenFilterDrawer={() => setConfigOpen(true)}
+            />
           </div>
         </div>
       </header>
