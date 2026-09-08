@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Bold,
   Calendar,
+  CalendarClock,
   Check,
   ChevronDown,
   ChevronRight,
@@ -1165,70 +1166,9 @@ export function ScheduleModal({
               schedules.length === 0 ? (
                 /* VIEW 1A: Empty State View matching reference */
                 <div className="flex flex-col items-center justify-center py-12 px-8 text-center animate-in fade-in-50 duration-200 select-none">
-                  {/* Clean Graphic/Illustration with soft accents */}
-                  <div className="relative mb-5 flex items-center justify-center">
-                    <div className="absolute -inset-4 rounded-full bg-[#0089FF]/10 blur-xl pointer-events-none" />
-                    <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-blue-500/[0.07] border border-blue-500/20 shadow-xs text-[#0089FF]">
-                      {/* Soft burst dashes */}
-                      <span className="absolute -top-1 -right-1 h-1.5 w-1.5 rounded-full bg-[#0089FF]/60" />
-                      <span className="absolute -left-2 top-7 h-1 w-2.5 rounded-full bg-[#0089FF]/40 -rotate-12" />
-                      <span className="absolute -right-2 top-11 h-1 w-2.5 rounded-full bg-[#0089FF]/40 rotate-12" />
-
-                      <svg
-                        className="h-12 w-12"
-                        viewBox="0 0 48 48"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M13 7C13 5.89543 13.8954 5 15 5H27L35 13V41C35 42.1046 34.1046 43 33 43H15C13.8954 43 13 42.1046 13 41V7Z"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M27 5V13H35"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <rect
-                          x="19"
-                          y="23"
-                          width="3"
-                          height="10"
-                          rx="1"
-                          fill="currentColor"
-                        />
-                        <rect
-                          x="24.5"
-                          y="18"
-                          width="3"
-                          height="15"
-                          rx="1"
-                          fill="currentColor"
-                        />
-                        <rect
-                          x="30"
-                          y="26"
-                          width="3"
-                          height="7"
-                          rx="1"
-                          fill="currentColor"
-                        />
-                        <line
-                          x1="18"
-                          y1="37"
-                          x2="26"
-                          y2="37"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </div>
+                  {/* Clean Icon without supportive rectangle or decorative elements */}
+                  <div className="mb-4 flex items-center justify-center">
+                    <CalendarClock className="h-16 w-16 text-[#0089FF] stroke-[1.5]" />
                   </div>
 
                   <h3 className="text-base font-bold text-foreground tracking-tight">
