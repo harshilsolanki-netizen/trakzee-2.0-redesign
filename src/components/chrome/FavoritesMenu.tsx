@@ -34,33 +34,26 @@ export function FavoritesMenu() {
     return safeFavorites.map(findReport).filter(Boolean) as ReportItem[];
   }, [safeFavorites]);
 
-  const grouped = useMemo(() => {
+  const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const items = allFavoriteItems.filter(
+    if (!q) return allFavoriteItems;
+    return allFavoriteItems.filter(
       (i) =>
-        q === "" ||
         i.name.toLowerCase().includes(q) ||
-        i.category.toLowerCase().includes(q),
+        i.category.toLowerCase().includes(q) ||
+        i.id.toLowerCase().includes(q),
     );
-    const map = new Map<string, ReportItem[]>();
-    for (const item of items) {
-      map.set(item.category, [...(map.get(item.category) ?? []), item]);
-    }
-    return [...map.entries()];
   }, [allFavoriteItems, query]);
 
-  // Robust activeCategory resolution: if current openCategory isn't in grouped, fall back to first category
-  const activeCategory = useMemo(() => {
-    if (openCategory && grouped.some(([c]) => c === openCategory)) {
-      return openCategory;
+  // Group by category
+  const categorized = useMemo(() => {
+    const map = new Map<string, ReportItem[]>();
+    for (const item of filteredItems) {
+      const cat = item.category || "General";
+      map.set(cat, [...(map.get(cat) ?? []), item]);
     }
-    return grouped[0]?.[0] ?? null;
-  }, [openCategory, grouped]);
-
-  const activeItems = useMemo(() => {
-    if (!activeCategory) return [];
-    return grouped.find(([c]) => c === activeCategory)?.[1] ?? [];
-  }, [grouped, activeCategory]);
+    return [...map.entries()];
+  }, [filteredItems]);
 
   const handleSelectFavorite = (item: ReportItem) => {
     setOpen(false);
@@ -77,7 +70,7 @@ export function FavoritesMenu() {
     }
   };
 
-  const hasFavorites = safeFavorites.length > 0;
+  const hasFavorites = allFavoriteItems.length > 0;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -128,33 +121,40 @@ export function FavoritesMenu() {
         side="right"
         align="start"
         sideOffset={8}
-        className="w-auto min-w-[340px] max-w-[420px] overflow-hidden rounded-xl border border-slate-700/60 bg-[#0c1424]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-100"
+        className="w-[330px] sm:w-[360px] overflow-hidden rounded-2xl border border-slate-700/70 bg-[#0c1424]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-150"
       >
-        {/* Header matching dark sidebar design */}
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800/80 bg-slate-900/80 px-3.5 py-2.5">
           <div className="flex items-center gap-2">
-            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-            <span className="text-xs font-bold text-slate-100">
-              Favourite Reports
-            </span>
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <Star className="h-3.5 w-3.5 fill-amber-400" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-100 block leading-tight">
+                Favourite Reports
+              </span>
+              <span className="text-[10px] text-slate-400 leading-tight">
+                Quick 1-click access
+              </span>
+            </div>
           </div>
           {hasFavorites && (
-            <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
-              {safeFavorites.length} saved
+            <span className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+              {allFavoriteItems.length} {allFavoriteItems.length === 1 ? "report" : "reports"}
             </span>
           )}
         </div>
 
-        {/* Quick search if there are multiple favorites */}
-        {allFavoriteItems.length > 3 && (
-          <div className="border-b border-slate-800/80 bg-slate-950/50 px-2.5 py-1.5">
-            <div className="flex items-center rounded-md border border-slate-700/60 bg-slate-900/60 px-2 py-1 focus-within:border-blue-500 transition-all">
-              <Search className="h-3 w-3 text-slate-400 mr-1.5 shrink-0" />
+        {/* Search Bar if > 2 items */}
+        {allFavoriteItems.length > 2 && (
+          <div className="border-b border-slate-800/80 bg-slate-950/60 px-3 py-2">
+            <div className="relative flex items-center rounded-lg border border-slate-700/60 bg-slate-900/80 px-2.5 py-1 focus-within:border-blue-500 transition-all">
+              <Search className="h-3.5 w-3.5 text-slate-400 mr-2 shrink-0" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Filter favourites..."
+                placeholder="Search favourites..."
                 className="h-full flex-1 bg-transparent text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none"
               />
               {query && (
@@ -170,87 +170,74 @@ export function FavoritesMenu() {
           </div>
         )}
 
-        {grouped.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-6 text-center w-72 bg-[#0c1424]">
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        {/* Content list */}
+        {!hasFavorites ? (
+          <div className="flex flex-col items-center justify-center p-6 text-center bg-[#0c1424]">
+            <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
               <Bookmark className="h-5 w-5" />
             </div>
-            <p className="text-xs font-semibold text-slate-100">
-              No Favourites Saved
+            <p className="text-xs font-bold text-slate-100">
+              No Favourites Added Yet
             </p>
-            <p className="mt-1 text-[11px] text-slate-400 leading-snug">
-              Click the star icon (★) on any report header to add it here for quick 1-click access.
+            <p className="mt-1.5 text-[11px] text-slate-400 leading-relaxed max-w-[240px]">
+              Click the star icon (★) in the top header of any report to bookmark it here for instant access.
             </p>
           </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="py-8 text-center text-xs text-slate-400">
+            No favourites matching &ldquo;{query}&rdquo;
+          </div>
         ) : (
-          /* Clean 2-column menu layout matching ChartsMenu */
-          <div className="flex divide-x divide-slate-800/80 text-xs">
-            {/* Left Column: Categories List */}
-            <div className="flex w-[150px] flex-col py-1.5 bg-[#0a101d] max-h-72 overflow-y-auto overscroll-contain">
-              {grouped.map(([category, items]) => {
-                const isActive = category === activeCategory;
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    onMouseEnter={() => setOpenCategory(category)}
-                    onClick={() => setOpenCategory(category)}
-                    className={cn(
-                      "flex w-full items-center justify-between px-3 py-2 text-left transition-colors duration-75 cursor-pointer",
-                      isActive
-                        ? "bg-blue-600/20 text-blue-300 font-semibold border-l-2 border-blue-500"
-                        : "text-slate-300 hover:bg-slate-800/60 hover:text-white border-l-2 border-transparent",
-                    )}
-                  >
-                    <div className="flex min-w-0 items-center gap-1.5">
-                      {isActive ? (
-                        <FolderOpen className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                      ) : (
-                        <Folder className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                      )}
-                      <span className="truncate">{category}</span>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-[10px] font-mono text-slate-400">
-                        {items.length}
-                      </span>
-                      <ChevronRight className="h-3 w-3 text-slate-500 opacity-60" />
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Right Column: Favorited Items List */}
-            <div className="flex w-[215px] flex-col py-1.5 bg-slate-950/40 max-h-72 overflow-y-auto overscroll-contain">
-              {activeItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="group flex items-center justify-between px-2.5 py-1.5 rounded mx-1 transition-colors duration-75 hover:bg-slate-800/70"
-                >
-                  <button
-                    type="button"
-                    onClick={() => handleSelectFavorite(item)}
-                    className="flex flex-1 min-w-0 items-center gap-2 text-left text-xs text-slate-200 hover:text-white cursor-pointer"
-                  >
-                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0" />
-                    <span className="truncate font-medium">{item.name}</span>
-                  </button>
-                  <button
-                    type="button"
-                    title={`Remove ${item.name} from favourites`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(item.id);
-                      toast.success(`${item.name} removed from favourites`);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer rounded"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+          <div className="max-h-[380px] overflow-y-auto overscroll-contain p-2 space-y-3 scrollbar-thin scrollbar-thumb-slate-800">
+            {categorized.map(([category, items]) => (
+              <div key={category} className="space-y-1">
+                <div className="flex items-center justify-between px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span>{category}</span>
+                  <span className="font-mono text-[9px] text-slate-500">{items.length}</span>
                 </div>
-              ))}
-            </div>
+                <div className="space-y-0.5">
+                  {items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="group flex items-center justify-between rounded-lg px-2.5 py-2 transition-all bg-slate-900/40 hover:bg-slate-800/80 border border-slate-800/40 hover:border-slate-700/60"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleSelectFavorite(item)}
+                        className="flex flex-1 items-center gap-2.5 min-w-0 text-left cursor-pointer"
+                      >
+                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
+                        <span className="text-xs font-medium text-slate-200 group-hover:text-white truncate">
+                          {item.name}
+                        </span>
+                      </button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          title={`Remove ${item.name} from favourites`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(item.id);
+                            toast.success(`${item.name} removed from favourites`);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-all cursor-pointer"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectFavorite(item)}
+                          className="p-1 text-blue-400 hover:text-blue-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          title="Open report"
+                        >
+                          <ChevronRight className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
