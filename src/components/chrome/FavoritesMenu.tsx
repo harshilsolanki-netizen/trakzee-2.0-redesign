@@ -70,7 +70,7 @@ export function FavoritesMenu() {
     }
   };
 
-  const hasFavorites = allFavoriteItems.length > 0;
+  const hasFavorites = safeFavorites.length > 0 || allFavoriteItems.length > 0;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

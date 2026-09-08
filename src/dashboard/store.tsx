@@ -140,9 +140,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
           setState((prev) => ({
             ...DEFAULT_STATE,
             ...parsed,
-            favorites: Array.isArray(parsed.favorites)
-              ? parsed.favorites
-              : DEFAULT_STATE.favorites,
+            favorites:
+              Array.isArray(parsed.favorites) && parsed.favorites.length > 0
+                ? parsed.favorites
+                : DEFAULT_STATE.favorites,
             pinnedMoreItems: Array.isArray(parsed.pinnedMoreItems)
               ? parsed.pinnedMoreItems
               : [],

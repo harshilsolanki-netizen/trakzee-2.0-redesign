@@ -761,10 +761,49 @@ export const REPORT_CATALOG = REPORT_CATEGORIES.map((c) => ({
 }));
 
 export const findReport = (id: string): ReportTreeItem | undefined => {
-  const rep = ALL_REPORTS.find(
-    (r) => r.id === id || r.to.includes(`type=${id}`),
+  if (!id) return undefined;
+  const cleanId = id.trim().toLowerCase();
+  const normalizedId = cleanId.replace(/_/g, "-");
+
+  // 1. Direct match on id
+  let rep = ALL_REPORTS.find(
+    (r) =>
+      r.id.toLowerCase() === cleanId ||
+      r.id.toLowerCase() === normalizedId,
   );
   if (rep) return rep;
+
+  // 2. Search by URL query type
+  rep = ALL_REPORTS.find(
+    (r) =>
+      r.to.toLowerCase().includes(`type=${cleanId}`) ||
+      r.to.toLowerCase().includes(`type=${normalizedId}`),
+  );
+  if (rep) return rep;
+
+  // 3. Known aliases
+  if (normalizedId === "temperature-summary" || normalizedId === "temperature") {
+    return ALL_REPORTS.find((r) => r.id === "temperature");
+  }
+  if (normalizedId === "driver-job-summary" || normalizedId === "job") {
+    return ALL_REPORTS.find((r) => r.id === "job");
+  }
+  if (normalizedId === "today-activity" || normalizedId === "today") {
+    return ALL_REPORTS.find((r) => r.id === "today-activity");
+  }
+  if (normalizedId === "travel-summary" || normalizedId === "travel") {
+    return ALL_REPORTS.find((r) => r.id === "travel");
+  }
+
+  // 4. Name match fallback
+  rep = ALL_REPORTS.find(
+    (r) =>
+      r.name.toLowerCase() === cleanId ||
+      r.name.toLowerCase().replace(/\s+/g, "-") === normalizedId,
+  );
+  if (rep) return rep;
+
+  // 5. Chart lookup
   const chart = findChartItem(id);
   if (chart) {
     return {
@@ -774,7 +813,14 @@ export const findReport = (id: string): ReportTreeItem | undefined => {
       to: `/charts?chart=${chart.id}`,
     };
   }
-  return undefined;
+
+  // 6. Generic fallback so no saved item ever disappears
+  return {
+    id: id,
+    name: id.replace(/[-_]/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+    category: "General",
+    to: `/report?type=${id}`,
+  };
 };
 
 /* ---------------- Temperature Summary Dataset ---------------- */
