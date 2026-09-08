@@ -601,18 +601,12 @@ export function ColumnConfigModal({
       settings.frozenColumnsCount ?? 2,
     ),
   );
-  const [summaryFrozenCount, setSummaryFrozenCount] = useState<number>(
-    settings.frozenColumnsCount ?? 2,
-  );
 
   const [detailColumns, setDetailColumns] = useState<ColumnConfigItem[]>(() =>
     normalizeColumnList(
       settings.detailColumns || DEFAULT_DETAIL_COLUMNS,
       settings.detailFrozenColumnsCount ?? 1,
     ),
-  );
-  const [detailFrozenCount, setDetailFrozenCount] = useState<number>(
-    settings.detailFrozenColumnsCount ?? 1,
   );
 
   const [detailDownloadMode, setDetailDownloadMode] = useState<
@@ -623,7 +617,6 @@ export function ColumnConfigModal({
   );
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [frozenOpen, setFrozenOpen] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
@@ -641,14 +634,12 @@ export function ColumnConfigModal({
           settings.frozenColumnsCount ?? 2,
         ),
       );
-      setSummaryFrozenCount(settings.frozenColumnsCount ?? 2);
       setDetailColumns(
         normalizeColumnList(
           settings.detailColumns || DEFAULT_DETAIL_COLUMNS,
           settings.detailFrozenColumnsCount ?? 1,
         ),
       );
-      setDetailFrozenCount(settings.detailFrozenColumnsCount ?? 1);
       setActiveTab(settings.detailScreenSetting || "summary");
       setDetailDownloadMode(settings.detailDownloadMode || "multiple");
       setExportDataScope(settings.exportDataScope || "summary");
@@ -663,8 +654,6 @@ export function ColumnConfigModal({
 
   const currentColumns =
     activeTab === "summary" ? summaryColumns : detailColumns;
-  const currentFrozenCount =
-    activeTab === "summary" ? summaryFrozenCount : detailFrozenCount;
 
   const setCurrentColumns = (
     updater: (prev: ColumnConfigItem[]) => ColumnConfigItem[],
@@ -676,20 +665,9 @@ export function ColumnConfigModal({
     }
   };
 
-  const setCurrentFrozenCount = (val: number) => {
-    if (activeTab === "summary") {
-      setSummaryFrozenCount(val);
-    } else {
-      setDetailFrozenCount(val);
-    }
-  };
-
   const pinnedCount = useMemo(() => {
     return currentColumns.filter((c) => c.pinned && !c.isGroupHeader).length;
   }, [currentColumns]);
-
-  const isLimitReached = pinnedCount >= currentFrozenCount;
-  const isOverLimit = pinnedCount > currentFrozenCount;
 
   // Capture position of visible rows before state updates for FLIP animation
   const capturePositions = () => {
@@ -758,13 +736,6 @@ export function ColumnConfigModal({
   }, [currentColumns, animatingId]);
 
   const handlePin = (colId: string) => {
-    if (isLimitReached) {
-      toast.warning(
-        `Maximum ${currentFrozenCount} columns can be pinned. Increase the Frozen columns limit to pin more.`,
-      );
-      return;
-    }
-
     capturePositions();
     setAnimatingId(colId);
 
@@ -827,33 +798,6 @@ export function ColumnConfigModal({
     });
   };
 
-  const handleUnpinExcess = () => {
-    if (!isOverLimit) return;
-    capturePositions();
-    const excessCount = pinnedCount - currentFrozenCount;
-
-    setCurrentColumns((prev) => {
-      const pinned = prev.filter((c) => c.pinned);
-      const unpinned = prev.filter((c) => !c.pinned);
-
-      // Keep only first `currentFrozenCount` in pinned, unpin the rest
-      const keepPinned = pinned.slice(0, currentFrozenCount);
-      const unpinnedCols = pinned.slice(currentFrozenCount).map((c) => ({
-        ...c,
-        pinned: false,
-      }));
-
-      // Merge unpinned columns sorted by originalIndex
-      const mergedUnpinned = [...unpinned, ...unpinnedCols].sort(
-        (a, b) => (a.originalIndex ?? 0) - (b.originalIndex ?? 0),
-      );
-
-      return [...keepPinned, ...mergedUnpinned];
-    });
-
-    toast.info(`Unpinned ${excessCount} excess column(s) to match the limit`);
-  };
-
   const filteredColumns = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return currentColumns;
@@ -900,14 +844,12 @@ export function ColumnConfigModal({
         settings.frozenColumnsCount ?? 2,
       ),
     );
-    setSummaryFrozenCount(settings.frozenColumnsCount ?? 2);
     setDetailColumns(
       normalizeColumnList(
         settings.detailColumns || DEFAULT_DETAIL_COLUMNS,
         settings.detailFrozenColumnsCount ?? 1,
       ),
     );
-    setDetailFrozenCount(settings.detailFrozenColumnsCount ?? 1);
     setDetailDownloadMode(settings.detailDownloadMode || "multiple");
     setExportDataScope(settings.exportDataScope || "summary");
     setAnimatingId(null);
@@ -922,14 +864,12 @@ export function ColumnConfigModal({
         DEFAULT_COLUMN_SETTINGS.frozenColumnsCount,
       ),
     );
-    setSummaryFrozenCount(DEFAULT_COLUMN_SETTINGS.frozenColumnsCount);
     setDetailColumns(
       normalizeColumnList(
         DEFAULT_DETAIL_COLUMNS,
         DEFAULT_COLUMN_SETTINGS.detailFrozenColumnsCount ?? 1,
       ),
     );
-    setDetailFrozenCount(DEFAULT_COLUMN_SETTINGS.detailFrozenColumnsCount ?? 1);
     setDetailDownloadMode("multiple");
     setExportDataScope("summary");
     setShowRestoreConfirm(false);
@@ -939,11 +879,18 @@ export function ColumnConfigModal({
   };
 
   const handleSave = () => {
+    const summaryPinnedCount = summaryColumns.filter(
+      (c) => c.pinned && !c.isGroupHeader,
+    ).length;
+    const detailPinnedCount = detailColumns.filter(
+      (c) => c.pinned && !c.isGroupHeader,
+    ).length;
+
     onSave({
       columns: summaryColumns,
       detailColumns: detailColumns,
-      frozenColumnsCount: summaryFrozenCount,
-      detailFrozenColumnsCount: detailFrozenCount,
+      frozenColumnsCount: summaryPinnedCount,
+      detailFrozenColumnsCount: detailPinnedCount,
       detailDownloadMode: detailDownloadMode,
       detailScreenSetting: activeTab,
       exportDataScope: exportDataScope,
@@ -980,7 +927,7 @@ export function ColumnConfigModal({
             </button>
           </header>
 
-          {/* Dedicated Tab Bar for Summary, Detail and Preference + Frozen Columns Limit on Right */}
+          {/* Dedicated Tab Bar for Summary, Detail and Preference */}
           <div className="border-b border-border/80 bg-muted/10 px-5 flex items-center justify-between gap-4 text-xs select-none shrink-0 h-11">
             <div className="flex items-center gap-6 h-full">
               <button
@@ -1040,94 +987,7 @@ export function ColumnConfigModal({
                 )}
               </button>
             </div>
-
-            {/* Frozen columns limit dropdown in the top-right corner of the tab bar */}
-            {activeTab !== "preference" && (
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground font-semibold text-xs whitespace-nowrap">
-                  Frozen columns
-                </span>
-                <Popover open={frozenOpen} onOpenChange={setFrozenOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label="Max number of frozen columns allowed"
-                      className={cn(
-                        "h-8 rounded-md border border-input/80 bg-background px-3 text-xs font-bold text-foreground hover:border-[#0089FF]/60 hover:bg-muted/40 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none cursor-pointer shadow-2xs inline-flex items-center gap-2 select-none transition-all active:scale-98",
-                        frozenOpen &&
-                          "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
-                      )}
-                    >
-                      <span>
-                        {currentFrozenCount === 0
-                          ? "0 (None)"
-                          : currentFrozenCount}
-                      </span>
-                      <ChevronDown
-                        className={cn(
-                          "h-3.5 w-3.5 text-muted-foreground opacity-70 transition-transform duration-200",
-                          frozenOpen && "rotate-180",
-                        )}
-                      />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    align="end"
-                    sideOffset={4}
-                    className="w-28 p-1 rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl shadow-lg z-[95] select-none animate-in fade-in-0 zoom-in-95"
-                  >
-                    {[0, 1, 2, 3, 4, 5].map((val) => {
-                      const isActive = currentFrozenCount === val;
-                      return (
-                        <button
-                          key={val}
-                          type="button"
-                          onClick={() => {
-                            setCurrentFrozenCount(val);
-                            setFrozenOpen(false);
-                          }}
-                          className={cn(
-                            "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
-                            isActive
-                              ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
-                              : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
-                          )}
-                        >
-                          <span>{val === 0 ? "0 (None)" : val}</span>
-                          {isActive && (
-                            <Check className="h-3.5 w-3.5 text-[#0089FF]" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
           </div>
-
-          {/* Over-limit Warning Alert Banner if limit is decreased below currently pinned columns */}
-          {activeTab !== "preference" && isOverLimit && (
-            <div className="mx-5 mt-3 px-3.5 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-800/60 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200 select-none shrink-0">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span>
-                  You have <strong>{pinnedCount}</strong> columns pinned, but
-                  the limit is set to <strong>{currentFrozenCount}</strong>.
-                  Please unpin {pinnedCount - currentFrozenCount} column
-                  {pinnedCount - currentFrozenCount > 1 ? "s" : ""} or increase
-                  the limit.
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={handleUnpinExcess}
-                className="ml-3 px-2.5 py-1 text-[11px] font-bold rounded-md bg-amber-600 text-white hover:bg-amber-700 transition-all cursor-pointer shrink-0 shadow-2xs active:scale-98"
-              >
-                Unpin Excess
-              </button>
-            </div>
-          )}
 
           {activeTab === "preference" ? (
             <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 bg-surface select-none">
@@ -1388,22 +1248,14 @@ export function ColumnConfigModal({
                                         <button
                                           type="button"
                                           aria-label={`Pin column ${col.label}`}
-                                          disabled={isLimitReached}
                                           onClick={() => handlePin(col.id)}
-                                          className={cn(
-                                            "p-1 rounded opacity-0 group-hover:opacity-100 transition-all cursor-pointer",
-                                            isLimitReached
-                                              ? "opacity-25! cursor-not-allowed text-muted-foreground/40"
-                                              : "text-muted-foreground/60 hover:text-[#155dfc] hover:bg-[#155dfc]/10 active:scale-90",
-                                          )}
+                                          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-all cursor-pointer text-muted-foreground/60 hover:text-[#155dfc] hover:bg-[#155dfc]/10 active:scale-90"
                                         >
                                           <Pin className="h-3.5 w-3.5" />
                                         </button>
                                       </TooltipTrigger>
                                       <TooltipContent side="top">
-                                        {isLimitReached
-                                          ? `Maximum ${currentFrozenCount} columns can be pinned`
-                                          : "Pin column"}
+                                        Pin column
                                       </TooltipContent>
                                     </Tooltip>
                                   )}
@@ -1639,7 +1491,6 @@ export function ColumnConfigModal({
           </footer>
         </div>
 
-        {/* Restore Default Confirmation Dialog */}
         {showRestoreConfirm && (
           <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
             <div
@@ -1678,3 +1529,4 @@ export function ColumnConfigModal({
     </TooltipProvider>
   );
 }
+
