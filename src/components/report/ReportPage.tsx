@@ -48,6 +48,7 @@ import {
   DEFAULT_CHART_CONFIG,
   type ChartConfig,
 } from "@/components/report/ChartConfigModal";
+import { ProgressComparisonOverlay } from "@/components/report/ProgressComparisonOverlay";
 import { ScheduleModal } from "@/components/report/ScheduleModal";
 import { ExportPopover } from "@/components/report/ExportPopover";
 import { TemperatureSummaryReport } from "@/components/report/TemperatureSummaryReport";
@@ -818,12 +819,6 @@ export function ReportPage() {
               >
                 <Settings className="h-3.5 w-3.5" />
               </IconButton>
-              <IconButton
-                label="Chart Settings"
-                onClick={() => setModal("chart")}
-              >
-                <BarChart3 className="h-3.5 w-3.5" />
-              </IconButton>
             </div>
 
             {/* Vertical Divider */}
@@ -951,6 +946,50 @@ export function ReportPage() {
                       : undefined;
                     const w =
                       colWidths[c.id] || DEFAULT_COLUMN_WIDTHS[c.id] || 110;
+
+                    if (c.id === "idleVsInactive") {
+                      return (
+                        <th
+                          key={c.id}
+                          scope="col"
+                          style={{
+                            width: w + "px",
+                            minWidth: w + "px",
+                            maxWidth: w + "px",
+                            left: leftOffset,
+                          }}
+                          className={cn(
+                            "group relative border-r border-white/10 px-1.5 py-1 font-medium last:border-r-0 overflow-visible whitespace-nowrap select-none text-center",
+                            isFrozen &&
+                              cn(
+                                "sticky z-30 bg-slate-900 dark:bg-slate-950",
+                                colIdx === frozenCount - 1 &&
+                                  "shadow-[2px_0_4px_rgba(0,0,0,0.2)]",
+                              ),
+                          )}
+                        >
+                          <div className="flex items-center justify-center w-full">
+                            <ProgressComparisonOverlay
+                              config={chartConfig}
+                              onSave={setChartConfig}
+                            />
+                          </div>
+
+                          {/* Interactive Drag Resizer Handle matching Jira/Modern tables */}
+                          <div
+                            role="separator"
+                            onMouseDown={(e) => startResize(c.id, e)}
+                            onClick={(e) => e.stopPropagation()}
+                            className={cn(
+                              "absolute right-0 top-0 bottom-0 w-2.5 cursor-col-resize z-40 transition-colors",
+                              "hover:bg-blue-400/80 active:bg-blue-500",
+                              resizingCol === c.id && "bg-blue-400",
+                            )}
+                            title="Drag to resize column"
+                          />
+                        </th>
+                      );
+                    }
 
                     return (
                       <th
@@ -1090,11 +1129,11 @@ export function ReportPage() {
                               <div className="h-1.5 w-full bg-slate-300 dark:bg-slate-600 rounded-full overflow-hidden flex shadow-2xs">
                                 <div
                                   style={{ width: "75%" }}
-                                  className="bg-[#155dfc] h-full"
+                                  className="bg-emerald-500 h-full"
                                 />
                                 <div
                                   style={{ width: "25%" }}
-                                  className="bg-[#f97316] h-full"
+                                  className="bg-amber-500 h-full"
                                 />
                               </div>
                             </div>
