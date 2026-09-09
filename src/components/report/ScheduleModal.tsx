@@ -842,10 +842,10 @@ export function ScheduleModal({
         setEmailVerificationStatus("failed");
         setErrors((prev) => ({
           ...prev,
-          toAddress: "Verification failed: Domain or mailbox unreachable",
+          toAddress: "Verification failed: Invalid email Id",
         }));
         toast.error(
-          `Verification failed: "${email}" could not be reached or is invalid`,
+          `Verification failed: Invalid email Id`,
         );
       } else {
         setEmailVerificationStatus("success");
@@ -1959,7 +1959,7 @@ export function ScheduleModal({
                           {(emailVerificationStatus === "failed" || errors.toAddress) && (
                             <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium animate-in fade-in duration-150">
                               <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
-                              <span>{errors.toAddress || "Email verification failed. Please check the address."}</span>
+                              <span>{errors.toAddress || "Verification failed: Invalid email Id"}</span>
                             </div>
                           )}
                         </div>
