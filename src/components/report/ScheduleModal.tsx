@@ -2335,24 +2335,20 @@ export function ScheduleModal({
           {view === "form" && (
             <footer className="flex items-center justify-between border-t border-border bg-background px-6 py-3 select-none shrink-0">
               <div className="flex items-center gap-2.5">
-                {step === 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => setView("list")}
-                    className="px-4 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
-                  >
-                    Cancel
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="flex items-center gap-2 px-4 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
-                  >
-                    <ArrowLeft className="h-3.5 w-3.5" />
-                    <span>Back</span>
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (step === 1) {
+                      setView("list");
+                    } else {
+                      setStep(1);
+                    }
+                  }}
+                  className="flex items-center gap-2 px-4 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span>Back</span>
+                </button>
 
                 {editingId && (
                   <button
