@@ -926,16 +926,16 @@ export function ReportPage() {
       </header>
 
       {/* Main Table Area with Modern Design */}
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[#D4D4D4] dark:border-slate-700 bg-card shadow-sm">
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[#DFE3EB] dark:border-slate-700 bg-card shadow-sm">
         <div className="min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth">
           {level === 0 ? (
             <table className="w-full min-w-[1000px] text-xs border-collapse">
               <thead className="sticky top-0 z-20 shadow-xs">
                 {/* Column Titles Header Row */}
-                <tr className="bg-[#EDEDED] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#D4D4D4] dark:border-slate-700">
+                <tr className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700">
                   <th
                     scope="col"
-                    className="sticky left-0 z-30 w-9 min-w-[36px] max-w-[36px] bg-[#EDEDED] dark:bg-slate-800 border-r border-[#D4D4D4] dark:border-slate-700 px-2 py-2.5 text-center shadow-xs text-slate-900 dark:text-slate-200 font-bold rounded-tl-xl"
+                    className="sticky left-0 z-30 w-9 min-w-[36px] max-w-[36px] bg-[#EAF0F6] dark:bg-slate-800 border-r border-[#DFE3EB] dark:border-slate-700 px-2 py-2.5 text-center shadow-xs text-slate-900 dark:text-slate-200 font-bold rounded-tl-xl"
                   >
                     #
                   </th>
@@ -960,12 +960,12 @@ export function ReportPage() {
                           }}
                           title={c.label}
                           className={cn(
-                            "group relative border-r border-[#D4D4D4] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none text-left bg-[#EDEDED] dark:bg-slate-800",
+                            "group relative border-r border-[#DFE3EB] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none text-left bg-[#EAF0F6] dark:bg-slate-800",
                             isFrozen &&
                               cn(
-                                "sticky z-30 bg-[#EDEDED] dark:bg-slate-800",
+                                "sticky z-30 bg-[#EAF0F6] dark:bg-slate-800",
                                 colIdx === frozenCount - 1 &&
-                                  "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
+                                   "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
                               ),
                           )}
                         >
@@ -1010,14 +1010,14 @@ export function ReportPage() {
                         }}
                         title={c.label}
                         className={cn(
-                          "group relative border-r border-[#D4D4D4] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none bg-[#EDEDED] dark:bg-slate-800",
+                          "group relative border-r border-[#DFE3EB] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none bg-[#EAF0F6] dark:bg-slate-800",
                           c.numeric ? "text-right" : "text-left",
-                          c.sortable && "cursor-pointer hover:bg-[#E2E2E2] dark:hover:bg-slate-700/60",
+                          c.sortable && "cursor-pointer hover:bg-[#DFE7F0] dark:hover:bg-slate-700/60",
                           sort.key === c.id &&
-                            "bg-[#DADADA] dark:bg-slate-700 font-bold text-slate-950 dark:text-white",
+                            "bg-[#D5E0EC] dark:bg-slate-700 font-bold text-slate-950 dark:text-white",
                           isFrozen &&
                             cn(
-                              "sticky z-30 bg-[#EDEDED] dark:bg-slate-800",
+                              "sticky z-30 bg-[#EAF0F6] dark:bg-slate-800",
                               colIdx === frozenCount - 1 &&
                                 "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
                             ),
@@ -1040,16 +1040,11 @@ export function ReportPage() {
                           )}
                           {c.sortable &&
                             (sort.key === c.id ? (
-                              sort.dir === "asc" ? (
-                                <ArrowUp className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
-                              ) : (
-                                <ArrowDown className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
-                              )
+                              <ArrowUp className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
                             ) : (
-                              <span className="opacity-0 group-hover:opacity-40 text-slate-600 dark:text-slate-400 shrink-0">
-                                •
-                              </span>
-                            ))}
+                              <ArrowDown className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                            )
+                          )}
                         </div>
 
                         {/* Interactive Drag Resizer Handle matching Jira/Modern tables */}
@@ -1070,8 +1065,8 @@ export function ReportPage() {
                 </tr>
 
                 {/* Overall Totals / Summary Row */}
-                <tr className="bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-foreground border-b border-[#D4D4D4] dark:border-slate-700">
-                  <td className="sticky left-0 z-20 w-9 min-w-[36px] max-w-[36px] bg-slate-100 dark:bg-slate-800 border-r border-[#D4D4D4] dark:border-slate-700 px-2 py-1.5 text-center text-muted-foreground">
+                <tr className="bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-foreground border-b border-[#DFE3EB] dark:border-slate-700">
+                  <td className="sticky left-0 z-20 w-9 min-w-[36px] max-w-[36px] bg-slate-100 dark:bg-slate-800 border-r border-[#DFE3EB] dark:border-slate-700 px-2 py-1.5 text-center text-muted-foreground">
                     ∑
                   </td>
                   {visibleColumns.map((col, colIdx) => {
@@ -1455,13 +1450,13 @@ function SimpleTable({
   return (
     <table className="w-full min-w-[900px] text-xs">
       <thead className="sticky top-0 z-10 shadow-xs">
-        <tr className="bg-[#EDEDED] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#D4D4D4] dark:border-slate-700">
+        <tr className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700">
           {headers.map((h, i) => (
             <th
               key={h}
               scope="col"
               className={cn(
-                "border-r border-[#D4D4D4] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0",
+                "border-r border-[#DFE3EB] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0",
                 i === 0 && "rounded-tl-xl",
                 numeric.includes(i) ? "text-right" : "text-left",
               )}
