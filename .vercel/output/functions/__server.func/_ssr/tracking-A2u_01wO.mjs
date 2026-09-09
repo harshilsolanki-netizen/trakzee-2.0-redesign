@@ -6,7 +6,7 @@ import { $ as Minimize2, F as Search, H as Plus, Ht as CircleQuestionMark, J as 
 import { n as toast } from "../_libs/sonner.mjs";
 import { n as STATUS_META, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
 import { n as useZio } from "./ZioContext-Cw_R09Nu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tracking-DcCGf1Ek.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tracking-A2u_01wO.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function FleetExplorerPanel({ vehicles, selectedVehicleId, onSelectVehicle, checkedVehicleIds, onToggleCheckVehicle, onToggleCheckGroup, onToggleCheckAll, onOpenDashcam, onOpenSettings, onOpenTelemetry, onTraceVehicle, className }) {
@@ -912,11 +912,11 @@ function VehicleTelemetryDrawer({ vehicle, onClose, onSelectVehicle, allVehicles
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 		className: cn("flex flex-col bg-card/98 backdrop-blur-xl border border-border rounded-xl shadow-2xl overflow-hidden transition-all duration-200 w-full sm:w-[360px] text-xs", className),
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "flex h-[45px] items-center justify-between border-b border-border bg-surface-muted/60 px-3 select-none",
+			className: "flex h-[56px] items-center justify-between border-b border-border bg-surface-muted/60 px-3 select-none",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 				className: "flex items-center gap-1.5 min-w-0 flex-1",
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-					className: "font-bold text-xs text-foreground truncate",
+					className: "font-semibold text-[16px] text-foreground truncate",
 					children: [
 						"Fuel -",
 						" ",
@@ -1559,11 +1559,11 @@ function LiveDashcamModal({ vehicle, onClose }) {
 			className: "relative w-full max-w-3xl rounded-2xl border border-border bg-surface text-foreground shadow-2xl overflow-hidden text-xs",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-					className: "flex h-[45px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none",
+					className: "flex h-[56px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex items-center gap-2",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex h-2 w-2 rounded-full bg-rose-500 animate-pulse" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", {
-							className: "text-sm font-semibold tracking-tight",
+							className: "text-[16px] font-semibold tracking-tight",
 							children: ["Live Dashcam · ", vehicle.name]
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
@@ -1733,9 +1733,9 @@ function ObjectColumnSettingsModal({ open, onClose }) {
 			className: "relative w-full max-w-md rounded-2xl border border-border bg-surface text-foreground shadow-2xl overflow-hidden text-xs",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-					className: "flex h-[45px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none",
+					className: "flex h-[56px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-						className: "text-sm font-semibold tracking-tight",
+						className: "text-[16px] font-semibold tracking-tight",
 						children: "Object Display Settings"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 						type: "button",

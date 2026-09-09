@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-LVQlPua9.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-HgudenNA.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-DJzP9H_3.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-jwM3-p7L.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -425,9 +425,9 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 		className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-				className: "flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
+				className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-					className: "text-sm font-bold tracking-tight text-foreground",
+					className: "text-[16px] font-semibold tracking-tight text-foreground",
 					children: "Filter Options"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 					type: "button",
@@ -1285,9 +1285,9 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 					className: "relative z-10 flex h-[590px] max-h-[88vh] w-[780px] max-w-[92vw] flex-col rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150",
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-							className: "flex h-[45px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0",
+							className: "flex h-[56px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-								className: "text-sm font-bold tracking-tight text-foreground",
+								className: "text-[16px] font-semibold tracking-tight text-foreground",
 								children: "Settings"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 								type: "button",
@@ -1791,9 +1791,9 @@ function ChartConfigModal({ open, onClose, config, onSave }) {
 			className: "relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 overflow-hidden rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl duration-150",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-					className: "flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0",
+					className: "flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-						className: "text-sm font-bold tracking-tight text-foreground",
+						className: "text-[16px] font-semibold tracking-tight text-foreground",
 						children: "Chart Comparison"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 						type: "button",
@@ -1936,9 +1936,9 @@ function Shell({ title, subtitle, onClose, children }) {
 			className: "relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 overflow-hidden rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl duration-150",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-					className: "flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 shrink-0 select-none",
+					className: "flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 shrink-0 select-none",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-						className: "text-sm font-bold tracking-tight text-foreground",
+						className: "text-[16px] font-semibold tracking-tight text-foreground",
 						children: title
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 						type: "button",
@@ -2835,9 +2835,9 @@ function ScheduleModal({ open, onClose }) {
 			className: cn("relative flex flex-col bg-background border border-border/80 text-foreground shadow-2xl rounded-2xl overflow-hidden transition-all duration-300 ease-out", view === "list" ? schedules.length === 0 ? "w-full max-w-lg" : "w-[94vw] max-w-2xl max-h-[85vh]" : "w-[94vw] max-w-3xl max-h-[88vh]"),
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-					className: "flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0",
+					className: "flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-						className: "text-sm font-bold tracking-tight text-foreground",
+						className: "text-[16px] font-semibold tracking-tight text-foreground",
 						children: view === "list" ? "Scheduled Reports" : editingId ? "Edit Schedule Report" : "Create Schedule Report"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 						type: "button",
@@ -4098,11 +4098,11 @@ function ScheduleModal({ open, onClose }) {
 			className: "w-full max-w-3xl max-h-[85vh] flex flex-col bg-background border border-border/80 shadow-2xl rounded-2xl overflow-hidden animate-in zoom-in-95",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-					className: "flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0",
+					className: "flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex items-center gap-2.5",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, { className: "h-4 w-4 text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							className: "text-sm font-bold tracking-tight text-foreground",
+							className: "text-[16px] font-semibold tracking-tight text-foreground",
 							children: "Advance Configuration"
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {

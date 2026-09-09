@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-D1zrNnO2.js
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-BSYEK8M-.js
 var tsrStartManifest = () => ({ routes: {
 	__root__: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/__root.tsx",
@@ -12,7 +12,7 @@ var tsrStartManifest = () => ({ routes: {
 			"/zio"
 		],
 		preloads: [
-			"/assets/index-WSWYX_ZH.js",
+			"/assets/index-CeCJE5b5.js",
 			"/assets/utils-BDRr8poQ.js",
 			"/assets/download-B5T2ibo3.js",
 			"/assets/x-B4JrkUkn.js",
@@ -42,14 +42,14 @@ var tsrStartManifest = () => ({ routes: {
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-WSWYX_ZH.js"
+			src: "/assets/index-CeCJE5b5.js"
 		} }]
 	},
 	"/": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/index.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/routes-CbT6-dWm.js",
+			"/assets/routes-DUs2hWKi.js",
 			"/assets/ellipsis-vertical-CafdgEyx.js",
 			"/assets/video-CiTIpoFR.js",
 			"/assets/fleet-DYGVpYjf.js",
@@ -57,14 +57,14 @@ var tsrStartManifest = () => ({ routes: {
 			"/assets/sliders-horizontal-Dw4fhHu4.js",
 			"/assets/truck-iBOT5k6W.js",
 			"/assets/PieChart-BTtKvk8n.js",
-			"/assets/dialog-Doeh795d.js"
+			"/assets/dialog-6UQ7B6uT.js"
 		]
 	},
 	"/charts": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/charts.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/charts-CPq_2D0e.js",
+			"/assets/charts-Ap9cfw1s.js",
 			"/assets/pencil-CWlwNF-Y.js",
 			"/assets/rotate-ccw-BknbzzFT.js",
 			"/assets/sliders-horizontal-Dw4fhHu4.js",
@@ -75,17 +75,17 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/components.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/components-CaKPK8VO.js",
+			"/assets/components-JuBtjjcL.js",
 			"/assets/layers-C7u_3DLV.js",
 			"/assets/minus-y5WOeQdi.js",
-			"/assets/dialog-Doeh795d.js"
+			"/assets/dialog-6UQ7B6uT.js"
 		]
 	},
 	"/report": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/report.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/report-BdaWnk9p.js",
+			"/assets/report-BJAJN_VQ.js",
 			"/assets/play-CULVwW4v.js",
 			"/assets/clock-D7xLHN8c.js",
 			"/assets/copy-jdWaR1dT.js",
@@ -106,7 +106,7 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/tracking.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/tracking-Dnl_nb92.js",
+			"/assets/tracking-Bka2D4sS.js",
 			"/assets/play-CULVwW4v.js",
 			"/assets/clock-D7xLHN8c.js",
 			"/assets/video-CiTIpoFR.js",

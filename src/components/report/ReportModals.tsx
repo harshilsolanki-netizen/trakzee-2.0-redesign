@@ -34,8 +34,8 @@ function Shell({
         className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity cursor-pointer"
       />
       <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 overflow-hidden rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl duration-150">
-        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 shrink-0 select-none">
-          <h2 className="text-sm font-bold tracking-tight text-foreground">
+        <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 shrink-0 select-none">
+          <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
             {title}
           </h2>
           <button

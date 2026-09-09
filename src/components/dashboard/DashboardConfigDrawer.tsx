@@ -120,9 +120,9 @@ export function DashboardConfigDrawer({
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
-        {/* 1. Header matching ADS Side Panel Design System */}
-        <header className="flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
-          <h2 className="text-sm font-bold tracking-tight text-foreground">
+        {/* 1. Header matching Side Panel Design System */}
+        <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+          <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
             {isCreateMode ? "Create Dashboard Tab" : "Dashboard Configuration"}
           </h2>
           <button

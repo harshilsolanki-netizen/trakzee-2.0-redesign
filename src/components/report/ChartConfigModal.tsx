@@ -108,9 +108,9 @@ export function ChartConfigModal({
 
       {/* Modal Card */}
       <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 overflow-hidden rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl duration-150">
-        {/* Modern Clean Header (45px) */}
-        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
-          <h2 className="text-sm font-bold tracking-tight text-foreground">
+        {/* Modern Clean Header (56px) */}
+        <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
+          <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
             Chart Comparison
           </h2>
           <button

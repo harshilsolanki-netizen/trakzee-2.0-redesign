@@ -83,7 +83,7 @@ export function TabConfigPanel({
         className="flex w-[340px] flex-col gap-0 p-0 sm:max-w-[340px]"
       >
         <SheetHeader className="space-y-2 border-b border-border p-4">
-          <SheetTitle className="text-sm font-semibold">
+          <SheetTitle className="text-[16px] font-semibold">
             {target?.mode === "edit" ? "Edit Tab" : "New Tab"}
           </SheetTitle>
           <div className="space-y-1.5">

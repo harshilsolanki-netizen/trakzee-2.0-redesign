@@ -27,10 +27,10 @@ export function LiveDashcamModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200 select-none">
       <div className="relative w-full max-w-3xl rounded-2xl border border-border bg-surface text-foreground shadow-2xl overflow-hidden text-xs">
         {/* Header */}
-        <header className="flex h-[45px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none">
+        <header className="flex h-[56px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none">
           <div className="flex items-center gap-2">
             <div className="flex h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-            <h2 className="text-sm font-semibold tracking-tight">
+            <h2 className="text-[16px] font-semibold tracking-tight">
               Live Dashcam · {vehicle.name}
             </h2>
           </div>

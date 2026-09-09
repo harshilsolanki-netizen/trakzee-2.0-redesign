@@ -912,8 +912,8 @@ export function ColumnConfigModal({
         />
         <div className="relative z-10 flex h-[590px] max-h-[88vh] w-[780px] max-w-[92vw] flex-col rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
           {/* Header */}
-          <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
-            <h2 className="text-sm font-bold tracking-tight text-foreground">
+          <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
+            <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
               Settings
             </h2>
 

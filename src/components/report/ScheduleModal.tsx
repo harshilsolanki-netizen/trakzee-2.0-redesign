@@ -1139,9 +1139,9 @@ export function ScheduleModal({
               : "w-[94vw] max-w-3xl max-h-[88vh]",
           )}
         >
-          {/* Modern Seamless Modal Header (45px) */}
-          <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
-            <h2 className="text-sm font-bold tracking-tight text-foreground">
+          {/* Modern Seamless Modal Header (56px) */}
+          <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
+            <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
               {view === "list"
                 ? "Scheduled Reports"
                 : editingId
@@ -2475,11 +2475,11 @@ export function ScheduleModal({
           }}
         >
           <div className="w-full max-w-3xl max-h-[85vh] flex flex-col bg-background border border-border/80 shadow-2xl rounded-2xl overflow-hidden animate-in zoom-in-95">
-            {/* Modern Header (45px) */}
-            <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
+            {/* Modern Header (56px) */}
+            <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
               <div className="flex items-center gap-2.5">
                 <Settings2 className="h-4 w-4 text-[#0089FF]" />
-                <h3 className="text-sm font-bold tracking-tight text-foreground">
+                <h3 className="text-[16px] font-semibold tracking-tight text-foreground">
                   Advance Configuration
                 </h3>
               </div>

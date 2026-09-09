@@ -9,11 +9,11 @@ import { i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSepar
 import { n as toast } from "../_libs/sonner.mjs";
 import { _ as Tooltip, d as Bar, f as RadialBar, g as ResponsiveContainer, h as Cell, i as BarChart, m as PolarAngleAxis, n as RadialBarChart, o as YAxis, p as Pie, r as PieChart, s as XAxis } from "../_libs/recharts+[...].mjs";
 import { i as TooltipTrigger, n as TooltipContent, t as Tooltip$1 } from "./tooltip-yj1PAv0W.mjs";
-import { l as buttonVariants, n as Dialog, o as DialogHeader, r as DialogContent, s as DialogTitle } from "./dialog-BdOFqtaC.mjs";
+import { l as buttonVariants, n as Dialog, o as DialogHeader, r as DialogContent, s as DialogTitle } from "./dialog-CGmshmYo.mjs";
 import { a as WIDGET_CATALOG, i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, s as widgetMeta } from "./store-LVQlPua9.mjs";
 import { a as eventTypes, c as highlightEvents, i as cameraStatus, l as riskyDrivers, o as fleetObjects, r as bucketColor, s as fleetScore, t as RANGE_LABEL, u as scoreDistribution } from "./fleet-DZTK5mNe.mjs";
 import { a as Viewport, i as ScrollAreaThumb, n as Root, r as ScrollAreaScrollbar, t as Corner } from "../_libs/radix-ui__react-scroll-area.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-eRHUbaMC.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-CUgovGR3.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var RANGES = [
@@ -109,7 +109,7 @@ function WidgetCard({ id, info, className, children, range, onRangeChange, extra
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogHeader, {
 				className: "border-b border-border/70 pb-3",
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
-					className: "text-base font-bold text-foreground",
+					className: "text-[16px] font-semibold text-foreground",
 					children: meta.title
 				})
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
@@ -903,7 +903,7 @@ var AlertDialogFooter = ({ className, ...props }) => /* @__PURE__ */ (0, import_
 AlertDialogFooter.displayName = "AlertDialogFooter";
 var AlertDialogTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Title2, {
 	ref,
-	className: cn("text-lg font-semibold", className),
+	className: cn("text-[16px] font-semibold", className),
 	...props
 }));
 AlertDialogTitle.displayName = Title2.displayName;
@@ -1239,9 +1239,9 @@ function DashboardFilterDrawer({ open, onClose, onApply }) {
 		className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-				className: "flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
+				className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-					className: "text-sm font-bold tracking-tight text-foreground",
+					className: "text-[16px] font-semibold tracking-tight text-foreground",
 					children: "Filter Options"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 					type: "button",
@@ -1534,9 +1534,9 @@ function DashboardConfigDrawer({ target, onClose }) {
 		className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-				className: "flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
+				className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-					className: "text-sm font-bold tracking-tight text-foreground",
+					className: "text-[16px] font-semibold tracking-tight text-foreground",
 					children: isCreateMode ? "Create Dashboard Tab" : "Dashboard Configuration"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 					type: "button",

@@ -8,7 +8,7 @@ import { i as DropdownMenuItem, n as DropdownMenuContent, t as DropdownMenu, u a
 import { l as useLocation, v as useNavigate, y as useSearch } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { _ as Tooltip, a as LineChart, c as Area, d as Bar, g as ResponsiveContainer, h as Cell, i as BarChart, l as Line, o as YAxis, p as Pie, r as PieChart, s as XAxis, t as ComposedChart, u as CartesianGrid, v as Legend } from "../_libs/recharts+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/charts-BRHx73Bf.js
+//#region node_modules/.nitro/vite/services/ssr/assets/charts-4yAL48po.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function AppliedFiltersSummary({ filters, selectedVehicleCount, onEditFilter, className }) {
@@ -255,9 +255,9 @@ function ChartFilterDrawer({ open, onClose, value, onChange, vehicleGroups, onAp
 		className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-				className: "flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
+				className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-					className: "text-sm font-bold tracking-tight text-foreground",
+					className: "text-[16px] font-semibold tracking-tight text-foreground",
 					children: "Chart Filter"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 					type: "button",

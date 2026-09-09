@@ -85,10 +85,10 @@ export function VehicleTelemetryDrawer({
       )}
     >
       {/* 1. Header Toolbar with Title, Switcher & Action Icons */}
-      <div className="flex h-[45px] items-center justify-between border-b border-border bg-surface-muted/60 px-3 select-none">
+      <div className="flex h-[56px] items-center justify-between border-b border-border bg-surface-muted/60 px-3 select-none">
         {/* Title & Dropdown */}
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          <span className="font-bold text-xs text-foreground truncate">
+          <span className="font-semibold text-[16px] text-foreground truncate">
             Fuel -{" "}
             {vehicle.name.replace(
               /^(Fuel - |BUS - |RPM - |SOC - |Temperature - )/,

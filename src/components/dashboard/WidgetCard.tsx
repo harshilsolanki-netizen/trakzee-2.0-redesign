@@ -133,7 +133,7 @@ export function WidgetCard({
       <Dialog open={expanded} onOpenChange={setExpanded}>
         <DialogContent className="max-w-[min(1200px,95vw)] rounded-2xl border border-border/80 bg-background shadow-2xl p-6">
           <DialogHeader className="border-b border-border/70 pb-3">
-            <DialogTitle className="text-base font-bold text-foreground">
+            <DialogTitle className="text-[16px] font-semibold text-foreground">
               {meta.title}
             </DialogTitle>
           </DialogHeader>

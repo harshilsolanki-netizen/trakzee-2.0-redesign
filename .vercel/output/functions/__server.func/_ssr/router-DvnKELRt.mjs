@@ -17,7 +17,7 @@ import { n as useZio, t as ZioProvider } from "./ZioContext-Cw_R09Nu.mjs";
 import { t as ZioPanel } from "./ZioPanel-lLJH_t-F.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-DoGOspCS.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-DvnKELRt.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -815,7 +815,7 @@ var SheetFooter = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_ru
 SheetFooter.displayName = "SheetFooter";
 var SheetTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
 	ref,
-	className: cn("text-lg font-semibold text-foreground", className),
+	className: cn("text-[16px] font-semibold text-foreground", className),
 	...props
 }));
 SheetTitle.displayName = DialogTitle.displayName;
@@ -1399,9 +1399,9 @@ function ModalShell({ title, onClose, children, maxWidth = "max-w-md" }) {
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: cn("relative z-10 w-full animate-in fade-in zoom-in-95 overflow-hidden rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl duration-150 flex flex-col max-h-[90vh]", maxWidth),
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-				className: "flex h-[45px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0",
+				className: "flex h-[56px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-					className: "text-sm font-bold tracking-tight text-foreground",
+					className: "text-[16px] font-semibold tracking-tight text-foreground",
 					children: title
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 					type: "button",
@@ -2482,7 +2482,7 @@ var Toaster$1 = ({ ...props }) => {
 		...props
 	});
 };
-var styles_default = "/assets/styles-BeWkSZsl.css";
+var styles_default = "/assets/styles-BFheoQnZ.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -2719,7 +2719,7 @@ function TopBar() {
 		]
 	});
 }
-var $$splitComponentImporter$6 = () => import("./routes-eRHUbaMC.mjs");
+var $$splitComponentImporter$6 = () => import("./routes-CUgovGR3.mjs");
 var Route$7 = createFileRoute("/")({
 	head: () => ({ meta: [
 		{ title: "Fleet Safety Dashboard — Fleet Command" },
@@ -2738,7 +2738,7 @@ var Route$7 = createFileRoute("/")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$6, "component")
 });
-var $$splitComponentImporter$5 = () => import("./charts-BRHx73Bf.mjs");
+var $$splitComponentImporter$5 = () => import("./charts-4yAL48po.mjs");
 var Route$6 = createFileRoute("/charts")({
 	validateSearch: (search) => {
 		const c = search["chart"];
@@ -2761,7 +2761,7 @@ var Route$6 = createFileRoute("/charts")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$5, "component")
 });
-var $$splitComponentImporter$4 = () => import("./components-DNg8Wr6m.mjs");
+var $$splitComponentImporter$4 = () => import("./components-Zqm2uIJf.mjs");
 var Route$5 = createFileRoute("/components")({ component: lazyRouteComponent($$splitComponentImporter$4, "component") });
 objectType({
 	fullName: stringType().min(2, "Full name must be at least 2 characters"),
@@ -2769,7 +2769,7 @@ objectType({
 	role: stringType().min(1, "Please select a developer role"),
 	marketingUpdates: booleanType().default(false)
 });
-var $$splitComponentImporter$3 = () => import("./report-DJzP9H_3.mjs");
+var $$splitComponentImporter$3 = () => import("./report-jwM3-p7L.mjs");
 var Route$4 = createFileRoute("/report")({
 	validateSearch: (search) => {
 		const t = search["type"];
@@ -2811,7 +2811,7 @@ var Route$3 = createFileRoute("/setting")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
-var $$splitComponentImporter$1 = () => import("./tracking-DcCGf1Ek.mjs");
+var $$splitComponentImporter$1 = () => import("./tracking-A2u_01wO.mjs");
 var Route$2 = createFileRoute("/tracking")({
 	head: () => ({ meta: [
 		{ title: "Live Tracking — Fleet Command" },

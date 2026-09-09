@@ -340,8 +340,8 @@ function ModalShell({
           maxWidth,
         )}
       >
-        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
-          <h2 className="text-sm font-bold tracking-tight text-foreground">
+        <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
+          <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
             {title}
           </h2>
           <button

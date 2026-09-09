@@ -36,8 +36,8 @@ export function ObjectColumnSettingsModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200 select-none">
       <div className="relative w-full max-w-md rounded-2xl border border-border bg-surface text-foreground shadow-2xl overflow-hidden text-xs">
         {/* Header */}
-        <header className="flex h-[45px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none">
-          <h2 className="text-sm font-semibold tracking-tight">
+        <header className="flex h-[56px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none">
+          <h2 className="text-[16px] font-semibold tracking-tight">
             Object Display Settings
           </h2>
           <button
