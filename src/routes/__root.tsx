@@ -176,7 +176,7 @@ function AppLayout() {
         <TopBar />
         <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden relative bg-nav">
           {/* Main Workspace Screen: smoothly resizes when Sidebar mode is open */}
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background rounded-tl-[28px] shadow-sm">
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background rounded-tl-2xl shadow-sm">
             <Outlet />
           </main>
 
