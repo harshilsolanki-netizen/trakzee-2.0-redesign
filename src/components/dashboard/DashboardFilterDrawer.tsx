@@ -129,16 +129,16 @@ function UniversalMultiSelectDropdown({
       >
         <span className="truncate flex items-center min-w-0">
           {!selected || selected.length === 0 ? (
-            <span className="text-muted-foreground/60 font-normal italic truncate">
+            <span className="text-muted-foreground/60 font-medium italic truncate">
               {placeholder || `Select ${label}`}
             </span>
           ) : (
             <>
-              <span className="truncate font-semibold text-foreground">
+              <span className="truncate font-medium text-muted-foreground">
                 {selected[0]}
               </span>
               {selected.length > 1 && (
-                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
                   +{selected.length - 1}
                 </span>
               )}
@@ -532,7 +532,7 @@ export function DashboardFilterDrawer({
           <div className="space-y-3 shrink-0">
             {/* Field 1: Company */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label className="block text-xs font-semibold text-foreground">
                 Company
               </label>
               <UniversalMultiSelectDropdown
@@ -546,7 +546,7 @@ export function DashboardFilterDrawer({
 
             {/* Field 2: Branch */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label className="block text-xs font-semibold text-foreground">
                 Branch
               </label>
               <UniversalMultiSelectDropdown
@@ -560,7 +560,7 @@ export function DashboardFilterDrawer({
 
             {/* Field 3: Group */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label className="block text-xs font-semibold text-foreground">
                 Group
               </label>
               <UniversalMultiSelectDropdown
@@ -574,7 +574,7 @@ export function DashboardFilterDrawer({
 
             {/* Field 4: Type */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label className="block text-xs font-semibold text-foreground">
                 Type
               </label>
               <UniversalMultiSelectDropdown
@@ -590,7 +590,7 @@ export function DashboardFilterDrawer({
           {/* Field 5: Vehicle List Section (Stretches all the way down to the footer) */}
           <div className="space-y-2 pt-2 border-t border-border/60 flex-1 min-h-0 flex flex-col">
             <div className="flex items-center justify-between shrink-0">
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label className="block text-xs font-semibold text-foreground">
                 Vehicle List
               </label>
               <span className="text-[11px] font-semibold text-muted-foreground">

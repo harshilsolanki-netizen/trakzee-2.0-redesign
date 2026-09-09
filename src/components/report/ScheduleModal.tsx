@@ -414,7 +414,7 @@ function SelectDropdown({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-semibold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-muted-foreground font-medium shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
           open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
         )}
       >
@@ -422,7 +422,7 @@ function SelectDropdown({
           className={cn(
             "truncate",
             value
-              ? "text-foreground font-semibold"
+              ? "text-muted-foreground font-medium"
               : "text-muted-foreground/60 font-normal italic",
           )}
         >
@@ -1372,7 +1372,7 @@ export function ScheduleModal({
                 <div className="grid grid-cols-3 gap-4">
                   {/* Company */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Company
                     </label>
                     <SelectDropdown
@@ -1384,7 +1384,7 @@ export function ScheduleModal({
 
                   {/* Branch */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Branch
                     </label>
                     <SelectDropdown
@@ -1403,7 +1403,7 @@ export function ScheduleModal({
 
                   {/* Vehicle Group */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Vehicle Group
                     </label>
                     <SelectDropdown
@@ -1422,7 +1422,7 @@ export function ScheduleModal({
 
                   {/* Vehicle Type */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Vehicle Type
                     </label>
                     <SelectDropdown
@@ -1441,7 +1441,7 @@ export function ScheduleModal({
 
                   {/* Vehicle Brand */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Vehicle Brand
                     </label>
                     <SelectDropdown
@@ -1459,7 +1459,7 @@ export function ScheduleModal({
 
                   {/* Vehicle Model */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Vehicle Model
                     </label>
                     <SelectDropdown
@@ -1478,7 +1478,7 @@ export function ScheduleModal({
                   {/* Select Vehicle: Full Width Tree Dropdown */}
                   <div className="col-span-3 space-y-1.5 pt-1">
                     <div className="flex items-center justify-between">
-                      <label className="block text-xs font-medium text-muted-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Select Vehicle
                       </label>
                       <span className="text-[11px] font-medium text-muted-foreground">
@@ -1502,7 +1502,7 @@ export function ScheduleModal({
                   <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                     {/* Row 1, Col 1: Duration Status */}
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-muted-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Duration Status
                       </label>
                       <SelectDropdown
@@ -1514,7 +1514,7 @@ export function ScheduleModal({
 
                     {/* Row 1, Col 2: Duration Format */}
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-muted-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Duration Format
                       </label>
                       <div className="flex items-center gap-6 h-7.5">
@@ -1545,7 +1545,7 @@ export function ScheduleModal({
 
                     {/* Row 2, Col 1: Duration Filter */}
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-muted-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Duration Filter
                       </label>
                       <div className="grid grid-cols-12 gap-2">
@@ -1571,7 +1571,7 @@ export function ScheduleModal({
                               setCriteriaDurationValue(e.target.value)
                             }
                             placeholder="e.g. 5"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                           />
                         </div>
                       </div>
@@ -1579,7 +1579,7 @@ export function ScheduleModal({
 
                     {/* Row 2, Col 2: Distance Filter */}
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-muted-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Distance Filter
                       </label>
                       <div className="grid grid-cols-12 gap-2">
@@ -1598,7 +1598,7 @@ export function ScheduleModal({
                               setCriteriaDistanceValue(e.target.value)
                             }
                             placeholder="e.g. 100"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                           />
                         </div>
                       </div>
@@ -1612,7 +1612,7 @@ export function ScheduleModal({
                 {/* 1. Report Information - Side by Side */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Report Name <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <input
@@ -1626,7 +1626,7 @@ export function ScheduleModal({
                       }}
                       placeholder="e.g. Weekly Operations Summary"
                       className={cn(
-                        "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                        "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                         errors.name
                           ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                           : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -1641,7 +1641,7 @@ export function ScheduleModal({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Copy From
                     </label>
                     <SelectDropdown
@@ -1656,7 +1656,7 @@ export function ScheduleModal({
                 <div className="pt-2 space-y-4">
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-muted-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Relative Type
                       </label>
                       <SelectDropdown
@@ -1667,7 +1667,7 @@ export function ScheduleModal({
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-muted-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Timezone
                       </label>
                       <SelectDropdown
@@ -1680,7 +1680,7 @@ export function ScheduleModal({
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-muted-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Generation Time
                       </label>
                       <SelectDropdown
@@ -1701,7 +1701,7 @@ export function ScheduleModal({
                     {/* If Weekly: Clickable Day-of-Week Buttons with Hover & Active styling */}
                     {draft.scheduleType === "Weekly" && (
                       <div className="space-y-1.5">
-                        <span className="block text-xs font-medium text-muted-foreground">
+                        <span className="block text-xs font-semibold text-foreground">
                           Select execution days:
                         </span>
                         <div className="flex items-center gap-2">
@@ -1732,7 +1732,7 @@ export function ScheduleModal({
                     {/* If Monthly: Clickable Date Grid (1-31) */}
                     {draft.scheduleType === "Monthly" && (
                       <div className="space-y-1.5">
-                        <span className="block text-xs font-medium text-muted-foreground">
+                        <span className="block text-xs font-semibold text-foreground">
                           Select execution day of month:
                         </span>
                         <div className="grid grid-cols-7 sm:grid-cols-10 gap-1.5">
@@ -1784,7 +1784,7 @@ export function ScheduleModal({
                     {draft.hasTimeRange && (
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Start Time
                           </label>
                           <div className="relative flex items-center">
@@ -1797,14 +1797,14 @@ export function ScheduleModal({
                                   timeRangeStart: e.target.value,
                                 }))
                               }
-                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-semibold text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-muted-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                             />
                             <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                           </div>
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             End Time
                           </label>
                           <div className="relative flex items-center">
@@ -1817,7 +1817,7 @@ export function ScheduleModal({
                                   timeRangeEnd: e.target.value,
                                 }))
                               }
-                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-semibold text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-muted-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                             />
                             <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                           </div>
@@ -1831,7 +1831,7 @@ export function ScheduleModal({
                 <div className="pt-2 space-y-4">
                   {/* Report Type */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Report Type
                     </label>
                     <div className="flex items-center gap-6 h-7.5">
@@ -1859,7 +1859,7 @@ export function ScheduleModal({
 
                   {/* Delivery Method */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       Delivery Method
                     </label>
                     <div className="flex items-center gap-6 h-7.5">
@@ -1890,7 +1890,7 @@ export function ScheduleModal({
                     <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
                       <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-2 space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             To Address <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <div className="flex items-center gap-2">
@@ -1909,7 +1909,7 @@ export function ScheduleModal({
                               }}
                               placeholder="manager@company.com"
                               className={cn(
-                                "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                                "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                                 emailVerificationStatus === "success"
                                   ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                                   : emailVerificationStatus === "failed" || errors.toAddress
@@ -1965,7 +1965,7 @@ export function ScheduleModal({
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Retry Window (Mins)
                           </label>
                           <input
@@ -1978,13 +1978,13 @@ export function ScheduleModal({
                               }))
                             }
                             placeholder="15"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-muted-foreground">
+                        <label className="block text-xs font-semibold text-foreground">
                           Subject
                         </label>
                         <input
@@ -1994,13 +1994,13 @@ export function ScheduleModal({
                             setDraft((d) => ({ ...d, subject: e.target.value }))
                           }
                           placeholder="Weekly Travel Summary Report"
-                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                         />
                       </div>
 
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Message
                           </label>
                           <div className="flex items-center gap-1 border border-border rounded-md bg-muted/40 px-1.5 py-0.5">
@@ -2038,7 +2038,7 @@ export function ScheduleModal({
                             setDraft((d) => ({ ...d, message: e.target.value }))
                           }
                           placeholder="Write your email body message here..."
-                          className="w-full rounded-md border border-input bg-background p-3 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
+                          className="w-full rounded-md border border-input bg-background p-3 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
                         />
                       </div>
                     </div>
@@ -2049,7 +2049,7 @@ export function ScheduleModal({
                     <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Host Address <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2061,7 +2061,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. ftp.example.com"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpHost
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2076,7 +2076,7 @@ export function ScheduleModal({
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Port <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2088,7 +2088,7 @@ export function ScheduleModal({
                             }}
                             placeholder="21"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpPort
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2105,7 +2105,7 @@ export function ScheduleModal({
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Username <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2117,7 +2117,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. ftp_user"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpUsername
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2132,7 +2132,7 @@ export function ScheduleModal({
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Password <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2144,7 +2144,7 @@ export function ScheduleModal({
                             }}
                             placeholder="••••••••"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpPassword
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2160,7 +2160,7 @@ export function ScheduleModal({
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-muted-foreground">
+                        <label className="block text-xs font-semibold text-foreground">
                           Folder Name <span className="text-red-500 font-bold ml-0.5">*</span>
                         </label>
                         <input
@@ -2172,7 +2172,7 @@ export function ScheduleModal({
                           }}
                           placeholder="e.g. /reports/daily"
                           className={cn(
-                            "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                            "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                             errors.ftpFolder
                               ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                               : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2192,7 +2192,7 @@ export function ScheduleModal({
                   {draft.actionType === "SFTP" && (
                     <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-muted-foreground">
+                        <label className="block text-xs font-semibold text-foreground">
                           Platform <span className="text-red-500 font-bold ml-0.5">*</span>
                         </label>
                         <SelectDropdown
@@ -2204,7 +2204,7 @@ export function ScheduleModal({
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Access key ID <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2216,7 +2216,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. AKIAIOSFODNN7EXAMPLE"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpAccessKey
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2231,7 +2231,7 @@ export function ScheduleModal({
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Secret Access Key <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2243,7 +2243,7 @@ export function ScheduleModal({
                             }}
                             placeholder="••••••••••••••••••••••••"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpSecretKey
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2260,7 +2260,7 @@ export function ScheduleModal({
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Region <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2272,7 +2272,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. ap-south-1"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpRegion
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2287,7 +2287,7 @@ export function ScheduleModal({
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Bucket Name <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2299,7 +2299,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. company-fleet-reports"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpBucketName
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2320,7 +2320,7 @@ export function ScheduleModal({
                   {draft.actionType === "Media API" && (
                     <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-muted-foreground">
+                        <label className="block text-xs font-semibold text-foreground">
                           Gateway <span className="text-red-500 font-bold ml-0.5">*</span>
                         </label>
                         <SelectDropdown
@@ -2332,7 +2332,7 @@ export function ScheduleModal({
 
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <label className="block text-xs font-medium text-muted-foreground">
+                          <label className="block text-xs font-semibold text-foreground">
                             Recipient Number <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <span className="text-[11px] text-muted-foreground font-medium">
@@ -2348,7 +2348,7 @@ export function ScheduleModal({
                           }}
                           placeholder="+91 9876543210, +1 5550192834"
                           className={cn(
-                            "w-full rounded-md border bg-background p-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none",
+                            "w-full rounded-md border bg-background p-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none",
                             errors.mediaRecipientNumber
                               ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                               : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2366,7 +2366,7 @@ export function ScheduleModal({
 
                   {/* File Format - Positioned in the last above Advance Configuration */}
                   <div className="space-y-1.5 pt-1">
-                    <label className="block text-xs font-medium text-muted-foreground">
+                    <label className="block text-xs font-semibold text-foreground">
                       File Format
                     </label>
                     <div className="flex items-center gap-6 h-7.5">
@@ -2618,7 +2618,7 @@ export function ScheduleModal({
 
               {/* Detail Report Download Settings */}
               <div className="p-4 rounded-xl border border-border/80 bg-card space-y-2.5">
-                <label className="block text-xs font-medium text-muted-foreground">
+                <label className="block text-xs font-semibold text-foreground">
                   Detail Report Download Mode
                 </label>
                 <div className="flex items-center gap-6 text-xs">

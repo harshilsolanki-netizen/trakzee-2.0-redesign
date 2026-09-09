@@ -60,7 +60,7 @@ export function ObjectColumnSettingsModal({
                   key={col.id}
                   className="flex items-center justify-between p-2 rounded-md border border-border/60 hover:bg-muted/50 cursor-pointer transition-colors"
                 >
-                  <span className="font-medium text-foreground text-xs">
+                  <span className="font-semibold text-foreground text-xs">
                     {col.label}
                   </span>
                   <input

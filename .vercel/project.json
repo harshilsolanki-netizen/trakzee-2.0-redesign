@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_GzIKk5W98Wtm2EYPfoeKCGrpmiCd",
+  "orgId": "team_9MHsZeVcBdXwB9YlN72jJUww",
+  "projectName": "trakzee-2-0",
+  "settings": {
+    "createdAt": 1788851131124,
+    "framework": "tanstack-start-lovable",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "22.x"
+  }
+}

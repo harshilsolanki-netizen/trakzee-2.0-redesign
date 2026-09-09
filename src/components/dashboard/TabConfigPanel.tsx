@@ -87,7 +87,7 @@ export function TabConfigPanel({
             {target?.mode === "edit" ? "Edit Tab" : "New Tab"}
           </SheetTitle>
           <div className="space-y-1.5">
-            <Label htmlFor="tab-name" className="text-xs text-muted-foreground">
+            <Label htmlFor="tab-name" className="text-xs font-semibold text-foreground">
               Tab Name
             </Label>
             <input
@@ -96,7 +96,7 @@ export function TabConfigPanel({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter tab name"
-              className="h-9 w-full rounded-md border border-input bg-surface px-2.5 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              className="h-9 w-full rounded-md border border-input bg-surface px-2.5 text-xs font-medium text-muted-foreground focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             />
           </div>
         </SheetHeader>

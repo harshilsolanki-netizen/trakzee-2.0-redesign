@@ -211,6 +211,18 @@
 }
 
 /* Modern Utility Classes */
+@utility field-label {
+  font-weight: 600;
+  color: var(--color-foreground);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+@utility field-value {
+  font-weight: 500;
+  color: var(--color-muted-foreground);
+}
+
 @utility glass-card {
   background-color: color-mix(in oklch, var(--color-surface) 85%, transparent);
   backdrop-filter: blur(12px);

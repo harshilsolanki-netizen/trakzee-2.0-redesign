@@ -176,7 +176,7 @@ function ModernTimeSelector({
         <button
           type="button"
           className={cn(
-            "flex h-8.5 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs hover:bg-muted/40 hover:border-[#0089FF]/50",
+            "flex h-8.5 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-xs font-medium text-muted-foreground transition-all cursor-pointer shadow-2xs hover:bg-muted/40 hover:border-[#0089FF]/50",
             isOpen && "border-[#0089FF] ring-2 ring-[#0089FF]/20",
             className,
           )}
@@ -634,7 +634,7 @@ export function ReportQuickFilterBar({
 
         {/* Time Selector below this Month */}
         <div className="pt-2 border-t border-border/70">
-          <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+          <span className="block text-[11px] font-semibold text-foreground mb-1">
             {isFromMonth ? "From Time" : "To Time"}
           </span>
           {isFromMonth ? (
@@ -1037,7 +1037,7 @@ export function ReportQuickFilterBar({
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-1.5">
                   <CalendarIcon className="h-3.5 w-3.5 text-[#0089FF]" />
-                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  <span className="text-xs font-semibold text-foreground block">
                     Date Range
                   </span>
                 </div>
@@ -1054,7 +1054,7 @@ export function ReportQuickFilterBar({
                 type="button"
                 onClick={() => setPresetMenuOpen((prev) => !prev)}
                 className={cn(
-                  "flex h-8.5 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs hover:bg-muted/40 hover:border-[#0089FF]/50",
+                  "flex h-8.5 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-xs font-medium text-muted-foreground transition-all cursor-pointer shadow-2xs hover:bg-muted/40 hover:border-[#0089FF]/50",
                   presetMenuOpen && "border-[#0089FF] ring-2 ring-[#0089FF]/20",
                 )}
               >
@@ -1123,7 +1123,7 @@ export function ReportQuickFilterBar({
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center gap-1.5 mb-1">
                   <Clock className="h-3.5 w-3.5 text-[#0089FF]" />
-                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  <span className="text-xs font-semibold text-foreground block">
                     Time Range
                   </span>
                 </div>
@@ -1188,8 +1188,8 @@ export function ReportQuickFilterBar({
               companyOpen && "bg-muted font-semibold",
             )}
           >
-            <span className="text-muted-foreground">Company:</span>
-            <span className="font-semibold text-[#0089FF]">{companyLabel}</span>
+            <span className="font-semibold text-foreground">Company:</span>
+            <span className="font-medium text-muted-foreground">{companyLabel}</span>
             <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
           </button>
         </PopoverTrigger>
@@ -1211,7 +1211,7 @@ export function ReportQuickFilterBar({
                 value={companySearch}
                 onChange={(e) => setCompanySearch(e.target.value)}
                 placeholder="Search company..."
-                className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
               />
               {companySearch && (
                 <button
@@ -1264,7 +1264,7 @@ export function ReportQuickFilterBar({
                   />
                   <span
                     className={cn(
-                      "text-foreground",
+                      "text-foreground font-medium",
                       checked && "font-semibold text-foreground",
                     )}
                   >
@@ -1324,8 +1324,8 @@ export function ReportQuickFilterBar({
               branchOpen && "bg-muted font-semibold",
             )}
           >
-            <span className="text-muted-foreground">Branch:</span>
-            <span className="font-semibold text-[#0089FF]">{branchLabel}</span>
+            <span className="font-semibold text-foreground">Branch:</span>
+            <span className="font-medium text-muted-foreground">{branchLabel}</span>
             <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
           </button>
         </PopoverTrigger>
@@ -1347,7 +1347,7 @@ export function ReportQuickFilterBar({
                 value={branchSearch}
                 onChange={(e) => setBranchSearch(e.target.value)}
                 placeholder="Search branch..."
-                className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
               />
               {branchSearch && (
                 <button
@@ -1400,7 +1400,7 @@ export function ReportQuickFilterBar({
                   />
                   <span
                     className={cn(
-                      "text-foreground",
+                      "text-foreground font-medium",
                       checked && "font-semibold text-foreground",
                     )}
                   >
@@ -1460,8 +1460,8 @@ export function ReportQuickFilterBar({
               vehicleOpen && "bg-muted font-semibold",
             )}
           >
-            <span className="text-muted-foreground">Vehicle:</span>
-            <span className="font-semibold text-[#0089FF]">{vehicleLabel}</span>
+            <span className="font-semibold text-foreground">Vehicle:</span>
+            <span className="font-medium text-muted-foreground">{vehicleLabel}</span>
             <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
           </button>
         </PopoverTrigger>

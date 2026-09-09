@@ -10,7 +10,7 @@ import { DATE_PRESETS } from "@/data/reports";
 import { cn } from "@/lib/utils";
 
 const selectClass =
-  "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer";
+  "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer";
 
 function Field({
   label,
@@ -21,7 +21,7 @@ function Field({
 }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-xs font-medium text-muted-foreground">
+      <span className="text-xs font-semibold text-foreground">
         {label}
       </span>
       {children}
@@ -150,8 +150,8 @@ export function ChartFilterDrawer({
           {/* Date Pickers with FROM / TO Badges */}
           <div className="grid grid-cols-2 gap-2 shrink-0">
             <div className="flex items-center overflow-hidden rounded-md border border-input/80 bg-background shadow-2xs">
-              <span className="bg-muted px-2 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase border-r border-input/80">
-                FROM
+              <span className="bg-muted px-2 py-1.5 text-[10px] font-semibold text-foreground border-r border-input/80">
+                From
               </span>
               <input
                 type="date"
@@ -159,12 +159,12 @@ export function ChartFilterDrawer({
                 onChange={(e) =>
                   onChange({ from: e.target.value, datePreset: "Custom" })
                 }
-                className="h-7.5 w-full bg-transparent px-2 text-xs font-semibold text-foreground focus:outline-none"
+                className="h-7.5 w-full bg-transparent px-2 text-xs font-medium text-muted-foreground focus:outline-none focus:text-foreground"
               />
             </div>
             <div className="flex items-center overflow-hidden rounded-md border border-input/80 bg-background shadow-2xs">
-              <span className="bg-muted px-2 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase border-r border-input/80">
-                TO
+              <span className="bg-muted px-2 py-1.5 text-[10px] font-semibold text-foreground border-r border-input/80">
+                To
               </span>
               <input
                 type="date"
@@ -172,7 +172,7 @@ export function ChartFilterDrawer({
                 onChange={(e) =>
                   onChange({ to: e.target.value, datePreset: "Custom" })
                 }
-                className="h-7.5 w-full bg-transparent px-2 text-xs font-semibold text-foreground focus:outline-none"
+                className="h-7.5 w-full bg-transparent px-2 text-xs font-medium text-muted-foreground focus:outline-none focus:text-foreground"
               />
             </div>
           </div>
@@ -206,7 +206,7 @@ export function ChartFilterDrawer({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search vehicles, drivers..."
                 aria-label="Search vehicles"
-                className="h-7 flex-1 bg-transparent text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none"
+                className="h-7 flex-1 bg-transparent text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none focus:text-foreground"
               />
             </div>
           </div>

@@ -107,7 +107,7 @@ export function ProgressComparisonOverlay({
                   <button
                     type="button"
                     className={cn(
-                      "flex h-7 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs hover:border-[#0089FF]/60 hover:bg-muted/30 focus:border-[#0089FF] focus:ring-1.5 focus:ring-[#0089FF]/20 focus:outline-none",
+                      "flex h-7 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-muted-foreground transition-all cursor-pointer shadow-2xs hover:border-[#0089FF]/60 hover:bg-muted/30 focus:border-[#0089FF] focus:ring-1.5 focus:ring-[#0089FF]/20 focus:outline-none",
                       xAxisOpen && "border-[#0089FF] ring-1.5 ring-[#0089FF]/20 bg-muted/30",
                     )}
                   >
@@ -164,7 +164,7 @@ export function ProgressComparisonOverlay({
                   <button
                     type="button"
                     className={cn(
-                      "flex h-7 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs hover:border-[#0089FF]/60 hover:bg-muted/30 focus:border-[#0089FF] focus:ring-1.5 focus:ring-[#0089FF]/20 focus:outline-none",
+                      "flex h-7 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-muted-foreground transition-all cursor-pointer shadow-2xs hover:border-[#0089FF]/60 hover:bg-muted/30 focus:border-[#0089FF] focus:ring-1.5 focus:ring-[#0089FF]/20 focus:outline-none",
                       yAxisOpen && "border-[#0089FF] ring-1.5 ring-[#0089FF]/20 bg-muted/30",
                       isDuplicate && "border-rose-500/70 text-rose-600 focus:border-rose-500",
                     )}

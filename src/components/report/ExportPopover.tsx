@@ -58,7 +58,7 @@ export function ExportPopover({
         className="w-[280px] rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl p-3.5 text-foreground shadow-lg animate-in fade-in-0 zoom-in-95 select-none space-y-3"
       >
         {/* Header Title */}
-        <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+        <div className="text-xs font-semibold text-foreground">
           Download Options
         </div>
 

@@ -114,8 +114,8 @@ function SelectDropdown({
           className={cn(
             "truncate",
             value
-              ? "text-foreground font-semibold"
-              : "text-muted-foreground/60 font-normal italic",
+              ? "text-muted-foreground font-medium"
+              : "text-muted-foreground/60 font-medium italic",
           )}
         >
           {value || placeholder || "Select"}
@@ -267,16 +267,16 @@ function UniversalMultiSelectDropdown({
       >
         <div className="flex items-center min-w-0 flex-1 overflow-hidden">
           {!selected || selected.length === 0 ? (
-            <span className="text-muted-foreground/60 font-normal italic truncate">
+            <span className="text-muted-foreground/60 font-medium italic truncate">
               {placeholder || `Select ${label}`}
             </span>
           ) : (
             <>
-              <span className="text-foreground font-semibold truncate">
+              <span className="text-muted-foreground font-medium truncate">
                 {selected[0]}
               </span>
               {selected.length > 1 && (
-                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
                   +{selected.length - 1}
                 </span>
               )}
@@ -523,7 +523,7 @@ export function ReportConfigPanel({
         <div className="min-h-0 flex-1 flex flex-col p-5 space-y-4 overflow-y-auto custom-scrollbar">
           {/* Field 1: Group */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-muted-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Group
             </label>
             <UniversalMultiSelectDropdown
@@ -537,7 +537,7 @@ export function ReportConfigPanel({
 
           {/* Field 2: Type */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-muted-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Type
             </label>
             <UniversalMultiSelectDropdown
@@ -551,7 +551,7 @@ export function ReportConfigPanel({
 
           {/* Field 3: Brand */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-muted-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Brand
             </label>
             <SelectDropdown
@@ -564,7 +564,7 @@ export function ReportConfigPanel({
 
           {/* Field 4: Model */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-muted-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Model
             </label>
             <SelectDropdown
@@ -577,7 +577,7 @@ export function ReportConfigPanel({
 
           {/* Field 5: Duration Threshold */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-muted-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Duration Threshold
             </label>
             <div className="grid grid-cols-12 gap-2">
@@ -601,7 +601,7 @@ export function ReportConfigPanel({
                   value={filters.durationValue}
                   onChange={(e) => onChange({ durationValue: e.target.value })}
                   placeholder="e.g. 5"
-                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                 />
               </div>
             </div>
@@ -609,7 +609,7 @@ export function ReportConfigPanel({
 
           {/* Field 6: Distance Threshold */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-muted-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Distance Threshold (km)
             </label>
             <div className="grid grid-cols-12 gap-2">
@@ -626,7 +626,7 @@ export function ReportConfigPanel({
                   value={filters.distanceValue}
                   onChange={(e) => onChange({ distanceValue: e.target.value })}
                   placeholder="e.g. 5"
-                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                 />
               </div>
             </div>

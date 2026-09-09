@@ -234,7 +234,7 @@ function Field({
   const id = label.replace(/\W+/g, "-").toLowerCase();
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="block text-xs font-medium text-foreground">
+      <label htmlFor={id} className="block text-xs font-semibold text-foreground">
         {label}
         {required ? <span className="ml-0.5 text-danger">*</span> : null}
       </label>
@@ -244,7 +244,7 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
-            "h-9 w-full rounded border bg-background px-2 text-xs",
+            "h-9 w-full rounded border bg-background px-2 text-xs font-medium text-muted-foreground focus:outline-none focus:text-foreground",
             error ? "border-danger" : "border-input",
           )}
         >
@@ -260,7 +260,7 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
-            "h-9 w-full rounded border bg-background px-2 text-xs",
+            "h-9 w-full rounded border bg-background px-2 text-xs font-medium text-muted-foreground focus:outline-none focus:text-foreground",
             error ? "border-danger" : "border-input",
           )}
         />
