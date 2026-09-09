@@ -170,13 +170,13 @@ function AppLayout() {
   const isFullscreen = isOpen && mode === "fullscreen" && !isZioStandaloneRoute;
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
+    <div className="flex h-screen w-screen overflow-hidden bg-nav text-foreground">
       <AppSidebar />
-      <div className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-background">
+      <div className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-nav">
         <TopBar />
-        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden relative bg-background">
+        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden relative bg-nav">
           {/* Main Workspace Screen: smoothly resizes when Sidebar mode is open */}
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background rounded-tl-[28px] shadow-sm">
             <Outlet />
           </main>
 
