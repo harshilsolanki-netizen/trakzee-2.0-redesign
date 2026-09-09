@@ -1,4 +1,4 @@
-import { ChevronRight, Eraser, Search, X } from "lucide-react";
+import { ChevronRight, RotateCcw, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppliedFiltersSummary } from "@/components/report/AppliedFiltersSummary";
 import {
@@ -10,7 +10,7 @@ import { DATE_PRESETS } from "@/data/reports";
 import { cn } from "@/lib/utils";
 
 const selectClass =
-  "h-8 w-full rounded border border-input bg-background px-2 text-xs transition-colors duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-brand";
+  "h-8 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer";
 
 function Field({
   label,
@@ -21,7 +21,7 @@ function Field({
 }) {
   return (
     <label className="block space-y-1">
-      <span className="text-[11px] font-medium text-muted-foreground">
+      <span className="text-xs font-semibold text-foreground">
         {label}
       </span>
       {children}
@@ -113,21 +113,23 @@ export function ChartFilterDrawer({
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
-        {/* 1. Header Banner matching standardized 45px drawer theme */}
-        <header className="flex h-[45px] items-center justify-between bg-nav px-4 text-nav-foreground select-none shrink-0 border-b border-white/10">
-          <h2 className="text-sm font-semibold">Chart Filter</h2>
+        {/* 1. Header matching standardized ADS 45px drawer theme */}
+        <header className="flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">
+            Chart Filter
+          </h2>
           <button
             type="button"
             aria-label="Close filter"
             onClick={onClose}
-            className="rounded-md p-1 text-nav-foreground/80 transition-colors duration-150 hover:bg-white/10 hover:text-white cursor-pointer"
+            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
         </header>
 
         {/* 2. Body Content */}
-        <div className="flex-1 min-h-0 flex flex-col p-3 space-y-2.5">
+        <div className="flex-1 min-h-0 flex flex-col p-5 space-y-3.5">
           {/* Date Selection */}
           <div className="shrink-0">
             <Field label="Date selection">
@@ -298,8 +300,8 @@ export function ChartFilterDrawer({
           </div>
         </div>
 
-        {/* 3. Footer Toolbar */}
-        <footer className="flex items-center justify-between border-t border-border bg-surface-muted/30 px-3 py-2.5 shrink-0">
+        {/* 3. Standardized Drawer Footer matching ADS Side Panel Design System */}
+        <footer className="flex items-center justify-between border-t border-border bg-background px-5 py-3.5 shrink-0 select-none">
           <button
             type="button"
             aria-label="Clear filter"
@@ -311,23 +313,23 @@ export function ChartFilterDrawer({
                 to: "",
               })
             }
-            className="inline-flex items-center gap-1 rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-muted cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3.5 py-1.5 text-xs font-medium text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98"
           >
-            <Eraser className="h-3 w-3" />
+            <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
             <span>Reset</span>
           </button>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="h-8 rounded-md border border-input bg-background px-3 text-xs font-medium text-foreground transition-colors duration-150 hover:bg-muted cursor-pointer"
+              className="h-8 rounded-md border border-input/80 bg-background px-3 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={onApply}
-              className="h-8 rounded-md bg-brand px-4 text-xs font-semibold text-brand-foreground shadow-sm transition-colors duration-150 hover:bg-[#124ecf] cursor-pointer"
+              className="h-8 rounded-md bg-[#155dfc] px-4 text-xs font-medium text-white shadow-xs transition-colors hover:bg-[#124ecf] cursor-pointer active:scale-98"
             >
               Apply Filter
             </button>

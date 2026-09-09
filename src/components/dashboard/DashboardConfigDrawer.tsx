@@ -109,20 +109,20 @@ export function DashboardConfigDrawer({
           type="button"
           aria-label="Close configuration"
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
+          className="fixed top-[45px] bottom-0 left-0 sm:left-[68px] right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
         />
       ) : null}
       <aside
         aria-hidden={!open}
         aria-label="Dashboard configuration"
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-screen w-full max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
-        {/* 1. Modern Header matching Side Panel Design System */}
-        <header className="flex h-[45px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
-          <h2 className="text-sm font-bold tracking-tight text-foreground">
+        {/* 1. Header matching ADS Side Panel Design System */}
+        <header className="flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">
             {isCreateMode ? "Create Dashboard Tab" : "Dashboard Configuration"}
           </h2>
           <button
@@ -139,7 +139,7 @@ export function DashboardConfigDrawer({
         <div className="min-h-0 flex-1 flex flex-col p-5 space-y-4 overflow-y-auto">
           {/* TAB NAME */}
           <div className="space-y-1.5 shrink-0">
-            <label className="block text-xs font-bold text-foreground">
+            <label className="block text-xs font-semibold text-foreground">
               Tab Name
             </label>
             <input
@@ -147,14 +147,14 @@ export function DashboardConfigDrawer({
               value={tabName}
               onChange={(e) => setTabName(e.target.value)}
               placeholder="Enter tab name..."
-              className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-semibold text-foreground shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] focus:outline-none transition-all"
+              className="h-8 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-medium text-foreground shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] focus:outline-none transition-all"
             />
           </div>
 
           {/* LAYOUT CONFIGURATION Header & Active Badge & Search Input */}
           <div className="space-y-3 pt-3 border-t border-border/60 flex-1 min-h-0 flex flex-col">
             <div className="flex items-center justify-between shrink-0">
-              <label className="block text-xs font-bold text-foreground">
+              <label className="block text-xs font-semibold text-foreground">
                 Layout Configuration
               </label>
               <span className="rounded-full bg-[#0089FF]/10 text-[#0089FF] px-2.5 py-0.5 font-bold text-[10px]">
@@ -186,7 +186,7 @@ export function DashboardConfigDrawer({
 
             {/* 1. VIDEO TELEMATICS Category Checklist */}
             <div className="space-y-1.5 shrink-0">
-              <span className="block text-xs font-bold text-foreground">
+              <span className="block text-xs font-semibold text-foreground">
                 Video Telematics
               </span>
               <div className="space-y-0.5 rounded-lg border border-border/80 bg-card p-1.5 shadow-2xs">
@@ -219,7 +219,7 @@ export function DashboardConfigDrawer({
 
             {/* 2. ACTIVITY Category Checklist */}
             <div className="space-y-1.5 shrink-0">
-              <span className="block text-xs font-bold text-foreground">
+              <span className="block text-xs font-semibold text-foreground">
                 Activity
               </span>
               <div className="space-y-0.5 rounded-lg border border-border/80 bg-card p-1.5 shadow-2xs">
@@ -252,23 +252,41 @@ export function DashboardConfigDrawer({
           </div>
         </div>
 
-        {/* 3. Footer Toolbar matching Side Panel Design System */}
-        <footer className="flex items-center justify-end gap-2.5 border-t border-border bg-card/60 px-5 py-3.5 shrink-0 select-none">
+        {/* 3. Standardized Drawer Footer matching Side Panel Design System */}
+        <footer className="flex items-center justify-between border-t border-border bg-background px-5 py-3.5 shrink-0 select-none">
           <button
             type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
+            onClick={() => {
+              if (isCreateMode) {
+                setTabName("");
+                setSelectedWidgets([]);
+              } else if (editingTab) {
+                setTabName(editingTab.name);
+                setSelectedWidgets(editingTab.widgets);
+              }
+            }}
+            className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3.5 py-1.5 text-xs font-medium text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98"
           >
-            Cancel
+            <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
+            <span>Reset</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handleApply}
-            className="h-9 rounded-md bg-[#155dfc] px-6 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
-          >
-            Apply & Load
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-8 rounded-md border border-input/80 bg-background px-3 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleApply}
+              className="h-8 rounded-md bg-[#155dfc] px-4 text-xs font-medium text-white shadow-xs transition-colors hover:bg-[#124ecf] cursor-pointer active:scale-98"
+            >
+              Apply & Load
+            </button>
+          </div>
         </footer>
       </aside>
     </>
