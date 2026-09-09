@@ -411,21 +411,21 @@ function SelectDropdown({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-xs text-foreground shadow-2xs transition-all hover:border-[#0089FF] hover:bg-muted/30 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none cursor-pointer select-none",
-          open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/30",
+          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-semibold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
         )}
       >
-        <span className="truncate font-medium">{value || placeholder || "Select"}</span>
+        <span className="truncate">{value || placeholder || "Select"}</span>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 text-muted-foreground shrink-0 ml-1 transition-transform duration-200",
-            open && "rotate-180 text-[#0089FF]",
+            "h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1",
+            open && "rotate-180",
           )}
         />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 z-[100] mt-1.5 max-h-56 overflow-y-auto rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-lg animate-in fade-in-80 select-none">
+        <div className="absolute top-full left-0 right-0 z-[100] mt-1 max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-lg animate-in fade-in-80 select-none">
           {options.map((opt) => {
             const isSelected = value === opt;
             return (
@@ -439,8 +439,8 @@ function SelectDropdown({
                 className={cn(
                   "flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-left text-xs cursor-pointer transition-colors",
                   isSelected
-                    ? "bg-[#0089FF]/10 font-bold text-[#0089FF]"
-                    : "text-foreground hover:bg-muted/80 font-medium",
+                    ? "bg-[#0089FF]/10 font-semibold text-[#0089FF]"
+                    : "text-foreground hover:bg-muted/80 font-normal",
                 )}
               >
                 <span>{opt}</span>
@@ -517,21 +517,21 @@ function VehicleMultiSelectDropdown({
     <div className="rounded-lg border border-border/80 bg-background overflow-hidden shadow-2xs transition-all">
       {/* Top Search & Toggle Bar matching mockup */}
       {isExpanded ? (
-        <div className="flex h-9.5 items-center px-3 gap-2 bg-background border-b border-border/60 transition-colors">
-          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+        <div className="flex h-8 items-center px-2.5 gap-2 bg-background border-b border-border/60 transition-colors">
+          <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search vehicles..."
-            className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/70 focus:outline-none font-medium"
+            className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
             autoFocus
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch("")}
-              className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
+              className="p-0.5 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -539,25 +539,25 @@ function VehicleMultiSelectDropdown({
           <button
             type="button"
             onClick={() => setIsExpanded(false)}
-            className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
+            className="p-0.5 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
             aria-label="Collapse vehicle list"
           >
-            <ChevronDown className="h-4 w-4 text-muted-foreground rotate-180 transition-transform duration-200" />
+            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground rotate-180 transition-transform duration-200" />
           </button>
         </div>
       ) : (
         <div
           onClick={() => setIsExpanded(true)}
-          className="flex h-9.5 items-center px-3 gap-2 bg-background cursor-pointer hover:bg-muted/30 transition-colors select-none group"
+          className="flex h-7.5 items-center px-2.5 gap-2 bg-background cursor-pointer hover:bg-muted/30 transition-colors select-none group"
         >
-          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+          <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           {collapsedSummary ? (
             <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden">
               <span className="text-xs font-semibold text-foreground truncate">
                 {collapsedSummary.firstName}
               </span>
               {collapsedSummary.extraCount > 0 && (
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[11px] font-bold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                <span className="inline-flex items-center px-1.5 py-0.2 rounded-md text-[10px] font-bold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
                   +{collapsedSummary.extraCount}
                 </span>
               )}
@@ -573,10 +573,10 @@ function VehicleMultiSelectDropdown({
               e.stopPropagation();
               setIsExpanded(true);
             }}
-            className="p-1 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
+            className="p-0.5 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
             aria-label="Expand vehicle list"
           >
-            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200" />
           </button>
         </div>
       )}
@@ -1460,14 +1460,14 @@ export function ScheduleModal({
                       <label className="block text-xs font-semibold text-foreground">
                         Duration Format
                       </label>
-                      <div className="flex items-center gap-6 h-9">
+                      <div className="flex items-center gap-6 h-7.5">
                         <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none font-medium">
                           <input
                             type="radio"
                             name="durationFormat"
                             checked={criteriaDurationFormat === "hhmm"}
                             onChange={() => setCriteriaDurationFormat("hhmm")}
-                            className="h-4 w-4 accent-[#0089FF] cursor-pointer"
+                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
                           />
                           <span>HH:MM</span>
                         </label>
@@ -1479,7 +1479,7 @@ export function ScheduleModal({
                             onChange={() =>
                               setCriteriaDurationFormat("decimal")
                             }
-                            className="h-4 w-4 accent-[#0089FF] cursor-pointer"
+                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
                           />
                           <span>Decimal</span>
                         </label>
@@ -1491,26 +1491,32 @@ export function ScheduleModal({
                       <label className="block text-xs font-semibold text-foreground">
                         Duration Filter
                       </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        <SelectDropdown
-                          value={criteriaDurationCompare}
-                          options={COMPARATORS}
-                          onChange={setCriteriaDurationCompare}
-                        />
-                        <SelectDropdown
-                          value={criteriaDurationUnit}
-                          options={DURATION_UNITS}
-                          onChange={setCriteriaDurationUnit}
-                        />
-                        <input
-                          type="text"
-                          value={criteriaDurationValue}
-                          onChange={(e) =>
-                            setCriteriaDurationValue(e.target.value)
-                          }
-                          placeholder="e.g. 5"
-                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
-                        />
+                      <div className="grid grid-cols-12 gap-2">
+                        <div className="col-span-5">
+                          <SelectDropdown
+                            value={criteriaDurationCompare}
+                            options={COMPARATORS}
+                            onChange={setCriteriaDurationCompare}
+                          />
+                        </div>
+                        <div className="col-span-4">
+                          <SelectDropdown
+                            value={criteriaDurationUnit}
+                            options={DURATION_UNITS}
+                            onChange={setCriteriaDurationUnit}
+                          />
+                        </div>
+                        <div className="col-span-3">
+                          <input
+                            type="text"
+                            value={criteriaDurationValue}
+                            onChange={(e) =>
+                              setCriteriaDurationValue(e.target.value)
+                            }
+                            placeholder="e.g. 5"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                          />
+                        </div>
                       </div>
                     </div>
 
@@ -1519,21 +1525,25 @@ export function ScheduleModal({
                       <label className="block text-xs font-semibold text-foreground">
                         Distance Filter
                       </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <SelectDropdown
-                          value={criteriaDistanceCompare}
-                          options={COMPARATORS}
-                          onChange={setCriteriaDistanceCompare}
-                        />
-                        <input
-                          type="text"
-                          value={criteriaDistanceValue}
-                          onChange={(e) =>
-                            setCriteriaDistanceValue(e.target.value)
-                          }
-                          placeholder="e.g. 100"
-                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
-                        />
+                      <div className="grid grid-cols-12 gap-2">
+                        <div className="col-span-7">
+                          <SelectDropdown
+                            value={criteriaDistanceCompare}
+                            options={COMPARATORS}
+                            onChange={setCriteriaDistanceCompare}
+                          />
+                        </div>
+                        <div className="col-span-5">
+                          <input
+                            type="text"
+                            value={criteriaDistanceValue}
+                            onChange={(e) =>
+                              setCriteriaDistanceValue(e.target.value)
+                            }
+                            placeholder="e.g. 100"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1559,10 +1569,10 @@ export function ScheduleModal({
                       }}
                       placeholder="e.g. Weekly Operations Summary"
                       className={cn(
-                        "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                        "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                         errors.name
                           ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                          : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                          : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                       )}
                     />
                     {errors.name && (
@@ -1648,10 +1658,10 @@ export function ScheduleModal({
                                 type="button"
                                 onClick={() => toggleDay(id)}
                                 className={cn(
-                                  "h-9 w-9 rounded-md text-xs font-bold transition-all cursor-pointer flex items-center justify-center shadow-2xs hover:border-[#0089FF] active:scale-95",
+                                  "h-8 w-8 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs hover:border-[#0089FF]/60 active:scale-95",
                                   isSelected
                                     ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
-                                    : "bg-background border border-input text-foreground hover:bg-muted/40",
+                                    : "bg-background border border-input/80 text-foreground hover:bg-muted/40",
                                 )}
                               >
                                 {label}
@@ -1680,10 +1690,10 @@ export function ScheduleModal({
                                   type="button"
                                   onClick={() => toggleDate(dateNum)}
                                   className={cn(
-                                    "h-8 w-8 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs hover:border-[#0089FF] active:scale-95",
+                                    "h-7.5 w-7.5 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs hover:border-[#0089FF]/60 active:scale-95",
                                     isSelected
                                       ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
-                                      : "bg-background border border-input text-foreground hover:bg-muted/40",
+                                      : "bg-background border border-input/80 text-foreground hover:bg-muted/40",
                                   )}
                                 >
                                   {dateNum}
@@ -1730,9 +1740,9 @@ export function ScheduleModal({
                                   timeRangeStart: e.target.value,
                                 }))
                               }
-                              className="h-9 w-full rounded-md border border-input bg-background px-3 pr-9 text-xs text-foreground transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                             />
-                            <Clock className="absolute right-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                           </div>
                         </div>
 
@@ -1750,9 +1760,9 @@ export function ScheduleModal({
                                   timeRangeEnd: e.target.value,
                                 }))
                               }
-                              className="h-9 w-full rounded-md border border-input bg-background px-3 pr-9 text-xs text-foreground transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                             />
-                            <Clock className="absolute right-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                           </div>
                         </div>
                       </div>
@@ -1767,7 +1777,7 @@ export function ScheduleModal({
                     <label className="block text-xs font-semibold text-foreground">
                       Report Type
                     </label>
-                    <div className="flex items-center gap-6 h-8">
+                    <div className="flex items-center gap-6 h-7.5">
                       {(["Summary", "Daily", "Detail"] as const).map(
                         (level) => (
                           <label
@@ -1795,7 +1805,7 @@ export function ScheduleModal({
                     <label className="block text-xs font-semibold text-foreground">
                       Delivery Method
                     </label>
-                    <div className="flex items-center gap-6 h-8">
+                    <div className="flex items-center gap-6 h-7.5">
                       {(["Email", "FTP", "SFTP", "Media API"] as const).map(
                         (method) => (
                           <label
@@ -1841,10 +1851,10 @@ export function ScheduleModal({
                               }}
                               placeholder="manager@company.com"
                               className={cn(
-                                "h-9 flex-1 rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                                "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                                 errors.toAddress
                                   ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                  : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                  : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                               )}
                             />
                             <button
@@ -1857,7 +1867,7 @@ export function ScheduleModal({
                                     `Email "${draft.toAddress}" verified`,
                                   );
                               }}
-                              className="px-4 h-9 text-xs rounded-md border border-input bg-background hover:bg-muted/40 hover:border-[#0089FF] font-semibold text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                              className="px-3.5 h-7.5 text-xs rounded-md border border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 font-semibold text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
                             >
                               Verify
                             </button>
@@ -1884,7 +1894,7 @@ export function ScheduleModal({
                               }))
                             }
                             placeholder="15"
-                            className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs text-foreground transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                           />
                         </div>
                       </div>
@@ -1900,7 +1910,7 @@ export function ScheduleModal({
                             setDraft((d) => ({ ...d, subject: e.target.value }))
                           }
                           placeholder="Weekly Travel Summary Report"
-                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs text-foreground transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                         />
                       </div>
 
@@ -1967,10 +1977,10 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. ftp.example.com"
                             className={cn(
-                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                               errors.ftpHost
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.ftpHost && (
@@ -1994,10 +2004,10 @@ export function ScheduleModal({
                             }}
                             placeholder="21"
                             className={cn(
-                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                               errors.ftpPort
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.ftpPort && (
@@ -2023,10 +2033,10 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. ftp_user"
                             className={cn(
-                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                               errors.ftpUsername
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.ftpUsername && (
@@ -2050,10 +2060,10 @@ export function ScheduleModal({
                             }}
                             placeholder="••••••••"
                             className={cn(
-                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                               errors.ftpPassword
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.ftpPassword && (
@@ -2078,10 +2088,10 @@ export function ScheduleModal({
                           }}
                           placeholder="e.g. /reports/daily"
                           className={cn(
-                            "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                            "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                             errors.ftpFolder
                               ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                              : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                              : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                           )}
                         />
                         {errors.ftpFolder && (
@@ -2122,10 +2132,10 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. AKIAIOSFODNN7EXAMPLE"
                             className={cn(
-                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                               errors.sftpAccessKey
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.sftpAccessKey && (
@@ -2149,10 +2159,10 @@ export function ScheduleModal({
                             }}
                             placeholder="••••••••••••••••••••••••"
                             className={cn(
-                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                               errors.sftpSecretKey
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.sftpSecretKey && (
@@ -2178,10 +2188,10 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. ap-south-1"
                             className={cn(
-                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                               errors.sftpRegion
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.sftpRegion && (
@@ -2205,10 +2215,10 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. company-fleet-reports"
                             className={cn(
-                              "h-9 w-full rounded-md border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs focus:outline-none",
                               errors.sftpBucketName
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.sftpBucketName && (
@@ -2254,10 +2264,10 @@ export function ScheduleModal({
                           }}
                           placeholder="+91 9876543210, +1 5550192834"
                           className={cn(
-                            "w-full rounded-md border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs custom-scrollbar focus:outline-none",
+                            "w-full rounded-md border bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium shadow-2xs custom-scrollbar focus:outline-none",
                             errors.mediaRecipientNumber
                               ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                              : "border-input hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                              : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                           )}
                         />
                         {errors.mediaRecipientNumber && (
@@ -2275,7 +2285,7 @@ export function ScheduleModal({
                     <label className="block text-xs font-semibold text-foreground">
                       File Format
                     </label>
-                    <div className="flex items-center gap-6 h-8">
+                    <div className="flex items-center gap-6 h-7.5">
                       {(["XLS", "PDF", "CSV"] as const).map((fmt) => (
                         <label
                           key={fmt}
@@ -2301,9 +2311,9 @@ export function ScheduleModal({
                     <button
                       type="button"
                       onClick={() => setAdvanceModalOpen(true)}
-                      className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted/40 hover:border-[#0089FF] transition-all cursor-pointer shadow-2xs active:scale-98"
+                      className="inline-flex items-center gap-2 rounded-md border border-input/80 bg-background px-3.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/40 hover:border-[#0089FF]/60 transition-all cursor-pointer shadow-2xs active:scale-98"
                     >
-                      <Settings2 className="h-4 w-4 text-[#0089FF]" />
+                      <Settings2 className="h-3.5 w-3.5 text-[#0089FF]" />
                       <span>Advance Configuration</span>
                     </button>
                   </div>
@@ -2314,13 +2324,13 @@ export function ScheduleModal({
 
           {/* Global Sticky Footer */}
           {view === "form" && (
-            <footer className="flex items-center justify-between border-t border-border bg-muted/20 px-6 py-3.5 select-none shrink-0">
+            <footer className="flex items-center justify-between border-t border-border bg-background px-6 py-3 select-none shrink-0">
               <div className="flex items-center gap-2.5">
                 {step === 1 ? (
                   <button
                     type="button"
                     onClick={() => setView("list")}
-                    className="px-4.5 h-9 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                    className="px-4 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
                   >
                     Cancel
                   </button>
@@ -2328,7 +2338,7 @@ export function ScheduleModal({
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="flex items-center gap-2 px-4.5 h-9 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                    className="flex items-center gap-2 px-4 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" />
                     <span>Back</span>
@@ -2348,7 +2358,7 @@ export function ScheduleModal({
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-muted-foreground tabular-nums">
+                <span className="text-xs font-medium text-muted-foreground tabular-nums">
                   {draft.selectedVehicles.length} Vehicles Selected
                 </span>
 
@@ -2356,7 +2366,7 @@ export function ScheduleModal({
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="flex items-center gap-2 rounded-md bg-[#155dfc] px-5 h-9 text-xs font-semibold text-white shadow-xs hover:bg-[#124ecf] cursor-pointer transition-all active:scale-98"
+                    className="flex items-center gap-2 rounded-md bg-[#155dfc] px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#124ecf] cursor-pointer transition-all active:scale-98"
                   >
                     <span>Next</span>
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -2365,7 +2375,7 @@ export function ScheduleModal({
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="rounded-md bg-emerald-600 px-6 h-9 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 cursor-pointer transition-all active:scale-98"
+                    className="rounded-md bg-emerald-600 px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 cursor-pointer transition-all active:scale-98"
                   >
                     Save Schedule
                   </button>
