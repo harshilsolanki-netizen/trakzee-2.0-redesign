@@ -139,7 +139,7 @@ export function DashboardConfigDrawer({
         <div className="min-h-0 flex-1 flex flex-col p-5 space-y-4 overflow-y-auto">
           {/* TAB NAME */}
           <div className="space-y-1.5 shrink-0">
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <label className="block text-xs font-medium text-muted-foreground">
               Tab Name
             </label>
             <input
@@ -147,14 +147,14 @@ export function DashboardConfigDrawer({
               value={tabName}
               onChange={(e) => setTabName(e.target.value)}
               placeholder="Enter tab name..."
-              className="h-8 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] focus:outline-none transition-all"
+              className="h-8 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] focus:outline-none transition-all"
             />
           </div>
 
           {/* LAYOUT CONFIGURATION Header & Active Badge & Search Input */}
           <div className="space-y-3 pt-3 border-t border-border/60 flex-1 min-h-0 flex flex-col">
             <div className="flex items-center justify-between shrink-0">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Layout Configuration
               </label>
               <span className="rounded-full bg-[#0089FF]/10 text-[#0089FF] px-2.5 py-0.5 font-bold text-[10px]">
@@ -170,7 +170,7 @@ export function DashboardConfigDrawer({
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search Widgets..."
-                  className="h-full flex-1 bg-transparent text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none"
+                  className="h-full flex-1 bg-transparent text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none"
                 />
                 {query && (
                   <button
@@ -186,7 +186,7 @@ export function DashboardConfigDrawer({
 
             {/* 1. VIDEO TELEMATICS Category Checklist */}
             <div className="space-y-1.5 shrink-0">
-              <span className="block text-xs font-semibold text-foreground">
+              <span className="block text-xs font-bold text-foreground">
                 Video Telematics
               </span>
               <div className="space-y-0.5 rounded-lg border border-border/80 bg-card p-1.5 shadow-2xs">
@@ -198,7 +198,7 @@ export function DashboardConfigDrawer({
                       className={cn(
                         "flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors",
                         isChecked
-                          ? "bg-[#0089FF]/10 text-foreground font-semibold"
+                          ? "bg-[#0089FF]/10 text-foreground font-bold"
                           : "text-foreground font-medium hover:bg-muted/60",
                       )}
                     >
@@ -219,7 +219,7 @@ export function DashboardConfigDrawer({
 
             {/* 2. ACTIVITY Category Checklist */}
             <div className="space-y-1.5 shrink-0">
-              <span className="block text-xs font-semibold text-foreground">
+              <span className="block text-xs font-bold text-foreground">
                 Activity
               </span>
               <div className="space-y-0.5 rounded-lg border border-border/80 bg-card p-1.5 shadow-2xs">
@@ -231,7 +231,7 @@ export function DashboardConfigDrawer({
                       className={cn(
                         "flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors",
                         isChecked
-                          ? "bg-[#0089FF]/10 text-foreground font-semibold"
+                          ? "bg-[#0089FF]/10 text-foreground font-bold"
                           : "text-foreground font-medium hover:bg-muted/60",
                       )}
                     >

@@ -123,18 +123,18 @@ function UniversalMultiSelectDropdown({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-semibold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-bold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
           open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
         )}
       >
         <span className="truncate flex items-center min-w-0">
           {!selected || selected.length === 0 ? (
-            <span className="text-muted-foreground/70 font-normal italic truncate">
+            <span className="text-muted-foreground/60 font-normal italic truncate">
               {placeholder || `Select ${label}`}
             </span>
           ) : (
             <>
-              <span className="truncate font-semibold text-foreground">
+              <span className="truncate font-bold text-foreground">
                 {selected[0]}
               </span>
               {selected.length > 1 && (
@@ -532,7 +532,7 @@ export function DashboardFilterDrawer({
           <div className="space-y-3 shrink-0">
             {/* Field 1: Company */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Company
               </label>
               <UniversalMultiSelectDropdown
@@ -546,7 +546,7 @@ export function DashboardFilterDrawer({
 
             {/* Field 2: Branch */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Branch
               </label>
               <UniversalMultiSelectDropdown
@@ -560,7 +560,7 @@ export function DashboardFilterDrawer({
 
             {/* Field 3: Group */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Group
               </label>
               <UniversalMultiSelectDropdown
@@ -574,7 +574,7 @@ export function DashboardFilterDrawer({
 
             {/* Field 4: Type */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Type
               </label>
               <UniversalMultiSelectDropdown
@@ -590,7 +590,7 @@ export function DashboardFilterDrawer({
           {/* Field 5: Vehicle List Section (Stretches all the way down to the footer) */}
           <div className="space-y-2 pt-2 border-t border-border/60 flex-1 min-h-0 flex flex-col">
             <div className="flex items-center justify-between shrink-0">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Vehicle List
               </label>
               <span className="text-[11px] font-semibold text-muted-foreground">
@@ -608,7 +608,7 @@ export function DashboardFilterDrawer({
                   onChange={(e) => setVehicleSearch(e.target.value)}
                   placeholder="Search vehicles, IMEI, branch..."
                   aria-label="Search vehicles"
-                  className="h-full flex-1 bg-transparent text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none"
+                  className="h-full flex-1 bg-transparent text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none"
                 />
                 {vehicleSearch && (
                   <button
@@ -679,7 +679,7 @@ export function DashboardFilterDrawer({
                           <button
                             type="button"
                             onClick={() => toggleBranchAccordion(branch)}
-                            className="flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate"
+                            className="flex items-center gap-1.5 text-xs font-bold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate"
                           >
                             <ChevronRight
                               className={cn(
@@ -706,7 +706,7 @@ export function DashboardFilterDrawer({
                                 className={cn(
                                   "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none",
                                   isChecked
-                                    ? "bg-[#0089FF]/10 text-foreground font-semibold"
+                                    ? "bg-[#0089FF]/10 text-foreground font-bold"
                                     : "hover:bg-muted/60 text-foreground font-medium",
                                 )}
                               >
@@ -719,7 +719,7 @@ export function DashboardFilterDrawer({
                                   />
                                   <Truck className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                                   <div className="min-w-0 truncate">
-                                    <span className="block truncate leading-tight text-xs font-semibold">
+                                    <span className="block truncate leading-tight text-xs font-bold">
                                       {v.name}
                                     </span>
                                     <span className="block text-[10px] text-muted-foreground truncate leading-tight font-normal">

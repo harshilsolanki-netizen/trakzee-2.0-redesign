@@ -71,13 +71,13 @@ export function VehicleAttributeFilterOverlay({
         <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
           {/* Company */}
           <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-medium text-muted-foreground">
               Company
             </span>
             <select
               value={value.company}
               onChange={(e) => onChange({ company: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {COMPANIES.map((c) => (
                 <option key={c} value={c}>
@@ -89,13 +89,13 @@ export function VehicleAttributeFilterOverlay({
 
           {/* Branch */}
           <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-medium text-muted-foreground">
               Branch
             </span>
             <select
               value={value.branch}
               onChange={(e) => onChange({ branch: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {BRANCHES.map((b) => (
                 <option key={b} value={b}>
@@ -107,13 +107,13 @@ export function VehicleAttributeFilterOverlay({
 
           {/* Vehicle Group */}
           <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-medium text-muted-foreground">
               Vehicle Group
             </span>
             <select
               value={value.vehicleGroup}
               onChange={(e) => onChange({ vehicleGroup: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {VEHICLE_GROUPS.map((g) => (
                 <option key={g} value={g}>
@@ -125,13 +125,13 @@ export function VehicleAttributeFilterOverlay({
 
           {/* Vehicle Type */}
           <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-medium text-muted-foreground">
               Vehicle Type
             </span>
             <select
               value={value.vehicleType}
               onChange={(e) => onChange({ vehicleType: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {VEHICLE_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -143,13 +143,13 @@ export function VehicleAttributeFilterOverlay({
 
           {/* Vehicle Brand */}
           <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-medium text-muted-foreground">
               Vehicle Brand
             </span>
             <select
               value={value.vehicleBrand}
               onChange={(e) => onChange({ vehicleBrand: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {VEHICLE_BRANDS.map((b) => (
                 <option key={b} value={b}>
@@ -161,13 +161,13 @@ export function VehicleAttributeFilterOverlay({
 
           {/* Vehicle Model */}
           <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-medium text-muted-foreground">
               Vehicle Model
             </span>
             <select
               value={value.vehicleModel}
               onChange={(e) => onChange({ vehicleModel: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {VEHICLE_MODELS.map((m) => (
                 <option key={m} value={m}>

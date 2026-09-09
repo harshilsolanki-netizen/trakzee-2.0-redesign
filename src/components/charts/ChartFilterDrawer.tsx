@@ -10,7 +10,7 @@ import { DATE_PRESETS } from "@/data/reports";
 import { cn } from "@/lib/utils";
 
 const selectClass =
-  "h-8 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer";
+  "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer";
 
 function Field({
   label,
@@ -21,7 +21,7 @@ function Field({
 }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <span className="text-xs font-medium text-muted-foreground">
         {label}
       </span>
       {children}
@@ -149,8 +149,8 @@ export function ChartFilterDrawer({
 
           {/* Date Pickers with FROM / TO Badges */}
           <div className="grid grid-cols-2 gap-2 shrink-0">
-            <div className="flex items-center overflow-hidden rounded-md border border-input bg-background">
-              <span className="bg-muted px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase border-r border-input">
+            <div className="flex items-center overflow-hidden rounded-md border border-input/80 bg-background shadow-2xs">
+              <span className="bg-muted px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase border-r border-input/80">
                 FROM
               </span>
               <input
@@ -159,11 +159,11 @@ export function ChartFilterDrawer({
                 onChange={(e) =>
                   onChange({ from: e.target.value, datePreset: "Custom" })
                 }
-                className="h-8 w-full bg-transparent px-2 text-xs focus:outline-none"
+                className="h-7.5 w-full bg-transparent px-2 text-xs font-bold text-foreground focus:outline-none"
               />
             </div>
-            <div className="flex items-center overflow-hidden rounded-md border border-input bg-background">
-              <span className="bg-muted px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase border-r border-input">
+            <div className="flex items-center overflow-hidden rounded-md border border-input/80 bg-background shadow-2xs">
+              <span className="bg-muted px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase border-r border-input/80">
                 TO
               </span>
               <input
@@ -172,7 +172,7 @@ export function ChartFilterDrawer({
                 onChange={(e) =>
                   onChange({ to: e.target.value, datePreset: "Custom" })
                 }
-                className="h-8 w-full bg-transparent px-2 text-xs focus:outline-none"
+                className="h-7.5 w-full bg-transparent px-2 text-xs font-bold text-foreground focus:outline-none"
               />
             </div>
           </div>
@@ -199,31 +199,31 @@ export function ChartFilterDrawer({
 
           {/* Search bar */}
           <div className="relative shrink-0">
-            <div className="flex h-8 items-center gap-1.5 rounded-md border border-input bg-background px-2 focus-within:ring-1 focus-within:ring-brand">
+            <div className="flex h-8 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
               <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search vehicles, drivers..."
                 aria-label="Search vehicles"
-                className="h-7 flex-1 bg-transparent text-xs focus:outline-none"
+                className="h-7 flex-1 bg-transparent text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none"
               />
             </div>
           </div>
 
           {/* Vehicles List (Full height down to bottom margin area) */}
-          <div className="flex-1 min-h-0 flex flex-col rounded-md border border-border bg-card overflow-hidden">
-            <div className="flex items-center justify-between border-b border-border bg-surface-muted px-2.5 py-1.5 shrink-0">
+          <div className="flex-1 min-h-0 flex flex-col rounded-md border border-border/80 bg-card overflow-hidden shadow-2xs">
+            <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-2.5 py-1.5 shrink-0 select-none">
               <button
                 type="button"
                 onClick={() =>
                   onChange({ vehicles: allSelected ? [] : allVehicles })
                 }
-                className="text-[11px] font-medium text-brand transition-colors duration-150 hover:underline cursor-pointer"
+                className="text-[11px] font-semibold text-[#0089FF] transition-colors duration-150 hover:underline cursor-pointer"
               >
                 {allSelected ? "Clear all" : "Select all"}
               </button>
-              <span className="text-[11px] tabular-nums text-muted-foreground">
+              <span className="text-[11px] tabular-nums text-muted-foreground font-medium">
                 {value.vehicles.length === 0
                   ? "All vehicles"
                   : value.vehicles.length + " selected"}
@@ -238,7 +238,7 @@ export function ChartFilterDrawer({
                 ).length;
                 return (
                   <li key={g.group}>
-                    <div className="flex items-center gap-1.5 px-2.5 py-1.5">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 select-none">
                       <input
                         type="checkbox"
                         aria-label={"Select all in " + g.group}
@@ -246,22 +246,22 @@ export function ChartFilterDrawer({
                           sel === g.vehicles.length && g.vehicles.length > 0
                         }
                         onChange={() => toggleGroupVehicles(g.vehicles)}
-                        className="rounded border-input text-brand focus:ring-brand"
+                        className="rounded border-input text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer h-3.5 w-3.5"
                       />
                       <button
                         type="button"
                         onClick={() => toggleGroup(g.group)}
                         aria-expanded={expanded}
-                        className="flex flex-1 items-center gap-1 text-left text-xs font-medium transition-colors duration-150 hover:text-brand cursor-pointer"
+                        className="flex flex-1 items-center gap-1 text-left text-xs font-bold text-foreground transition-colors duration-150 hover:text-[#0089FF] cursor-pointer truncate"
                       >
                         <ChevronRight
                           className={cn(
-                            "h-3.5 w-3.5 transition-transform duration-150",
+                            "h-3.5 w-3.5 transition-transform duration-150 text-muted-foreground",
                             expanded && "rotate-90",
                           )}
                         />
-                        {g.group}
-                        <span className="text-[10px] tabular-nums text-muted-foreground">
+                        <span className="truncate">{g.group}</span>
+                        <span className="text-[10px] tabular-nums text-muted-foreground font-normal">
                           {"[" + g.vehicles.length + "]"}
                         </span>
                       </button>
@@ -270,12 +270,17 @@ export function ChartFilterDrawer({
                       <ul>
                         {g.vehicles.map((v) => (
                           <li key={v}>
-                            <label className="flex cursor-pointer items-center gap-2 py-1.5 pl-8 pr-2.5 text-xs transition-colors duration-150 hover:bg-muted">
+                            <label className={cn(
+                              "flex cursor-pointer items-center gap-2 py-1.5 pl-8 pr-2.5 text-xs transition-colors duration-150 select-none",
+                              value.vehicles.includes(v)
+                                ? "bg-[#0089FF]/10 text-foreground font-bold"
+                                : "hover:bg-muted text-foreground font-medium",
+                            )}>
                               <input
                                 type="checkbox"
                                 checked={value.vehicles.includes(v)}
                                 onChange={() => toggleVehicle(v)}
-                                className="rounded border-input text-brand focus:ring-brand"
+                                className="rounded border-input text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer h-3.5 w-3.5"
                               />
                               <span className="flex-1 truncate">{v}</span>
                             </label>
