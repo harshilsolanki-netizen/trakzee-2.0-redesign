@@ -1,4 +1,4 @@
-import { Check, ChevronDown, SlidersHorizontal, BarChart2 } from "lucide-react";
+import { Check, ChevronDown, SlidersHorizontal } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -85,7 +85,7 @@ export function ProgressComparisonOverlay({
         sideOffset={8}
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          "relative w-[280px] sm:w-[310px] p-4 rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-2xl z-[120] select-none animate-in fade-in-0 zoom-in-95",
+          "relative w-[280px] sm:w-[300px] p-4 rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-2xl z-[120] select-none animate-in fade-in-0 zoom-in-95",
           className,
         )}
       >
@@ -93,34 +93,30 @@ export function ProgressComparisonOverlay({
         <div className="absolute -top-1.5 right-4 h-3 w-3 rotate-45 border-t border-l border-border/80 bg-popover z-10" />
 
         <div className="relative z-20 space-y-3">
-          {/* Header Title */}
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-            <BarChart2 className="h-3.5 w-3.5 text-blue-500" />
-            <span>Compare Metrics</span>
+          {/* Header Title without icon */}
+          <div className="text-xs font-semibold text-foreground">
+            Compare Metrics
           </div>
 
           {/* Metric 1 Selection */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block shadow-2xs" />
-                <span>First Metric</span>
-              </span>
-            </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground block">
+              First Metric
+            </label>
 
             <Popover open={xAxisOpen} onOpenChange={setXAxisOpen}>
               <PopoverTrigger asChild>
                 <button
                   type="button"
                   className={cn(
-                    "flex h-8.5 w-full items-center justify-between rounded-lg border border-input/80 bg-background px-3 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs hover:border-blue-500/60 hover:bg-muted/30 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none",
-                    xAxisOpen && "border-blue-500 ring-2 ring-blue-500/20 bg-muted/30",
+                    "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs hover:border-[#0089FF]/60 hover:bg-muted/30 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none",
+                    xAxisOpen && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/30",
                   )}
                 >
                   <span className="truncate">{xAxis}</span>
                   <ChevronDown
                     className={cn(
-                      "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ml-1",
+                      "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ml-1 opacity-70",
                       xAxisOpen && "rotate-180",
                     )}
                   />
@@ -130,7 +126,7 @@ export function ProgressComparisonOverlay({
                 align="start"
                 side="bottom"
                 sideOffset={4}
-                className="w-[240px] p-1 rounded-lg border border-border bg-popover shadow-xl z-[130] max-h-48 overflow-y-auto"
+                className="w-[240px] p-1 rounded-md border border-border bg-popover shadow-xl z-[130] max-h-48 overflow-y-auto"
               >
                 {CHART_AXIS_OPTIONS.map((opt) => {
                   const isSelected = xAxis === opt;
@@ -143,14 +139,14 @@ export function ProgressComparisonOverlay({
                         setXAxisOpen(false);
                       }}
                       className={cn(
-                        "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-md cursor-pointer transition-colors text-left",
+                        "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left",
                         isSelected
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold"
+                          ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold"
                           : "text-foreground hover:bg-muted/80 font-medium",
                       )}
                     >
                       <span>{opt}</span>
-                      {isSelected && <Check className="h-3.5 w-3.5 text-emerald-600" />}
+                      {isSelected && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
                     </button>
                   );
                 })}
@@ -164,28 +160,25 @@ export function ProgressComparisonOverlay({
           </div>
 
           {/* Metric 2 Selection */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-amber-500 inline-block shadow-2xs" />
-                <span>Second Metric</span>
-              </span>
-            </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground block">
+              Second Metric
+            </label>
 
             <Popover open={yAxisOpen} onOpenChange={setYAxisOpen}>
               <PopoverTrigger asChild>
                 <button
                   type="button"
                   className={cn(
-                    "flex h-8.5 w-full items-center justify-between rounded-lg border border-input/80 bg-background px-3 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs hover:border-blue-500/60 hover:bg-muted/30 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none",
-                    yAxisOpen && "border-blue-500 ring-2 ring-blue-500/20 bg-muted/30",
+                    "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs hover:border-[#0089FF]/60 hover:bg-muted/30 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none",
+                    yAxisOpen && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/30",
                     isDuplicate && "border-rose-500/70 text-rose-600 focus:border-rose-500",
                   )}
                 >
                   <span className="truncate">{yAxis}</span>
                   <ChevronDown
                     className={cn(
-                      "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ml-1",
+                      "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ml-1 opacity-70",
                       yAxisOpen && "rotate-180",
                     )}
                   />
@@ -195,7 +188,7 @@ export function ProgressComparisonOverlay({
                 align="start"
                 side="bottom"
                 sideOffset={4}
-                className="w-[240px] p-1 rounded-lg border border-border bg-popover shadow-xl z-[130] max-h-48 overflow-y-auto"
+                className="w-[240px] p-1 rounded-md border border-border bg-popover shadow-xl z-[130] max-h-48 overflow-y-auto"
               >
                 {CHART_AXIS_OPTIONS.map((opt) => {
                   const isSelected = yAxis === opt;
@@ -208,14 +201,14 @@ export function ProgressComparisonOverlay({
                         setYAxisOpen(false);
                       }}
                       className={cn(
-                        "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-md cursor-pointer transition-colors text-left",
+                        "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left",
                         isSelected
-                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold"
+                          ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold"
                           : "text-foreground hover:bg-muted/80 font-medium",
                       )}
                     >
                       <span>{opt}</span>
-                      {isSelected && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                      {isSelected && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
                     </button>
                   );
                 })}
@@ -225,7 +218,7 @@ export function ProgressComparisonOverlay({
 
           {/* Duplicate validation error */}
           {isDuplicate && (
-            <p className="text-[11px] font-medium text-rose-500 pt-0.5 animate-in fade-in">
+            <p className="text-xs font-medium text-rose-500 pt-0.5 animate-in fade-in">
               A different second value is required.
             </p>
           )}
@@ -235,7 +228,7 @@ export function ProgressComparisonOverlay({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="h-7 px-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors cursor-pointer"
+              className="h-7 px-3 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -244,7 +237,7 @@ export function ProgressComparisonOverlay({
               onClick={handleApply}
               disabled={isDuplicate}
               className={cn(
-                "h-7 px-3 text-xs font-semibold rounded-md text-white shadow-xs transition-all cursor-pointer active:scale-98",
+                "h-7 px-3.5 text-xs font-medium rounded-md text-white shadow-xs transition-all cursor-pointer active:scale-98",
                 isDuplicate
                   ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
                   : "bg-[#155dfc] hover:bg-[#124ecf]",
