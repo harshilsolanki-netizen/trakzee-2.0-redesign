@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-LVQlPua9.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-HgudenNA.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-jwM3-p7L.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-fNYKs5d1.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -2565,7 +2565,7 @@ function ScheduleItemActionsMenu({ onDuplicate, onDelete }) {
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 			type: "button",
 			onClick: () => setOpen(!open),
-			className: cn("h-8.5 w-8.5 rounded-xl border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-95", open && "border-[#0089FF] bg-muted/60 text-foreground"),
+			className: cn("h-[30px] w-[30px] rounded-lg border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-95", open && "border-[#0089FF] bg-muted/60 text-foreground"),
 			"aria-label": "More actions",
 			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EllipsisVertical, { className: "h-4 w-4" })
 		}), open && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -2908,42 +2908,44 @@ function ScheduleModal({ open, onClose }) {
 					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex-1 min-h-0 flex flex-col overflow-hidden",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex items-center justify-between gap-3 p-5 pb-3 shrink-0",
+							className: "flex items-center justify-between gap-2.5 px-6 pt-5 pb-3 shrink-0",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "relative flex-1",
 								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 pointer-events-none" }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 pointer-events-none" }),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 										type: "text",
 										value: searchQuery,
 										onChange: (e) => setSearchQuery(e.target.value),
 										placeholder: "Search scheduled reports...",
-										className: "h-10 w-full rounded-xl border border-input bg-background pl-10 pr-9 text-xs text-foreground placeholder:text-muted-foreground/70 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+										className: "h-[30px] w-full rounded-lg border border-input bg-background pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/70 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-1 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
 									}),
 									searchQuery && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 										type: "button",
 										onClick: () => setSearchQuery(""),
-										className: "absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-md cursor-pointer",
+										className: "absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-md cursor-pointer",
 										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3.5 w-3.5" })
 									})
 								]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 								type: "button",
 								onClick: startCreate,
-								className: "inline-flex items-center gap-2 rounded-xl bg-[#0089FF] px-4.5 h-10 text-xs font-semibold text-white shadow-xs hover:bg-[#0077e6] active:scale-98 cursor-pointer transition-all shrink-0",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-4 w-4" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Create New Schedule" })]
+								title: "Create New Schedule",
+								"aria-label": "Create New Schedule",
+								className: "inline-flex items-center justify-center rounded-lg bg-[#0089FF] h-[30px] w-[30px] text-white shadow-2xs hover:bg-[#0077e6] active:scale-95 cursor-pointer transition-all shrink-0",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-4 w-4" })
 							})]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex-1 min-h-0 overflow-y-auto px-5 pb-5 space-y-3 custom-scrollbar",
+							className: "flex-1 min-h-0 overflow-y-auto px-6 pb-4 divide-y divide-border/60 custom-scrollbar",
 							children: [filteredSchedules.map((item) => {
 								const iconScheme = getScheduleIconScheme(item);
 								const recurrenceText = formatRecurrence(item);
 								return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between gap-4 shadow-2xs transition-all hover:border-[#0089FF]/40 hover:shadow-xs group",
+									className: "py-3 px-1 flex items-center justify-between gap-4 transition-colors group",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "flex items-center gap-3.5 min-w-0 flex-1",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											className: cn("h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-105", iconScheme.badgeBg, iconScheme.borderColor, iconScheme.iconColor),
+											className: cn("h-9 w-9 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105", iconScheme.badgeBg, iconScheme.iconColor),
 											children: iconScheme.icon
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "min-w-0 flex-1 space-y-1",
@@ -2993,7 +2995,7 @@ function ScheduleModal({ open, onClose }) {
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 											type: "button",
 											onClick: () => startEdit(item),
-											className: "inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-98",
+											className: "inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background px-3 h-[30px] text-xs font-semibold text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-98",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pencil, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Edit" })]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScheduleItemActionsMenu, {
 											onDuplicate: () => handleDuplicate(item),

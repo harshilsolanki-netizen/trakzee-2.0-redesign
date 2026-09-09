@@ -757,7 +757,7 @@ function ScheduleItemActionsMenu({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "h-8.5 w-8.5 rounded-xl border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-95",
+          "h-[30px] w-[30px] rounded-lg border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-95",
           open && "border-[#0089FF] bg-muted/60 text-foreground",
         )}
         aria-label="More actions"
@@ -1249,21 +1249,21 @@ export function ScheduleModal({
                 /* VIEW 1B: Scheduled Reports List View matching reference */
                 <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                   {/* Top Action Toolbar */}
-                  <div className="flex items-center justify-between gap-3 p-5 pb-3 shrink-0">
+                  <div className="flex items-center justify-between gap-2.5 px-6 pt-5 pb-3 shrink-0">
                     <div className="relative flex-1">
-                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 pointer-events-none" />
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 pointer-events-none" />
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search scheduled reports..."
-                        className="h-10 w-full rounded-xl border border-input bg-background pl-10 pr-9 text-xs text-foreground placeholder:text-muted-foreground/70 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                        className="h-[30px] w-full rounded-lg border border-input bg-background pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/70 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-1 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                       />
                       {searchQuery && (
                         <button
                           type="button"
                           onClick={() => setSearchQuery("")}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-md cursor-pointer"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-md cursor-pointer"
                         >
                           <X className="h-3.5 w-3.5" />
                         </button>
@@ -1273,15 +1273,16 @@ export function ScheduleModal({
                     <button
                       type="button"
                       onClick={startCreate}
-                      className="inline-flex items-center gap-2 rounded-xl bg-[#0089FF] px-4.5 h-10 text-xs font-semibold text-white shadow-xs hover:bg-[#0077e6] active:scale-98 cursor-pointer transition-all shrink-0"
+                      title="Create New Schedule"
+                      aria-label="Create New Schedule"
+                      className="inline-flex items-center justify-center rounded-lg bg-[#0089FF] h-[30px] w-[30px] text-white shadow-2xs hover:bg-[#0077e6] active:scale-95 cursor-pointer transition-all shrink-0"
                     >
                       <Plus className="h-4 w-4" />
-                      <span>Create New Schedule</span>
                     </button>
                   </div>
 
-                  {/* Cards List */}
-                  <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-5 space-y-3 custom-scrollbar">
+                  {/* List View without card background support rectangle */}
+                  <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-4 divide-y divide-border/60 custom-scrollbar">
                     {filteredSchedules.map((item) => {
                       const iconScheme = getScheduleIconScheme(item);
                       const recurrenceText = formatRecurrence(item);
@@ -1289,15 +1290,14 @@ export function ScheduleModal({
                       return (
                         <div
                           key={item.id}
-                          className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between gap-4 shadow-2xs transition-all hover:border-[#0089FF]/40 hover:shadow-xs group"
+                          className="py-3 px-1 flex items-center justify-between gap-4 transition-colors group"
                         >
                           {/* Left section: Icon badge + Details */}
                           <div className="flex items-center gap-3.5 min-w-0 flex-1">
                             <div
                               className={cn(
-                                "h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-105",
+                                "h-9 w-9 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105",
                                 iconScheme.badgeBg,
-                                iconScheme.borderColor,
                                 iconScheme.iconColor,
                               )}
                             >
@@ -1342,7 +1342,7 @@ export function ScheduleModal({
                             <button
                               type="button"
                               onClick={() => startEdit(item)}
-                              className="inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-98"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background px-3 h-[30px] text-xs font-semibold text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-98"
                             >
                               <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
                               <span>Edit</span>
