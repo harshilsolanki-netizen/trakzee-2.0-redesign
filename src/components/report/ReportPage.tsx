@@ -655,7 +655,7 @@ export function ReportPage() {
             )}
 
             {level === 0 ? (
-              <span className="text-base font-bold text-foreground leading-tight tracking-tight">
+              <span className="text-[18px] font-medium text-foreground leading-tight tracking-tight">
                 {reportMeta?.name || "Today Activity"}
               </span>
             ) : level === 1 ? (
@@ -663,7 +663,7 @@ export function ReportPage() {
                 <button
                   type="button"
                   onClick={resetToRoot}
-                  className="text-base font-bold text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight"
+                  className="text-[18px] font-medium text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight"
                 >
                   Travel Daily Summary
                 </button>
@@ -681,7 +681,7 @@ export function ReportPage() {
                 <button
                   type="button"
                   onClick={resetToRoot}
-                  className="text-base font-bold text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight"
+                  className="text-[18px] font-medium text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight"
                 >
                   Travel Detail
                 </button>

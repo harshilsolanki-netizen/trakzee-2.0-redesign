@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-LVQlPua9.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-HgudenNA.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-DOn76_rv.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-DJzP9H_3.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -4384,7 +4384,7 @@ function DriverJobSummaryReport() {
 							reportId: "job",
 							className: "text-muted-foreground hover:text-amber-500"
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-							className: "text-sm font-bold text-foreground leading-tight tracking-tight whitespace-nowrap",
+							className: "text-[18px] font-medium text-foreground leading-tight tracking-tight whitespace-nowrap",
 							children: "Driver Job Summary"
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -6402,7 +6402,7 @@ function TemperatureSummaryReport() {
 							reportId: "temperature",
 							className: "text-muted-foreground hover:text-amber-500"
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-							className: "text-sm font-bold text-foreground leading-tight tracking-tight whitespace-nowrap",
+							className: "text-[18px] font-medium text-foreground leading-tight tracking-tight whitespace-nowrap",
 							children: "Temperature Summary"
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -7473,12 +7473,12 @@ function ReportPage() {
 								className: "-ml-1 mr-0.5"
 							}),
 							level === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "text-base font-bold text-foreground leading-tight tracking-tight",
+								className: "text-[18px] font-medium text-foreground leading-tight tracking-tight",
 								children: reportMeta?.name || "Today Activity"
 							}) : level === 1 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 								type: "button",
 								onClick: resetToRoot,
-								className: "text-base font-bold text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight",
+								className: "text-[18px] font-medium text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight",
 								children: "Travel Daily Summary"
 							}), drillVehicle ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: "h-3.5 w-3.5 text-muted-foreground/60 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 								className: "text-xs font-semibold text-foreground",
@@ -7492,7 +7492,7 @@ function ReportPage() {
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
 									onClick: resetToRoot,
-									className: "text-base font-bold text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight",
+									className: "text-[18px] font-medium text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight",
 									children: "Travel Detail"
 								}),
 								drillVehicle ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: "h-3.5 w-3.5 text-muted-foreground/60 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {

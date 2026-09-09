@@ -145,7 +145,7 @@ export function TemperatureSummaryReport() {
               reportId="temperature"
               className="text-muted-foreground hover:text-amber-500"
             />
-            <h1 className="text-sm font-bold text-foreground leading-tight tracking-tight whitespace-nowrap">
+            <h1 className="text-[18px] font-medium text-foreground leading-tight tracking-tight whitespace-nowrap">
               Temperature Summary
             </h1>
           </div>

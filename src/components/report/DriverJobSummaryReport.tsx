@@ -132,7 +132,7 @@ export function DriverJobSummaryReport() {
               reportId="job"
               className="text-muted-foreground hover:text-amber-500"
             />
-            <h1 className="text-sm font-bold text-foreground leading-tight tracking-tight whitespace-nowrap">
+            <h1 className="text-[18px] font-medium text-foreground leading-tight tracking-tight whitespace-nowrap">
               Driver Job Summary
             </h1>
           </div>
