@@ -1,4 +1,4 @@
-import { Check, ChevronDown, RefreshCw, BarChart2 } from "lucide-react";
+import { Check, ChevronDown, BarChart2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -9,7 +9,6 @@ import {
 import { cn } from "@/lib/utils";
 import {
   CHART_AXIS_OPTIONS,
-  DEFAULT_CHART_CONFIG,
   type ChartConfig,
 } from "./ChartConfigModal";
 
@@ -60,14 +59,6 @@ export function ProgressComparisonOverlay({
     setOpen(false);
   };
 
-  const handleReset = () => {
-    setXAxis(DEFAULT_CHART_CONFIG.xAxis);
-    setYAxis(DEFAULT_CHART_CONFIG.yAxis);
-    onSave(DEFAULT_CHART_CONFIG);
-    toast.info("Comparison reset to default");
-    setOpen(false);
-  };
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -108,15 +99,10 @@ export function ProgressComparisonOverlay({
         <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 border-t border-l border-border/80 bg-popover z-10" />
 
         <div className="relative z-20 space-y-3">
-          {/* Header Title / Mode */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-              <BarChart2 className="h-3.5 w-3.5 text-blue-500" />
-              <span>Compare Metrics</span>
-            </div>
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-              Progress Bar
-            </span>
+          {/* Header Title */}
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+            <BarChart2 className="h-3.5 w-3.5 text-blue-500" />
+            <span>Compare Metrics</span>
           </div>
 
           {/* Metric 1 Selection (Left Bar - Emerald) */}
@@ -176,13 +162,6 @@ export function ProgressComparisonOverlay({
                 })}
               </PopoverContent>
             </Popover>
-          </div>
-
-          {/* Centered Connector Label matching reference image ("to") */}
-          <div className="flex items-center justify-center py-0.5">
-            <span className="text-[11px] font-medium text-muted-foreground px-2 py-0.5 rounded-full bg-muted/60 border border-border/40">
-              to
-            </span>
           </div>
 
           {/* Metric 2 Selection (Right Bar - Amber) */}
@@ -252,55 +231,28 @@ export function ProgressComparisonOverlay({
             </p>
           )}
 
-          {/* Live Progress Bar Preview */}
-          <div className="pt-1 pb-1 space-y-1 bg-muted/30 p-2.5 rounded-lg border border-border/50">
-            <div className="flex items-center justify-between text-[10px] font-semibold">
-              <span className="text-emerald-600 dark:text-emerald-400 truncate max-w-[110px]">
-                {xAxis} (65%)
-              </span>
-              <span className="text-amber-600 dark:text-amber-400 truncate max-w-[110px]">
-                {yAxis} (35%)
-              </span>
-            </div>
-            <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex shadow-2xs">
-              <div style={{ width: "65%" }} className="bg-emerald-500 h-full" />
-              <div style={{ width: "35%" }} className="bg-amber-500 h-full" />
-            </div>
-          </div>
-
           {/* Actions Footer */}
-          <div className="flex items-center justify-between pt-1 border-t border-border/60">
+          <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-border/60">
             <button
               type="button"
-              onClick={handleReset}
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors px-1 py-1"
+              onClick={() => setOpen(false)}
+              className="h-7 px-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors cursor-pointer"
             >
-              <RefreshCw className="h-3 w-3" />
-              <span>Reset</span>
+              Cancel
             </button>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="h-7 px-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleApply}
-                disabled={isDuplicate}
-                className={cn(
-                  "h-7 px-3 text-xs font-semibold rounded-md text-white shadow-xs transition-all cursor-pointer active:scale-98",
-                  isDuplicate
-                    ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-                    : "bg-[#155dfc] hover:bg-[#124ecf]",
-                )}
-              >
-                Apply
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleApply}
+              disabled={isDuplicate}
+              className={cn(
+                "h-7 px-3 text-xs font-semibold rounded-md text-white shadow-xs transition-all cursor-pointer active:scale-98",
+                isDuplicate
+                  ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                  : "bg-[#155dfc] hover:bg-[#124ecf]",
+              )}
+            >
+              Apply
+            </button>
           </div>
         </div>
       </PopoverContent>

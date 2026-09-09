@@ -22,13 +22,9 @@ export const DEFAULT_CHART_CONFIG: ChartConfig = {
 
 export const CHART_AXIS_OPTIONS = [
   "Running",
-  "Idle",
   "Stop",
+  "Idle",
   "Inactive",
-  "Duration",
-  "Distance",
-  "Work Duration",
-  "Max Speed",
 ];
 
 interface ChartConfigModalProps {
