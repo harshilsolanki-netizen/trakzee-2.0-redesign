@@ -1199,7 +1199,7 @@ export function ReportQuickFilterBar({
           className="w-68 p-0 text-xs bg-popover/98 backdrop-blur-xl border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
         >
           <div className="p-3 px-4 border-b border-border/70 space-y-2 bg-muted/20">
-            <div className="flex items-center justify-between text-xs font-bold text-foreground">
+            <div className="flex items-center justify-between text-xs font-semibold text-foreground">
               <span>Select Company</span>
               <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
                 {draftCompanies.length} selected
@@ -1335,7 +1335,7 @@ export function ReportQuickFilterBar({
           className="w-68 p-0 text-xs bg-popover/98 backdrop-blur-xl border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
         >
           <div className="p-3 px-4 border-b border-border/70 space-y-2 bg-muted/20">
-            <div className="flex items-center justify-between text-xs font-bold text-foreground">
+            <div className="flex items-center justify-between text-xs font-semibold text-foreground">
               <span>Select Branches</span>
               <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
                 {draftBranches.length} selected
@@ -1472,7 +1472,7 @@ export function ReportQuickFilterBar({
         >
           {/* Header with Search */}
           <div className="p-3 px-4 border-b border-border/70 space-y-2 bg-muted/20">
-            <div className="flex items-center justify-between text-xs font-bold text-foreground">
+            <div className="flex items-center justify-between text-xs font-semibold text-foreground">
               <span>Select Vehicles</span>
               <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
                 {draftObjects.length} / {availableVehicleIds.length} selected
@@ -1593,7 +1593,7 @@ export function ReportQuickFilterBar({
                               <span
                                 className={cn(
                                   "text-xs leading-tight text-foreground",
-                                  checked && "font-bold text-foreground",
+                                  checked && "font-semibold text-foreground",
                                 )}
                               >
                                 {v.name}

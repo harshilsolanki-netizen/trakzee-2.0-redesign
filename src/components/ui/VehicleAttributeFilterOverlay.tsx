@@ -77,7 +77,7 @@ export function VehicleAttributeFilterOverlay({
             <select
               value={value.company}
               onChange={(e) => onChange({ company: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {COMPANIES.map((c) => (
                 <option key={c} value={c}>
@@ -95,7 +95,7 @@ export function VehicleAttributeFilterOverlay({
             <select
               value={value.branch}
               onChange={(e) => onChange({ branch: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {BRANCHES.map((b) => (
                 <option key={b} value={b}>
@@ -113,7 +113,7 @@ export function VehicleAttributeFilterOverlay({
             <select
               value={value.vehicleGroup}
               onChange={(e) => onChange({ vehicleGroup: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {VEHICLE_GROUPS.map((g) => (
                 <option key={g} value={g}>
@@ -131,7 +131,7 @@ export function VehicleAttributeFilterOverlay({
             <select
               value={value.vehicleType}
               onChange={(e) => onChange({ vehicleType: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {VEHICLE_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -149,7 +149,7 @@ export function VehicleAttributeFilterOverlay({
             <select
               value={value.vehicleBrand}
               onChange={(e) => onChange({ vehicleBrand: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {VEHICLE_BRANDS.map((b) => (
                 <option key={b} value={b}>
@@ -167,7 +167,7 @@ export function VehicleAttributeFilterOverlay({
             <select
               value={value.vehicleModel}
               onChange={(e) => onChange({ vehicleModel: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
+              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
             >
               {VEHICLE_MODELS.map((m) => (
                 <option key={m} value={m}>

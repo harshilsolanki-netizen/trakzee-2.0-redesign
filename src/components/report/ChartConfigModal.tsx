@@ -144,7 +144,7 @@ export function ChartConfigModal({
                 value={header}
                 onChange={(e) => setHeader(e.target.value)}
                 placeholder="e.g. Running V/S Stop"
-                className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
               />
             </div>
           </div>
@@ -164,12 +164,12 @@ export function ChartConfigModal({
                     id="chart-xaxis"
                     type="button"
                     className={cn(
-                      "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground transition-all cursor-pointer shadow-2xs select-none hover:border-[#0089FF]/60 hover:bg-muted/40 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none",
+                      "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs select-none hover:border-[#0089FF]/60 hover:bg-muted/40 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none",
                       xAxisOpen &&
                         "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
                     )}
                   >
-                    <span className="truncate text-foreground font-bold">
+                    <span className="truncate text-foreground font-semibold">
                       {xAxis}
                     </span>
                     <ChevronDown
@@ -196,7 +196,7 @@ export function ChartConfigModal({
                         className={cn(
                           "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
                           isSelected
-                            ? "bg-[#0089FF]/10 text-[#0089FF] font-bold"
+                            ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold"
                             : "text-foreground hover:bg-muted/80 font-medium",
                         )}
                       >
@@ -227,12 +227,12 @@ export function ChartConfigModal({
                     id="chart-yaxis"
                     type="button"
                     className={cn(
-                      "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground transition-all cursor-pointer shadow-2xs select-none hover:border-[#0089FF]/60 hover:bg-muted/40 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none",
+                      "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs select-none hover:border-[#0089FF]/60 hover:bg-muted/40 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none",
                       yAxisOpen &&
                         "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
                     )}
                   >
-                    <span className="truncate text-foreground font-bold">
+                    <span className="truncate text-foreground font-semibold">
                       {yAxis}
                     </span>
                     <ChevronDown

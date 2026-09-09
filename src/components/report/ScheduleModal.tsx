@@ -422,7 +422,7 @@ function SelectDropdown({
           className={cn(
             "truncate",
             value
-              ? "text-foreground font-bold"
+              ? "text-foreground font-semibold"
               : "text-muted-foreground/60 font-normal italic",
           )}
         >
@@ -451,7 +451,7 @@ function SelectDropdown({
                 className={cn(
                   "flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-left text-xs cursor-pointer transition-colors",
                   isSelected
-                    ? "bg-[#0089FF]/10 font-bold text-[#0089FF]"
+                    ? "bg-[#0089FF]/10 font-semibold text-[#0089FF]"
                     : "text-foreground hover:bg-muted/80 font-medium",
                 )}
               >
@@ -565,11 +565,11 @@ function VehicleMultiSelectDropdown({
           <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           {collapsedSummary ? (
             <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden">
-              <span className="text-xs font-bold text-foreground truncate">
+              <span className="text-xs font-semibold text-foreground truncate">
                 {collapsedSummary.firstName}
               </span>
               {collapsedSummary.extraCount > 0 && (
-                <span className="inline-flex items-center px-1.5 py-0.2 rounded-md text-[10px] font-bold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                <span className="inline-flex items-center px-1.5 py-0.2 rounded-md text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
                   +{collapsedSummary.extraCount}
                 </span>
               )}
@@ -618,7 +618,7 @@ function VehicleMultiSelectDropdown({
                     onChange={() => onToggleRegion(vehicles)}
                     className="h-4 w-4 rounded border-border/80 text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
                   />
-                  <span className="text-xs font-bold text-foreground">
+                  <span className="text-xs font-semibold text-foreground">
                     {region}
                   </span>
                   <span className="text-xs text-muted-foreground font-normal">
@@ -646,8 +646,8 @@ function VehicleMultiSelectDropdown({
                             className={cn(
                               "text-xs leading-tight transition-colors truncate",
                               isChecked
-                                ? "font-bold text-[#0089FF]"
-                                : "font-bold text-foreground group-hover:text-[#0089FF]",
+                                ? "font-semibold text-[#0089FF]"
+                                : "font-semibold text-foreground group-hover:text-[#0089FF]",
                             )}
                           >
                             {v.name}
@@ -1571,7 +1571,7 @@ export function ScheduleModal({
                               setCriteriaDurationValue(e.target.value)
                             }
                             placeholder="e.g. 5"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                           />
                         </div>
                       </div>
@@ -1598,7 +1598,7 @@ export function ScheduleModal({
                               setCriteriaDistanceValue(e.target.value)
                             }
                             placeholder="e.g. 100"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                           />
                         </div>
                       </div>
@@ -1626,7 +1626,7 @@ export function ScheduleModal({
                       }}
                       placeholder="e.g. Weekly Operations Summary"
                       className={cn(
-                        "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                        "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                         errors.name
                           ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                           : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -1797,7 +1797,7 @@ export function ScheduleModal({
                                   timeRangeStart: e.target.value,
                                 }))
                               }
-                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-bold text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-semibold text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                             />
                             <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                           </div>
@@ -1817,7 +1817,7 @@ export function ScheduleModal({
                                   timeRangeEnd: e.target.value,
                                 }))
                               }
-                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-bold text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-semibold text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                             />
                             <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                           </div>
@@ -1909,7 +1909,7 @@ export function ScheduleModal({
                               }}
                               placeholder="manager@company.com"
                               className={cn(
-                                "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                                "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                                 emailVerificationStatus === "success"
                                   ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                                   : emailVerificationStatus === "failed" || errors.toAddress
@@ -1978,7 +1978,7 @@ export function ScheduleModal({
                               }))
                             }
                             placeholder="15"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                           />
                         </div>
                       </div>
@@ -1994,7 +1994,7 @@ export function ScheduleModal({
                             setDraft((d) => ({ ...d, subject: e.target.value }))
                           }
                           placeholder="Weekly Travel Summary Report"
-                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                         />
                       </div>
 
@@ -2038,7 +2038,7 @@ export function ScheduleModal({
                             setDraft((d) => ({ ...d, message: e.target.value }))
                           }
                           placeholder="Write your email body message here..."
-                          className="w-full rounded-md border border-input bg-background p-3 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
+                          className="w-full rounded-md border border-input bg-background p-3 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
                         />
                       </div>
                     </div>
@@ -2061,7 +2061,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. ftp.example.com"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpHost
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2088,7 +2088,7 @@ export function ScheduleModal({
                             }}
                             placeholder="21"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpPort
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2117,7 +2117,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. ftp_user"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpUsername
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2144,7 +2144,7 @@ export function ScheduleModal({
                             }}
                             placeholder="••••••••"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpPassword
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2172,7 +2172,7 @@ export function ScheduleModal({
                           }}
                           placeholder="e.g. /reports/daily"
                           className={cn(
-                            "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                            "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                             errors.ftpFolder
                               ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                               : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2216,7 +2216,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. AKIAIOSFODNN7EXAMPLE"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpAccessKey
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2243,7 +2243,7 @@ export function ScheduleModal({
                             }}
                             placeholder="••••••••••••••••••••••••"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpSecretKey
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2272,7 +2272,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. ap-south-1"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpRegion
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2299,7 +2299,7 @@ export function ScheduleModal({
                             }}
                             placeholder="e.g. company-fleet-reports"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpBucketName
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2348,7 +2348,7 @@ export function ScheduleModal({
                           }}
                           placeholder="+91 9876543210, +1 5550192834"
                           className={cn(
-                            "w-full rounded-md border bg-background p-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none",
+                            "w-full rounded-md border bg-background p-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none",
                             errors.mediaRecipientNumber
                               ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                               : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -2618,7 +2618,7 @@ export function ScheduleModal({
 
               {/* Detail Report Download Settings */}
               <div className="p-4 rounded-xl border border-border/80 bg-card space-y-2.5">
-                <label className="block text-xs font-bold text-foreground">
+                <label className="block text-xs font-medium text-muted-foreground">
                   Detail Report Download Mode
                 </label>
                 <div className="flex items-center gap-6 text-xs">

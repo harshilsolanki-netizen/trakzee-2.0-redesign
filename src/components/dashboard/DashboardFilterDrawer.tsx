@@ -123,7 +123,7 @@ function UniversalMultiSelectDropdown({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-bold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-semibold shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
           open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
         )}
       >
@@ -134,11 +134,11 @@ function UniversalMultiSelectDropdown({
             </span>
           ) : (
             <>
-              <span className="truncate font-bold text-foreground">
+              <span className="truncate font-semibold text-foreground">
                 {selected[0]}
               </span>
               {selected.length > 1 && (
-                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
                   +{selected.length - 1}
                 </span>
               )}
@@ -158,7 +158,7 @@ function UniversalMultiSelectDropdown({
           {/* Header Row: Title on left, N selected on right */}
           <div className="p-3 pb-2 border-b border-border/60 bg-muted/20 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-foreground">
+              <span className="text-xs font-semibold text-foreground">
                 Select {label}
               </span>
               <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
@@ -217,7 +217,7 @@ function UniversalMultiSelectDropdown({
                   className={cn(
                     "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none",
                     isChecked
-                      ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
+                      ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold hover:bg-[#0089FF]/15"
                       : "hover:bg-muted/80 hover:text-foreground font-medium",
                   )}
                 >
@@ -608,7 +608,7 @@ export function DashboardFilterDrawer({
                   onChange={(e) => setVehicleSearch(e.target.value)}
                   placeholder="Search vehicles, IMEI, branch..."
                   aria-label="Search vehicles"
-                  className="h-full flex-1 bg-transparent text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none"
+                  className="h-full flex-1 bg-transparent text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none"
                 />
                 {vehicleSearch && (
                   <button
@@ -679,7 +679,7 @@ export function DashboardFilterDrawer({
                           <button
                             type="button"
                             onClick={() => toggleBranchAccordion(branch)}
-                            className="flex items-center gap-1.5 text-xs font-bold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate"
+                            className="flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate"
                           >
                             <ChevronRight
                               className={cn(
@@ -690,7 +690,7 @@ export function DashboardFilterDrawer({
                             <span className="truncate">{branch}</span>
                           </button>
                         </div>
-                        <span className="text-[10px] font-bold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full">
+                        <span className="text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full">
                           {selectedBranchCount}/{vehicles.length}
                         </span>
                       </div>
@@ -706,7 +706,7 @@ export function DashboardFilterDrawer({
                                 className={cn(
                                   "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none",
                                   isChecked
-                                    ? "bg-[#0089FF]/10 text-foreground font-bold"
+                                    ? "bg-[#0089FF]/10 text-foreground font-semibold"
                                     : "hover:bg-muted/60 text-foreground font-medium",
                                 )}
                               >
@@ -719,7 +719,7 @@ export function DashboardFilterDrawer({
                                   />
                                   <Truck className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                                   <div className="min-w-0 truncate">
-                                    <span className="block truncate leading-tight text-xs font-bold">
+                                    <span className="block truncate leading-tight text-xs font-semibold">
                                       {v.name}
                                     </span>
                                     <span className="block text-[10px] text-muted-foreground truncate leading-tight font-normal">

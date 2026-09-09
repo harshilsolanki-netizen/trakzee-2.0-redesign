@@ -114,7 +114,7 @@ function SelectDropdown({
           className={cn(
             "truncate",
             value
-              ? "text-foreground font-bold"
+              ? "text-foreground font-semibold"
               : "text-muted-foreground/60 font-normal italic",
           )}
         >
@@ -141,7 +141,7 @@ function SelectDropdown({
               className={cn(
                 "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none",
                 value === opt
-                  ? "bg-[#0089FF]/10 font-bold text-[#0089FF] hover:bg-[#0089FF]/15"
+                  ? "bg-[#0089FF]/10 font-semibold text-[#0089FF] hover:bg-[#0089FF]/15"
                   : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
               )}
             >
@@ -272,11 +272,11 @@ function UniversalMultiSelectDropdown({
             </span>
           ) : (
             <>
-              <span className="text-foreground font-bold truncate">
+              <span className="text-foreground font-semibold truncate">
                 {selected[0]}
               </span>
               {selected.length > 1 && (
-                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
                   +{selected.length - 1}
                 </span>
               )}
@@ -296,7 +296,7 @@ function UniversalMultiSelectDropdown({
           {/* Header Row */}
           <div className="p-2.5 pb-2 border-b border-border/60 bg-muted/20 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-foreground">
+              <span className="text-xs font-semibold text-foreground">
                 Select {label}
               </span>
               <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
@@ -355,7 +355,7 @@ function UniversalMultiSelectDropdown({
                   className={cn(
                     "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none",
                     isChecked
-                      ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
+                      ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold hover:bg-[#0089FF]/15"
                       : "hover:bg-muted/80 hover:text-foreground font-medium",
                   )}
                 >
@@ -601,7 +601,7 @@ export function ReportConfigPanel({
                   value={filters.durationValue}
                   onChange={(e) => onChange({ durationValue: e.target.value })}
                   placeholder="e.g. 5"
-                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                 />
               </div>
             </div>
@@ -626,7 +626,7 @@ export function ReportConfigPanel({
                   value={filters.distanceValue}
                   onChange={(e) => onChange({ distanceValue: e.target.value })}
                   placeholder="e.g. 5"
-                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                 />
               </div>
             </div>
