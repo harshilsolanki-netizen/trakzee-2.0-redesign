@@ -133,7 +133,7 @@ export function ChartConfigModal({
           <div className="grid grid-cols-3 items-center gap-3">
             <label
               htmlFor="chart-header"
-              className="text-xs font-semibold text-foreground"
+              className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
             >
               Header :
             </label>
@@ -144,7 +144,7 @@ export function ChartConfigModal({
                 value={header}
                 onChange={(e) => setHeader(e.target.value)}
                 placeholder="e.g. Running V/S Stop"
-                className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all font-medium hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
               />
             </div>
           </div>
@@ -153,7 +153,7 @@ export function ChartConfigModal({
           <div className="grid grid-cols-3 items-center gap-3">
             <label
               htmlFor="chart-xaxis"
-              className="text-xs font-semibold text-foreground"
+              className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
             >
               X-Axis :
             </label>
@@ -169,7 +169,7 @@ export function ChartConfigModal({
                         "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
                     )}
                   >
-                    <span className="truncate text-foreground">
+                    <span className="truncate text-foreground font-semibold">
                       {xAxis}
                     </span>
                     <ChevronDown
@@ -216,7 +216,7 @@ export function ChartConfigModal({
           <div className="grid grid-cols-3 items-center gap-3">
             <label
               htmlFor="chart-yaxis"
-              className="text-xs font-semibold text-foreground"
+              className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
             >
               Y-Axis :
             </label>
@@ -232,7 +232,7 @@ export function ChartConfigModal({
                         "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
                     )}
                   >
-                    <span className="truncate text-foreground">
+                    <span className="truncate text-foreground font-semibold">
                       {yAxis}
                     </span>
                     <ChevronDown

@@ -20,8 +20,8 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block space-y-1">
-      <span className="text-xs font-semibold text-foreground">
+    <label className="block space-y-1.5">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </span>
       {children}
@@ -115,7 +115,7 @@ export function ChartFilterDrawer({
       >
         {/* 1. Header matching standardized ADS 45px drawer theme */}
         <header className="flex h-[45px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
-          <h2 className="text-sm font-semibold tracking-tight text-foreground">
+          <h2 className="text-sm font-bold tracking-tight text-foreground">
             Chart Filter
           </h2>
           <button
