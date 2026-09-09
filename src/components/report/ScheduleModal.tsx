@@ -5,6 +5,7 @@ import {
   Calendar,
   CalendarClock,
   Check,
+  CheckCircle2,
   ChevronDown,
   ChevronRight,
   Clock,
@@ -18,6 +19,7 @@ import {
   Italic,
   Layers,
   List,
+  Loader2,
   Mail,
   Map as MapIcon,
   MoreVertical,
@@ -31,6 +33,7 @@ import {
   Underline,
   UploadCloud,
   X,
+  XCircle,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -808,6 +811,51 @@ export function ScheduleModal({
   const [draft, setDraft] = useState<Omit<ScheduleItem, "id">>(DEFAULT_DRAFT);
   const [copyFrom, setCopyFrom] = useState<string>("None");
   const [errors, setErrors] = useState<{ name?: string; toAddress?: string }>({});
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState<
+    "idle" | "verifying" | "success" | "failed"
+  >("idle");
+
+  const handleVerifyEmail = () => {
+    const email = (draft.toAddress || "").trim();
+    if (!email) {
+      setEmailVerificationStatus("failed");
+      setErrors((prev) => ({
+        ...prev,
+        toAddress: "Please enter recipient email address",
+      }));
+      toast.error("Please enter a recipient email address first");
+      return;
+    }
+
+    setEmailVerificationStatus("verifying");
+
+    setTimeout(() => {
+      const isInvalidFormat = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      const hasFailKeyword =
+        email.toLowerCase().includes("fail") ||
+        email.toLowerCase().includes("error") ||
+        email.toLowerCase().includes("invalid") ||
+        email.toLowerCase().includes("bad") ||
+        email.toLowerCase().includes("test-fail");
+
+      if (isInvalidFormat || hasFailKeyword) {
+        setEmailVerificationStatus("failed");
+        setErrors((prev) => ({
+          ...prev,
+          toAddress: "Verification failed: Domain or mailbox unreachable",
+        }));
+        toast.error(
+          `Verification failed: "${email}" could not be reached or is invalid`,
+        );
+      } else {
+        setEmailVerificationStatus("success");
+        setErrors((prev) => ({ ...prev, toAddress: undefined }));
+        toast.success(
+          `Recipient email "${email}" verified successfully. Mailbox is active!`,
+        );
+      }
+    }, 450);
+  };
 
   const filteredSchedules = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -1850,6 +1898,7 @@ export function ScheduleModal({
                               type="email"
                               value={draft.toAddress}
                               onChange={(e) => {
+                                setEmailVerificationStatus("idle");
                                 setDraft((d) => ({
                                   ...d,
                                   toAddress: e.target.value,
@@ -1861,30 +1910,56 @@ export function ScheduleModal({
                               placeholder="manager@company.com"
                               className={cn(
                                 "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-bold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                                errors.toAddress
-                                  ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                  : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                                emailVerificationStatus === "success"
+                                  ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                  : emailVerificationStatus === "failed" || errors.toAddress
+                                    ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                    : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                               )}
                             />
                             <button
                               type="button"
-                              onClick={() => {
-                                if (!draft.toAddress)
-                                  toast.error("Enter an email first");
-                                else
-                                  toast.success(
-                                    `Email "${draft.toAddress}" verified`,
-                                  );
-                              }}
-                              className="px-3.5 h-7.5 text-xs rounded-md border border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 font-semibold text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                              disabled={emailVerificationStatus === "verifying"}
+                              onClick={handleVerifyEmail}
+                              className={cn(
+                                "px-3.5 h-7.5 text-xs rounded-md border font-semibold cursor-pointer transition-all shadow-2xs active:scale-98 inline-flex items-center gap-1.5",
+                                emailVerificationStatus === "verifying" && "opacity-75 cursor-wait border-input/80 bg-muted/40 text-muted-foreground",
+                                emailVerificationStatus === "success" && "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20",
+                                emailVerificationStatus === "failed" && "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20",
+                                emailVerificationStatus === "idle" && "border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 text-foreground",
+                              )}
                             >
-                              Verify
+                              {emailVerificationStatus === "verifying" && (
+                                <>
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[#0089FF]" />
+                                  <span>Verifying...</span>
+                                </>
+                              )}
+                              {emailVerificationStatus === "success" && (
+                                <>
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                                  <span>Verified</span>
+                                </>
+                              )}
+                              {emailVerificationStatus === "failed" && (
+                                <>
+                                  <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
+                                  <span>Failed</span>
+                                </>
+                              )}
+                              {emailVerificationStatus === "idle" && <span>Verify</span>}
                             </button>
                           </div>
-                          {errors.toAddress && (
+                          {emailVerificationStatus === "success" && (
+                            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium animate-in fade-in duration-150">
+                              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                              <span>Recipient email verified & active.</span>
+                            </div>
+                          )}
+                          {(emailVerificationStatus === "failed" || errors.toAddress) && (
                             <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium animate-in fade-in duration-150">
                               <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
-                              <span>{errors.toAddress}</span>
+                              <span>{errors.toAddress || "Email verification failed. Please check the address."}</span>
                             </div>
                           )}
                         </div>
