@@ -1065,8 +1065,8 @@ export function ReportPage() {
                 </tr>
 
                 {/* Overall Totals / Summary Row */}
-                <tr className="bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-foreground border-b border-[#DFE3EB] dark:border-slate-700">
-                  <td className="sticky left-0 z-20 w-9 min-w-[36px] max-w-[36px] bg-slate-100 dark:bg-slate-800 border-r border-[#DFE3EB] dark:border-slate-700 px-2 py-1.5 text-center text-muted-foreground">
+                <tr className="bg-card dark:bg-slate-900 text-[11px] font-bold text-foreground border-b border-[#DFE3EB] dark:border-slate-700 h-[38px]">
+                  <td className="sticky left-0 z-20 w-9 min-w-[36px] max-w-[36px] bg-card dark:bg-slate-900 border-r border-[#DFE3EB] dark:border-slate-700 px-2 py-2 text-center text-muted-foreground font-semibold shadow-xs">
                     ∑
                   </td>
                   {visibleColumns.map((col, colIdx) => {
@@ -1079,7 +1079,7 @@ export function ReportPage() {
 
                     const frozenSummaryClass = isFrozen
                       ? cn(
-                          "sticky z-20 bg-slate-100 dark:bg-slate-800 shadow-xs",
+                          "sticky z-20 bg-card dark:bg-slate-900 shadow-xs",
                           colIdx === frozenCount - 1 &&
                             "shadow-[2px_0_4px_rgba(0,0,0,0.08)]",
                         )
@@ -1101,7 +1101,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 text-right tabular-nums truncate text-blue-600 dark:text-blue-400",
+                              "px-2.5 py-2 text-right tabular-nums truncate text-blue-600 dark:text-blue-400",
                               frozenSummaryClass,
                             )}
                             title={summaryTotals.distance}
@@ -1115,7 +1115,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 truncate",
+                              "px-2.5 py-2 truncate",
                               frozenSummaryClass,
                             )}
                           >
@@ -1142,7 +1142,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 truncate text-emerald-600 dark:text-emerald-400",
+                              "px-2.5 py-2 truncate text-emerald-600 dark:text-emerald-400",
                               frozenSummaryClass,
                             )}
                             title={summaryTotals.running}
@@ -1156,7 +1156,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 truncate text-amber-600 dark:text-amber-400",
+                              "px-2.5 py-2 truncate text-amber-600 dark:text-amber-400",
                               frozenSummaryClass,
                             )}
                             title={summaryTotals.idle}
@@ -1170,7 +1170,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 truncate text-rose-600 dark:text-rose-400",
+                              "px-2.5 py-2 truncate text-rose-600 dark:text-rose-400",
                               frozenSummaryClass,
                             )}
                             title={summaryTotals.stop}
@@ -1184,7 +1184,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 truncate text-muted-foreground",
+                              "px-2.5 py-2 truncate text-muted-foreground",
                               frozenSummaryClass,
                             )}
                             title={summaryTotals.inactive}
@@ -1198,7 +1198,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 truncate",
+                              "px-2.5 py-2 truncate",
                               frozenSummaryClass,
                             )}
                             title={summaryTotals.duration}
@@ -1212,7 +1212,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 text-center truncate",
+                              "px-2.5 py-2 text-center truncate",
                               frozenSummaryClass,
                             )}
                             title={summaryTotals.workingDays}
@@ -1226,7 +1226,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 truncate",
+                              "px-2.5 py-2 truncate",
                               frozenSummaryClass,
                             )}
                             title={summaryTotals.maxStoppage}
@@ -1240,7 +1240,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 text-right tabular-nums truncate",
+                              "px-2.5 py-2 text-right tabular-nums truncate",
                               frozenSummaryClass,
                             )}
                             title={summaryTotals.noOfIdle}
@@ -1254,7 +1254,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 text-right tabular-nums truncate",
+                              "px-2.5 py-2 text-right tabular-nums truncate",
                               frozenSummaryClass,
                             )}
                             title={String(summaryTotals.alerts)}
@@ -1268,7 +1268,7 @@ export function ReportPage() {
                             key={col.id}
                             {...commonProps}
                             className={cn(
-                              "px-2.5 py-1.5 text-muted-foreground/40 truncate",
+                              "px-2.5 py-2 text-muted-foreground/40 truncate",
                               frozenSummaryClass,
                             )}
                           >
