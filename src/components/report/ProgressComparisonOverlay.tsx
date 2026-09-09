@@ -1,4 +1,4 @@
-import { Check, ChevronDown, BarChart2 } from "lucide-react";
+import { Check, ChevronDown, SlidersHorizontal, BarChart2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -68,25 +68,19 @@ export function ProgressComparisonOverlay({
             e.stopPropagation();
           }}
           className={cn(
-            "group/btn inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold tracking-wide uppercase transition-all select-none cursor-pointer outline-none",
-            "bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 shadow-2xs active:scale-98",
-            open && "bg-white/25 border-blue-400 ring-2 ring-blue-400/30",
+            "p-1 rounded text-white/70 hover:text-white hover:bg-white/15 transition-colors cursor-pointer shrink-0 outline-none",
+            open && "text-white bg-white/20 ring-1 ring-blue-400/50",
             triggerClassName,
           )}
-          title="Click to change comparison metrics"
+          title="Configure comparison metrics"
+          aria-label="Configure comparison metrics"
         >
-          <span className="truncate max-w-[150px]">{config.header}</span>
-          <ChevronDown
-            className={cn(
-              "h-3 w-3 text-white/70 transition-transform duration-200 shrink-0",
-              open && "rotate-180 text-white",
-            )}
-          />
+          <SlidersHorizontal className="h-3.5 w-3.5" />
         </button>
       </PopoverTrigger>
 
       <PopoverContent
-        align="center"
+        align="end"
         side="bottom"
         sideOffset={8}
         onClick={(e) => e.stopPropagation()}
@@ -95,8 +89,8 @@ export function ProgressComparisonOverlay({
           className,
         )}
       >
-        {/* Top Pointer Triangle Arrow matching reference */}
-        <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 border-t border-l border-border/80 bg-popover z-10" />
+        {/* Top Pointer Triangle Arrow */}
+        <div className="absolute -top-1.5 right-4 h-3 w-3 rotate-45 border-t border-l border-border/80 bg-popover z-10" />
 
         <div className="relative z-20 space-y-3">
           {/* Header Title */}
@@ -105,12 +99,12 @@ export function ProgressComparisonOverlay({
             <span>Compare Metrics</span>
           </div>
 
-          {/* Metric 1 Selection (Left Bar - Emerald) */}
+          {/* Metric 1 Selection */}
           <div className="space-y-1">
             <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block shadow-2xs" />
-                <span>First Metric (Left)</span>
+                <span>First Metric</span>
               </span>
             </div>
 
@@ -164,12 +158,17 @@ export function ProgressComparisonOverlay({
             </Popover>
           </div>
 
-          {/* Metric 2 Selection (Right Bar - Amber) */}
+          {/* Plain "and" label without background */}
+          <div className="text-center text-xs font-medium text-muted-foreground select-none py-0.5">
+            and
+          </div>
+
+          {/* Metric 2 Selection */}
           <div className="space-y-1">
             <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-amber-500 inline-block shadow-2xs" />
-                <span>Second Metric (Right)</span>
+                <span>Second Metric</span>
               </span>
             </div>
 
@@ -224,7 +223,7 @@ export function ProgressComparisonOverlay({
             </Popover>
           </div>
 
-          {/* Duplicate validation error matching reference image */}
+          {/* Duplicate validation error */}
           {isDuplicate && (
             <p className="text-[11px] font-medium text-rose-500 pt-0.5 animate-in fade-in">
               A different second value is required.

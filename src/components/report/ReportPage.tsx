@@ -958,8 +958,9 @@ export function ReportPage() {
                             maxWidth: w + "px",
                             left: leftOffset,
                           }}
+                          title={c.label}
                           className={cn(
-                            "group relative border-r border-white/10 px-1.5 py-1 font-medium last:border-r-0 overflow-visible whitespace-nowrap select-none text-center",
+                            "group relative border-r border-white/10 px-2.5 py-2 font-medium last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none text-left",
                             isFrozen &&
                               cn(
                                 "sticky z-30 bg-slate-900 dark:bg-slate-950",
@@ -968,7 +969,8 @@ export function ReportPage() {
                               ),
                           )}
                         >
-                          <div className="flex items-center justify-center w-full">
+                          <div className="flex items-center justify-between gap-1 overflow-hidden">
+                            <span className="truncate">{c.label}</span>
                             <ProgressComparisonOverlay
                               config={chartConfig}
                               onSave={setChartConfig}
