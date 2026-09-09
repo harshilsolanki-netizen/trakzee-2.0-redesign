@@ -68,8 +68,8 @@ export function ProgressComparisonOverlay({
             e.stopPropagation();
           }}
           className={cn(
-            "p-1 rounded text-white/70 hover:text-white hover:bg-white/15 transition-colors cursor-pointer shrink-0 outline-none",
-            open && "text-white bg-white/20 ring-1 ring-blue-400/50",
+            "p-1 rounded text-slate-700 hover:text-slate-900 hover:bg-black/10 dark:text-slate-300 dark:hover:text-white dark:hover:bg-white/15 transition-colors cursor-pointer shrink-0 outline-none",
+            open && "text-slate-900 bg-black/10 dark:text-white dark:bg-white/20 ring-1 ring-blue-500/50",
             triggerClassName,
           )}
           title="Configure comparison metrics"
