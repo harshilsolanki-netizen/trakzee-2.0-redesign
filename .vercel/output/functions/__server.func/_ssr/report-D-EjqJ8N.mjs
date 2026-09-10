@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-LVQlPua9.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-HgudenNA.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-B4KfRGjl.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-D-EjqJ8N.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -1495,11 +1495,6 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 																/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 																	className: cn("font-semibold text-xs text-slate-900 dark:text-slate-100", !col.showable && "text-slate-400 dark:text-slate-500", isPinned && "text-[#0089FF] dark:text-blue-400"),
 																	children: col.label
-																}),
-																isPinned && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																	title: "Column is pinned at the top and frozen on table",
-																	className: "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 select-none",
-																	children: "Pinned"
 																}),
 																/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 																	className: "ml-1 flex items-center",

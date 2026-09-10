@@ -1210,16 +1210,6 @@ export function ColumnConfigModal({
                                   {col.label}
                                 </span>
 
-                                {/* Pinned Badge */}
-                                {isPinned && (
-                                  <span
-                                    title="Column is pinned at the top and frozen on table"
-                                    className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 select-none"
-                                  >
-                                    Pinned
-                                  </span>
-                                )}
-
                                 {/* Direct Pin / Unpin Action with Tooltip */}
                                 <div className="ml-1 flex items-center">
                                   {isPinned ? (
