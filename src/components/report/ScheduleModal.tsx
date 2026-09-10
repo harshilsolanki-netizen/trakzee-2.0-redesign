@@ -1313,7 +1313,7 @@ export function ScheduleModal({
         aria-hidden={!open}
         aria-label="Scheduled Reports"
         className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden relative",
+          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >

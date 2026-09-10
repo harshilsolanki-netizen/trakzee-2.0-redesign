@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-C71xLSPW.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-DJ0PoqH8.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -3337,7 +3337,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", {
 			"aria-hidden": !open,
 			"aria-label": "Scheduled Reports",
-			className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden relative", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
+			className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
 					className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",

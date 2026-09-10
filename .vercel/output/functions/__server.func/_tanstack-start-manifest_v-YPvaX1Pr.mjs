@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-0jtqLI5F.js
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-YPvaX1Pr.js
 var tsrStartManifest = () => ({ routes: {
 	__root__: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/__root.tsx",
@@ -12,7 +12,7 @@ var tsrStartManifest = () => ({ routes: {
 			"/zio"
 		],
 		preloads: [
-			"/assets/index-Sl4YsAIN.js",
+			"/assets/index-DHkuyDEq.js",
 			"/assets/utils-BDRr8poQ.js",
 			"/assets/download-B5T2ibo3.js",
 			"/assets/x-B4JrkUkn.js",
@@ -41,7 +41,7 @@ var tsrStartManifest = () => ({ routes: {
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-Sl4YsAIN.js"
+			src: "/assets/index-DHkuyDEq.js"
 		} }]
 	},
 	"/": {
@@ -82,7 +82,7 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/report.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/report-DGyOJLc4.js",
+			"/assets/report-DFUhBzAd.js",
 			"/assets/play-Xs_A7pi0.js",
 			"/assets/clock-D7xLHN8c.js",
 			"/assets/fleet-Iv0BEC1t.js",
