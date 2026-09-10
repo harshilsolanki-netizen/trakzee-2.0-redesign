@@ -17,7 +17,7 @@ import { n as useZio, t as ZioProvider } from "./ZioContext-Cw_R09Nu.mjs";
 import { t as ZioPanel } from "./ZioPanel-lLJH_t-F.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-DZLgqI0a.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-BC25FjtW.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -2401,56 +2401,26 @@ function UserProfileMenu() {
 	] });
 }
 /**
-* Official Zio AI Assistant Logo — 4-pointed sparkle star with gradient stroke.
+* Official Zio AI Assistant Logo
 */
 function ZioLogo({ className, size = "md" }) {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", {
-		viewBox: "0 0 24 24",
-		fill: "none",
-		xmlns: "http://www.w3.org/2000/svg",
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+		src: "/zio-logo.png",
+		alt: "Zio Logo",
 		className: cn({
 			xs: "h-3.5 w-3.5",
 			sm: "h-4 w-4",
 			md: "h-4.5 w-4.5",
 			lg: "h-6 w-6",
 			xl: "h-8 w-8"
-		}[size], "shrink-0", className),
-		"aria-label": "Zio AI Assistant",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("defs", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("linearGradient", {
-			id: "zioStarGrad",
-			x1: "0%",
-			y1: "0%",
-			x2: "100%",
-			y2: "100%",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("stop", {
-					offset: "0%",
-					stopColor: "#a855f7"
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("stop", {
-					offset: "50%",
-					stopColor: "#ec4899"
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("stop", {
-					offset: "100%",
-					stopColor: "#3b82f6"
-				})
-			]
-		}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", {
-			d: "M12 2C12 7.523 7.523 12 2 12C7.523 12 12 16.477 12 22C12 16.477 16.477 12 22 12C16.477 12 12 7.523 12 2Z",
-			stroke: "url(#zioStarGrad)",
-			strokeWidth: "2.4",
-			strokeLinecap: "round",
-			strokeLinejoin: "round",
-			fill: "none"
-		})]
+		}[size], "shrink-0 object-contain inline-block", className)
 	});
 }
 /**
-* Modern Top Navigation Bar Ask Zio CTA Button
-* - Modern shimmering AI gradient pill
-* - Smooth hover scale and micro-interactions
-* - Clockwise logo spin on hover
+* Modern Top Navigation Bar Zio CTA Button
+* - Clean transparent CTA without background/border
+* - Official Zio Logo
+* - Smooth hover transition
 */
 function AskZioTopBarButton({ className }) {
 	const { openZio, isOpen } = useZio();
@@ -2460,13 +2430,13 @@ function AskZioTopBarButton({ className }) {
 		onClick: () => openZio(),
 		onMouseEnter: () => setIsHovered(true),
 		onMouseLeave: () => setIsHovered(false),
-		className: cn("group relative hidden h-[30px] items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold text-nav-foreground transition-colors duration-150 sm:flex cursor-pointer select-none", "bg-white/10 border border-white/15 hover:bg-white/15 hover:border-white/30 shadow-2xs", isOpen && "ring-1.5 ring-white/40 border-white/40 bg-white/20", className),
+		className: cn("group relative hidden h-[30px] items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-nav-foreground/90 transition-colors duration-150 sm:flex cursor-pointer select-none hover:bg-white/10 hover:text-white", isOpen && "bg-white/10 text-white", className),
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			className: cn("shrink-0 transform-gpu transition-transform", isHovered && "spin-clockwise"),
+			className: cn("shrink-0 transform-gpu transition-transform duration-200", isHovered && "scale-110"),
 			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ZioLogo, { size: "sm" })
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-			className: "font-semibold text-nav-foreground tracking-tight text-xs whitespace-nowrap",
-			children: "Ask Zio"
+			className: "font-semibold text-nav-foreground/90 group-hover:text-white tracking-tight text-xs whitespace-nowrap",
+			children: "Zio"
 		})]
 	});
 }
@@ -2482,7 +2452,7 @@ var Toaster$1 = ({ ...props }) => {
 		...props
 	});
 };
-var styles_default = "/assets/styles-_TMZiD26.css";
+var styles_default = "/assets/styles-C58OdGrF.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -2696,6 +2666,8 @@ function TopBar() {
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				className: "ml-auto flex items-center gap-2.5",
 				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AskZioTopBarButton, {}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-4.5 w-px bg-white/20" }),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 						type: "button",
 						"aria-label": "Notifications",
@@ -2706,8 +2678,6 @@ function TopBar() {
 							children: "16"
 						})]
 					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-4.5 w-px bg-white/20" }),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AskZioTopBarButton, {}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-4.5 w-px bg-white/20" }),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserProfileMenu, {})
 				]

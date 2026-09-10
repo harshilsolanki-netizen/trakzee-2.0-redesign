@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { useZio } from "@/zio/ZioContext";
 import { ZioLogo } from "./ZioLogo";
-import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Modern Top Navigation Bar Ask Zio CTA Button
- * - Modern shimmering AI gradient pill
- * - Smooth hover scale and micro-interactions
- * - Clockwise logo spin on hover
+ * Modern Top Navigation Bar Zio CTA Button
+ * - Clean transparent CTA without background/border
+ * - Official Zio Logo
+ * - Smooth hover transition
  */
 export function AskZioTopBarButton({ className }: { className?: string }) {
   const { openZio, isOpen } = useZio();
@@ -21,24 +20,22 @@ export function AskZioTopBarButton({ className }: { className?: string }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "group relative hidden h-[30px] items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold text-nav-foreground transition-colors duration-150 sm:flex cursor-pointer select-none",
-        "bg-white/10 border border-white/15 hover:bg-white/15 hover:border-white/30 shadow-2xs",
-        isOpen &&
-          "ring-1.5 ring-white/40 border-white/40 bg-white/20",
+        "group relative hidden h-[30px] items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-nav-foreground/90 transition-colors duration-150 sm:flex cursor-pointer select-none hover:bg-white/10 hover:text-white",
+        isOpen && "bg-white/10 text-white",
         className,
       )}
     >
       <div
         className={cn(
-          "shrink-0 transform-gpu transition-transform",
-          isHovered && "spin-clockwise",
+          "shrink-0 transform-gpu transition-transform duration-200",
+          isHovered && "scale-110",
         )}
       >
         <ZioLogo size="sm" />
       </div>
 
-      <span className="font-semibold text-nav-foreground tracking-tight text-xs whitespace-nowrap">
-        Ask Zio
+      <span className="font-semibold text-nav-foreground/90 group-hover:text-white tracking-tight text-xs whitespace-nowrap">
+        Zio
       </span>
     </button>
   );
@@ -69,12 +66,12 @@ export function AskZioCTA({ className }: { className?: string }) {
           <div
             className={cn(
               "shrink-0 transform-gpu",
-              isHovered && "spin-clockwise",
+              isHovered && "scale-110",
             )}
           >
             <ZioLogo size="sm" />
           </div>
-          <span className="font-semibold text-white text-xs">Ask zio</span>
+          <span className="font-semibold text-white text-xs">Zio</span>
         </button>
 
         <span className="text-[11px] text-muted-foreground text-right leading-tight font-medium">
@@ -84,3 +81,4 @@ export function AskZioCTA({ className }: { className?: string }) {
     </div>
   );
 }
+

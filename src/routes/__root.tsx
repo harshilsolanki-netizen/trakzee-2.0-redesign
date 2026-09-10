@@ -220,6 +220,12 @@ function TopBar() {
         />
       </div>
       <div className="ml-auto flex items-center gap-2.5">
+        {/* Zio CTA in Header (Ahead of Notifications) */}
+        <AskZioTopBarButton />
+
+        {/* Divider 1 */}
+        <div className="h-4.5 w-px bg-white/20" />
+
         {/* Notifications Button */}
         <button
           type="button"
@@ -232,12 +238,6 @@ function TopBar() {
             16
           </span>
         </button>
-
-        {/* Divider 1 */}
-        <div className="h-4.5 w-px bg-white/20" />
-
-        {/* Ask Zio CTA in Header */}
-        <AskZioTopBarButton />
 
         {/* Divider 2 */}
         <div className="h-4.5 w-px bg-white/20" />
