@@ -50,6 +50,11 @@ import {
   getVehiclesForBranches,
 } from "@/data/reports";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 export type ScheduleItem = {
@@ -733,6 +738,68 @@ function getScheduleIconScheme(item: ScheduleItem) {
 
 
 
+function RowDeletePopover({
+  itemName,
+  onDelete,
+}: {
+  itemName: string;
+  onDelete: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          title="Delete schedule"
+          aria-label={`Delete schedule ${itemName}`}
+          className="h-[30px] w-[30px] rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer shadow-2xs active:scale-95"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        side="bottom"
+        sideOffset={6}
+        avoidCollisions={true}
+        collisionPadding={8}
+        className="w-64 p-3 rounded-lg border border-border bg-popover text-foreground shadow-lg z-[90] text-xs select-none animate-in fade-in-0 zoom-in-95"
+      >
+        <div className="space-y-1">
+          <p className="font-semibold text-foreground text-xs leading-tight">
+            Delete scheduled report?
+          </p>
+          <p className="text-[11px] text-muted-foreground leading-normal">
+            Are you sure you want to delete <strong className="text-foreground font-medium">&quot;{itemName}&quot;</strong>?
+          </p>
+        </div>
+
+        <div className="mt-3 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="h-7 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-all active:scale-98"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              onDelete();
+            }}
+            className="h-7 rounded-md bg-rose-600 px-3 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 active:scale-98 cursor-pointer transition-all"
+          >
+            Delete
+          </button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function ScheduleModal({
   open,
   onClose,
@@ -753,7 +820,6 @@ export function ScheduleModal({
     }
     return [];
   });
-  const [scheduleToDelete, setScheduleToDelete] = useState<ScheduleItem | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -1311,15 +1377,10 @@ export function ScheduleModal({
                               <span>Edit</span>
                             </button>
 
-                            <button
-                              type="button"
-                              onClick={() => setScheduleToDelete(item)}
-                              title="Delete schedule"
-                              aria-label="Delete schedule"
-                              className="h-[30px] w-[30px] rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer shadow-2xs active:scale-95"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
+                            <RowDeletePopover
+                              itemName={item.name}
+                              onDelete={() => handleDelete(item.id)}
+                            />
                           </div>
                         </div>
                       );
@@ -2394,14 +2455,13 @@ export function ScheduleModal({
                 </button>
 
                 {editingId && (
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(editingId)}
-                    title="Delete schedule"
-                    className="p-1.5 rounded-md text-destructive hover:bg-destructive/10 cursor-pointer transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <RowDeletePopover
+                    itemName={draft.name || "this report"}
+                    onDelete={() => {
+                      handleDelete(editingId);
+                      setView("list");
+                    }}
+                  />
                 )}
               </div>
 
@@ -2648,63 +2708,6 @@ export function ScheduleModal({
                   Save & Apply
                 </button>
               </div>
-            </footer>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {scheduleToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <button
-            type="button"
-            aria-label="Close delete confirmation"
-            onClick={() => setScheduleToDelete(null)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
-          />
-          <div className="relative z-10 w-full max-w-md flex flex-col bg-white dark:bg-slate-900 border border-border shadow-xl rounded-lg overflow-hidden animate-in zoom-in-95 text-foreground select-none">
-            {/* Header (56px) */}
-            <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 shrink-0 select-none">
-              <h3 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-                Delete Scheduled Report?
-              </h3>
-              <button
-                type="button"
-                aria-label="Close delete confirmation"
-                onClick={() => setScheduleToDelete(null)}
-                className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </header>
-
-            <div className="p-6 text-xs text-slate-600 dark:text-slate-300 space-y-2 select-none">
-              <p className="leading-relaxed">
-                Are you sure you want to delete <strong className="font-semibold text-slate-900 dark:text-slate-100">&quot;{scheduleToDelete.name}&quot;</strong>?
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                This scheduled report will be permanently removed and configured recipients will no longer receive automated email or media reports.
-              </p>
-            </div>
-
-            <footer className="flex items-center justify-end gap-2.5 border-t border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-3.5 shrink-0 select-none">
-              <button
-                type="button"
-                onClick={() => setScheduleToDelete(null)}
-                className="h-8 rounded-md border border-border bg-background px-4 text-xs font-medium text-slate-700 dark:text-slate-300 shadow-2xs hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-all active:scale-98"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  handleDelete(scheduleToDelete.id);
-                  setScheduleToDelete(null);
-                }}
-                className="h-8 rounded-md bg-rose-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 active:scale-98 cursor-pointer transition-all"
-              >
-                Delete
-              </button>
             </footer>
           </div>
         </div>
