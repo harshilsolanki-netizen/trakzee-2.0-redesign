@@ -818,7 +818,7 @@ export function ScheduleModal({
         console.error("Failed to load schedules", e);
       }
     }
-    return [];
+    return INITIAL_SCHEDULES;
   });
 
   useEffect(() => {
@@ -1144,117 +1144,113 @@ export function ScheduleModal({
     setView("list");
   };
 
-  if (!open) return null;
-
   return (
     <>
-      {/* Centered Modal Backdrop */}
-      <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+      {/* Side Panel Backdrop */}
+      {open ? (
         <button
           type="button"
-          aria-label="Close schedule modal"
+          aria-label="Close scheduled reports panel"
           onClick={onClose}
-          className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
+          className="fixed top-[45px] bottom-0 left-0 sm:left-[68px] right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
         />
+      ) : null}
 
-        {/* Main Modal Window - Enterprise SaaS styling with content-fit */}
-        <div
-          className={cn(
-            "relative z-10 flex flex-col rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150",
-            view === "list"
-              ? schedules.length === 0
-                ? "w-[500px] max-w-[94vw]"
-                : "w-[680px] max-w-[94vw] max-h-[85vh]"
-              : "w-[820px] max-w-[94vw] h-[640px] max-h-[88vh]",
-          )}
-        >
-          {/* Header (56px) */}
-          <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 select-none shrink-0">
-            <h2 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-              {view === "list"
-                ? "Scheduled Reports"
-                : editingId
-                  ? "Edit Schedule Report"
-                  : "Create Schedule Report"}
-            </h2>
-            <button
-              type="button"
-              aria-label="Close schedule modal"
-              onClick={onClose}
-              className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </header>
+      {/* Standard Side Panel Drawer matching Design System */}
+      <aside
+        aria-hidden={!open}
+        aria-label="Scheduled Reports"
+        className={cn(
+          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          open ? "translate-x-0" : "pointer-events-none translate-x-full",
+        )}
+      >
+        {/* Standardized 56px Header */}
+        <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+          <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
+            {view === "list"
+              ? "Scheduled Reports"
+              : editingId
+                ? "Edit Schedule Report"
+                : "Create Schedule Report"}
+          </h2>
+          <button
+            type="button"
+            aria-label="Close scheduled reports panel"
+            onClick={onClose}
+            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </header>
 
-          {/* Stepper (Sticky under Header in Creation Flow) */}
-          {view === "form" && (
-            <div className="flex items-center justify-between border-b border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-2.5 text-xs select-none shrink-0">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
+        {/* Stepper (Sticky under Header in Creation / Edit Flow) */}
+        {view === "form" && (
+          <div className="flex h-10 items-center justify-between border-b border-border bg-muted/20 px-5 text-xs select-none shrink-0">
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className={cn(
+                  "flex items-center gap-1.5 font-semibold transition-colors cursor-pointer",
+                  step === 1
+                    ? "text-[#0089FF]"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <span
                   className={cn(
-                    "flex items-center gap-2 font-semibold transition-colors cursor-pointer",
+                    "flex h-5 w-5 items-center justify-center rounded-md text-[11px] font-bold",
                     step === 1
-                      ? "text-[#0089FF]"
-                      : "text-muted-foreground hover:text-foreground",
+                      ? "bg-[#0089FF] text-white shadow-xs"
+                      : "bg-muted text-muted-foreground",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "flex h-5 w-5 items-center justify-center rounded-md text-xs font-bold",
-                      step === 1
-                        ? "bg-[#0089FF] text-white shadow-xs"
-                        : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    1
-                  </span>
-                  <span>Select Vehicles</span>
-                </button>
+                  1
+                </span>
+                <span>Select Vehicles</span>
+              </button>
 
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
 
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className={cn(
+                  "flex items-center gap-1.5 font-semibold transition-colors cursor-pointer",
+                  step === 2
+                    ? "text-[#0089FF]"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <span
                   className={cn(
-                    "flex items-center gap-2 font-semibold transition-colors cursor-pointer",
+                    "flex h-5 w-5 items-center justify-center rounded-md text-[11px] font-bold",
                     step === 2
-                      ? "text-[#0089FF]"
-                      : "text-muted-foreground hover:text-foreground",
+                      ? "bg-[#0089FF] text-white shadow-xs"
+                      : "bg-muted text-muted-foreground",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "flex h-5 w-5 items-center justify-center rounded-md text-xs font-bold",
-                      step === 2
-                        ? "bg-[#0089FF] text-white shadow-xs"
-                        : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    2
-                  </span>
-                  <span>Configure Settings</span>
-                </button>
-              </div>
-
-              <div className="text-xs text-muted-foreground font-semibold bg-muted/60 px-2.5 py-1 rounded-md">
-                Step {step} of 2
-              </div>
+                  2
+                </span>
+                <span>Configure Settings</span>
+              </button>
             </div>
-          )}
 
-          {/* Modal Body Content Area */}
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            <div className="text-[11px] text-muted-foreground font-semibold bg-muted/60 px-2 py-0.5 rounded-md">
+              Step {step} of 2
+            </div>
+          </div>
+        )}
+
+        {/* Side Panel Body Content Area */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
             {view === "list" ? (
               schedules.length === 0 ? (
-                /* VIEW 1A: Empty State View matching reference */
-                <div className="flex flex-col items-center justify-center py-12 px-8 text-center animate-in fade-in-50 duration-200 select-none">
-                  {/* Clean Icon without supportive rectangle or decorative elements */}
+                /* VIEW 1A: Empty State View */
+                <div className="flex flex-col items-center justify-center flex-1 py-12 px-6 text-center animate-in fade-in-50 duration-200 select-none">
                   <div className="mb-4 flex items-center justify-center">
-                    <CalendarClock className="h-16 w-16 text-[#0089FF] stroke-[1.5]" />
+                    <CalendarClock className="h-14 w-14 text-[#0089FF] stroke-[1.5]" />
                   </div>
 
                   <h3 className="text-base font-bold text-foreground tracking-tight">
@@ -1262,31 +1258,32 @@ export function ScheduleModal({
                   </h3>
 
                   <p className="mt-2 text-xs text-muted-foreground max-w-xs leading-relaxed">
-                    Create a schedule to receive reports automatically at your preferred time and frequency.
+                    Create a schedule to receive reports automatically at your
+                    preferred time and frequency.
                   </p>
 
                   <button
                     type="button"
                     onClick={startCreate}
-                    className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0089FF] px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-blue-500/20 hover:bg-[#0077e6] hover:shadow-lg hover:shadow-blue-500/25 active:scale-98 cursor-pointer transition-all"
+                    className="mt-6 inline-flex items-center gap-2 rounded-md bg-[#0089FF] px-4.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] active:scale-98 cursor-pointer transition-all"
                   >
                     <Plus className="h-4 w-4" />
                     <span>Create New Schedule</span>
                   </button>
                 </div>
               ) : (
-                /* VIEW 1B: Scheduled Reports List View matching reference */
+                /* VIEW 1B: Scheduled Reports List View */
                 <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                   {/* Top Action Toolbar */}
-                  <div className="flex items-center justify-between gap-2.5 px-6 pt-5 pb-3 shrink-0">
+                  <div className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-2 shrink-0">
                     <div className="relative flex-1">
-                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70 pointer-events-none" />
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search scheduled reports..."
-                        className="h-[30px] w-full rounded-lg border border-input bg-background pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/70 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-1 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
                       />
                       {searchQuery && (
                         <button
@@ -1304,14 +1301,14 @@ export function ScheduleModal({
                       onClick={startCreate}
                       title="Create New Schedule"
                       aria-label="Create New Schedule"
-                      className="inline-flex items-center justify-center rounded-lg bg-[#0089FF] h-[30px] w-[30px] text-white shadow-2xs hover:bg-[#0077e6] active:scale-95 cursor-pointer transition-all shrink-0"
+                      className="inline-flex items-center justify-center rounded-md bg-[#0089FF] h-7.5 w-7.5 text-white shadow-2xs hover:bg-[#0070d6] active:scale-95 cursor-pointer transition-all shrink-0"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
 
-                  {/* List View without card background support rectangle */}
-                  <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-4 divide-y divide-border/60 custom-scrollbar">
+                  {/* List View Items */}
+                  <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 divide-y divide-border/60 custom-scrollbar">
                     {filteredSchedules.map((item) => {
                       const iconScheme = getScheduleIconScheme(item);
                       const recurrenceText = formatRecurrence(item);
@@ -1319,13 +1316,13 @@ export function ScheduleModal({
                       return (
                         <div
                           key={item.id}
-                          className="py-3 px-1 flex items-center justify-between gap-4 transition-colors group"
+                          className="py-3 px-1 flex items-center justify-between gap-3 transition-colors group"
                         >
                           {/* Left section: Icon badge + Details */}
-                          <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
                             <div
                               className={cn(
-                                "h-9 w-9 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105",
+                                "h-8.5 w-8.5 rounded-md flex items-center justify-center shrink-0 transition-transform group-hover:scale-105",
                                 iconScheme.badgeBg,
                                 iconScheme.iconColor,
                               )}
@@ -1333,33 +1330,33 @@ export function ScheduleModal({
                               {iconScheme.icon}
                             </div>
 
-                            <div className="min-w-0 flex-1 space-y-1">
-                              <h3 className="text-sm font-bold text-foreground truncate">
+                            <div className="min-w-0 flex-1 space-y-0.5">
+                              <h3 className="text-xs font-bold text-foreground truncate">
                                 {item.name}
                               </h3>
 
                               {/* Row 1: Next run + Recurrence */}
-                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-                                <span className="inline-flex items-center gap-1.5 font-medium">
-                                  <Calendar className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
-                                  <span>Next run: {item.nextRun}</span>
+                              <div className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground">
+                                <span className="inline-flex items-center gap-1 font-medium">
+                                  <Calendar className="h-3 w-3 text-muted-foreground/70 shrink-0" />
+                                  <span>{item.nextRun}</span>
                                 </span>
                                 <span className="text-muted-foreground/40">•</span>
-                                <span className="inline-flex items-center gap-1.5 font-medium">
-                                  <RotateCcw className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                                <span className="inline-flex items-center gap-1 font-medium">
+                                  <RotateCcw className="h-3 w-3 text-muted-foreground/70 shrink-0" />
                                   <span>{recurrenceText}</span>
                                 </span>
                               </div>
 
                               {/* Row 2: Delivery + Format */}
-                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-                                <span className="inline-flex items-center gap-1.5 font-medium">
-                                  <Mail className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                              <div className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground">
+                                <span className="inline-flex items-center gap-1 font-medium">
+                                  <Mail className="h-3 w-3 text-muted-foreground/70 shrink-0" />
                                   <span>{item.actionType}</span>
                                 </span>
                                 <span className="text-muted-foreground/40">•</span>
-                                <span className="inline-flex items-center gap-1.5 font-medium">
-                                  <FileSpreadsheet className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                                <span className="inline-flex items-center gap-1 font-medium">
+                                  <FileSpreadsheet className="h-3 w-3 text-muted-foreground/70 shrink-0" />
                                   <span>{item.format}</span>
                                 </span>
                               </div>
@@ -1367,14 +1364,14 @@ export function ScheduleModal({
                           </div>
 
                           {/* Right section: Actions */}
-                          <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex items-center gap-1.5 shrink-0">
                             <button
                               type="button"
                               onClick={() => startEdit(item)}
-                              className="inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-background px-3 h-[30px] text-xs font-semibold text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-98"
+                              className="inline-flex items-center justify-center rounded-md border border-border/80 bg-background h-7.5 w-7.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-95"
+                              title="Edit schedule"
                             >
                               <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span>Edit</span>
                             </button>
 
                             <RowDeletePopover
@@ -1387,7 +1384,7 @@ export function ScheduleModal({
                     })}
 
                     {filteredSchedules.length === 0 && schedules.length > 0 && (
-                      <div className="py-12 text-center text-xs text-muted-foreground">
+                      <div className="py-10 text-center text-xs text-muted-foreground">
                         No scheduled reports found matching &quot;{searchQuery}&quot;.
                       </div>
                     )}
@@ -1395,13 +1392,13 @@ export function ScheduleModal({
                 </div>
               )
             ) : step === 1 ? (
-              /* VIEW 2 - STEP 1: Unified Form with 3-in-a-row layout and clean filters */
-              <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-6 custom-scrollbar w-full select-none">
-                {/* 3-in-a-row Filter Selectors */}
-                <div className="grid grid-cols-3 gap-4">
+              /* VIEW 2 - STEP 1: Select Vehicles & Filter Criteria */
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar select-none">
+                {/* Filter Selectors - 2 Columns Grid tailored for Side Panel */}
+                <div className="grid grid-cols-2 gap-3">
                   {/* Company */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       Company
                     </label>
                     <SelectDropdown
@@ -1412,8 +1409,8 @@ export function ScheduleModal({
                   </div>
 
                   {/* Branch */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       Branch
                     </label>
                     <SelectDropdown
@@ -1431,8 +1428,8 @@ export function ScheduleModal({
                   </div>
 
                   {/* Vehicle Group */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       Vehicle Group
                     </label>
                     <SelectDropdown
@@ -1450,8 +1447,8 @@ export function ScheduleModal({
                   </div>
 
                   {/* Vehicle Type */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       Vehicle Type
                     </label>
                     <SelectDropdown
@@ -1469,8 +1466,8 @@ export function ScheduleModal({
                   </div>
 
                   {/* Vehicle Brand */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       Vehicle Brand
                     </label>
                     <SelectDropdown
@@ -1487,8 +1484,8 @@ export function ScheduleModal({
                   </div>
 
                   {/* Vehicle Model */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       Vehicle Model
                     </label>
                     <SelectDropdown
@@ -1503,35 +1500,35 @@ export function ScheduleModal({
                       onChange={setCriteriaModel}
                     />
                   </div>
-
-                  {/* Select Vehicle: Full Width Tree Dropdown */}
-                  <div className="col-span-3 space-y-1.5 pt-1">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Select Vehicle
-                      </label>
-                      <span className="text-[11px] font-medium text-muted-foreground">
-                        {draft.selectedVehicles.length} of {allVisibleVehicleIds.length} Selected
-                      </span>
-                    </div>
-                    <VehicleMultiSelectDropdown
-                      selectedVehicles={draft.selectedVehicles}
-                      onToggleVehicle={toggleSingleVehicle}
-                      onToggleRegion={toggleRegionVehicles}
-                      regionGroups={regionGroups}
-                      allVisibleVehicleIds={allVisibleVehicleIds}
-                      isAllSelected={isAllVehiclesSelected}
-                      onToggleSelectAll={toggleSelectAllVehicles}
-                    />
-                  </div>
                 </div>
 
-                {/* Duration & Distance Filters - 2 Columns Layout matching reference mockup */}
-                <div className="pt-2">
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                    {/* Row 1, Col 1: Duration Status */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
+                {/* Select Vehicle: Multi-Select Box */}
+                <div className="space-y-1 pt-1">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-[11px] font-semibold text-foreground">
+                      Select Vehicle
+                    </label>
+                    <span className="text-[10px] font-medium text-muted-foreground">
+                      {draft.selectedVehicles.length} of {allVisibleVehicleIds.length} Selected
+                    </span>
+                  </div>
+                  <VehicleMultiSelectDropdown
+                    selectedVehicles={draft.selectedVehicles}
+                    onToggleVehicle={toggleSingleVehicle}
+                    onToggleRegion={toggleRegionVehicles}
+                    regionGroups={regionGroups}
+                    allVisibleVehicleIds={allVisibleVehicleIds}
+                    isAllSelected={isAllVehiclesSelected}
+                    onToggleSelectAll={toggleSelectAllVehicles}
+                  />
+                </div>
+
+                {/* Duration & Distance Filters */}
+                <div className="space-y-3 pt-1 border-t border-border/60">
+                  {/* Duration Status & Format */}
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
                         Duration Status
                       </label>
                       <SelectDropdown
@@ -1541,13 +1538,12 @@ export function ScheduleModal({
                       />
                     </div>
 
-                    {/* Row 1, Col 2: Duration Format */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
                         Duration Format
                       </label>
-                      <div className="flex items-center gap-6 h-7.5">
-                        <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none font-semibold">
+                      <div className="flex items-center gap-4 h-7.5">
+                        <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer select-none font-medium">
                           <input
                             type="radio"
                             name="durationFormat"
@@ -1557,79 +1553,80 @@ export function ScheduleModal({
                           />
                           <span>HH:MM</span>
                         </label>
-                        <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none font-semibold">
+                        <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer select-none font-medium">
                           <input
                             type="radio"
                             name="durationFormat"
                             checked={criteriaDurationFormat === "decimal"}
-                            onChange={() =>
-                              setCriteriaDurationFormat("decimal")
-                            }
+                            onChange={() => setCriteriaDurationFormat("decimal")}
                             className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
                           />
                           <span>Decimal</span>
                         </label>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Row 2, Col 1: Duration Filter */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Duration Filter
-                      </label>
-                      <div className="grid grid-cols-12 gap-2">
-                        <div className="col-span-5">
-                          <SelectDropdown
-                            value={criteriaDurationCompare}
-                            options={COMPARATORS}
-                            onChange={setCriteriaDurationCompare}
-                          />
-                        </div>
-                        <div className="col-span-4">
-                          <SelectDropdown
-                            value={criteriaDurationUnit}
-                            options={DURATION_UNITS}
-                            onChange={setCriteriaDurationUnit}
-                          />
-                        </div>
-                        <div className="col-span-3">
-                          <input
-                            type="text"
-                            value={criteriaDurationValue}
-                            onChange={(e) =>
-                              setCriteriaDurationValue(e.target.value)
-                            }
-                            placeholder="e.g. 5"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                          />
-                        </div>
+                  {/* Duration Filter */}
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
+                      Duration Filter
+                    </label>
+                    <div className="grid grid-cols-12 gap-1.5">
+                      <div className="col-span-5">
+                        <SelectDropdown
+                          value={criteriaDurationCompare}
+                          options={COMPARATORS}
+                          onChange={setCriteriaDurationCompare}
+                          placeholder="Comparator"
+                        />
+                      </div>
+                      <div className="col-span-4">
+                        <SelectDropdown
+                          value={criteriaDurationUnit}
+                          options={DURATION_UNITS}
+                          onChange={setCriteriaDurationUnit}
+                          placeholder="Unit"
+                        />
+                      </div>
+                      <div className="col-span-3">
+                        <input
+                          type="text"
+                          value={criteriaDurationValue}
+                          onChange={(e) =>
+                            setCriteriaDurationValue(e.target.value)
+                          }
+                          placeholder="e.g. 5"
+                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                        />
                       </div>
                     </div>
+                  </div>
 
-                    {/* Row 2, Col 2: Distance Filter */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
-                        Distance Filter
-                      </label>
-                      <div className="grid grid-cols-12 gap-2">
-                        <div className="col-span-7">
-                          <SelectDropdown
-                            value={criteriaDistanceCompare}
-                            options={COMPARATORS}
-                            onChange={setCriteriaDistanceCompare}
-                          />
-                        </div>
-                        <div className="col-span-5">
-                          <input
-                            type="text"
-                            value={criteriaDistanceValue}
-                            onChange={(e) =>
-                              setCriteriaDistanceValue(e.target.value)
-                            }
-                            placeholder="e.g. 100"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                          />
-                        </div>
+                  {/* Distance Filter */}
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
+                      Distance Filter (km)
+                    </label>
+                    <div className="grid grid-cols-12 gap-1.5">
+                      <div className="col-span-7">
+                        <SelectDropdown
+                          value={criteriaDistanceCompare}
+                          options={COMPARATORS}
+                          onChange={setCriteriaDistanceCompare}
+                          placeholder="Comparator"
+                        />
+                      </div>
+                      <div className="col-span-5">
+                        <input
+                          type="text"
+                          value={criteriaDistanceValue}
+                          onChange={(e) =>
+                            setCriteriaDistanceValue(e.target.value)
+                          }
+                          placeholder="e.g. 100"
+                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                        />
                       </div>
                     </div>
                   </div>
@@ -1637,11 +1634,11 @@ export function ScheduleModal({
               </div>
             ) : (
               /* VIEW 2 - STEP 2: Configure Settings */
-              <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-5 custom-scrollbar w-full select-none">
-                {/* 1. Report Information - Side by Side */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar select-none">
+                {/* 1. Report Information */}
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       Report Name <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <input
@@ -1655,37 +1652,34 @@ export function ScheduleModal({
                       }}
                       placeholder="e.g. Weekly Operations Summary"
                       className={cn(
-                        "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                        "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                         errors.name
                           ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                           : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                       )}
                     />
                     {errors.name && (
-                      <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium animate-in fade-in duration-150">
-                        <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150">
+                        <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                         <span>{errors.name}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
-                      Copy From
-                    </label>
-                    <SelectDropdown
-                      value={copyFrom}
-                      options={["None", ...schedules.map((s) => s.name)]}
-                      onChange={handleCopySettings}
-                    />
-                  </div>
-                </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        Copy From
+                      </label>
+                      <SelectDropdown
+                        value={copyFrom}
+                        options={["None", ...schedules.map((s) => s.name)]}
+                        onChange={handleCopySettings}
+                      />
+                    </div>
 
-                {/* 2. Schedule Timing (Relative Type -> Timezone -> Generation Time) */}
-                <div className="pt-2 space-y-4">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
                         Relative Type
                       </label>
                       <SelectDropdown
@@ -1694,9 +1688,11 @@ export function ScheduleModal({
                         onChange={handleRelativeTypeChange}
                       />
                     </div>
+                  </div>
 
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
                         Timezone
                       </label>
                       <SelectDropdown
@@ -1708,8 +1704,8 @@ export function ScheduleModal({
                       />
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-foreground">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
                         Generation Time
                       </label>
                       <SelectDropdown
@@ -1721,19 +1717,19 @@ export function ScheduleModal({
                       />
                     </div>
                   </div>
+                </div>
 
-                  {/* Dynamic Timing Sub-Section Based on Relative Type */}
-                  {(draft.scheduleType === "Weekly" ||
-                    draft.scheduleType === "Monthly") && (
-                    <div className="pt-1 space-y-3">
-
-                    {/* If Weekly: Clickable Day-of-Week Buttons with Hover & Active styling */}
+                {/* Dynamic Timing Sub-Section Based on Relative Type */}
+                {(draft.scheduleType === "Weekly" ||
+                  draft.scheduleType === "Monthly") && (
+                  <div className="pt-1 space-y-2 border-t border-border/60">
+                    {/* If Weekly: Day Selector */}
                     {draft.scheduleType === "Weekly" && (
                       <div className="space-y-1.5">
-                        <span className="block text-xs font-semibold text-foreground">
+                        <span className="block text-[11px] font-semibold text-foreground">
                           Select execution days:
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           {WEEK_DAYS.map(({ id, label }) => {
                             const isSelected = (
                               draft.selectedDays || []
@@ -1744,10 +1740,10 @@ export function ScheduleModal({
                                 type="button"
                                 onClick={() => toggleDay(id)}
                                 className={cn(
-                                  "h-8 w-8 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs hover:border-[#0089FF]/60 active:scale-95",
+                                  "h-7 w-7 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95",
                                   isSelected
                                     ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
-                                    : "bg-background border border-input/80 text-foreground hover:bg-muted/40",
+                                    : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60",
                                 )}
                               >
                                 {label}
@@ -1758,13 +1754,13 @@ export function ScheduleModal({
                       </div>
                     )}
 
-                    {/* If Monthly: Clickable Date Grid (1-31) */}
+                    {/* If Monthly: Date Grid (1-31) */}
                     {draft.scheduleType === "Monthly" && (
                       <div className="space-y-1.5">
-                        <span className="block text-xs font-semibold text-foreground">
+                        <span className="block text-[11px] font-semibold text-foreground">
                           Select execution day of month:
                         </span>
-                        <div className="grid grid-cols-7 sm:grid-cols-10 gap-1.5">
+                        <div className="grid grid-cols-7 gap-1">
                           {Array.from({ length: 31 }, (_, i) => i + 1).map(
                             (dateNum) => {
                               const isSelected = (
@@ -1776,10 +1772,10 @@ export function ScheduleModal({
                                   type="button"
                                   onClick={() => toggleDate(dateNum)}
                                   className={cn(
-                                    "h-7.5 w-7.5 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs hover:border-[#0089FF]/60 active:scale-95",
+                                    "h-6.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95",
                                     isSelected
                                       ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
-                                      : "bg-background border border-input/80 text-foreground hover:bg-muted/40",
+                                      : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60",
                                   )}
                                 >
                                   {dateNum}
@@ -1790,113 +1786,110 @@ export function ScheduleModal({
                         </div>
                       </div>
                     )}
-                    </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Time Range Checkbox & Aligned Inputs */}
-                  <div className="pt-2 space-y-3">
-                    <label className="flex items-center gap-2.5 cursor-pointer select-none text-xs font-semibold text-foreground">
-                      <input
-                        type="checkbox"
-                        checked={draft.hasTimeRange}
-                        onChange={(e) =>
-                          setDraft((d) => ({
-                            ...d,
-                            hasTimeRange: e.target.checked,
-                          }))
-                        }
-                        className="h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
-                      />
-                      <span className="font-semibold">Time Range</span>
-                    </label>
+                {/* Time Range */}
+                <div className="pt-1 space-y-2 border-t border-border/60">
+                  <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={draft.hasTimeRange}
+                      onChange={(e) =>
+                        setDraft((d) => ({
+                          ...d,
+                          hasTimeRange: e.target.checked,
+                        }))
+                      }
+                      className="h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
+                    />
+                    <span>Time Range</span>
+                  </label>
 
-                    {draft.hasTimeRange && (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
-                            Start Time
-                          </label>
-                          <div className="relative flex items-center">
-                            <input
-                              type="text"
-                              value={draft.timeRangeStart}
-                              onChange={(e) =>
-                                setDraft((d) => ({
-                                  ...d,
-                                  timeRangeStart: e.target.value,
-                                }))
-                              }
-                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-muted-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                            />
-                            <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                          </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
-                            End Time
-                          </label>
-                          <div className="relative flex items-center">
-                            <input
-                              type="text"
-                              value={draft.timeRangeEnd}
-                              onChange={(e) =>
-                                setDraft((d) => ({
-                                  ...d,
-                                  timeRangeEnd: e.target.value,
-                                }))
-                              }
-                              className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-muted-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                            />
-                            <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                          </div>
+                  {draft.hasTimeRange && (
+                    <div className="grid grid-cols-2 gap-3 pt-0.5">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-semibold text-foreground">
+                          Start Time
+                        </label>
+                        <div className="relative flex items-center">
+                          <input
+                            type="text"
+                            value={draft.timeRangeStart}
+                            onChange={(e) =>
+                              setDraft((d) => ({
+                                ...d,
+                                timeRangeStart: e.target.value,
+                              }))
+                            }
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                          />
+                          <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                         </div>
                       </div>
-                    )}
-                  </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-semibold text-foreground">
+                          End Time
+                        </label>
+                        <div className="relative flex items-center">
+                          <input
+                            type="text"
+                            value={draft.timeRangeEnd}
+                            onChange={(e) =>
+                              setDraft((d) => ({
+                                ...d,
+                                timeRangeEnd: e.target.value,
+                              }))
+                            }
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                          />
+                          <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* 3. Output & Delivery */}
-                <div className="pt-2 space-y-4">
+                {/* Report Type & Delivery Method */}
+                <div className="pt-1 space-y-3 border-t border-border/60">
                   {/* Report Type */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       Report Type
                     </label>
-                    <div className="flex items-center gap-6 h-7.5">
-                      {(["Summary", "Daily", "Detail"] as const).map(
-                        (level) => (
-                          <label
-                            key={level}
-                            className="flex items-center gap-2 cursor-pointer text-xs text-foreground select-none"
-                          >
-                            <input
-                              type="radio"
-                              name="reportType"
-                              checked={draft.reportType === level}
-                              onChange={() =>
-                                setDraft((d) => ({ ...d, reportType: level }))
-                              }
-                              className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                            />
-                            <span className="font-semibold">{level}</span>
-                          </label>
-                        ),
-                      )}
+                    <div className="flex items-center gap-5 h-7.5">
+                      {(["Summary", "Daily", "Detail"] as const).map((level) => (
+                        <label
+                          key={level}
+                          className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
+                        >
+                          <input
+                            type="radio"
+                            name="reportType"
+                            checked={draft.reportType === level}
+                            onChange={() =>
+                              setDraft((d) => ({ ...d, reportType: level }))
+                            }
+                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                          />
+                          <span>{level}</span>
+                        </label>
+                      ))}
                     </div>
                   </div>
 
                   {/* Delivery Method */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       Delivery Method
                     </label>
-                    <div className="flex items-center gap-6 h-7.5">
+                    <div className="flex items-center gap-4 h-7.5 flex-wrap">
                       {(["Email", "FTP", "SFTP", "Media API"] as const).map(
                         (method) => (
                           <label
                             key={method}
-                            className="flex items-center gap-2 cursor-pointer text-xs text-foreground select-none"
+                            className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
                           >
                             <input
                               type="radio"
@@ -1907,7 +1900,7 @@ export function ScheduleModal({
                               }
                               className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
                             />
-                            <span className="font-semibold">{method}</span>
+                            <span>{method}</span>
                           </label>
                         ),
                       )}
@@ -1916,85 +1909,85 @@ export function ScheduleModal({
 
                   {/* Delivery Configuration Details: EMAIL */}
                   {draft.actionType === "Email" && (
-                    <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="col-span-2 space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
-                            To Address <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="email"
-                              value={draft.toAddress}
-                              onChange={(e) => {
-                                setEmailVerificationStatus("idle");
-                                setDraft((d) => ({
-                                  ...d,
-                                  toAddress: e.target.value,
-                                }));
-                                if (e.target.value.trim()) {
-                                  setErrors((prev) => ({ ...prev, toAddress: undefined }));
-                                }
-                              }}
-                              placeholder="manager@company.com"
-                              className={cn(
-                                "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                                emailVerificationStatus === "success"
-                                  ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                                  : emailVerificationStatus === "failed" || errors.toAddress
-                                    ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                    : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                              )}
-                            />
-                            <button
-                              type="button"
-                              disabled={emailVerificationStatus === "verifying"}
-                              onClick={handleVerifyEmail}
-                              className={cn(
-                                "px-3.5 h-7.5 text-xs rounded-md border font-semibold cursor-pointer transition-all shadow-2xs active:scale-98 inline-flex items-center gap-1.5",
-                                emailVerificationStatus === "verifying" && "opacity-75 cursor-wait border-input/80 bg-muted/40 text-muted-foreground",
-                                emailVerificationStatus === "success" && "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20",
-                                emailVerificationStatus === "failed" && "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20",
-                                emailVerificationStatus === "idle" && "border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 text-foreground",
-                              )}
-                            >
-                              {emailVerificationStatus === "verifying" && (
-                                <>
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[#0089FF]" />
-                                  <span>Verifying...</span>
-                                </>
-                              )}
-                              {emailVerificationStatus === "success" && (
-                                <>
-                                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                                  <span>Verified</span>
-                                </>
-                              )}
-                              {emailVerificationStatus === "failed" && (
-                                <>
-                                  <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-                                  <span>Failed</span>
-                                </>
-                              )}
-                              {emailVerificationStatus === "idle" && <span>Verify</span>}
-                            </button>
-                          </div>
-                          {emailVerificationStatus === "success" && (
-                            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium animate-in fade-in duration-150">
-                              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                              <span>Recipient email verified & active.</span>
-                            </div>
-                          )}
-                          {(emailVerificationStatus === "failed" || errors.toAddress) && (
-                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium animate-in fade-in duration-150">
-                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
-                              <span>{errors.toAddress || "Verification failed: Invalid email Id"}</span>
-                            </div>
-                          )}
+                    <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-semibold text-foreground">
+                          To Address <span className="text-red-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="email"
+                            value={draft.toAddress}
+                            onChange={(e) => {
+                              setEmailVerificationStatus("idle");
+                              setDraft((d) => ({
+                                ...d,
+                                toAddress: e.target.value,
+                              }));
+                              if (e.target.value.trim()) {
+                                setErrors((prev) => ({ ...prev, toAddress: undefined }));
+                              }
+                            }}
+                            placeholder="manager@company.com"
+                            className={cn(
+                              "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              emailVerificationStatus === "success"
+                                ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                : emailVerificationStatus === "failed" || errors.toAddress
+                                  ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                  : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                            )}
+                          />
+                          <button
+                            type="button"
+                            disabled={emailVerificationStatus === "verifying"}
+                            onClick={handleVerifyEmail}
+                            className={cn(
+                              "px-3 h-7.5 text-xs rounded-md border font-semibold cursor-pointer transition-all shadow-2xs active:scale-98 inline-flex items-center gap-1.5 shrink-0",
+                              emailVerificationStatus === "verifying" && "opacity-75 cursor-wait border-input/80 bg-muted/40 text-muted-foreground",
+                              emailVerificationStatus === "success" && "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20",
+                              emailVerificationStatus === "failed" && "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20",
+                              emailVerificationStatus === "idle" && "border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 text-foreground",
+                            )}
+                          >
+                            {emailVerificationStatus === "verifying" && (
+                              <>
+                                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#0089FF]" />
+                                <span>Verifying...</span>
+                              </>
+                            )}
+                            {emailVerificationStatus === "success" && (
+                              <>
+                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                                <span>Verified</span>
+                              </>
+                            )}
+                            {emailVerificationStatus === "failed" && (
+                              <>
+                                <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
+                                <span>Failed</span>
+                              </>
+                            )}
+                            {emailVerificationStatus === "idle" && <span>Verify</span>}
+                          </button>
                         </div>
+                        {emailVerificationStatus === "success" && (
+                          <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium animate-in fade-in duration-150">
+                            <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600" />
+                            <span>Recipient email verified & active.</span>
+                          </div>
+                        )}
+                        {(emailVerificationStatus === "failed" || errors.toAddress) && (
+                          <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150">
+                            <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
+                            <span>{errors.toAddress || "Verification failed: Invalid email Id"}</span>
+                          </div>
+                        )}
+                      </div>
 
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Retry Window (Mins)
                           </label>
                           <input
@@ -2007,67 +2000,60 @@ export function ScheduleModal({
                               }))
                             }
                             placeholder="15"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
+                            Subject
+                          </label>
+                          <input
+                            type="text"
+                            value={draft.subject}
+                            onChange={(e) =>
+                              setDraft((d) => ({ ...d, subject: e.target.value }))
+                            }
+                            placeholder="Weekly Report"
+                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-semibold text-foreground">
-                          Subject
-                        </label>
-                        <input
-                          type="text"
-                          value={draft.subject}
-                          onChange={(e) =>
-                            setDraft((d) => ({ ...d, subject: e.target.value }))
-                          }
-                          placeholder="Weekly Travel Summary Report"
-                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                          <label className="block text-xs font-semibold text-foreground">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Message
                           </label>
-                          <div className="flex items-center gap-1 border border-border rounded-md bg-muted/40 px-1.5 py-0.5">
+                          <div className="flex items-center gap-0.5 border border-border rounded-md bg-muted/30 px-1 py-0.5">
                             <button
                               type="button"
-                              className="p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
+                              className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
                             >
-                              <Bold className="h-3 w-3" />
+                              <Bold className="h-2.5 w-2.5" />
                             </button>
                             <button
                               type="button"
-                              className="p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
+                              className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
                             >
-                              <Italic className="h-3 w-3" />
+                              <Italic className="h-2.5 w-2.5" />
                             </button>
                             <button
                               type="button"
-                              className="p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
+                              className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
                             >
-                              <Underline className="h-3 w-3" />
-                            </button>
-                            <div className="h-3 w-px bg-border my-auto mx-0.5" />
-                            <button
-                              type="button"
-                              className="p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
-                            >
-                              <List className="h-3 w-3" />
+                              <Underline className="h-2.5 w-2.5" />
                             </button>
                           </div>
                         </div>
                         <textarea
-                          rows={3}
+                          rows={2}
                           value={draft.message}
                           onChange={(e) =>
                             setDraft((d) => ({ ...d, message: e.target.value }))
                           }
                           placeholder="Write your email body message here..."
-                          className="w-full rounded-md border border-input bg-background p-3 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
+                          className="w-full rounded-md border border-input/80 bg-background p-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
                         />
                       </div>
                     </div>
@@ -2075,10 +2061,10 @@ export function ScheduleModal({
 
                   {/* Delivery Configuration Details: FTP */}
                   {draft.actionType === "FTP" && (
-                    <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
+                    <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Host Address <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2088,24 +2074,24 @@ export function ScheduleModal({
                               setDraft((d) => ({ ...d, ftpHost: e.target.value }));
                               if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpHost: undefined }));
                             }}
-                            placeholder="e.g. ftp.example.com"
+                            placeholder="ftp.example.com"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpHost
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.ftpHost && (
-                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                               <span>{errors.ftpHost}</span>
                             </div>
                           )}
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Port <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2117,24 +2103,24 @@ export function ScheduleModal({
                             }}
                             placeholder="21"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpPort
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.ftpPort && (
-                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                               <span>{errors.ftpPort}</span>
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Username <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2144,24 +2130,24 @@ export function ScheduleModal({
                               setDraft((d) => ({ ...d, ftpUsername: e.target.value }));
                               if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpUsername: undefined }));
                             }}
-                            placeholder="e.g. ftp_user"
+                            placeholder="ftp_user"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpUsername
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.ftpUsername && (
-                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                               <span>{errors.ftpUsername}</span>
                             </div>
                           )}
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Password <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2173,23 +2159,23 @@ export function ScheduleModal({
                             }}
                             placeholder="••••••••"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.ftpPassword
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.ftpPassword && (
-                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                               <span>{errors.ftpPassword}</span>
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-semibold text-foreground">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-semibold text-foreground">
                           Folder Name <span className="text-red-500 font-bold ml-0.5">*</span>
                         </label>
                         <input
@@ -2199,17 +2185,17 @@ export function ScheduleModal({
                             setDraft((d) => ({ ...d, ftpFolder: e.target.value }));
                             if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpFolder: undefined }));
                           }}
-                          placeholder="e.g. /reports/daily"
+                          placeholder="/reports/daily"
                           className={cn(
-                            "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                            "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                             errors.ftpFolder
                               ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                               : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                           )}
                         />
                         {errors.ftpFolder && (
-                          <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                            <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                          <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                            <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                             <span>{errors.ftpFolder}</span>
                           </div>
                         )}
@@ -2217,11 +2203,11 @@ export function ScheduleModal({
                     </div>
                   )}
 
-                  {/* Delivery Configuration Details: SFTP (Cloud Storage) */}
+                  {/* Delivery Configuration Details: SFTP */}
                   {draft.actionType === "SFTP" && (
-                    <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-semibold text-foreground">
+                    <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-semibold text-foreground">
                           Platform <span className="text-red-500 font-bold ml-0.5">*</span>
                         </label>
                         <SelectDropdown
@@ -2231,9 +2217,9 @@ export function ScheduleModal({
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Access key ID <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2243,24 +2229,24 @@ export function ScheduleModal({
                               setDraft((d) => ({ ...d, sftpAccessKey: e.target.value }));
                               if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpAccessKey: undefined }));
                             }}
-                            placeholder="e.g. AKIAIOSFODNN7EXAMPLE"
+                            placeholder="AKIAIOSFODNN7EXAMPLE"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpAccessKey
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.sftpAccessKey && (
-                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                               <span>{errors.sftpAccessKey}</span>
                             </div>
                           )}
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Secret Access Key <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2270,26 +2256,26 @@ export function ScheduleModal({
                               setDraft((d) => ({ ...d, sftpSecretKey: e.target.value }));
                               if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpSecretKey: undefined }));
                             }}
-                            placeholder="••••••••••••••••••••••••"
+                            placeholder="••••••••••••••••••••"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpSecretKey
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.sftpSecretKey && (
-                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                               <span>{errors.sftpSecretKey}</span>
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Region <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2299,24 +2285,24 @@ export function ScheduleModal({
                               setDraft((d) => ({ ...d, sftpRegion: e.target.value }));
                               if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpRegion: undefined }));
                             }}
-                            placeholder="e.g. ap-south-1"
+                            placeholder="ap-south-1"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpRegion
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.sftpRegion && (
-                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                               <span>{errors.sftpRegion}</span>
                             </div>
                           )}
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-semibold text-foreground">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Bucket Name <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
                           <input
@@ -2326,17 +2312,17 @@ export function ScheduleModal({
                               setDraft((d) => ({ ...d, sftpBucketName: e.target.value }));
                               if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpBucketName: undefined }));
                             }}
-                            placeholder="e.g. company-fleet-reports"
+                            placeholder="fleet-reports"
                             className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                               errors.sftpBucketName
                                 ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                             )}
                           />
                           {errors.sftpBucketName && (
-                            <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                               <span>{errors.sftpBucketName}</span>
                             </div>
                           )}
@@ -2347,9 +2333,9 @@ export function ScheduleModal({
 
                   {/* Delivery Configuration Details: MEDIA API */}
                   {draft.actionType === "Media API" && (
-                    <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-semibold text-foreground">
+                    <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-semibold text-foreground">
                           Gateway <span className="text-red-500 font-bold ml-0.5">*</span>
                         </label>
                         <SelectDropdown
@@ -2359,17 +2345,17 @@ export function ScheduleModal({
                         />
                       </div>
 
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                          <label className="block text-xs font-semibold text-foreground">
+                          <label className="block text-[11px] font-semibold text-foreground">
                             Recipient Number <span className="text-red-500 font-bold ml-0.5">*</span>
                           </label>
-                          <span className="text-[11px] text-muted-foreground font-medium">
-                            Comma (,) for multiple recipient numbers
+                          <span className="text-[10px] text-muted-foreground font-medium">
+                            Comma (,) for multiple
                           </span>
                         </div>
                         <textarea
-                          rows={3}
+                          rows={2}
                           value={draft.mediaRecipientNumber || ""}
                           onChange={(e) => {
                             setDraft((d) => ({ ...d, mediaRecipientNumber: e.target.value }));
@@ -2377,15 +2363,15 @@ export function ScheduleModal({
                           }}
                           placeholder="+91 9876543210, +1 5550192834"
                           className={cn(
-                            "w-full rounded-md border bg-background p-2.5 text-xs font-medium text-muted-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none",
+                            "w-full rounded-md border bg-background p-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none",
                             errors.mediaRecipientNumber
                               ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                               : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                           )}
                         />
                         {errors.mediaRecipientNumber && (
-                          <div className="flex items-center gap-1.5 text-xs text-red-500 mt-1 font-medium">
-                            <HelpCircle className="h-3.5 w-3.5 shrink-0 text-red-500" />
+                          <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
+                            <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
                             <span>{errors.mediaRecipientNumber}</span>
                           </div>
                         )}
@@ -2393,16 +2379,16 @@ export function ScheduleModal({
                     </div>
                   )}
 
-                  {/* File Format - Positioned in the last above Advance Configuration */}
-                  <div className="space-y-1.5 pt-1">
-                    <label className="block text-xs font-semibold text-foreground">
+                  {/* File Format */}
+                  <div className="space-y-1 pt-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
                       File Format
                     </label>
-                    <div className="flex items-center gap-6 h-7.5">
+                    <div className="flex items-center gap-5 h-7.5">
                       {(["XLS", "PDF", "CSV"] as const).map((fmt) => (
                         <label
                           key={fmt}
-                          className="flex items-center gap-2 cursor-pointer text-xs text-foreground select-none font-semibold"
+                          className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
                         >
                           <input
                             type="radio"
@@ -2420,11 +2406,11 @@ export function ScheduleModal({
                   </div>
 
                   {/* Advance Configuration Button */}
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <button
                       type="button"
                       onClick={() => setAdvanceModalOpen(true)}
-                      className="inline-flex items-center gap-2 rounded-md border border-input/80 bg-background px-3.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/40 hover:border-[#0089FF]/60 transition-all cursor-pointer shadow-2xs active:scale-98"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/60 transition-all cursor-pointer shadow-2xs active:scale-98"
                     >
                       <Settings2 className="h-3.5 w-3.5 text-[#0089FF]" />
                       <span>Advance Configuration</span>
@@ -2433,66 +2419,84 @@ export function ScheduleModal({
                 </div>
               </div>
             )}
-          </div>
+        </div>
 
-          {/* Global Sticky Footer */}
-          {view === "form" && (
-            <footer className="flex items-center justify-between border-t border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-3.5 select-none shrink-0">
-              <div className="flex items-center gap-2.5">
+        {/* Standardized 56px Drawer Footer */}
+        {view === "form" ? (
+          <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (step === 1) {
+                    setView("list");
+                  } else {
+                    setStep(1);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Back</span>
+              </button>
+
+              {editingId && (
+                <RowDeletePopover
+                  itemName={draft.name || "this report"}
+                  onDelete={() => {
+                    handleDelete(editingId);
+                    setView("list");
+                  }}
+                />
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
+                {draft.selectedVehicles.length} Vehicles
+              </span>
+
+              {step === 1 ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    if (step === 1) {
-                      setView("list");
-                    } else {
-                      setStep(1);
-                    }
-                  }}
-                  className="flex items-center gap-2 px-4 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                  onClick={() => setStep(2)}
+                  className="flex items-center gap-1.5 rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
                 >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  <span>Back</span>
+                  <span>Next</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
+                >
+                  Save Schedule
+                </button>
+              )}
+            </div>
+          </footer>
+        ) : (
+          <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+            >
+              Close
+            </button>
 
-                {editingId && (
-                  <RowDeletePopover
-                    itemName={draft.name || "this report"}
-                    onDelete={() => {
-                      handleDelete(editingId);
-                      setView("list");
-                    }}
-                  />
-                )}
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-muted-foreground tabular-nums">
-                  {draft.selectedVehicles.length} Vehicles Selected
-                </span>
-
-                {step === 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => setStep(2)}
-                    className="flex items-center gap-2 rounded-md bg-[#0089FF] px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0077e6] cursor-pointer transition-all active:scale-98"
-                  >
-                    <span>Next</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    className="rounded-md bg-[#0089FF] px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0077e6] cursor-pointer transition-all active:scale-98"
-                  >
-                    Save Schedule
-                  </button>
-                )}
-              </div>
-            </footer>
-          )}
-        </div>
-      </div>
+            <button
+              type="button"
+              onClick={startCreate}
+              className="inline-flex items-center gap-1.5 rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Create Schedule</span>
+            </button>
+          </footer>
+        )}
+      </aside>
 
       {/* Advance Configuration Sub-Modal */}
       {advanceModalOpen && (
@@ -2503,12 +2507,12 @@ export function ScheduleModal({
             onClick={() => setAdvanceModalOpen(false)}
             className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
           />
-          <div className="relative z-10 w-full max-w-3xl max-h-[85vh] flex flex-col bg-white dark:bg-slate-900 border border-border text-foreground shadow-xl rounded-lg overflow-hidden animate-in zoom-in-95">
+          <div className="relative z-10 w-full max-w-2xl max-h-[85vh] flex flex-col bg-background border border-border text-foreground shadow-2xl rounded-lg overflow-hidden animate-in zoom-in-95">
             {/* Header (56px) */}
-            <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 select-none shrink-0">
-              <div className="flex items-center gap-2.5">
+            <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+              <div className="flex items-center gap-2">
                 <Settings2 className="h-4 w-4 text-[#0089FF]" />
-                <h3 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                <h3 className="text-[16px] font-semibold tracking-tight text-foreground">
                   Advance Configuration
                 </h3>
               </div>
@@ -2516,41 +2520,41 @@ export function ScheduleModal({
                 type="button"
                 aria-label="Close Advance Configuration"
                 onClick={() => setAdvanceModalOpen(false)}
-                className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </header>
 
             {/* Sub-Modal Body */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-5 custom-scrollbar text-xs">
+            <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4 custom-scrollbar text-xs">
               {/* Columns Configuration Table */}
-              <div className="rounded-lg border border-border overflow-hidden bg-card shadow-2xs">
+              <div className="rounded-md border border-border overflow-hidden bg-card shadow-2xs">
                 <table className="w-full text-left">
-                  <thead className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 text-[11px] font-bold uppercase tracking-wider border-b border-[#DFE3EB] dark:border-slate-700">
+                  <thead className="bg-muted/60 text-muted-foreground text-[10px] font-bold uppercase tracking-wider border-b border-border">
                     <tr>
-                      <th className="py-2.5 px-3 w-8"></th>
-                      <th className="py-2.5 px-3">Column Name</th>
-                      <th className="py-2.5 px-2 text-center">Showable</th>
-                      <th className="py-2.5 px-2 text-center">Printable</th>
-                      <th className="py-2.5 px-2 text-center">Sortable</th>
-                      <th className="py-2.5 px-2 text-center">Sort Priority</th>
-                      <th className="py-2.5 px-3 text-center">Sorting</th>
+                      <th className="py-2 px-2.5 w-6"></th>
+                      <th className="py-2 px-2.5">Column Name</th>
+                      <th className="py-2 px-2 text-center">Show</th>
+                      <th className="py-2 px-2 text-center">Print</th>
+                      <th className="py-2 px-2 text-center">Sort</th>
+                      <th className="py-2 px-2 text-center">Priority</th>
+                      <th className="py-2 px-2.5 text-center">Order</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800">
+                  <tbody className="divide-y divide-border">
                     {columnsConfig.map((col) => (
                       <tr
                         key={col.id}
                         className="hover:bg-muted/40 transition-colors"
                       >
-                        <td className="py-2 px-3 text-muted-foreground cursor-grab">
+                        <td className="py-1.5 px-2.5 text-muted-foreground cursor-grab">
                           <GripVertical className="h-3.5 w-3.5" />
                         </td>
-                        <td className="py-2 px-3 font-semibold text-foreground">
+                        <td className="py-1.5 px-2.5 font-semibold text-foreground text-xs">
                           {col.label}
                         </td>
-                        <td className="py-2 px-2 text-center">
+                        <td className="py-1.5 px-2 text-center">
                           <input
                             type="checkbox"
                             checked={col.showable}
@@ -2564,10 +2568,10 @@ export function ScheduleModal({
                                 ),
                               );
                             }}
-                            className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                            className="h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
                           />
                         </td>
-                        <td className="py-2 px-2 text-center">
+                        <td className="py-1.5 px-2 text-center">
                           <input
                             type="checkbox"
                             checked={col.printable}
@@ -2581,10 +2585,10 @@ export function ScheduleModal({
                                 ),
                               );
                             }}
-                            className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                            className="h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
                           />
                         </td>
-                        <td className="py-2 px-2 text-center">
+                        <td className="py-1.5 px-2 text-center">
                           <input
                             type="checkbox"
                             checked={col.sortable}
@@ -2598,10 +2602,10 @@ export function ScheduleModal({
                                 ),
                               );
                             }}
-                            className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                            className="h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
                           />
                         </td>
-                        <td className="py-2 px-2 text-center flex justify-center">
+                        <td className="py-1.5 px-2 text-center flex justify-center">
                           <SelectDropdown
                             value={col.sortPriority}
                             options={["-", "1", "2", "3", "4", "5"]}
@@ -2614,10 +2618,10 @@ export function ScheduleModal({
                                 ),
                               );
                             }}
-                            className="w-16"
+                            className="w-14"
                           />
                         </td>
-                        <td className="py-2 px-3 text-center">
+                        <td className="py-1.5 px-2.5 text-center">
                           <button
                             type="button"
                             onClick={() => {
@@ -2635,7 +2639,7 @@ export function ScheduleModal({
                                 ),
                               );
                             }}
-                            className="px-2.5 py-1 text-[11px] font-semibold rounded-md border border-border bg-background hover:bg-muted cursor-pointer transition-colors shadow-2xs"
+                            className="px-2 py-0.5 text-[10px] font-semibold rounded-md border border-border bg-background hover:bg-muted cursor-pointer transition-colors shadow-2xs"
                           >
                             {col.sortDirection === "asc" ? "↑ Asc" : "↓ Desc"}
                           </button>
@@ -2647,53 +2651,51 @@ export function ScheduleModal({
               </div>
 
               {/* Detail Report Download Settings */}
-              <div className="p-4 rounded-lg border border-border bg-card space-y-2.5">
+              <div className="p-3.5 rounded-md border border-border bg-card space-y-2">
                 <label className="block text-xs font-semibold text-foreground">
                   Detail Report Download Mode
                 </label>
-                <div className="flex items-center gap-6 text-xs">
-                  <label className="flex items-center gap-2 cursor-pointer text-foreground select-none">
+                <div className="flex items-center gap-5 text-xs">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-foreground select-none">
                     <input
                       type="radio"
                       name="detailDownloadMode"
                       checked={detailDownloadMode === "multiple"}
                       onChange={() => setDetailDownloadMode("multiple")}
-                      className="h-4 w-4 text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                      className="h-3.5 w-3.5 text-[#0089FF] accent-[#0089FF] cursor-pointer"
                     />
-                    <span className="font-semibold">Multiple Sheet</span>
+                    <span className="font-medium">Multiple Sheet</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer text-foreground select-none">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-foreground select-none">
                     <input
                       type="radio"
                       name="detailDownloadMode"
                       checked={detailDownloadMode === "single"}
                       onChange={() => setDetailDownloadMode("single")}
-                      className="h-4 w-4 text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                      className="h-3.5 w-3.5 text-[#0089FF] accent-[#0089FF] cursor-pointer"
                     />
-                    <span className="font-semibold">Single Sheet</span>
+                    <span className="font-medium">Single Sheet</span>
                   </label>
                 </div>
               </div>
             </div>
 
-            {/* Sub-Modal Footer */}
-            <footer className="flex items-center justify-between border-t border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-3.5 shrink-0 select-none">
+            {/* Sub-Modal Footer (56px) */}
+            <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
+              <button
+                type="button"
+                onClick={() => setColumnsConfig(INITIAL_COLUMNS)}
+                className="flex items-center gap-1.5 px-3 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+              >
+                <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>Reset</span>
+              </button>
+
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setColumnsConfig(INITIAL_COLUMNS)}
-                  className="flex items-center gap-1.5 px-3.5 h-8 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-semibold text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
-                >
-                  <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span>Reset</span>
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
                   onClick={() => setAdvanceModalOpen(false)}
-                  className="px-4.5 h-8 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                  className="px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
                 >
                   Cancel
                 </button>
@@ -2703,7 +2705,7 @@ export function ScheduleModal({
                     toast.success("Advance configurations applied");
                     setAdvanceModalOpen(false);
                   }}
-                  className="rounded-md bg-[#0089FF] px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0077e6] cursor-pointer transition-all active:scale-98"
+                  className="rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
                 >
                   Save & Apply
                 </button>
