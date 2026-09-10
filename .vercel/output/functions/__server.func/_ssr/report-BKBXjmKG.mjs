@@ -1,6 +1,6 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { t as cn } from "./utils-C_uf36nf.mjs";
-import { D as temperatureSummaryRows, S as getBranchesForCompanies, _ as driverJobSummaryRows, l as DURATION_STATUS, o as COMPANIES, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, u as DURATION_UNITS, w as getVehiclesForBranches, y as findReport } from "./reports-D0j_491Z.mjs";
+import { C as getGroupsForBranches, D as temperatureSummaryRows, S as getBranchesForCompanies, _ as driverJobSummaryRows, f as VEHICLE_BRANDS, h as VEHICLE_TYPES, l as DURATION_STATUS, m as VEHICLE_MODELS, o as COMPANIES, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, u as DURATION_UNITS, w as getVehiclesForBranches, y as findReport } from "./reports-D0j_491Z.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { B as RefreshCw, F as Search, Ft as CornerDownLeft, H as Plus, Ht as CircleQuestionMark, Jt as ChevronRight, Kt as ChevronsUpDown, M as Settings, Mt as Download, N as Settings2, O as SlidersHorizontal, Q as Minus, St as Fuel, Tt as FileSpreadsheet, U as Play, Vt as CircleX, W as Pin, Wt as CircleCheck, Xt as ChevronDown, Yt as ChevronLeft, Zt as Check, _t as GripVertical, an as Calendar, cn as Bold, ct as List, fn as ArrowUp, h as Truck, hn as ArrowDown, it as Mail, m as Underline, mn as ArrowLeft, mt as Italic, n as X, nt as Map$1, on as CalendarClock, p as Undo2, pn as ArrowRight, q as Pencil, st as LoaderCircle, tn as ChartColumn, wt as FileText, x as Thermometer, y as Trash2, z as RotateCcw, zt as Clock } from "../_libs/lucide-react.mjs";
@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-5aAnLDi6.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-BD9j3fyF.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-BKBXjmKG.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -125,9 +125,56 @@ var DEFAULT_FILTERS = {
 	objects: []
 };
 /**
+* Single Select Dropdown visually matching the report design system:
+* - h-7.5 sleek trigger
+* - Clear placeholder
+* - Checkmark indicator on active item
+* - Floating popover with custom scrollbar
+*/
+function SelectDropdown$1({ value, options, onChange, className, placeholder }) {
+	const [open, setOpen] = (0, import_react.useState)(false);
+	const ref = (0, import_react.useRef)(null);
+	(0, import_react.useEffect)(() => {
+		const handleClickOutside = (event) => {
+			if (ref.current && !ref.current.contains(event.target)) setOpen(false);
+		};
+		if (open) document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [open]);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		ref,
+		className: cn("relative", className),
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+			type: "button",
+			onClick: () => setOpen(!open),
+			className: cn("flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+				className: cn("truncate", value ? "text-foreground font-medium" : "text-muted-foreground/60 font-medium italic"),
+				children: value || placeholder || "Select"
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: cn("h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1", open && "rotate-180") })]
+		}), open && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar",
+			children: options.map((opt) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+				type: "button",
+				onClick: () => {
+					onChange(opt);
+					setOpen(false);
+				},
+				className: cn("flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none", value === opt ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "truncate",
+					children: opt
+				}), value === opt && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF] shrink-0" })]
+			}, opt))
+		})]
+	});
+}
+/**
 * Universal Multi-Select Dropdown matching the title frame styling visually:
-* - h-7.5 / h-8 sleek trigger
-* - FirstItem +Count formatted display (e.g. "HP Group +7", "Dumper +2")
+* - h-7.5 sleek trigger
+* - FirstItem +Count formatted display
 * - Real-time search box
 * - Select all checkbox
 * - Red warning message when 0 items selected
@@ -178,15 +225,6 @@ function UniversalMultiSelectDropdown({ label, selected, options, onChange, clas
 	const handleClear = () => {
 		setDraft([]);
 	};
-	(0, import_react.useMemo)(() => {
-		if (!selected || selected.length === 0) return placeholder || `Select ${label}`;
-		if (selected.length === 1) return selected[0];
-		return `${selected[0]} +${selected.length - 1}`;
-	}, [
-		selected,
-		label,
-		placeholder
-	]);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 		ref,
 		className: cn("relative", className),
@@ -200,7 +238,7 @@ function UniversalMultiSelectDropdown({ label, selected, options, onChange, clas
 					className: "text-muted-foreground/60 font-medium italic truncate",
 					children: placeholder || `Select ${label}`
 				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "text-muted-foreground font-medium truncate",
+					className: "text-foreground font-medium truncate",
 					children: selected[0]
 				}), selected.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 					className: "ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0",
@@ -310,6 +348,8 @@ function UniversalMultiSelectDropdown({ label, selected, options, onChange, clas
 function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, onApply, onExport }) {
 	const selectedCompanies = filters.companies || [];
 	const selectedBranches = filters.branches || [];
+	filters.groups;
+	filters.types;
 	const selectedVehicleIds = filters.objects || [];
 	const [filterOverlayOpen, setFilterOverlayOpen] = (0, import_react.useState)(false);
 	const companyOptions = (0, import_react.useMemo)(() => {
@@ -318,6 +358,27 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 	const branchOptions = (0, import_react.useMemo)(() => {
 		return getBranchesForCompanies(selectedCompanies);
 	}, [selectedCompanies]);
+	const availableGroups = (0, import_react.useMemo)(() => {
+		return getGroupsForBranches(selectedBranches);
+	}, [selectedBranches]);
+	const groupOptions = (0, import_react.useMemo)(() => {
+		return availableGroups.length > 0 ? availableGroups : [
+			"HP Group",
+			"Trucks",
+			"Buses",
+			"Cars",
+			"Cold Chain"
+		];
+	}, [availableGroups]);
+	const typeOptions = (0, import_react.useMemo)(() => {
+		return VEHICLE_TYPES.filter((t) => t !== "All");
+	}, []);
+	const brandOptions = (0, import_react.useMemo)(() => {
+		return ["Ashok Leyland", ...VEHICLE_BRANDS.filter((b) => b !== "All" && b !== "Ashok Leyland")];
+	}, []);
+	const modelOptions = (0, import_react.useMemo)(() => {
+		return ["10 Wheel", ...VEHICLE_MODELS.filter((m) => m !== "All" && m !== "10 Wheel")];
+	}, []);
 	const allVehiclesList = (0, import_react.useMemo)(() => {
 		return fleetObjects.map((f) => ({
 			id: f.id,
@@ -364,13 +425,10 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 		"Indonesia",
 		"Thailand",
 		"Valsad",
+		"Planet Eco AL Khabaisi",
+		"Planet Eco AL Nakheel",
 		"Pune",
-		"Itriangle",
-		"Ruptela",
-		"Bangalore",
-		"Delhi",
-		"Hyderabad",
-		"Chennai"
+		"Itriangle"
 	]);
 	const groupedVehicles = (0, import_react.useMemo)(() => {
 		const q = vehicleSearch.trim().toLowerCase();
@@ -418,6 +476,15 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 		onChange({
 			companies: [],
 			branches: [],
+			groups: [],
+			types: [],
+			brands: [],
+			models: [],
+			durationCompare: "Greater Than",
+			durationUnit: "Hour",
+			durationValue: "",
+			distanceCompare: "Greater Than",
+			distanceValue: "",
 			objects: []
 		});
 		setVehicleSearch("");
@@ -451,7 +518,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "min-h-0 flex-1 flex flex-col p-4 space-y-3 overflow-hidden",
+				className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "relative shrink-0",
@@ -463,7 +530,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 									type: "text",
 									value: vehicleSearch,
 									onChange: (e) => setVehicleSearch(e.target.value),
-									placeholder: "Search vehicles, drivers, branch...",
+									placeholder: "Select vehicle",
 									"aria-label": "Search vehicles",
 									className: "h-full flex-1 bg-transparent text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
 								}),
@@ -477,10 +544,10 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 									type: "button",
 									onClick: () => setFilterOverlayOpen(!filterOverlayOpen),
 									className: cn("flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer select-none shrink-0 shadow-2xs active:scale-95", filterOverlayOpen ? "bg-[#0089FF] text-white" : "bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 hover:bg-[#0089FF]/20"),
-									title: "Filter by Company, Branch, Type, Group, and Thresholds",
+									title: "Filter by Company and Branch",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { className: "h-3.5 w-3.5" }),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Edit" }),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Filter" }),
 										activeFilterCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 											className: cn("px-1.5 py-0.2 rounded-full text-[10px] font-bold leading-tight", filterOverlayOpen ? "bg-white text-[#0089FF]" : "bg-[#0089FF] text-white"),
 											children: activeFilterCount
@@ -575,7 +642,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 						})]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex-1 min-h-0 flex flex-col rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs",
+						className: "rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none",
@@ -609,7 +676,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 								children: "Select at least one vehicle, or all vehicles will be included."
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex-1 min-h-0 overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar",
+								className: "max-h-[190px] overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar",
 								children: [groupedVehicles.map(({ branch, vehicles }) => {
 									const isExpanded = openBranchGroups.includes(branch) || vehicleSearch.trim() !== "";
 									vehicles.map((v) => v.id);
@@ -702,6 +769,127 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 										vehicleSearch,
 										"”"
 									]
+								})]
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "space-y-3 pt-1",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "Group"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+									label: "Group",
+									selected: filters.groups || [],
+									options: groupOptions,
+									onChange: (groups) => onChange({ groups }),
+									placeholder: "Select Group"
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "Type"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+									label: "Type",
+									selected: filters.types || [],
+									options: typeOptions,
+									onChange: (types) => onChange({ types }),
+									placeholder: "Select Type"
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "Brand"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown$1, {
+									value: filters.brands?.[0] || "",
+									options: brandOptions,
+									onChange: (b) => onChange({ brands: [b] }),
+									placeholder: "Select Brand"
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "Model"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown$1, {
+									value: filters.models?.[0] || "",
+									options: modelOptions,
+									onChange: (m) => onChange({ models: [m] }),
+									placeholder: "Select Model"
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "Duration Threshold"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "grid grid-cols-12 gap-1.5",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: "col-span-5",
+											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown$1, {
+												value: filters.durationCompare || "Greater Than",
+												options: COMPARATORS,
+												onChange: (durationCompare) => onChange({ durationCompare }),
+												placeholder: "Comparator"
+											})
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: "col-span-4",
+											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown$1, {
+												value: filters.durationUnit || "Hour",
+												options: DURATION_UNITS,
+												onChange: (durationUnit) => onChange({ durationUnit }),
+												placeholder: "Unit"
+											})
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: "col-span-3",
+											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: filters.durationValue || "",
+												onChange: (e) => onChange({ durationValue: e.target.value }),
+												placeholder: "e.g. 5",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+											})
+										})
+									]
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "Group"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "grid grid-cols-12 gap-1.5",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "col-span-7",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown$1, {
+											value: filters.distanceCompare || "Greater Than",
+											options: COMPARATORS,
+											onChange: (distanceCompare) => onChange({ distanceCompare }),
+											placeholder: "Comparator"
+										})
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "col-span-5",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "text",
+											value: filters.distanceValue || "",
+											onChange: (e) => onChange({ distanceValue: e.target.value }),
+											placeholder: "e.g. 5",
+											className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+										})
+									})]
 								})]
 							})
 						]
