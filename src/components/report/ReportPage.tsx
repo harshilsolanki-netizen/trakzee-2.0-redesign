@@ -1508,6 +1508,8 @@ export function ReportPage() {
       <ScheduleModal
         open={scheduleOpen}
         onClose={() => setScheduleOpen(false)}
+        currentFilters={filters}
+        reportTitle="Travel Summary"
       />
 
       <ReportModals

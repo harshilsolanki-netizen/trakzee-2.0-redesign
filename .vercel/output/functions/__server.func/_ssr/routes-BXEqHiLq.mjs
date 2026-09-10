@@ -1,6 +1,6 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { t as cn } from "./utils-C_uf36nf.mjs";
-import { C as getGroupsForBranches, S as getBranchesForCompanies, h as VEHICLE_TYPES, o as COMPANIES, w as getVehiclesForBranches } from "./reports-D0j_491Z.mjs";
+import { C as getVehiclesForBranches, S as getGroupsForBranches, m as VEHICLE_TYPES, o as COMPANIES, x as getBranchesForCompanies } from "./reports-wyEenlZF.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { Dt as Eye, F as Search, G as PinOff, H as Plus, I as ScanFace, K as PhoneCall, M as Settings, O as SlidersHorizontal, Ot as EyeOff, St as FolderPlus, T as SquarePen, Tt as FileDown, W as Pin, Wt as Cigarette, Yt as ChevronDown, _ as TrendingUp, _t as GripHorizontal, c as VideoOff, g as TriangleAlert, h as Truck, kt as EllipsisVertical, ln as Bed, mt as Info, n as X, qt as ChevronRight, s as Video, tt as Maximize2, v as TrendingDown, y as Trash2, z as RotateCcw } from "../_libs/lucide-react.mjs";
@@ -13,7 +13,7 @@ import { l as buttonVariants, n as Dialog, o as DialogHeader, r as DialogContent
 import { a as WIDGET_CATALOG, i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, s as widgetMeta } from "./store-Butx-LES.mjs";
 import { a as eventTypes, c as highlightEvents, i as cameraStatus, l as riskyDrivers, o as fleetObjects, r as bucketColor, s as fleetScore, t as RANGE_LABEL, u as scoreDistribution } from "./fleet-D1U--QMf.mjs";
 import { a as Viewport, i as ScrollAreaThumb, n as Root, r as ScrollAreaScrollbar, t as Corner } from "../_libs/radix-ui__react-scroll-area.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-pR2t29RO.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-BXEqHiLq.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var RANGES = [

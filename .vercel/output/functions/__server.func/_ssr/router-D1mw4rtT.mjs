@@ -1,6 +1,6 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { t as cn } from "./utils-C_uf36nf.mjs";
-import { d as REPORT_CATEGORIES, i as CHART_CATEGORIES, t as ALL_REPORTS, y as findReport } from "./reports-D0j_491Z.mjs";
+import { i as CHART_CATEGORIES, t as ALL_REPORTS, u as REPORT_CATEGORIES, v as findReport } from "./reports-wyEenlZF.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { A as Shield, At as Droplet, C as Star, Ct as FileText, D as SlidersVertical, Dt as Eye, E as Sparkles, Et as FileCode, F as Search, G as PinOff, Ht as CircleGauge, L as Route, Lt as Cloud, M as Settings, Mt as CreditCard, Nt as Cpu, Ot as EyeOff, R as RotateCw, V as Receipt, W as Pin, X as Palette, Xt as Check, Yt as ChevronDown, _ as TrendingUp, a as Waves, an as CalendarClock, at as LogOut, bt as Gauge, cn as Bell, ct as LifeBuoy, d as UserPlus, en as ChartColumn, f as UserCheck, fn as ArrowRight, ft as KeyRound, g as TriangleAlert, hn as Activity, i as Weight, it as Mail, jt as Download, k as ShoppingCart, l as Users, lt as LayoutGrid, n as X, nn as Car, o as Wallet, on as Briefcase, ot as Lock, qt as ChevronRight, r as Wrench, rt as MapPin, t as Zap, u as User, un as Award, ut as LayoutDashboard, vt as Grid2x2, x as Thermometer, xt as Fuel, y as Trash2, yt as Globe } from "../_libs/lucide-react.mjs";
@@ -10,12 +10,12 @@ import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
 import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as Tooltip } from "./tooltip-yj1PAv0W.mjs";
 import { n as objectType, r as stringType, t as booleanType } from "../_libs/zod.mjs";
 import { i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, t as DashboardProvider } from "./store-Butx-LES.mjs";
-import { n as FavoritesMenu } from "./FavoritesMenu-5aAnLDi6.mjs";
+import { n as FavoritesMenu } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { n as useZio, t as ZioProvider } from "./ZioContext-DA_d-H39.mjs";
 import { t as ZioPanel } from "./ZioPanel-DlGW47jl.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-ASPE4kT_.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-D1mw4rtT.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -2413,7 +2413,7 @@ var Toaster$1 = ({ ...props }) => {
 		...props
 	});
 };
-var styles_default = "/assets/styles-BfkUXymi.css";
+var styles_default = "/assets/styles-DlAxcOEz.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -2650,7 +2650,7 @@ function TopBar() {
 		]
 	});
 }
-var $$splitComponentImporter$6 = () => import("./routes-pR2t29RO.mjs");
+var $$splitComponentImporter$6 = () => import("./routes-BXEqHiLq.mjs");
 var Route$7 = createFileRoute("/")({
 	head: () => ({ meta: [
 		{ title: "Fleet Safety Dashboard — Fleet Command" },
@@ -2669,7 +2669,7 @@ var Route$7 = createFileRoute("/")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$6, "component")
 });
-var $$splitComponentImporter$5 = () => import("./charts-noFwCftE.mjs");
+var $$splitComponentImporter$5 = () => import("./charts-C6eoKgcI.mjs");
 var Route$6 = createFileRoute("/charts")({
 	validateSearch: (search) => {
 		const c = search["chart"];
@@ -2700,7 +2700,7 @@ objectType({
 	role: stringType().min(1, "Please select a developer role"),
 	marketingUpdates: booleanType().default(false)
 });
-var $$splitComponentImporter$3 = () => import("./report-CyTdc5h5.mjs");
+var $$splitComponentImporter$3 = () => import("./report-CzedZ6pD.mjs");
 var Route$4 = createFileRoute("/report")({
 	validateSearch: (search) => {
 		const t = search["type"];

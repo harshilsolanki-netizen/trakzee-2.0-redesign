@@ -1,17 +1,17 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { t as cn } from "./utils-C_uf36nf.mjs";
-import { C as getGroupsForBranches, D as temperatureSummaryRows, S as getBranchesForCompanies$1, _ as driverJobSummaryRows, f as VEHICLE_BRANDS, h as VEHICLE_TYPES, l as DURATION_STATUS, m as VEHICLE_MODELS, o as COMPANIES, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, u as DURATION_UNITS, w as getVehiclesForBranches, y as findReport } from "./reports-D0j_491Z.mjs";
+import { C as getVehiclesForBranches, E as temperatureSummaryRows, S as getGroupsForBranches, d as VEHICLE_BRANDS, g as driverJobSummaryRows, l as DURATION_UNITS, m as VEHICLE_TYPES, n as BRANCHES, o as COMPANIES, p as VEHICLE_MODELS, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, v as findReport, x as getBranchesForCompanies$1 } from "./reports-wyEenlZF.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
-import { B as RefreshCw, Bt as CircleX, Ct as FileText, F as Search, Gt as ChevronsUpDown, H as Plus, Jt as ChevronLeft, M as Settings, N as Settings2, O as SlidersHorizontal, Pt as CornerDownLeft, Q as Minus, Rt as Clock, U as Play, Ut as CircleCheck, Vt as CircleQuestionMark, W as Pin, Xt as Check, Yt as ChevronDown, an as CalendarClock, dn as ArrowUp, en as ChartColumn, fn as ArrowRight, gt as GripVertical, h as Truck, in as Calendar, it as Mail, jt as Download, m as Underline, mn as ArrowDown, n as X, nt as Map$1, p as Undo2, pn as ArrowLeft, pt as Italic, q as Pencil, qt as ChevronRight, sn as Bold, st as LoaderCircle, wt as FileSpreadsheet, x as Thermometer, xt as Fuel, y as Trash2, z as RotateCcw } from "../_libs/lucide-react.mjs";
+import { $ as Minimize2, B as RefreshCw, Bt as CircleX, Ct as FileText, F as Search, Gt as ChevronsUpDown, H as Plus, Jt as ChevronLeft, M as Settings, N as Settings2, O as SlidersHorizontal, Pt as CornerDownLeft, Q as Minus, Rt as Clock, U as Play, Ut as CircleCheck, Vt as CircleQuestionMark, W as Pin, Xt as Check, Yt as ChevronDown, an as CalendarClock, dn as ArrowUp, en as ChartColumn, gt as GripVertical, h as Truck, in as Calendar, it as Mail, jt as Download, m as Underline, mn as ArrowDown, n as X, nt as Map$1, p as Undo2, pn as ArrowLeft, pt as Italic, q as Pencil, qt as ChevronRight, sn as Bold, st as LoaderCircle, tt as Maximize2, wt as FileSpreadsheet, x as Thermometer, xt as Fuel, y as Trash2, z as RotateCcw } from "../_libs/lucide-react.mjs";
 import { a as DropdownMenuLabel, i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSeparator, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-BFqXdjhf.mjs";
 import { y as useSearch } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as Tooltip } from "./tooltip-yj1PAv0W.mjs";
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
-import { t as FavoriteToggle } from "./FavoritesMenu-5aAnLDi6.mjs";
+import { t as FavoriteToggle } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-CyTdc5h5.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-CzedZ6pD.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -180,7 +180,7 @@ function SelectDropdown$1({ value, options, onChange, className, placeholder }) 
 * - Red warning message when 0 items selected
 * - Clear / Cancel / Apply footer
 */
-function UniversalMultiSelectDropdown({ label, selected, options, onChange, className, placeholder }) {
+function UniversalMultiSelectDropdown$1({ label, selected, options, onChange, className, placeholder }) {
 	const [open, setOpen] = (0, import_react.useState)(false);
 	const [search, setSearch] = (0, import_react.useState)("");
 	const [draft, setDraft] = (0, import_react.useState)(selected);
@@ -411,6 +411,33 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 		});
 	};
 	const [vehicleSearch, setVehicleSearch] = (0, import_react.useState)("");
+	const [vehicleListHeight, setVehicleListHeight] = (0, import_react.useState)(190);
+	const isResizingVehicleList = (0, import_react.useRef)(false);
+	const resizeStartY = (0, import_react.useRef)(0);
+	const resizeStartHeight = (0, import_react.useRef)(190);
+	const startResizeVehicleList = (0, import_react.useCallback)((e) => {
+		e.preventDefault();
+		isResizingVehicleList.current = true;
+		resizeStartY.current = e.clientY;
+		resizeStartHeight.current = vehicleListHeight;
+		const handleMouseMove = (event) => {
+			if (!isResizingVehicleList.current) return;
+			const delta = event.clientY - resizeStartY.current;
+			const newHeight = Math.min(Math.max(resizeStartHeight.current + delta, 100), 550);
+			setVehicleListHeight(newHeight);
+		};
+		const handleMouseUp = () => {
+			isResizingVehicleList.current = false;
+			document.removeEventListener("mousemove", handleMouseMove);
+			document.removeEventListener("mouseup", handleMouseUp);
+			document.body.style.cursor = "";
+			document.body.style.userSelect = "";
+		};
+		document.addEventListener("mousemove", handleMouseMove);
+		document.addEventListener("mouseup", handleMouseUp);
+		document.body.style.cursor = "ns-resize";
+		document.body.style.userSelect = "none";
+	}, [vehicleListHeight]);
 	const [openBranchGroups, setOpenBranchGroups] = (0, import_react.useState)(() => [
 		"Indonesia",
 		"Thailand",
@@ -559,23 +586,11 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 							className: "absolute top-full left-0 right-0 z-50 mt-1.5 rounded-xl border border-border/80 bg-card p-4 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 space-y-3 custom-scrollbar",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "flex items-center justify-between border-b border-border/60 pb-2",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-xs font-bold text-foreground",
-										children: "Filter Attributes"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-										type: "button",
-										onClick: () => setFilterOverlayOpen(false),
-										className: "p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer",
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3.5 w-3.5" })
-									})]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "space-y-1",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 										className: "block text-[11px] font-semibold text-foreground",
 										children: "Company"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown$1, {
 										label: "Company",
 										selected: selectedCompanies,
 										options: companyOptions,
@@ -588,7 +603,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 										className: "block text-[11px] font-semibold text-foreground",
 										children: "Branch"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown$1, {
 										label: "Branch",
 										selected: selectedBranches,
 										options: branchOptions,
@@ -601,15 +616,28 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 										type: "button",
 										onClick: () => {
-											handleCompanyChange([]);
+											const allIds = getVehiclesForBranches(BRANCHES).map((v) => v.id);
+											onChange({
+												companies: [],
+												branches: [],
+												objects: (filters.objects || []).filter((id) => allIds.includes(id))
+											});
 										},
-										className: "text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer",
+										className: "text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors",
 										children: "Reset"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-										type: "button",
-										onClick: () => setFilterOverlayOpen(false),
-										className: "px-3.5 py-1 rounded-md bg-[#0089FF] text-white text-xs font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs",
-										children: "Done"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-center gap-1.5",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											onClick: () => setFilterOverlayOpen(false),
+											className: "px-2.5 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs",
+											children: "Close"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											onClick: () => setFilterOverlayOpen(false),
+											className: "px-3.5 py-1 rounded-md bg-[#0089FF] text-white text-xs font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98",
+											children: "Done"
+										})]
 									})]
 								})
 							]
@@ -617,128 +645,178 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-								className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-									type: "checkbox",
-									checked: allVehiclesSelected,
-									ref: (el) => {
-										if (el) el.indeterminate = someVehiclesSelected;
-									},
-									onChange: toggleSelectAllVehicles,
-									className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select all" })]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex items-center gap-2",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									className: "text-[11px] font-medium text-muted-foreground",
-									children: selectedVehicleIds.length === 0 ? `All (${allFilteredVehicleIds.length})` : `${selectedVehicleIds.length} / ${allFilteredVehicleIds.length} selected`
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									type: "button",
-									onClick: toggleAllBranchAccordions,
-									className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted",
-									title: "Expand/Collapse All Branches",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronsUpDown, { className: "h-3 w-3" })
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										type: "checkbox",
+										checked: allVehiclesSelected,
+										ref: (el) => {
+											if (el) el.indeterminate = someVehiclesSelected;
+										},
+										onChange: toggleSelectAllVehicles,
+										className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select all" })]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "flex items-center gap-2",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-[11px] font-medium text-muted-foreground",
+											children: selectedVehicleIds.length === 0 ? `All (${allFilteredVehicleIds.length})` : `${selectedVehicleIds.length} / ${allFilteredVehicleIds.length} selected`
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											onClick: toggleAllBranchAccordions,
+											className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted",
+											title: "Expand/Collapse All Branches",
+											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronsUpDown, { className: "h-3 w-3" })
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											onClick: () => setVehicleListHeight((prev) => prev > 220 ? 190 : 340),
+											className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted ml-0.5",
+											title: vehicleListHeight > 220 ? "Compact height" : "Expand height",
+											children: vehicleListHeight > 220 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Minimize2, { className: "h-3 w-3" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Maximize2, { className: "h-3 w-3" })
+										})
+									]
 								})]
-							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "max-h-[190px] overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar",
-							children: [groupedVehicles.map(({ branch, vehicles }) => {
-								const isExpanded = openBranchGroups.includes(branch) || vehicleSearch.trim() !== "";
-								vehicles.map((v) => v.id);
-								const selectedBranchCount = vehicles.filter((v) => selectedVehicleIds.includes(v.id)).length;
-								const isBranchAllSelected = selectedBranchCount === vehicles.length && vehicles.length > 0;
-								const isBranchSomeSelected = selectedBranchCount > 0 && !isBranchAllSelected;
-								return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "py-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors select-none",
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								style: {
+									height: `${vehicleListHeight}px`,
+									maxHeight: `${vehicleListHeight}px`
+								},
+								className: "overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar transition-[height] duration-75 ease-out",
+								children: [groupedVehicles.map(({ branch, vehicles }) => {
+									const isExpanded = openBranchGroups.includes(branch) || vehicleSearch.trim() !== "";
+									vehicles.map((v) => v.id);
+									const selectedBranchCount = vehicles.filter((v) => selectedVehicleIds.includes(v.id)).length;
+									const isBranchAllSelected = selectedBranchCount === vehicles.length && vehicles.length > 0;
+									const isBranchSomeSelected = selectedBranchCount > 0 && !isBranchAllSelected;
+									return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "py-1",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center gap-2 min-w-0",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-												type: "checkbox",
-												"aria-label": `Select all vehicles in ${branch}`,
-												checked: isBranchAllSelected,
-												ref: (el) => {
-													if (el) el.indeterminate = isBranchSomeSelected;
-												},
-												onChange: () => toggleBranchVehicles(vehicles),
-												className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-												type: "button",
-												onClick: () => toggleBranchAccordion(branch),
-												className: "flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate",
-												children: [
-													/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-150", isExpanded && "rotate-90") }),
-													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-														className: "truncate",
-														children: branch
-													}),
-													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-														className: "text-[10px] tabular-nums text-muted-foreground font-normal",
-														children: [
-															"[",
-															vehicles.length,
-															"]"
-														]
-													})
-												]
-											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-											className: "text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full",
-											children: [
-												selectedBranchCount,
-												"/",
-												vehicles.length
-											]
-										})]
-									}), isExpanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										className: "mt-1 pl-6 pr-2 space-y-0.5",
-										children: vehicles.map((v) => {
-											const isChecked = selectedVehicleIds.includes(v.id);
-											return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "flex items-center gap-2 min-w-0",
+											className: "flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors select-none",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-2 min-w-0",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+													type: "checkbox",
+													"aria-label": `Select all vehicles in ${branch}`,
+													checked: isBranchAllSelected,
+													ref: (el) => {
+														if (el) el.indeterminate = isBranchSomeSelected;
+													},
+													onChange: () => toggleBranchVehicles(vehicles),
+													className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+													type: "button",
+													onClick: () => toggleBranchAccordion(branch),
+													className: "flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate",
 													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "checkbox",
-															checked: isChecked,
-															onChange: () => toggleVehicle(v.id),
-															className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-150", isExpanded && "rotate-90") }),
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+															className: "truncate",
+															children: branch
 														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Truck, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "min-w-0 truncate",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "block truncate leading-tight text-xs font-semibold",
-																children: v.name
-															}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-																className: "block text-[10px] text-muted-foreground truncate leading-tight font-normal",
-																children: [
-																	v.imei,
-																	" · ",
-																	v.driver
-																]
-															})]
+														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+															className: "text-[10px] tabular-nums text-muted-foreground font-normal",
+															children: [
+																"[",
+																vehicles.length,
+																"]"
+															]
 														})
 													]
-												})
-											}, v.id);
-										})
-									})]
-								}, branch);
-							}), groupedVehicles.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "p-6 text-center text-xs text-muted-foreground italic",
-								children: [
-									"No vehicles found matching “",
-									vehicleSearch,
-									"”"
-								]
-							})]
-						})]
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+												className: "text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full",
+												children: [
+													selectedBranchCount,
+													"/",
+													vehicles.length
+												]
+											})]
+										}), isExpanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: "mt-1 pl-6 pr-2 space-y-0.5",
+											children: vehicles.map((v) => {
+												const isChecked = selectedVehicleIds.includes(v.id);
+												return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+													className: "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium",
+													children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+														className: "flex items-center gap-2 min-w-0",
+														children: [
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+																type: "checkbox",
+																checked: isChecked,
+																onChange: () => toggleVehicle(v.id),
+																className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+															}),
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Truck, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
+															/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+																className: "min-w-0 truncate",
+																children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																	className: "block truncate leading-tight text-xs font-semibold",
+																	children: v.name
+																}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+																	className: "block text-[10px] text-muted-foreground truncate leading-tight font-normal",
+																	children: [
+																		v.imei,
+																		" · ",
+																		v.driver
+																	]
+																})]
+															})
+														]
+													})
+												}, v.id);
+											})
+										})]
+									}, branch);
+								}), groupedVehicles.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "p-6 text-center text-xs text-muted-foreground italic",
+									children: [
+										"No vehicles found matching “",
+										vehicleSearch,
+										"”"
+									]
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								onMouseDown: startResizeVehicleList,
+								onDoubleClick: () => setVehicleListHeight((prev) => prev > 220 ? 190 : 340),
+								className: "relative flex h-3.5 w-full cursor-ns-resize items-center justify-center border-t border-border/60 bg-muted/20 hover:bg-muted/60 transition-colors select-none group",
+								title: "Drag to resize length (Double-click to expand/collapse)",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-1 w-8 rounded-full bg-muted-foreground/30 group-hover:bg-[#0089FF] transition-colors" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "absolute right-1 bottom-0.5 text-muted-foreground/40 group-hover:text-[#0089FF] transition-colors pointer-events-none",
+									title: "Resize handle",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", {
+										width: "6",
+										height: "6",
+										viewBox: "0 0 6 6",
+										fill: "currentColor",
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
+												cx: "5",
+												cy: "5",
+												r: "1"
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
+												cx: "5",
+												cy: "1",
+												r: "1"
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
+												cx: "1",
+												cy: "5",
+												r: "1"
+											})
+										]
+									})
+								})]
+							})
+						]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "space-y-3 pt-1",
@@ -748,7 +826,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
 									children: "Group"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown$1, {
 									label: "Group",
 									selected: filters.groups || [],
 									options: groupOptions,
@@ -761,7 +839,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
 									children: "Type"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown$1, {
 									label: "Type",
 									selected: filters.types || [],
 									options: typeOptions,
@@ -2380,26 +2458,17 @@ var INITIAL_COLUMNS = [
 		sortDirection: "asc"
 	},
 	{
-		id: "endLocation",
-		label: "End Location",
-		showable: true,
-		printable: true,
-		sortable: false,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
 		id: "distance",
 		label: "Distance (km)",
 		showable: true,
 		printable: true,
 		sortable: true,
-		sortPriority: "3",
-		sortDirection: "desc"
+		sortPriority: "-",
+		sortDirection: "asc"
 	},
 	{
 		id: "running",
-		label: "Running Time",
+		label: "Running Duration",
 		showable: true,
 		printable: true,
 		sortable: false,
@@ -2408,7 +2477,7 @@ var INITIAL_COLUMNS = [
 	},
 	{
 		id: "idle",
-		label: "Idle Time",
+		label: "Idle Duration",
 		showable: true,
 		printable: true,
 		sortable: false,
@@ -2417,7 +2486,16 @@ var INITIAL_COLUMNS = [
 	},
 	{
 		id: "stop",
-		label: "Stop Time",
+		label: "Stop Duration",
+		showable: true,
+		printable: true,
+		sortable: false,
+		sortPriority: "-",
+		sortDirection: "asc"
+	},
+	{
+		id: "startOdometer",
+		label: "Start Odometer",
 		showable: true,
 		printable: true,
 		sortable: false,
@@ -2452,76 +2530,54 @@ var INITIAL_COLUMNS = [
 		sortDirection: "asc"
 	}
 ];
-var INITIAL_SCHEDULES = [
-	{
-		id: "sched-1",
-		name: "Weekly Travel Summary",
-		status: "ACTIVE",
-		nextRun: "21 Aug 2026, 03:00 PM",
-		relativeType: "This Week",
-		timezone: "Asia/Kolkata (UTC+05:30)",
-		scheduleType: "Weekly",
-		selectedDays: ["Mo"],
-		hasTimeRange: true,
-		timeRangeStart: "12:00 AM",
-		timeRangeEnd: "11:59 PM",
-		generationTime: "15:00",
-		reportType: "Summary",
-		format: "XLS",
-		actionType: "Email",
-		toAddress: "manager@company.com",
-		emailRetryWindow: "15",
-		subject: "Weekly Travel Summary Report",
-		message: "Please find attached the latest travel summary report for review.",
-		selectedVehicles: [
-			"KA01AB9988",
-			"TS07FA7788",
-			"MH12AB1234"
-		]
-	},
-	{
-		id: "sched-2",
-		name: "Daily Fuel & Distance Audit",
-		status: "ACTIVE",
-		nextRun: "03 Sep 2026, 06:00 AM",
-		relativeType: "Yesterday",
-		timezone: "Asia/Kolkata (UTC+05:30)",
-		scheduleType: "Daily",
-		hasTimeRange: true,
-		timeRangeStart: "00:00",
-		timeRangeEnd: "23:59",
-		generationTime: "06:00",
-		reportType: "Daily",
-		format: "PDF",
-		actionType: "Email",
-		toAddress: "audit@company.com",
-		emailRetryWindow: "30",
-		subject: "Daily Fuel & Distance Audit",
-		message: "Attached is the automated daily audit log.",
-		selectedVehicles: ["KA01AB9988", "MH03DE4242"]
-	},
-	{
-		id: "sched-3",
-		name: "Vehicle Idle Report",
-		status: "ACTIVE",
-		nextRun: "22 Aug 2026, 11:00 PM",
-		relativeType: "Yesterday",
-		timezone: "Asia/Kolkata (UTC+05:30)",
-		scheduleType: "Daily",
-		hasTimeRange: true,
-		timeRangeStart: "00:00",
-		timeRangeEnd: "23:59",
-		generationTime: "23:00",
-		reportType: "Detail",
-		format: "PDF",
-		actionType: "Email",
-		toAddress: "ops@company.com",
-		emailRetryWindow: "15",
-		subject: "Vehicle Idle Report",
-		message: "Attached is the latest vehicle idle activity report.",
-		selectedVehicles: ["KA01AB9988", "MH12AB1234"]
-	}
-];
+var INITIAL_SCHEDULES = [{
+	id: "sched-1",
+	name: "Weekly Operations Summary",
+	status: "ACTIVE",
+	nextRun: "21 Aug 2026, 03:00 PM",
+	relativeType: "This Week",
+	timezone: "Asia/Kolkata (UTC+05:30)",
+	scheduleType: "Weekly",
+	selectedDays: ["Mo"],
+	hasTimeRange: true,
+	timeRangeStart: "12:00 AM",
+	timeRangeEnd: "11:59 PM",
+	generationTime: "09:00",
+	reportType: "Summary",
+	format: "XLS",
+	actionType: "Email",
+	toAddress: "manager@company.com",
+	emailRetryWindow: "15",
+	subject: "Weekly Operations Summary Report",
+	message: "Please find attached the latest travel summary report for review.",
+	vehicleScope: "current",
+	selectedVehicles: [
+		"KA01AB9988",
+		"TS07FA7788",
+		"MH12AB1234"
+	]
+}, {
+	id: "sched-2",
+	name: "Daily Fuel & Activity Audit",
+	status: "ACTIVE",
+	nextRun: "03 Sep 2026, 06:00 AM",
+	relativeType: "Yesterday",
+	timezone: "Asia/Kolkata (UTC+05:30)",
+	scheduleType: "Daily",
+	hasTimeRange: true,
+	timeRangeStart: "00:00",
+	timeRangeEnd: "23:59",
+	generationTime: "06:00",
+	reportType: "Daily",
+	format: "PDF",
+	actionType: "Email",
+	toAddress: "audit@company.com",
+	emailRetryWindow: "30",
+	subject: "Daily Fuel & Activity Audit",
+	message: "Attached is the automated daily audit log.",
+	vehicleScope: "current",
+	selectedVehicles: ["KA01AB9988", "MH03DE4242"]
+}];
 var RELATIVE_TYPES = [
 	"Today",
 	"Yesterday",
@@ -2595,9 +2651,9 @@ var DEFAULT_DRAFT = {
 	name: "",
 	status: "ACTIVE",
 	nextRun: "03/09/2026 09:00 AM",
-	relativeType: "This Week",
+	relativeType: "Today",
 	timezone: "Asia/Kolkata (UTC+05:30)",
-	scheduleType: "Weekly",
+	scheduleType: "Daily",
 	selectedDays: ["Mo"],
 	selectedDates: [1],
 	hasTimeRange: true,
@@ -2611,6 +2667,7 @@ var DEFAULT_DRAFT = {
 	emailRetryWindow: "15",
 	subject: "Scheduled Travel Report",
 	message: "Please find attached the scheduled report.",
+	vehicleScope: "current",
 	selectedVehicles: [],
 	ftpHost: "",
 	ftpPort: "21",
@@ -2641,13 +2698,13 @@ function SelectDropdown({ value, options, onChange, className, placeholder }) {
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 			type: "button",
 			onClick: () => setOpen(!open),
-			className: cn("flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-muted-foreground font-medium shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
+			className: cn("flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-medium shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-				className: cn("truncate", value ? "text-muted-foreground font-medium" : "text-muted-foreground/60 font-normal italic"),
+				className: cn("truncate", value ? "text-foreground font-medium" : "text-muted-foreground/60 font-normal italic"),
 				children: value || placeholder || "Select"
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: cn("h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1", open && "rotate-180") })]
 		}), open && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			className: "absolute top-full left-0 right-0 z-[100] mt-1 max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-lg animate-in fade-in-80 select-none",
+			className: "absolute top-full left-0 right-0 z-[100] mt-1 max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-lg animate-in fade-in-80 select-none custom-scrollbar",
 			children: options.map((opt) => {
 				const isSelected = value === opt;
 				return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
@@ -2656,157 +2713,167 @@ function SelectDropdown({ value, options, onChange, className, placeholder }) {
 						onChange(opt);
 						setOpen(false);
 					},
-					className: cn("flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-left text-xs cursor-pointer transition-colors", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: opt }), isSelected && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF]" })]
+					className: cn("flex w-full items-center justify-between rounded px-2 py-1.5 text-xs text-left cursor-pointer transition-colors", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+						className: "truncate",
+						children: opt
+					}), isSelected && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF] shrink-0" })]
 				}, opt);
 			})
 		})]
 	});
 }
-function VehicleMultiSelectDropdown({ selectedVehicles, onToggleVehicle, onToggleRegion, regionGroups, allVisibleVehicleIds, isAllSelected, onToggleSelectAll }) {
-	const [isExpanded, setIsExpanded] = (0, import_react.useState)(true);
+function UniversalMultiSelectDropdown({ label, selected, options, onChange, className, placeholder }) {
+	const [open, setOpen] = (0, import_react.useState)(false);
 	const [search, setSearch] = (0, import_react.useState)("");
-	const filteredGroups = (0, import_react.useMemo)(() => {
-		const q = search.trim().toLowerCase();
-		if (!q) return regionGroups;
-		return regionGroups.map((g) => ({
-			region: g.region,
-			vehicles: g.vehicles.filter((v) => v.name.toLowerCase().includes(q) || v.imei.toLowerCase().includes(q) || v.branch.toLowerCase().includes(q))
-		})).filter((g) => g.vehicles.length > 0);
-	}, [regionGroups, search]);
-	const collapsedSummary = (0, import_react.useMemo)(() => {
-		if (selectedVehicles.length === 0) return null;
-		const vehicleMap = /* @__PURE__ */ new Map();
-		for (const g of regionGroups) for (const v of g.vehicles) vehicleMap.set(v.id, v);
-		const firstVehicle = vehicleMap.get(selectedVehicles[0]) || fleetObjects.find((f) => f.id === selectedVehicles[0]);
-		return {
-			firstName: firstVehicle ? firstVehicle.name : selectedVehicles[0],
-			extraCount: selectedVehicles.length - 1
+	const [draft, setDraft] = (0, import_react.useState)(selected);
+	const ref = (0, import_react.useRef)(null);
+	(0, import_react.useEffect)(() => {
+		if (open) {
+			setDraft(selected);
+			setSearch("");
+		}
+	}, [open, selected]);
+	(0, import_react.useEffect)(() => {
+		const handleClickOutside = (event) => {
+			if (ref.current && !ref.current.contains(event.target)) setOpen(false);
 		};
-	}, [regionGroups, selectedVehicles]);
+		if (open) document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, [open]);
+	const filteredOptions = (0, import_react.useMemo)(() => {
+		const q = search.trim().toLowerCase();
+		if (!q) return options;
+		return options.filter((opt) => opt.toLowerCase().includes(q));
+	}, [options, search]);
+	const isAllDraftSelected = filteredOptions.length > 0 && filteredOptions.every((opt) => draft.includes(opt));
+	const toggleDraft = (opt) => {
+		if (draft.includes(opt)) setDraft(draft.filter((s) => s !== opt));
+		else setDraft([...draft, opt]);
+	};
+	const toggleAllDraft = () => {
+		if (isAllDraftSelected) setDraft(draft.filter((s) => !filteredOptions.includes(s)));
+		else setDraft([.../* @__PURE__ */ new Set([...draft, ...filteredOptions])]);
+	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "rounded-lg border border-border/80 bg-background overflow-hidden shadow-2xs transition-all",
-		children: [isExpanded ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "flex h-8 items-center px-2.5 gap-2 bg-background border-b border-border/60 transition-colors",
+		ref,
+		className: cn("relative", className),
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+			type: "button",
+			onClick: () => setOpen(!open),
+			className: cn("flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				className: "flex items-center min-w-0 flex-1 overflow-hidden",
+				children: !selected || selected.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "text-muted-foreground/60 font-medium italic truncate",
+					children: placeholder || `Select ${label}`
+				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "text-foreground font-medium truncate",
+					children: selected[0]
+				}), selected.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+					className: "ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0",
+					children: ["+", selected.length - 1]
+				})] })
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: cn("h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1", open && "rotate-180") })]
+		}), open && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "absolute top-full left-0 right-0 z-50 mt-1 w-full rounded-xl border border-border/80 bg-popover/95 backdrop-blur-md shadow-2xl animate-in fade-in-0 zoom-in-95 select-none overflow-hidden flex flex-col",
 			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-					type: "text",
-					value: search,
-					onChange: (e) => setSearch(e.target.value),
-					placeholder: "Search vehicles...",
-					className: "h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium",
-					autoFocus: true
-				}),
-				search && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-					type: "button",
-					onClick: () => setSearch(""),
-					className: "p-0.5 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3.5 w-3.5" })
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-					type: "button",
-					onClick: () => setIsExpanded(false),
-					className: "p-0.5 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs",
-					"aria-label": "Collapse vehicle list",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: "h-3.5 w-3.5 text-muted-foreground rotate-180 transition-transform duration-200" })
-				})
-			]
-		}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			onClick: () => setIsExpanded(true),
-			className: "flex h-7.5 items-center px-2.5 gap-2 bg-background cursor-pointer hover:bg-muted/30 transition-colors select-none group",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
-				collapsedSummary ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "text-xs font-semibold text-foreground truncate",
-						children: collapsedSummary.firstName
-					}), collapsedSummary.extraCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-						className: "inline-flex items-center px-1.5 py-0.2 rounded-md text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0",
-						children: ["+", collapsedSummary.extraCount]
-					})]
-				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "flex-1 text-xs text-muted-foreground/60 font-normal italic truncate",
-					children: "Search vehicles..."
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-					type: "button",
-					onClick: (e) => {
-						e.stopPropagation();
-						setIsExpanded(true);
-					},
-					className: "p-0.5 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs",
-					"aria-label": "Expand vehicle list",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200" })
-				})
-			]
-		}), isExpanded && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "max-h-52 overflow-y-auto p-3 space-y-3.5 custom-scrollbar bg-background",
-			children: [filteredGroups.map(({ region, vehicles }) => {
-				const groupIds = vehicles.map((v) => v.id);
-				const allChecked = groupIds.length > 0 && groupIds.every((id) => selectedVehicles.includes(id));
-				const someChecked = groupIds.some((id) => selectedVehicles.includes(id)) && !allChecked;
-				return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "space-y-2",
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "p-2.5 pb-2 border-b border-border/60 bg-muted/20 space-y-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center gap-2",
+						className: "flex items-center justify-between",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+							className: "text-xs font-semibold text-foreground",
+							children: ["Select ", label]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+							className: "text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full",
+							children: [draft.length, " selected"]
+						})]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex h-7 items-center gap-1.5 rounded-md border border-input bg-background px-2 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all",
 						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3 w-3 text-muted-foreground shrink-0" }),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-								type: "checkbox",
-								checked: allChecked,
-								ref: (el) => {
-									if (el) el.indeterminate = someChecked;
-								},
-								onChange: () => onToggleRegion(vehicles),
-								className: "h-4 w-4 rounded border-border/80 text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
+								value: search,
+								onChange: (e) => setSearch(e.target.value),
+								placeholder: `Search ${label.toLowerCase()}...`,
+								className: "h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "text-xs font-semibold text-foreground",
-								children: region
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-								className: "text-xs text-muted-foreground font-normal",
-								children: [
-									"[",
-									vehicles.length,
-									"]"
-								]
+							search && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: () => setSearch(""),
+								className: "rounded-md p-0.5 text-muted-foreground hover:text-foreground cursor-pointer",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-2.5 w-2.5" })
 							})
 						]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						className: "pl-6 space-y-2.5",
-						children: vehicles.map((v) => {
-							const isChecked = selectedVehicles.includes(v.id);
-							return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-								className: "flex items-start gap-2.5 cursor-pointer select-none group",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-									type: "checkbox",
-									checked: isChecked,
-									onChange: () => onToggleVehicle(v.id),
-									className: "h-4 w-4 mt-0.5 rounded border-border/80 text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "flex flex-col min-w-0",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: cn("text-xs leading-tight transition-colors truncate text-foreground", isChecked ? "font-semibold text-foreground" : "font-medium text-foreground group-hover:text-foreground"),
-										children: v.name
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-[11px] text-muted-foreground leading-tight mt-0.5 font-mono",
-										children: v.imei
-									})]
-								})]
-							}, v.id);
-						})
 					})]
-				}, region);
-			}), filteredGroups.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "py-6 text-center text-xs text-muted-foreground",
-				children: [
-					"No vehicles found matching \"",
-					search,
-					"\"."
-				]
-			})]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					className: "px-3 py-1.5 border-b border-border/60 flex items-center justify-between bg-muted/10",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+						className: "flex items-center gap-2 cursor-pointer select-none w-full text-xs font-semibold text-foreground",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+							type: "checkbox",
+							checked: isAllDraftSelected,
+							onChange: toggleAllDraft,
+							className: "h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select All" })]
+					})
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "max-h-48 overflow-y-auto p-1 space-y-0.5 custom-scrollbar",
+					children: [filteredOptions.map((opt) => {
+						const isChecked = draft.includes(opt);
+						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+							className: "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none hover:bg-muted/80 font-medium",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+								type: "checkbox",
+								checked: isChecked,
+								onChange: () => toggleDraft(opt),
+								className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: cn("truncate", isChecked && "font-semibold text-foreground"),
+								children: opt
+							})]
+						}, opt);
+					}), filteredOptions.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "p-3 text-center text-xs text-muted-foreground italic",
+						children: [
+							"No ",
+							label.toLowerCase(),
+							" found"
+						]
+					})]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "p-2 px-3 border-t border-border/70 flex items-center justify-between bg-muted/20",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						type: "button",
+						onClick: () => setDraft([]),
+						className: "text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors",
+						children: "Clear"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex items-center gap-1.5",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							onClick: () => {
+								setDraft(selected);
+								setOpen(false);
+							},
+							className: "px-2.5 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs",
+							children: "Cancel"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							onClick: () => {
+								onChange(draft);
+								setOpen(false);
+							},
+							className: "px-3.5 py-1 text-xs rounded-md font-semibold text-white bg-[#0089FF] hover:bg-[#0070d6] shadow-xs transition-all active:scale-98 cursor-pointer",
+							children: "Apply"
+						})]
+					})]
+				})
+			]
 		})]
 	});
 }
@@ -2909,7 +2976,7 @@ function RowDeletePopover({ itemName, onDelete }) {
 		})]
 	});
 }
-function ScheduleModal({ open, onClose }) {
+function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Activity" }) {
 	const [schedules, setSchedules] = (0, import_react.useState)(() => {
 		if (typeof window !== "undefined") try {
 			const saved = localStorage.getItem("trakzee_scheduled_reports");
@@ -2926,14 +2993,173 @@ function ScheduleModal({ open, onClose }) {
 			console.error("Failed to save schedules", e);
 		}
 	}, [schedules]);
+	const [view, setView] = (0, import_react.useState)("form");
 	const [searchQuery, setSearchQuery] = (0, import_react.useState)("");
-	const [view, setView] = (0, import_react.useState)("list");
-	const [step, setStep] = (0, import_react.useState)(1);
 	const [editingId, setEditingId] = (0, import_react.useState)(null);
-	const [draft, setDraft] = (0, import_react.useState)(DEFAULT_DRAFT);
+	const currentLoadedVehicles = (0, import_react.useMemo)(() => {
+		const selectedBranches = currentFilters?.branches && currentFilters.branches.length > 0 && !currentFilters.branches.includes("All") ? currentFilters.branches : getBranchesForCompanies$1(currentFilters?.companies || []);
+		const branchVehicles = getVehiclesForBranches(selectedBranches);
+		if (currentFilters?.objects && currentFilters.objects.length > 0) return branchVehicles.filter((v) => currentFilters.objects.includes(v.id));
+		return branchVehicles;
+	}, [currentFilters]);
+	const currentLoadedVehicleIds = (0, import_react.useMemo)(() => {
+		return currentLoadedVehicles.map((v) => v.id);
+	}, [currentLoadedVehicles]);
+	const [draft, setDraft] = (0, import_react.useState)(() => ({
+		...DEFAULT_DRAFT,
+		name: `${reportTitle} Schedule`,
+		vehicleScope: "current",
+		selectedVehicles: currentLoadedVehicleIds
+	}));
+	(0, import_react.useEffect)(() => {
+		if (open && !editingId) {
+			setView("form");
+			setDraft((d) => ({
+				...DEFAULT_DRAFT,
+				name: `${reportTitle} Schedule`,
+				vehicleScope: "current",
+				selectedVehicles: currentLoadedVehicleIds
+			}));
+			setVehicleFilterMode("current");
+		}
+	}, [
+		open,
+		reportTitle,
+		currentLoadedVehicleIds,
+		editingId
+	]);
+	const [vehicleFilterMode, setVehicleFilterMode] = (0, import_react.useState)("current");
+	const [vehicleOverlayOpen, setVehicleOverlayOpen] = (0, import_react.useState)(false);
+	const [customFilterOverlayOpen, setCustomFilterOverlayOpen] = (0, import_react.useState)(false);
+	const [customCompanies, setCustomCompanies] = (0, import_react.useState)([]);
+	const [customBranches, setCustomBranches] = (0, import_react.useState)([]);
+	const [customVehicleSearch, setCustomVehicleSearch] = (0, import_react.useState)("");
+	const [draftCustomVehicles, setDraftCustomVehicles] = (0, import_react.useState)([]);
+	const [vehicleBoxHeight, setVehicleBoxHeight] = (0, import_react.useState)(200);
+	const [openBranchGroups, setOpenBranchGroups] = (0, import_react.useState)(() => [
+		"Indonesia",
+		"Thailand",
+		"Valsad",
+		"Planet Eco AL Khabaisi",
+		"Planet Eco AL Nakheel",
+		"HP Branch 1",
+		"HP Branch 2",
+		"Delhi Branch",
+		"Mumbai Branch",
+		"Planet Eco Abu Dhabi",
+		"Planet Eco Ajman"
+	]);
+	const [advanceModalOpen, setAdvanceModalOpen] = (0, import_react.useState)(false);
+	const [columnsConfig, setColumnsConfig] = (0, import_react.useState)(INITIAL_COLUMNS);
+	const [detailDownloadMode, setDetailDownloadMode] = (0, import_react.useState)("multiple");
 	const [copyFrom, setCopyFrom] = (0, import_react.useState)("None");
 	const [errors, setErrors] = (0, import_react.useState)({});
 	const [emailVerificationStatus, setEmailVerificationStatus] = (0, import_react.useState)("idle");
+	const customAvailableBranches = (0, import_react.useMemo)(() => {
+		return getBranchesForCompanies$1(customCompanies);
+	}, [customCompanies]);
+	const customActiveBranches = (0, import_react.useMemo)(() => {
+		if (!customBranches || customBranches.length === 0 || customBranches.includes("All")) return customAvailableBranches;
+		const valid = customBranches.filter((b) => customAvailableBranches.includes(b));
+		return valid.length > 0 ? valid : customAvailableBranches;
+	}, [customBranches, customAvailableBranches]);
+	const customFilteredVehicles = (0, import_react.useMemo)(() => {
+		return getVehiclesForBranches(customActiveBranches);
+	}, [customActiveBranches]);
+	const customFilteredVehicleIds = (0, import_react.useMemo)(() => {
+		return customFilteredVehicles.map((v) => v.id);
+	}, [customFilteredVehicles]);
+	const customActiveFilterCount = (0, import_react.useMemo)(() => {
+		let count = 0;
+		if (customCompanies.length > 0 && !customCompanies.includes("All")) count++;
+		if (customBranches.length > 0 && !customBranches.includes("All")) count++;
+		return count;
+	}, [customCompanies, customBranches]);
+	const handleCustomCompanyChange = (companies) => {
+		const newAvail = getBranchesForCompanies$1(companies);
+		const nextB = customBranches.filter((b) => newAvail.includes(b));
+		setCustomCompanies(companies);
+		setCustomBranches(nextB);
+	};
+	const handleCustomBranchChange = (branches) => {
+		setCustomBranches(branches);
+	};
+	const groupedCustomVehicles = (0, import_react.useMemo)(() => {
+		const q = customVehicleSearch.trim().toLowerCase();
+		const map = /* @__PURE__ */ new Map();
+		for (const branch of customActiveBranches) {
+			const matched = customFilteredVehicles.filter((v) => v.branch === branch).filter((v) => {
+				if (!q) return true;
+				const matchName = v.name.toLowerCase().includes(q);
+				const matchImei = v.imei.toLowerCase().includes(q);
+				const matchBranch = v.branch.toLowerCase().includes(q);
+				const matchDriver = (v.driver || "").toLowerCase().includes(q);
+				return matchName || matchImei || matchBranch || matchDriver;
+			});
+			if (matched.length > 0) map.set(branch, matched);
+		}
+		return Array.from(map.entries()).map(([branch, vehicles]) => ({
+			branch,
+			vehicles
+		}));
+	}, [
+		customActiveBranches,
+		customFilteredVehicles,
+		customVehicleSearch
+	]);
+	const isCustomAllVehiclesSelected = customFilteredVehicleIds.length > 0 && customFilteredVehicleIds.every((id) => draftCustomVehicles.includes(id));
+	const isCustomSomeVehiclesSelected = draftCustomVehicles.length > 0 && !isCustomAllVehiclesSelected;
+	const toggleSelectAllCustomVehicles = () => {
+		if (isCustomAllVehiclesSelected) setDraftCustomVehicles([]);
+		else setDraftCustomVehicles(customFilteredVehicleIds);
+	};
+	const toggleCustomBranchVehicles = (branchVehicles) => {
+		const bIds = branchVehicles.map((v) => v.id);
+		if (bIds.every((id) => draftCustomVehicles.includes(id))) setDraftCustomVehicles(draftCustomVehicles.filter((id) => !bIds.includes(id)));
+		else setDraftCustomVehicles(Array.from(/* @__PURE__ */ new Set([...draftCustomVehicles, ...bIds])));
+	};
+	const toggleCustomSingleVehicle = (id) => {
+		if (draftCustomVehicles.includes(id)) setDraftCustomVehicles(draftCustomVehicles.filter((vId) => vId !== id));
+		else setDraftCustomVehicles([...draftCustomVehicles, id]);
+	};
+	const toggleBranchAccordion = (branch) => {
+		setOpenBranchGroups((prev) => prev.includes(branch) ? prev.filter((b) => b !== branch) : [...prev, branch]);
+	};
+	const toggleAllBranchAccordions = () => {
+		if (openBranchGroups.length === groupedCustomVehicles.length) setOpenBranchGroups([]);
+		else setOpenBranchGroups(groupedCustomVehicles.map((g) => g.branch));
+	};
+	const isResizingVehicleBox = (0, import_react.useRef)(false);
+	const resizeStartY = (0, import_react.useRef)(0);
+	const resizeStartHeight = (0, import_react.useRef)(200);
+	const startResizeVehicleBox = (0, import_react.useCallback)((e) => {
+		e.preventDefault();
+		isResizingVehicleBox.current = true;
+		resizeStartY.current = e.clientY;
+		resizeStartHeight.current = vehicleBoxHeight;
+		const handleMouseMove = (event) => {
+			if (!isResizingVehicleBox.current) return;
+			const delta = event.clientY - resizeStartY.current;
+			const newH = Math.min(Math.max(resizeStartHeight.current + delta, 120), 480);
+			setVehicleBoxHeight(newH);
+		};
+		const handleMouseUp = () => {
+			isResizingVehicleBox.current = false;
+			document.removeEventListener("mousemove", handleMouseMove);
+			document.removeEventListener("mouseup", handleMouseUp);
+			document.body.style.cursor = "";
+			document.body.style.userSelect = "";
+		};
+		document.addEventListener("mousemove", handleMouseMove);
+		document.addEventListener("mouseup", handleMouseUp);
+		document.body.style.cursor = "ns-resize";
+		document.body.style.userSelect = "none";
+	}, [vehicleBoxHeight]);
+	const handleOpenCustomVehicleOverlay = () => {
+		setDraftCustomVehicles(draft.selectedVehicles.length > 0 ? draft.selectedVehicles : customFilteredVehicleIds);
+		setCustomVehicleSearch("");
+		setVehicleOverlayOpen(true);
+	};
 	const handleVerifyEmail = () => {
 		const email = (draft.toAddress || "").trim();
 		if (!email) {
@@ -2955,7 +3181,7 @@ function ScheduleModal({ open, onClose }) {
 					...prev,
 					toAddress: "Verification failed: Invalid email Id"
 				}));
-				toast.error(`Verification failed: Invalid email Id`);
+				toast.error("Verification failed: Invalid email Id");
 			} else {
 				setEmailVerificationStatus("success");
 				setErrors((prev) => ({
@@ -2965,78 +3191,6 @@ function ScheduleModal({ open, onClose }) {
 				toast.success(`Recipient email "${email}" verified successfully. Mailbox is active!`);
 			}
 		}, 450);
-	};
-	const filteredSchedules = (0, import_react.useMemo)(() => {
-		const q = searchQuery.trim().toLowerCase();
-		if (!q) return schedules;
-		return schedules.filter((s) => s.name.toLowerCase().includes(q) || s.actionType.toLowerCase().includes(q) || s.format.toLowerCase().includes(q) || s.toAddress && s.toAddress.toLowerCase().includes(q) || s.relativeType.toLowerCase().includes(q));
-	}, [schedules, searchQuery]);
-	const [advanceModalOpen, setAdvanceModalOpen] = (0, import_react.useState)(false);
-	const [columnsConfig, setColumnsConfig] = (0, import_react.useState)(INITIAL_COLUMNS);
-	const [detailDownloadMode, setDetailDownloadMode] = (0, import_react.useState)("multiple");
-	const [criteriaCompany, setCriteriaCompany] = (0, import_react.useState)("All");
-	const [criteriaBranch, setCriteriaBranch] = (0, import_react.useState)("All");
-	const [criteriaGroup, setCriteriaGroup] = (0, import_react.useState)("All");
-	const [criteriaType, setCriteriaType] = (0, import_react.useState)("All");
-	const [criteriaBrand, setCriteriaBrand] = (0, import_react.useState)("All");
-	const [criteriaModel, setCriteriaModel] = (0, import_react.useState)("All");
-	const [criteriaDurationStatus, setCriteriaDurationStatus] = (0, import_react.useState)("All");
-	const [criteriaDurationCompare, setCriteriaDurationCompare] = (0, import_react.useState)("Greater Than");
-	const [criteriaDurationUnit, setCriteriaDurationUnit] = (0, import_react.useState)("Hour");
-	const [criteriaDurationValue, setCriteriaDurationValue] = (0, import_react.useState)("");
-	const [criteriaDistanceCompare, setCriteriaDistanceCompare] = (0, import_react.useState)("Greater Than");
-	const [criteriaDistanceValue, setCriteriaDistanceValue] = (0, import_react.useState)("");
-	const [criteriaDurationFormat, setCriteriaDurationFormat] = (0, import_react.useState)("hhmm");
-	const regionGroups = (0, import_react.useMemo)(() => {
-		let list = fleetObjects;
-		if (criteriaBranch !== "All") list = list.filter((o) => o.branch.toLowerCase().includes(criteriaBranch.toLowerCase()));
-		if (criteriaCompany !== "All") list = list.filter((o) => o.company.toLowerCase().includes(criteriaCompany.toLowerCase()));
-		const map = /* @__PURE__ */ new Map();
-		for (const v of list) {
-			const g = map.get(v.branch) ?? [];
-			g.push(v);
-			map.set(v.branch, g);
-		}
-		return [...map.entries()].map(([region, vehicles]) => ({
-			region,
-			vehicles
-		}));
-	}, [criteriaBranch, criteriaCompany]);
-	const allVisibleVehicleIds = (0, import_react.useMemo)(() => regionGroups.flatMap((g) => g.vehicles.map((v) => v.id)), [regionGroups]);
-	const isAllVehiclesSelected = allVisibleVehicleIds.length > 0 && allVisibleVehicleIds.every((id) => draft.selectedVehicles.includes(id));
-	const toggleSelectAllVehicles = () => {
-		if (isAllVehiclesSelected) setDraft((d) => ({
-			...d,
-			selectedVehicles: d.selectedVehicles.filter((id) => !allVisibleVehicleIds.includes(id))
-		}));
-		else setDraft((d) => ({
-			...d,
-			selectedVehicles: Array.from(/* @__PURE__ */ new Set([...d.selectedVehicles, ...allVisibleVehicleIds]))
-		}));
-	};
-	const toggleRegionVehicles = (vehicles) => {
-		const ids = vehicles.map((v) => v.id);
-		const allIn = ids.every((id) => draft.selectedVehicles.includes(id));
-		setDraft((d) => {
-			if (allIn) return {
-				...d,
-				selectedVehicles: d.selectedVehicles.filter((id) => !ids.includes(id))
-			};
-			else return {
-				...d,
-				selectedVehicles: Array.from(/* @__PURE__ */ new Set([...d.selectedVehicles, ...ids]))
-			};
-		});
-	};
-	const toggleSingleVehicle = (vehicleId) => {
-		setDraft((d) => {
-			const current = d.selectedVehicles;
-			const next = current.includes(vehicleId) ? current.filter((id) => id !== vehicleId) : [...current, vehicleId];
-			return {
-				...d,
-				selectedVehicles: next
-			};
-		});
 	};
 	const handleRelativeTypeChange = (newType) => {
 		let schedType = "Daily";
@@ -3088,17 +3242,19 @@ function ScheduleModal({ open, onClose }) {
 		setEditingId(null);
 		setDraft({
 			...DEFAULT_DRAFT,
-			selectedVehicles: []
+			name: `${reportTitle} Schedule`,
+			vehicleScope: "current",
+			selectedVehicles: currentLoadedVehicleIds
 		});
+		setVehicleFilterMode("current");
 		setErrors({});
-		setStep(1);
 		setView("form");
 	};
 	const startEdit = (item) => {
 		setEditingId(item.id);
 		setDraft({ ...item });
+		setVehicleFilterMode(item.vehicleScope || "current");
 		setErrors({});
-		setStep(1);
 		setView("form");
 	};
 	const handleSave = () => {
@@ -3125,27 +3281,31 @@ function ScheduleModal({ open, onClose }) {
 			setErrors(newErrors);
 			return;
 		}
+		const finalVehicles = vehicleFilterMode === "current" ? currentLoadedVehicleIds : draft.selectedVehicles.length > 0 ? draft.selectedVehicles : customFilteredVehicleIds;
+		const payload = {
+			...draft,
+			id: editingId || `sched-${Date.now()}`,
+			vehicleScope: vehicleFilterMode,
+			selectedVehicles: finalVehicles
+		};
 		if (editingId) {
-			setSchedules((prev) => prev.map((s) => s.id === editingId ? {
-				...draft,
-				id: editingId
-			} : s));
+			setSchedules((prev) => prev.map((s) => s.id === editingId ? payload : s));
 			toast.success("Schedule updated successfully");
 		} else {
-			const newSchedule = {
-				...draft,
-				id: `sched-${Date.now()}`
-			};
-			setSchedules((prev) => [...prev, newSchedule]);
-			toast.success("Schedule created successfully");
+			setSchedules((prev) => [...prev, payload]);
+			toast.success("Schedule report created successfully");
 		}
-		setView("list");
+		onClose();
 	};
 	const handleDelete = (id) => {
 		setSchedules((prev) => prev.filter((s) => s.id !== id));
 		toast.success("Schedule removed");
-		setView("list");
 	};
+	const filteredSchedules = (0, import_react.useMemo)(() => {
+		const q = searchQuery.trim().toLowerCase();
+		if (!q) return schedules;
+		return schedules.filter((s) => s.name.toLowerCase().includes(q) || s.actionType.toLowerCase().includes(q) || s.format.toLowerCase().includes(q) || s.toAddress && s.toAddress.toLowerCase().includes(q) || s.relativeType.toLowerCase().includes(q));
+	}, [schedules, searchQuery]);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
 		open ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 			type: "button",
@@ -3160,76 +3320,42 @@ function ScheduleModal({ open, onClose }) {
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
 					className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-						className: "text-[16px] font-semibold tracking-tight text-foreground",
-						children: view === "list" ? "Scheduled Reports" : editingId ? "Edit Schedule Report" : "Create Schedule Report"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-						type: "button",
-						"aria-label": "Close scheduled reports panel",
-						onClick: onClose,
-						className: "rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
-					})]
-				}),
-				view === "form" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex h-10 items-center justify-between border-b border-border bg-muted/20 px-5 text-xs select-none shrink-0",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center gap-2.5",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-								type: "button",
-								onClick: () => setStep(1),
-								className: cn("flex items-center gap-1.5 font-semibold transition-colors cursor-pointer", step === 1 ? "text-[#0089FF]" : "text-muted-foreground hover:text-foreground"),
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									className: cn("flex h-5 w-5 items-center justify-center rounded-md text-[11px] font-bold", step === 1 ? "bg-[#0089FF] text-white shadow-xs" : "bg-muted text-muted-foreground"),
-									children: "1"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select Vehicles" })]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: "h-3.5 w-3.5 text-muted-foreground/50" }),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-								type: "button",
-								onClick: () => setStep(2),
-								className: cn("flex items-center gap-1.5 font-semibold transition-colors cursor-pointer", step === 2 ? "text-[#0089FF]" : "text-muted-foreground hover:text-foreground"),
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									className: cn("flex h-5 w-5 items-center justify-center rounded-md text-[11px] font-bold", step === 2 ? "bg-[#0089FF] text-white shadow-xs" : "bg-muted text-muted-foreground"),
-									children: "2"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Configure Settings" })]
-							})
-						]
+						className: "flex items-center gap-2",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+							className: "text-[16px] font-semibold tracking-tight text-foreground",
+							children: view === "list" ? "Scheduled Reports" : editingId ? "Edit Schedule Report" : "Create Schedule Report"
+						}), schedules.length > 0 && view === "form" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							type: "button",
+							onClick: () => setView("list"),
+							className: "px-2 py-0.5 text-[11px] font-semibold text-[#0089FF] bg-[#0089FF]/10 hover:bg-[#0089FF]/20 rounded-md transition-colors cursor-pointer",
+							title: "View saved scheduled reports",
+							children: [
+								"Saved (",
+								schedules.length,
+								")"
+							]
+						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "text-[11px] text-muted-foreground font-semibold bg-muted/60 px-2 py-0.5 rounded-md",
-						children: [
-							"Step ",
-							step,
-							" of 2"
-						]
+						className: "flex items-center gap-1",
+						children: [view === "list" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							type: "button",
+							onClick: startCreate,
+							className: "px-2 py-1 text-xs font-semibold text-[#0089FF] hover:bg-muted rounded-md transition-colors cursor-pointer flex items-center gap-1",
+							title: "Create New Schedule",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "New" })]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							"aria-label": "Close scheduled reports panel",
+							onClick: onClose,
+							className: "rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
+						})]
 					})]
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 					className: "flex-1 min-h-0 flex flex-col overflow-hidden",
-					children: view === "list" ? schedules.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex flex-col items-center justify-center flex-1 py-12 px-6 text-center animate-in fade-in-50 duration-200 select-none",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								className: "mb-4 flex items-center justify-center",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CalendarClock, { className: "h-14 w-14 text-[#0089FF] stroke-[1.5]" })
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								className: "text-base font-bold text-foreground tracking-tight",
-								children: "No scheduled reports yet"
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								className: "mt-2 text-xs text-muted-foreground max-w-xs leading-relaxed",
-								children: "Create a schedule to receive reports automatically at your preferred time and frequency."
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-								type: "button",
-								onClick: startCreate,
-								className: "mt-6 inline-flex items-center gap-2 rounded-md bg-[#0089FF] px-4.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] active:scale-98 cursor-pointer transition-all",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-4 w-4" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Create New Schedule" })]
-							})
-						]
-					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					children: view === "list" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex-1 min-h-0 flex flex-col overflow-hidden",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "flex items-center justify-between gap-2 px-4 pt-3.5 pb-2 shrink-0",
@@ -3337,338 +3463,177 @@ function ScheduleModal({ open, onClose }) {
 								]
 							})]
 						})]
-					}) : step === 1 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar select-none",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "grid grid-cols-2 gap-3",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Company"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-											value: criteriaCompany,
-											options: COMPANIES,
-											onChange: setCriteriaCompany
-										})]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Branch"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-											value: criteriaBranch,
-											options: ["All", ...getBranchesForCompanies$1(criteriaCompany === "All" ? ["ABC Logistic"] : [criteriaCompany])],
-											onChange: setCriteriaBranch
-										})]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Vehicle Group"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-											value: criteriaGroup,
-											options: [
-												"All",
-												"HP Group",
-												"Trucks",
-												"Buses",
-												"Cars",
-												"Cold Chain"
-											],
-											onChange: setCriteriaGroup
-										})]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Vehicle Type"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-											value: criteriaType,
-											options: [
-												"All",
-												"Dumper",
-												"Truck",
-												"Bus",
-												"SUV",
-												"Taxi"
-											],
-											onChange: setCriteriaType
-										})]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Vehicle Brand"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-											value: criteriaBrand,
-											options: [
-												"All",
-												"Ashok Leyland",
-												"Tata Motors",
-												"BharatBenz",
-												"Volvo"
-											],
-											onChange: setCriteriaBrand
-										})]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Vehicle Model"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-											value: criteriaModel,
-											options: [
-												"All",
-												"10 Wheel",
-												"12 Wheel",
-												"6 Wheel",
-												"4 Wheel"
-											],
-											onChange: setCriteriaModel
-										})]
-									})
-								]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1 pt-1",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "flex items-center justify-between",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: "Select Vehicle"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-										className: "text-[10px] font-medium text-muted-foreground",
-										children: [
-											draft.selectedVehicles.length,
-											" of ",
-											allVisibleVehicleIds.length,
-											" Selected"
-										]
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VehicleMultiSelectDropdown, {
-									selectedVehicles: draft.selectedVehicles,
-									onToggleVehicle: toggleSingleVehicle,
-									onToggleRegion: toggleRegionVehicles,
-									regionGroups,
-									allVisibleVehicleIds,
-									isAllSelected: isAllVehiclesSelected,
-									onToggleSelectAll: toggleSelectAllVehicles
-								})]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-3 pt-1 border-t border-border/60",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "grid grid-cols-2 gap-3 pt-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: "Duration Status"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-												value: criteriaDurationStatus,
-												options: DURATION_STATUS,
-												onChange: setCriteriaDurationStatus
-											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: "Duration Format"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-4 h-7.5",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-													className: "flex items-center gap-1.5 text-xs text-foreground cursor-pointer select-none font-medium",
-													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-														type: "radio",
-														name: "durationFormat",
-														checked: criteriaDurationFormat === "hhmm",
-														onChange: () => setCriteriaDurationFormat("hhmm"),
-														className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-													}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "HH:MM" })]
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-													className: "flex items-center gap-1.5 text-xs text-foreground cursor-pointer select-none font-medium",
-													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-														type: "radio",
-														name: "durationFormat",
-														checked: criteriaDurationFormat === "decimal",
-														onChange: () => setCriteriaDurationFormat("decimal"),
-														className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-													}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Decimal" })]
-												})]
-											})]
-										})]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Duration Filter"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "grid grid-cols-12 gap-1.5",
-											children: [
-												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-													className: "col-span-5",
-													children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-														value: criteriaDurationCompare,
-														options: COMPARATORS,
-														onChange: setCriteriaDurationCompare,
-														placeholder: "Comparator"
-													})
-												}),
-												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-													className: "col-span-4",
-													children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-														value: criteriaDurationUnit,
-														options: DURATION_UNITS,
-														onChange: setCriteriaDurationUnit,
-														placeholder: "Unit"
-													})
-												}),
-												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-													className: "col-span-3",
-													children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-														type: "text",
-														value: criteriaDurationValue,
-														onChange: (e) => setCriteriaDurationValue(e.target.value),
-														placeholder: "e.g. 5",
-														className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-													})
-												})
-											]
-										})]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Distance Filter (km)"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "grid grid-cols-12 gap-1.5",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-												className: "col-span-7",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-													value: criteriaDistanceCompare,
-													options: COMPARATORS,
-													onChange: setCriteriaDistanceCompare,
-													placeholder: "Comparator"
-												})
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-												className: "col-span-5",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "text",
-													value: criteriaDistanceValue,
-													onChange: (e) => setCriteriaDistanceValue(e.target.value),
-													placeholder: "e.g. 100",
-													className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-												})
-											})]
-										})]
-									})
-								]
-							})
-						]
 					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar select-none",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-3",
+								className: "space-y-1",
 								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: ["Report Name ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-													className: "text-red-500 font-bold ml-0.5",
-													children: "*"
-												})]
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-												type: "text",
-												value: draft.name,
-												onChange: (e) => {
-													setDraft((d) => ({
-														...d,
-														name: e.target.value
-													}));
-													if (e.target.value.trim()) setErrors((prev) => ({
-														...prev,
-														name: void 0
-													}));
-												},
-												placeholder: "e.g. Weekly Operations Summary",
-												className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.name ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-											}),
-											errors.name && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.name })]
-											})
-										]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "grid grid-cols-2 gap-3",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: "Copy From"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-												value: copyFrom,
-												options: ["None", ...schedules.map((s) => s.name)],
-												onChange: handleCopySettings
-											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: "Relative Type"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-												value: draft.relativeType,
-												options: RELATIVE_TYPES,
-												onChange: handleRelativeTypeChange
-											})]
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "block text-[11px] font-semibold text-foreground",
+										children: ["Report Name ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-red-500 font-bold ml-0.5",
+											children: "*"
 										})]
 									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "grid grid-cols-2 gap-3",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: "Timezone"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-												value: draft.timezone,
-												options: TIMEZONES,
-												onChange: (timezone) => setDraft((d) => ({
-													...d,
-													timezone
-												}))
-											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: "Generation Time"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-												value: draft.generationTime,
-												options: GENERATION_TIMES,
-												onChange: (generationTime) => setDraft((d) => ({
-													...d,
-													generationTime
-												}))
-											})]
-										})]
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										type: "text",
+										value: draft.name,
+										onChange: (e) => {
+											setDraft((d) => ({
+												...d,
+												name: e.target.value
+											}));
+											if (e.target.value.trim()) setErrors((prev) => ({
+												...prev,
+												name: void 0
+											}));
+										},
+										placeholder: "e.g. Weekly Operations Summary",
+										className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.name ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+									}),
+									errors.name && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.name })]
 									})
 								]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-2 p-3 rounded-lg border border-border/80 bg-muted/20",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "flex items-center justify-between",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-[11px] font-semibold text-foreground",
+										children: "Vehicles to Include"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full",
+										children: vehicleFilterMode === "current" ? `${currentLoadedVehicles.length} Loaded Vehicles` : `${draft.selectedVehicles.length > 0 ? draft.selectedVehicles.length : customFilteredVehicleIds.length} Custom Selected`
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "grid grid-cols-2 gap-2",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: cn("flex flex-col gap-1 p-2.5 rounded-md border text-xs cursor-pointer transition-all select-none", vehicleFilterMode === "current" ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30" : "border-border/70 bg-background hover:bg-muted/40"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-center gap-1.5",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "radio",
+												name: "vehicleFilterMode",
+												checked: vehicleFilterMode === "current",
+												onChange: () => {
+													setVehicleFilterMode("current");
+													setDraft((d) => ({
+														...d,
+														selectedVehicles: currentLoadedVehicleIds
+													}));
+												},
+												className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "font-semibold text-foreground",
+												children: "Current Filter"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+											className: "text-[10px] text-muted-foreground pl-5 leading-tight",
+											children: [
+												"Use currently loaded vehicles (",
+												currentLoadedVehicles.length,
+												")"
+											]
+										})]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										onClick: () => {
+											if (vehicleFilterMode !== "custom") setVehicleFilterMode("custom");
+										},
+										className: cn("flex flex-col gap-1 p-2.5 rounded-md border text-xs cursor-pointer transition-all select-none", vehicleFilterMode === "custom" ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30" : "border-border/70 bg-background hover:bg-muted/40"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: "flex items-center justify-between",
+											children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-1.5",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+													type: "radio",
+													name: "vehicleFilterMode",
+													checked: vehicleFilterMode === "custom",
+													onChange: () => {
+														setVehicleFilterMode("custom");
+														handleOpenCustomVehicleOverlay();
+													},
+													className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "font-semibold text-foreground",
+													children: "Custom Filter"
+												})]
+											})
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-center justify-between pl-5 mt-0.5",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "text-[10px] text-muted-foreground leading-tight",
+												children: vehicleFilterMode === "custom" && draft.selectedVehicles.length > 0 ? `${draft.selectedVehicles.length} vehicles` : "Pick vehicles"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+												type: "button",
+												onClick: (e) => {
+													e.stopPropagation();
+													setVehicleFilterMode("custom");
+													handleOpenCustomVehicleOverlay();
+												},
+												className: "text-[10px] font-semibold text-[#0089FF] hover:underline cursor-pointer",
+												children: vehicleFilterMode === "custom" && draft.selectedVehicles.length > 0 ? "Change" : "Select"
+											})]
+										})]
+									})]
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "grid grid-cols-2 gap-3",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "space-y-1",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+										className: "block text-[11px] font-semibold text-foreground",
+										children: "Copy From"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+										value: copyFrom,
+										options: ["None", ...schedules.map((s) => s.name)],
+										onChange: handleCopySettings
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "space-y-1",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+										className: "block text-[11px] font-semibold text-foreground",
+										children: "Relative Type"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+										value: draft.relativeType,
+										options: RELATIVE_TYPES,
+										onChange: handleRelativeTypeChange
+									})]
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "grid grid-cols-2 gap-3",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "space-y-1",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+										className: "block text-[11px] font-semibold text-foreground",
+										children: "Timezone"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+										value: draft.timezone,
+										options: TIMEZONES,
+										onChange: (timezone) => setDraft((d) => ({
+											...d,
+											timezone
+										}))
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "space-y-1",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+										className: "block text-[11px] font-semibold text-foreground",
+										children: "Generation Time"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+										value: draft.generationTime,
+										options: GENERATION_TIMES,
+										onChange: (generationTime) => setDraft((d) => ({
+											...d,
+											generationTime
+										}))
+									})]
+								})]
 							}),
 							(draft.scheduleType === "Weekly" || draft.scheduleType === "Monthly") && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "pt-1 space-y-2 border-t border-border/60",
@@ -3761,605 +3726,530 @@ function ScheduleModal({ open, onClose }) {
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-1 space-y-3 border-t border-border/60",
+								className: "pt-1 space-y-1 border-t border-border/60",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "Report Type"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "flex items-center gap-5 h-7.5",
+									children: [
+										"Summary",
+										"Daily",
+										"Detail"
+									].map((level) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "reportType",
+											checked: draft.reportType === level,
+											onChange: () => setDraft((d) => ({
+												...d,
+												reportType: level
+											})),
+											className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: level })]
+									}, level))
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "Delivery Method"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "flex items-center gap-4 h-7.5 flex-wrap",
+									children: [
+										"Email",
+										"FTP",
+										"SFTP",
+										"Media API"
+									].map((method) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "actionType",
+											checked: draft.actionType === method,
+											onChange: () => setDraft((d) => ({
+												...d,
+												actionType: method
+											})),
+											className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: method })]
+									}, method))
+								})]
+							}),
+							draft.actionType === "Email" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Report Type"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											className: "flex items-center gap-5 h-7.5",
-											children: [
-												"Summary",
-												"Daily",
-												"Detail"
-											].map((level) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium",
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: ["To Address ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-red-500 font-bold ml-0.5",
+													children: "*"
+												})]
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-2",
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "radio",
-													name: "reportType",
-													checked: draft.reportType === level,
-													onChange: () => setDraft((d) => ({
-														...d,
-														reportType: level
-													})),
-													className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: level })]
-											}, level))
+													type: "email",
+													value: draft.toAddress,
+													onChange: (e) => {
+														setEmailVerificationStatus("idle");
+														setDraft((d) => ({
+															...d,
+															toAddress: e.target.value
+														}));
+														if (e.target.value.trim()) setErrors((prev) => ({
+															...prev,
+															toAddress: void 0
+														}));
+													},
+													placeholder: "manager@company.com",
+													className: cn("h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", emailVerificationStatus === "success" ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" : emailVerificationStatus === "failed" || errors.toAddress ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+													type: "button",
+													disabled: emailVerificationStatus === "verifying",
+													onClick: handleVerifyEmail,
+													className: cn("px-3 h-7.5 text-xs rounded-md border font-semibold cursor-pointer transition-all shadow-2xs active:scale-98 inline-flex items-center gap-1.5 shrink-0", emailVerificationStatus === "verifying" && "opacity-75 cursor-wait border-input/80 bg-muted/40 text-muted-foreground", emailVerificationStatus === "success" && "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20", emailVerificationStatus === "failed" && "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20", emailVerificationStatus === "idle" && "border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 text-foreground"),
+													children: [
+														emailVerificationStatus === "verifying" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Verifying..." })] }),
+														emailVerificationStatus === "success" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { className: "h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Verified" })] }),
+														emailVerificationStatus === "failed" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleX, { className: "h-3.5 w-3.5 text-red-600 dark:text-red-400" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Failed" })] }),
+														emailVerificationStatus === "idle" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Verify" })
+													]
+												})]
+											}),
+											emailVerificationStatus === "success" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium animate-in fade-in duration-150",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { className: "h-3 w-3 shrink-0 text-emerald-600" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Recipient email verified & active." })]
+											}),
+											(emailVerificationStatus === "failed" || errors.toAddress) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.toAddress || "Verification failed: Invalid email Id" })]
+											})
+										]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "grid grid-cols-2 gap-3",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: "Retry Window (Mins)"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: draft.emailRetryWindow,
+												onChange: (e) => setDraft((d) => ({
+													...d,
+													emailRetryWindow: e.target.value
+												})),
+												placeholder: "15",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: "Subject"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: draft.subject,
+												onChange: (e) => setDraft((d) => ({
+													...d,
+													subject: e.target.value
+												})),
+												placeholder: "Weekly Report",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+											})]
 										})]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Delivery Method"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											className: "flex items-center gap-4 h-7.5 flex-wrap",
-											children: [
-												"Email",
-												"FTP",
-												"SFTP",
-												"Media API"
-											].map((method) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "radio",
-													name: "actionType",
-													checked: draft.actionType === method,
-													onChange: () => setDraft((d) => ({
-														...d,
-														actionType: method
-													})),
-													className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: method })]
-											}, method))
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-center justify-between",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: "Message"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-0.5 border border-border rounded-md bg-muted/30 px-1 py-0.5",
+												children: [
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+														type: "button",
+														className: "p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bold, { className: "h-2.5 w-2.5" })
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+														type: "button",
+														className: "p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Italic, { className: "h-2.5 w-2.5" })
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+														type: "button",
+														className: "p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Underline, { className: "h-2.5 w-2.5" })
+													})
+												]
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+											rows: 2,
+											value: draft.message,
+											onChange: (e) => setDraft((d) => ({
+												...d,
+												message: e.target.value
+											})),
+											placeholder: "Write your email body message here...",
+											className: "w-full rounded-md border border-input/80 bg-background p-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
 										})]
-									}),
-									draft.actionType === "Email" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "space-y-1",
-												children: [
-													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-														className: "block text-[11px] font-semibold text-foreground",
-														children: ["To Address ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-															className: "text-red-500 font-bold ml-0.5",
-															children: "*"
-														})]
-													}),
-													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-														className: "flex items-center gap-2",
-														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "email",
-															value: draft.toAddress,
-															onChange: (e) => {
-																setEmailVerificationStatus("idle");
-																setDraft((d) => ({
-																	...d,
-																	toAddress: e.target.value
-																}));
-																if (e.target.value.trim()) setErrors((prev) => ({
-																	...prev,
-																	toAddress: void 0
-																}));
-															},
-															placeholder: "manager@company.com",
-															className: cn("h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", emailVerificationStatus === "success" ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" : emailVerificationStatus === "failed" || errors.toAddress ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-														}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-															type: "button",
-															disabled: emailVerificationStatus === "verifying",
-															onClick: handleVerifyEmail,
-															className: cn("px-3 h-7.5 text-xs rounded-md border font-semibold cursor-pointer transition-all shadow-2xs active:scale-98 inline-flex items-center gap-1.5 shrink-0", emailVerificationStatus === "verifying" && "opacity-75 cursor-wait border-input/80 bg-muted/40 text-muted-foreground", emailVerificationStatus === "success" && "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20", emailVerificationStatus === "failed" && "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20", emailVerificationStatus === "idle" && "border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 text-foreground"),
-															children: [
-																emailVerificationStatus === "verifying" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Verifying..." })] }),
-																emailVerificationStatus === "success" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { className: "h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Verified" })] }),
-																emailVerificationStatus === "failed" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleX, { className: "h-3.5 w-3.5 text-red-600 dark:text-red-400" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Failed" })] }),
-																emailVerificationStatus === "idle" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Verify" })
-															]
-														})]
-													}),
-													emailVerificationStatus === "success" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-														className: "flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium animate-in fade-in duration-150",
-														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { className: "h-3 w-3 shrink-0 text-emerald-600" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Recipient email verified & active." })]
-													}),
-													(emailVerificationStatus === "failed" || errors.toAddress) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-														className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150",
-														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.toAddress || "Verification failed: Invalid email Id" })]
-													})
-												]
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "grid grid-cols-2 gap-3",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-														className: "block text-[11px] font-semibold text-foreground",
-														children: "Retry Window (Mins)"
-													}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-														type: "text",
-														value: draft.emailRetryWindow,
-														onChange: (e) => setDraft((d) => ({
-															...d,
-															emailRetryWindow: e.target.value
-														})),
-														placeholder: "15",
-														className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-													})]
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-														className: "block text-[11px] font-semibold text-foreground",
-														children: "Subject"
-													}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-														type: "text",
-														value: draft.subject,
-														onChange: (e) => setDraft((d) => ({
-															...d,
-															subject: e.target.value
-														})),
-														placeholder: "Weekly Report",
-														className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-													})]
-												})]
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "space-y-1",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "flex items-center justify-between",
-													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-														className: "block text-[11px] font-semibold text-foreground",
-														children: "Message"
-													}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-														className: "flex items-center gap-0.5 border border-border rounded-md bg-muted/30 px-1 py-0.5",
-														children: [
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-																type: "button",
-																className: "p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground",
-																children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bold, { className: "h-2.5 w-2.5" })
-															}),
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-																type: "button",
-																className: "p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground",
-																children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Italic, { className: "h-2.5 w-2.5" })
-															}),
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-																type: "button",
-																className: "p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground",
-																children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Underline, { className: "h-2.5 w-2.5" })
-															})
-														]
-													})]
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
-													rows: 2,
-													value: draft.message,
-													onChange: (e) => setDraft((d) => ({
-														...d,
-														message: e.target.value
-													})),
-													placeholder: "Write your email body message here...",
-													className: "w-full rounded-md border border-input/80 bg-background p-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
-												})]
-											})
-										]
-									}),
-									draft.actionType === "FTP" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "grid grid-cols-2 gap-3",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-															className: "block text-[11px] font-semibold text-foreground",
-															children: ["Host Address ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "text-red-500 font-bold ml-0.5",
-																children: "*"
-															})]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "text",
-															value: draft.ftpHost || "",
-															onChange: (e) => {
-																setDraft((d) => ({
-																	...d,
-																	ftpHost: e.target.value
-																}));
-																if (e.target.value.trim()) setErrors((prev) => ({
-																	...prev,
-																	ftpHost: void 0
-																}));
-															},
-															placeholder: "ftp.example.com",
-															className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpHost ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-														}),
-														errors.ftpHost && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.ftpHost })]
-														})
-													]
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-															className: "block text-[11px] font-semibold text-foreground",
-															children: ["Port ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "text-red-500 font-bold ml-0.5",
-																children: "*"
-															})]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "text",
-															value: draft.ftpPort || "21",
-															onChange: (e) => {
-																setDraft((d) => ({
-																	...d,
-																	ftpPort: e.target.value
-																}));
-																if (e.target.value.trim()) setErrors((prev) => ({
-																	...prev,
-																	ftpPort: void 0
-																}));
-															},
-															placeholder: "21",
-															className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpPort ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-														}),
-														errors.ftpPort && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.ftpPort })]
-														})
-													]
-												})]
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "grid grid-cols-2 gap-3",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-															className: "block text-[11px] font-semibold text-foreground",
-															children: ["Username ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "text-red-500 font-bold ml-0.5",
-																children: "*"
-															})]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "text",
-															value: draft.ftpUsername || "",
-															onChange: (e) => {
-																setDraft((d) => ({
-																	...d,
-																	ftpUsername: e.target.value
-																}));
-																if (e.target.value.trim()) setErrors((prev) => ({
-																	...prev,
-																	ftpUsername: void 0
-																}));
-															},
-															placeholder: "ftp_user",
-															className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpUsername ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-														}),
-														errors.ftpUsername && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.ftpUsername })]
-														})
-													]
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-															className: "block text-[11px] font-semibold text-foreground",
-															children: ["Password ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "text-red-500 font-bold ml-0.5",
-																children: "*"
-															})]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "password",
-															value: draft.ftpPassword || "",
-															onChange: (e) => {
-																setDraft((d) => ({
-																	...d,
-																	ftpPassword: e.target.value
-																}));
-																if (e.target.value.trim()) setErrors((prev) => ({
-																	...prev,
-																	ftpPassword: void 0
-																}));
-															},
-															placeholder: "••••••••",
-															className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpPassword ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-														}),
-														errors.ftpPassword && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.ftpPassword })]
-														})
-													]
-												})]
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "space-y-1",
-												children: [
-													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-														className: "block text-[11px] font-semibold text-foreground",
-														children: ["Folder Name ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-															className: "text-red-500 font-bold ml-0.5",
-															children: "*"
-														})]
-													}),
-													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-														type: "text",
-														value: draft.ftpFolder || "",
-														onChange: (e) => {
-															setDraft((d) => ({
-																...d,
-																ftpFolder: e.target.value
-															}));
-															if (e.target.value.trim()) setErrors((prev) => ({
-																...prev,
-																ftpFolder: void 0
-															}));
-														},
-														placeholder: "/reports/daily",
-														className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpFolder ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-													}),
-													errors.ftpFolder && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-														className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.ftpFolder })]
-													})
-												]
-											})
-										]
-									}),
-									draft.actionType === "SFTP" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "space-y-1",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-													className: "block text-[11px] font-semibold text-foreground",
-													children: ["Platform ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-														className: "text-red-500 font-bold ml-0.5",
-														children: "*"
-													})]
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-													value: draft.sftpPlatform || "Amazon S3",
-													options: SFTP_PLATFORMS,
-													onChange: (sftpPlatform) => setDraft((d) => ({
-														...d,
-														sftpPlatform
-													}))
-												})]
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "grid grid-cols-2 gap-3",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-															className: "block text-[11px] font-semibold text-foreground",
-															children: ["Access key ID ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "text-red-500 font-bold ml-0.5",
-																children: "*"
-															})]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "text",
-															value: draft.sftpAccessKey || "",
-															onChange: (e) => {
-																setDraft((d) => ({
-																	...d,
-																	sftpAccessKey: e.target.value
-																}));
-																if (e.target.value.trim()) setErrors((prev) => ({
-																	...prev,
-																	sftpAccessKey: void 0
-																}));
-															},
-															placeholder: "AKIAIOSFODNN7EXAMPLE",
-															className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.sftpAccessKey ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-														}),
-														errors.sftpAccessKey && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.sftpAccessKey })]
-														})
-													]
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-															className: "block text-[11px] font-semibold text-foreground",
-															children: ["Secret Access Key ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "text-red-500 font-bold ml-0.5",
-																children: "*"
-															})]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "password",
-															value: draft.sftpSecretKey || "",
-															onChange: (e) => {
-																setDraft((d) => ({
-																	...d,
-																	sftpSecretKey: e.target.value
-																}));
-																if (e.target.value.trim()) setErrors((prev) => ({
-																	...prev,
-																	sftpSecretKey: void 0
-																}));
-															},
-															placeholder: "••••••••••••••••••••",
-															className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.sftpSecretKey ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-														}),
-														errors.sftpSecretKey && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.sftpSecretKey })]
-														})
-													]
-												})]
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "grid grid-cols-2 gap-3",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-															className: "block text-[11px] font-semibold text-foreground",
-															children: ["Region ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "text-red-500 font-bold ml-0.5",
-																children: "*"
-															})]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "text",
-															value: draft.sftpRegion || "",
-															onChange: (e) => {
-																setDraft((d) => ({
-																	...d,
-																	sftpRegion: e.target.value
-																}));
-																if (e.target.value.trim()) setErrors((prev) => ({
-																	...prev,
-																	sftpRegion: void 0
-																}));
-															},
-															placeholder: "ap-south-1",
-															className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.sftpRegion ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-														}),
-														errors.sftpRegion && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.sftpRegion })]
-														})
-													]
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "space-y-1",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-															className: "block text-[11px] font-semibold text-foreground",
-															children: ["Bucket Name ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "text-red-500 font-bold ml-0.5",
-																children: "*"
-															})]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-															type: "text",
-															value: draft.sftpBucketName || "",
-															onChange: (e) => {
-																setDraft((d) => ({
-																	...d,
-																	sftpBucketName: e.target.value
-																}));
-																if (e.target.value.trim()) setErrors((prev) => ({
-																	...prev,
-																	sftpBucketName: void 0
-																}));
-															},
-															placeholder: "fleet-reports",
-															className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.sftpBucketName ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-														}),
-														errors.sftpBucketName && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.sftpBucketName })]
-														})
-													]
-												})]
-											})
-										]
-									}),
-									draft.actionType === "Media API" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
+									})
+								]
+							}),
+							draft.actionType === "FTP" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "grid grid-cols-2 gap-3",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "space-y-1",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 												className: "block text-[11px] font-semibold text-foreground",
-												children: ["Gateway ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												children: ["Host Address ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
 												})]
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-												value: draft.mediaGateway || "WhatsApp",
-												options: MEDIA_GATEWAYS,
-												onChange: (mediaGateway) => setDraft((d) => ({
-													...d,
-													mediaGateway
-												}))
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: draft.ftpHost || "",
+												onChange: (e) => {
+													setDraft((d) => ({
+														...d,
+														ftpHost: e.target.value
+													}));
+													if (e.target.value.trim()) setErrors((prev) => ({
+														...prev,
+														ftpHost: void 0
+													}));
+												},
+												placeholder: "ftp.example.com",
+												className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpHost ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "space-y-1",
-											children: [
-												/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "flex items-center justify-between",
-													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-														className: "block text-[11px] font-semibold text-foreground",
-														children: ["Recipient Number ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-															className: "text-red-500 font-bold ml-0.5",
-															children: "*"
-														})]
-													}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-														className: "text-[10px] text-muted-foreground font-medium",
-														children: "Comma (,) for multiple"
-													})]
-												}),
-												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
-													rows: 2,
-													value: draft.mediaRecipientNumber || "",
-													onChange: (e) => {
-														setDraft((d) => ({
-															...d,
-															mediaRecipientNumber: e.target.value
-														}));
-														if (e.target.value.trim()) setErrors((prev) => ({
-															...prev,
-															mediaRecipientNumber: void 0
-														}));
-													},
-													placeholder: "+91 9876543210, +1 5550192834",
-													className: cn("w-full rounded-md border bg-background p-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none", errors.mediaRecipientNumber ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-												}),
-												errors.mediaRecipientNumber && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium",
-													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.mediaRecipientNumber })]
-												})
-											]
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: ["Port ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-red-500 font-bold ml-0.5",
+													children: "*"
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: draft.ftpPort || "21",
+												onChange: (e) => {
+													setDraft((d) => ({
+														...d,
+														ftpPort: e.target.value
+													}));
+													if (e.target.value.trim()) setErrors((prev) => ({
+														...prev,
+														ftpPort: void 0
+													}));
+												},
+												placeholder: "21",
+												className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpPort ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+											})]
 										})]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1 pt-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "File Format"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											className: "flex items-center gap-5 h-7.5",
-											children: [
-												"XLS",
-												"PDF",
-												"CSV"
-											].map((fmt) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "radio",
-													name: "format",
-													checked: draft.format === fmt,
-													onChange: () => setDraft((d) => ({
+										className: "grid grid-cols-2 gap-3",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: ["Username ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-red-500 font-bold ml-0.5",
+													children: "*"
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: draft.ftpUsername || "",
+												onChange: (e) => {
+													setDraft((d) => ({
 														...d,
-														format: fmt
-													})),
-													className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: fmt })]
-											}, fmt))
+														ftpUsername: e.target.value
+													}));
+													if (e.target.value.trim()) setErrors((prev) => ({
+														...prev,
+														ftpUsername: void 0
+													}));
+												},
+												placeholder: "ftp_user",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: ["Password ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-red-500 font-bold ml-0.5",
+													children: "*"
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "password",
+												value: draft.ftpPassword || "",
+												onChange: (e) => {
+													setDraft((d) => ({
+														...d,
+														ftpPassword: e.target.value
+													}));
+													if (e.target.value.trim()) setErrors((prev) => ({
+														...prev,
+														ftpPassword: void 0
+													}));
+												},
+												placeholder: "••••••••",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											})]
 										})]
 									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										className: "pt-1",
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-											type: "button",
-											onClick: () => setAdvanceModalOpen(true),
-											className: "inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/60 transition-all cursor-pointer shadow-2xs active:scale-98",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, { className: "h-3.5 w-3.5 text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Advance Configuration" })]
-										})
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "space-y-1",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+											className: "block text-[11px] font-semibold text-foreground",
+											children: ["Folder Name ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "text-red-500 font-bold ml-0.5",
+												children: "*"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "text",
+											value: draft.ftpFolder || "",
+											onChange: (e) => {
+												setDraft((d) => ({
+													...d,
+													ftpFolder: e.target.value
+												}));
+												if (e.target.value.trim()) setErrors((prev) => ({
+													...prev,
+													ftpFolder: void 0
+												}));
+											},
+											placeholder: "/reports/daily",
+											className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+										})]
 									})
 								]
+							}),
+							draft.actionType === "SFTP" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "space-y-1",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+											className: "block text-[11px] font-semibold text-foreground",
+											children: ["Platform ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "text-red-500 font-bold ml-0.5",
+												children: "*"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+											value: draft.sftpPlatform || "Amazon S3",
+											options: SFTP_PLATFORMS,
+											onChange: (sftpPlatform) => setDraft((d) => ({
+												...d,
+												sftpPlatform
+											}))
+										})]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "grid grid-cols-2 gap-3",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: ["Access key ID ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-red-500 font-bold ml-0.5",
+													children: "*"
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: draft.sftpAccessKey || "",
+												onChange: (e) => {
+													setDraft((d) => ({
+														...d,
+														sftpAccessKey: e.target.value
+													}));
+													if (e.target.value.trim()) setErrors((prev) => ({
+														...prev,
+														sftpAccessKey: void 0
+													}));
+												},
+												placeholder: "AKIAIOSFODNN7EXAMPLE",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: ["Secret Access Key ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-red-500 font-bold ml-0.5",
+													children: "*"
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "password",
+												value: draft.sftpSecretKey || "",
+												onChange: (e) => {
+													setDraft((d) => ({
+														...d,
+														sftpSecretKey: e.target.value
+													}));
+													if (e.target.value.trim()) setErrors((prev) => ({
+														...prev,
+														sftpSecretKey: void 0
+													}));
+												},
+												placeholder: "••••••••••••••••••••",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											})]
+										})]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "grid grid-cols-2 gap-3",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: ["Region ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-red-500 font-bold ml-0.5",
+													children: "*"
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: draft.sftpRegion || "",
+												onChange: (e) => {
+													setDraft((d) => ({
+														...d,
+														sftpRegion: e.target.value
+													}));
+													if (e.target.value.trim()) setErrors((prev) => ({
+														...prev,
+														sftpRegion: void 0
+													}));
+												},
+												placeholder: "ap-south-1",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: ["Bucket Name ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-red-500 font-bold ml-0.5",
+													children: "*"
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: draft.sftpBucketName || "",
+												onChange: (e) => {
+													setDraft((d) => ({
+														...d,
+														sftpBucketName: e.target.value
+													}));
+													if (e.target.value.trim()) setErrors((prev) => ({
+														...prev,
+														sftpBucketName: void 0
+													}));
+												},
+												placeholder: "fleet-reports",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											})]
+										})]
+									})
+								]
+							}),
+							draft.actionType === "Media API" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "space-y-1",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "block text-[11px] font-semibold text-foreground",
+										children: ["Gateway ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-red-500 font-bold ml-0.5",
+											children: "*"
+										})]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+										value: draft.mediaGateway || "WhatsApp",
+										options: MEDIA_GATEWAYS,
+										onChange: (mediaGateway) => setDraft((d) => ({
+											...d,
+											mediaGateway
+										}))
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "space-y-1",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-center justify-between",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+											className: "block text-[11px] font-semibold text-foreground",
+											children: ["Recipient Number ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "text-red-500 font-bold ml-0.5",
+												children: "*"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-[10px] text-muted-foreground font-medium",
+											children: "Comma (,) for multiple"
+										})]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+										rows: 2,
+										value: draft.mediaRecipientNumber || "",
+										onChange: (e) => {
+											setDraft((d) => ({
+												...d,
+												mediaRecipientNumber: e.target.value
+											}));
+											if (e.target.value.trim()) setErrors((prev) => ({
+												...prev,
+												mediaRecipientNumber: void 0
+											}));
+										},
+										placeholder: "+91 9876543210, +1 5550192834",
+										className: "w-full rounded-md border border-input/80 bg-background p-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none"
+									})]
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1 pt-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "File Format"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "flex items-center gap-5 h-7.5",
+									children: [
+										"XLS",
+										"PDF",
+										"CSV"
+									].map((fmt) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "format",
+											checked: draft.format === fmt,
+											onChange: () => setDraft((d) => ({
+												...d,
+												format: fmt
+											})),
+											className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: fmt })]
+									}, fmt))
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								className: "pt-1",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+									type: "button",
+									onClick: () => setAdvanceModalOpen(true),
+									className: "inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/60 transition-all cursor-pointer shadow-2xs active:scale-98",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, { className: "h-3.5 w-3.5 text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Advance Configuration" })]
+								})
 							})
 						]
 					})
@@ -4368,14 +4258,11 @@ function ScheduleModal({ open, onClose }) {
 					className: "flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex items-center gap-2",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
-							onClick: () => {
-								if (step === 1) setView("list");
-								else setStep(1);
-							},
+							onClick: onClose,
 							className: "flex items-center gap-1.5 px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Back" })]
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Close" })
 						}), editingId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RowDeletePopover, {
 							itemName: draft.name || "this report",
 							onDelete: () => {
@@ -4385,19 +4272,14 @@ function ScheduleModal({ open, onClose }) {
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex items-center gap-3",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 							className: "text-[11px] font-medium text-muted-foreground tabular-nums",
-							children: [draft.selectedVehicles.length, " Vehicles"]
-						}), step === 1 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-							type: "button",
-							onClick: () => setStep(2),
-							className: "flex items-center gap-1.5 rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Next" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, { className: "h-3.5 w-3.5" })]
-						}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							children: vehicleFilterMode === "current" ? `${currentLoadedVehicles.length} Vehicles` : `${draft.selectedVehicles.length > 0 ? draft.selectedVehicles.length : customFilteredVehicleIds.length} Vehicles`
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
 							onClick: handleSave,
 							className: "rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98",
-							children: "Save Schedule"
+							children: editingId ? "Update Schedule" : "Schedule"
 						})]
 					})]
 				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
@@ -4415,6 +4297,331 @@ function ScheduleModal({ open, onClose }) {
 					})]
 				})
 			]
+		}),
+		vehicleOverlayOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in-0 duration-200",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "w-full max-w-[440px] rounded-xl border border-border bg-background text-foreground shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-in zoom-in-95 duration-200",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+							className: "text-[15px] font-semibold text-foreground tracking-tight",
+							children: "Select Vehicles"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "text-[10px] text-muted-foreground font-medium",
+							children: "Choose specific vehicles for this schedule"
+						})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							onClick: () => setVehicleOverlayOpen(false),
+							className: "p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
+						})]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "p-4 space-y-3 flex-1 min-h-0 overflow-y-auto custom-scrollbar",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "relative shrink-0",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3.5 w-3.5 shrink-0 text-muted-foreground" }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										type: "text",
+										value: customVehicleSearch,
+										onChange: (e) => setCustomVehicleSearch(e.target.value),
+										placeholder: "Select vehicle",
+										className: "h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
+									}),
+									customVehicleSearch && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: () => setCustomVehicleSearch(""),
+										className: "text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded mr-0.5",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3 w-3" })
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+										type: "button",
+										onClick: () => setCustomFilterOverlayOpen(!customFilterOverlayOpen),
+										className: "flex items-center gap-1 px-1 py-0.5 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] transition-colors cursor-pointer select-none shrink-0 active:scale-95",
+										title: "Filter by Company and Branch",
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { className: "h-3.5 w-3.5 text-[#0089FF]" }),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Filter" }),
+											customActiveFilterCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white",
+												children: customActiveFilterCount
+											})
+										]
+									})
+								]
+							}), customFilterOverlayOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								className: "fixed inset-0 z-40 bg-black/10",
+								onClick: () => setCustomFilterOverlayOpen(false)
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "absolute top-full left-0 right-0 z-50 mt-1.5 rounded-xl border border-border/80 bg-card p-4 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 space-y-3 custom-scrollbar",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "space-y-1",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+											className: "block text-[11px] font-semibold text-foreground",
+											children: "Company"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+											label: "Company",
+											selected: customCompanies,
+											options: COMPANIES.filter((c) => c !== "All"),
+											onChange: handleCustomCompanyChange,
+											placeholder: "Select Company"
+										})]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "space-y-1",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+											className: "block text-[11px] font-semibold text-foreground",
+											children: "Branch"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+											label: "Branch",
+											selected: customBranches,
+											options: customAvailableBranches,
+											onChange: handleCustomBranchChange,
+											placeholder: "Select Branch"
+										})]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-center justify-between pt-2 border-t border-border/60",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											onClick: () => {
+												setCustomCompanies([]);
+												setCustomBranches([]);
+											},
+											className: "text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors",
+											children: "Reset"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-center gap-1.5",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+												type: "button",
+												onClick: () => setCustomFilterOverlayOpen(false),
+												className: "px-2.5 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs",
+												children: "Close"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+												type: "button",
+												onClick: () => setCustomFilterOverlayOpen(false),
+												className: "px-3.5 py-1 rounded-md bg-[#0089FF] text-white text-xs font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98",
+												children: "Done"
+											})]
+										})]
+									})
+								]
+							})] })]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "checkbox",
+											checked: isCustomAllVehiclesSelected,
+											ref: (el) => {
+												if (el) el.indeterminate = isCustomSomeVehiclesSelected;
+											},
+											onChange: toggleSelectAllCustomVehicles,
+											className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select all" })]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-center gap-2",
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "text-[11px] font-medium text-muted-foreground",
+												children: draftCustomVehicles.length === 0 ? `All (${customFilteredVehicleIds.length})` : `${draftCustomVehicles.length} / ${customFilteredVehicleIds.length} selected`
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+												type: "button",
+												onClick: toggleAllBranchAccordions,
+												className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted",
+												title: "Expand/Collapse All Branches",
+												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronsUpDown, { className: "h-3 w-3" })
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+												type: "button",
+												onClick: () => setVehicleBoxHeight((prev) => prev > 220 ? 190 : 340),
+												className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted ml-0.5",
+												title: vehicleBoxHeight > 220 ? "Compact height" : "Expand height",
+												children: vehicleBoxHeight > 220 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Minimize2, { className: "h-3 w-3" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Maximize2, { className: "h-3 w-3" })
+											})
+										]
+									})]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									style: {
+										height: `${vehicleBoxHeight}px`,
+										maxHeight: `${vehicleBoxHeight}px`
+									},
+									className: "overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar transition-[height] duration-75 ease-out",
+									children: [groupedCustomVehicles.map(({ branch, vehicles }) => {
+										const isExpanded = openBranchGroups.includes(branch) || customVehicleSearch.trim() !== "";
+										vehicles.map((v) => v.id);
+										const selectedBranchCount = vehicles.filter((v) => draftCustomVehicles.includes(v.id)).length;
+										const isBranchAllSelected = selectedBranchCount === vehicles.length && vehicles.length > 0;
+										const isBranchSomeSelected = selectedBranchCount > 0 && !isBranchAllSelected;
+										return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "py-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors select-none",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+													className: "flex items-center gap-2 min-w-0",
+													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+														type: "checkbox",
+														"aria-label": `Select all vehicles in ${branch}`,
+														checked: isBranchAllSelected,
+														ref: (el) => {
+															if (el) el.indeterminate = isBranchSomeSelected;
+														},
+														onChange: () => toggleCustomBranchVehicles(vehicles),
+														className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+													}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+														type: "button",
+														onClick: () => toggleBranchAccordion(branch),
+														className: "flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate",
+														children: [
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-150", isExpanded && "rotate-90") }),
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																className: "truncate",
+																children: branch
+															}),
+															/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+																className: "text-[10px] tabular-nums text-muted-foreground font-normal",
+																children: [
+																	"[",
+																	vehicles.length,
+																	"]"
+																]
+															})
+														]
+													})]
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+													className: "text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full",
+													children: [
+														selectedBranchCount,
+														"/",
+														vehicles.length
+													]
+												})]
+											}), isExpanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+												className: "mt-1 pl-6 pr-2 space-y-0.5",
+												children: vehicles.map((v) => {
+													const isChecked = draftCustomVehicles.includes(v.id);
+													return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+														className: "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+															className: "flex items-center gap-2 min-w-0",
+															children: [
+																/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+																	type: "checkbox",
+																	checked: isChecked,
+																	onChange: () => toggleCustomSingleVehicle(v.id),
+																	className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+																}),
+																/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Truck, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
+																/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+																	className: "min-w-0 truncate",
+																	children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																		className: "block truncate leading-tight text-xs font-semibold",
+																		children: v.name
+																	}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+																		className: "block text-[10px] text-muted-foreground truncate leading-tight font-normal",
+																		children: [
+																			v.imei,
+																			" · ",
+																			v.driver
+																		]
+																	})]
+																})
+															]
+														})
+													}, v.id);
+												})
+											})]
+										}, branch);
+									}), groupedCustomVehicles.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "p-6 text-center text-xs text-muted-foreground italic",
+										children: [
+											"No vehicles found matching “",
+											customVehicleSearch,
+											"”"
+										]
+									})]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									onMouseDown: startResizeVehicleBox,
+									onDoubleClick: () => setVehicleBoxHeight((prev) => prev > 220 ? 190 : 340),
+									className: "relative flex h-3.5 w-full cursor-ns-resize items-center justify-center border-t border-border/60 bg-muted/20 hover:bg-muted/60 transition-colors select-none group",
+									title: "Drag to resize height (Double-click to expand/collapse)",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-1 w-8 rounded-full bg-muted-foreground/30 group-hover:bg-[#0089FF] transition-colors" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "absolute right-1 bottom-0.5 text-muted-foreground/40 group-hover:text-[#0089FF] transition-colors pointer-events-none",
+										title: "Resize handle",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", {
+											width: "6",
+											height: "6",
+											viewBox: "0 0 6 6",
+											fill: "currentColor",
+											children: [
+												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
+													cx: "5",
+													cy: "5",
+													r: "1"
+												}),
+												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
+													cx: "5",
+													cy: "1",
+													r: "1"
+												}),
+												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
+													cx: "1",
+													cy: "5",
+													r: "1"
+												})
+											]
+										})
+									})]
+								})
+							]
+						})]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							onClick: () => setDraftCustomVehicles([]),
+							className: "text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer",
+							children: "Clear All"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center gap-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: () => setVehicleOverlayOpen(false),
+								className: "px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98",
+								children: "Cancel"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: () => {
+									const chosen = draftCustomVehicles.length > 0 ? draftCustomVehicles : customFilteredVehicleIds;
+									setDraft((d) => ({
+										...d,
+										selectedVehicles: chosen
+									}));
+									setVehicleFilterMode("custom");
+									setVehicleOverlayOpen(false);
+									toast.success(`${chosen.length} vehicles selected for report schedule`);
+								},
+								className: "px-4 h-8 text-xs rounded-md bg-[#0089FF] text-white font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98",
+								children: "Apply Vehicles"
+							})]
+						})]
+					})
+				]
+			})
 		}),
 		advanceModalOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "fixed inset-0 z-[100] flex items-center justify-center p-4",
@@ -8331,7 +8538,9 @@ function ReportPage() {
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScheduleModal, {
 				open: scheduleOpen,
-				onClose: () => setScheduleOpen(false)
+				onClose: () => setScheduleOpen(false),
+				currentFilters: filters,
+				reportTitle: "Travel Summary"
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ReportModals, {
 				kind: modal,

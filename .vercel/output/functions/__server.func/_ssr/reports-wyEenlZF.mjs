@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/reports-D0j_491Z.js
+//#region node_modules/.nitro/vite/services/ssr/assets/reports-wyEenlZF.js
 var CHART_CATEGORIES = [
 	{
 		category: "activity",
@@ -2721,13 +2721,6 @@ var VEHICLE_MODELS = [
 	"1616",
 	"GLE 300d"
 ];
-var DURATION_STATUS = [
-	"All",
-	"Running",
-	"Idle",
-	"Stop",
-	"Inactive"
-];
 var COMPARATORS = [
 	"Greater Than",
 	"Less Than",
@@ -2749,4 +2742,4 @@ var DATE_PRESETS = [
 	"Custom Range"
 ];
 //#endregion
-export { getGroupsForBranches as C, temperatureSummaryRows as D, objectLevelData as E, getBranchesForCompanies as S, hourlyLevelData as T, driverJobSummaryRows as _, CHART_VEHICLES as a, fuelEvents as b, DATE_PRESETS as c, REPORT_CATEGORIES as d, VEHICLE_BRANDS as f, dailyLevelData as g, VEHICLE_TYPES as h, CHART_CATEGORIES as i, DURATION_STATUS as l, VEHICLE_MODELS as m, BRANCHES as n, COMPANIES as o, VEHICLE_GROUPS as p, BRANCH_VEHICLES_MAP as r, COMPARATORS as s, ALL_REPORTS as t, DURATION_UNITS as u, findChartItem as v, getVehiclesForBranches as w, fuelSeries as x, findReport as y };
+export { getVehiclesForBranches as C, temperatureSummaryRows as E, getGroupsForBranches as S, objectLevelData as T, findChartItem as _, CHART_VEHICLES as a, fuelSeries as b, DATE_PRESETS as c, VEHICLE_BRANDS as d, VEHICLE_GROUPS as f, driverJobSummaryRows as g, dailyLevelData as h, CHART_CATEGORIES as i, DURATION_UNITS as l, VEHICLE_TYPES as m, BRANCHES as n, COMPANIES as o, VEHICLE_MODELS as p, BRANCH_VEHICLES_MAP as r, COMPARATORS as s, ALL_REPORTS as t, REPORT_CATEGORIES as u, findReport as v, hourlyLevelData as w, getBranchesForCompanies as x, fuelEvents as y };

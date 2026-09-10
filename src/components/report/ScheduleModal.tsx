@@ -8,45 +8,38 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronRight,
+  ChevronsUpDown,
   Clock,
-  Copy,
-  Download,
   FileSpreadsheet,
   FileText,
   Fuel,
   GripVertical,
   HelpCircle,
   Italic,
-  Layers,
   List,
   Loader2,
   Mail,
   Map as MapIcon,
-  MoreVertical,
+  Maximize2,
+  Minimize2,
   Pencil,
   Plus,
   RotateCcw,
   Search,
   Settings2,
-  Sliders,
+  SlidersHorizontal,
   Trash2,
+  Truck,
   Underline,
-  UploadCloud,
   X,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
-  COMPARATORS,
+  BRANCHES,
   COMPANIES,
-  DURATION_STATUS,
-  DURATION_UNITS,
-  VEHICLE_BRANDS,
-  VEHICLE_MODELS,
-  VEHICLE_TYPES,
   getBranchesForCompanies,
-  getGroupsForBranches,
   getVehiclesForBranches,
 } from "@/data/reports";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
@@ -55,6 +48,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { type ReportFilters } from "@/components/report/ReportConfigPanel";
 import { cn } from "@/lib/utils";
 
 export type ScheduleItem = {
@@ -65,8 +59,8 @@ export type ScheduleItem = {
   relativeType: string;
   timezone: string;
   scheduleType: "Daily" | "Weekly" | "Monthly";
-  selectedDays?: string[]; // e.g. ["Mo", "We", "Fr"]
-  selectedDates?: number[]; // e.g. [1, 15]
+  selectedDays?: string[];
+  selectedDates?: number[];
   hasTimeRange: boolean;
   timeRangeStart: string;
   timeRangeEnd: string;
@@ -78,6 +72,7 @@ export type ScheduleItem = {
   emailRetryWindow: string;
   subject: string;
   message: string;
+  vehicleScope: "current" | "custom";
   selectedVehicles: string[];
   // FTP Configuration
   ftpHost?: string;
@@ -85,7 +80,7 @@ export type ScheduleItem = {
   ftpUsername?: string;
   ftpPassword?: string;
   ftpFolder?: string;
-  // SFTP Configuration (Cloud Storage)
+  // SFTP Configuration
   sftpPlatform?: string;
   sftpAccessKey?: string;
   sftpSecretKey?: string;
@@ -153,26 +148,17 @@ const INITIAL_COLUMNS: ReportColumnConfig[] = [
     sortDirection: "asc",
   },
   {
-    id: "endLocation",
-    label: "End Location",
-    showable: true,
-    printable: true,
-    sortable: false,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
     id: "distance",
     label: "Distance (km)",
     showable: true,
     printable: true,
     sortable: true,
-    sortPriority: "3",
-    sortDirection: "desc",
+    sortPriority: "-",
+    sortDirection: "asc",
   },
   {
     id: "running",
-    label: "Running Time",
+    label: "Running Duration",
     showable: true,
     printable: true,
     sortable: false,
@@ -181,7 +167,7 @@ const INITIAL_COLUMNS: ReportColumnConfig[] = [
   },
   {
     id: "idle",
-    label: "Idle Time",
+    label: "Idle Duration",
     showable: true,
     printable: true,
     sortable: false,
@@ -190,7 +176,16 @@ const INITIAL_COLUMNS: ReportColumnConfig[] = [
   },
   {
     id: "stop",
-    label: "Stop Time",
+    label: "Stop Duration",
+    showable: true,
+    printable: true,
+    sortable: false,
+    sortPriority: "-",
+    sortDirection: "asc",
+  },
+  {
+    id: "startOdometer",
+    label: "Start Odometer",
     showable: true,
     printable: true,
     sortable: false,
@@ -229,7 +224,7 @@ const INITIAL_COLUMNS: ReportColumnConfig[] = [
 const INITIAL_SCHEDULES: ScheduleItem[] = [
   {
     id: "sched-1",
-    name: "Weekly Travel Summary",
+    name: "Weekly Operations Summary",
     status: "ACTIVE",
     nextRun: "21 Aug 2026, 03:00 PM",
     relativeType: "This Week",
@@ -239,20 +234,20 @@ const INITIAL_SCHEDULES: ScheduleItem[] = [
     hasTimeRange: true,
     timeRangeStart: "12:00 AM",
     timeRangeEnd: "11:59 PM",
-    generationTime: "15:00",
+    generationTime: "09:00",
     reportType: "Summary",
     format: "XLS",
     actionType: "Email",
     toAddress: "manager@company.com",
     emailRetryWindow: "15",
-    subject: "Weekly Travel Summary Report",
-    message:
-      "Please find attached the latest travel summary report for review.",
+    subject: "Weekly Operations Summary Report",
+    message: "Please find attached the latest travel summary report for review.",
+    vehicleScope: "current",
     selectedVehicles: ["KA01AB9988", "TS07FA7788", "MH12AB1234"],
   },
   {
     id: "sched-2",
-    name: "Daily Fuel & Distance Audit",
+    name: "Daily Fuel & Activity Audit",
     status: "ACTIVE",
     nextRun: "03 Sep 2026, 06:00 AM",
     relativeType: "Yesterday",
@@ -267,30 +262,10 @@ const INITIAL_SCHEDULES: ScheduleItem[] = [
     actionType: "Email",
     toAddress: "audit@company.com",
     emailRetryWindow: "30",
-    subject: "Daily Fuel & Distance Audit",
+    subject: "Daily Fuel & Activity Audit",
     message: "Attached is the automated daily audit log.",
+    vehicleScope: "current",
     selectedVehicles: ["KA01AB9988", "MH03DE4242"],
-  },
-  {
-    id: "sched-3",
-    name: "Vehicle Idle Report",
-    status: "ACTIVE",
-    nextRun: "22 Aug 2026, 11:00 PM",
-    relativeType: "Yesterday",
-    timezone: "Asia/Kolkata (UTC+05:30)",
-    scheduleType: "Daily",
-    hasTimeRange: true,
-    timeRangeStart: "00:00",
-    timeRangeEnd: "23:59",
-    generationTime: "23:00",
-    reportType: "Detail",
-    format: "PDF",
-    actionType: "Email",
-    toAddress: "ops@company.com",
-    emailRetryWindow: "15",
-    subject: "Vehicle Idle Report",
-    message: "Attached is the latest vehicle idle activity report.",
-    selectedVehicles: ["KA01AB9988", "MH12AB1234"],
   },
 ];
 
@@ -352,9 +327,9 @@ const DEFAULT_DRAFT: Omit<ScheduleItem, "id"> = {
   name: "",
   status: "ACTIVE",
   nextRun: "03/09/2026 09:00 AM",
-  relativeType: "This Week",
+  relativeType: "Today",
   timezone: "Asia/Kolkata (UTC+05:30)",
-  scheduleType: "Weekly",
+  scheduleType: "Daily",
   selectedDays: ["Mo"],
   selectedDates: [1],
   hasTimeRange: true,
@@ -368,6 +343,7 @@ const DEFAULT_DRAFT: Omit<ScheduleItem, "id"> = {
   emailRetryWindow: "15",
   subject: "Scheduled Travel Report",
   message: "Please find attached the scheduled report.",
+  vehicleScope: "current",
   selectedVehicles: [],
   // FTP defaults
   ftpHost: "",
@@ -386,7 +362,6 @@ const DEFAULT_DRAFT: Omit<ScheduleItem, "id"> = {
   mediaRecipientNumber: "",
 };
 
-// Reusable Select Dropdown Component with Unified Theme
 function SelectDropdown({
   value,
   options,
@@ -419,7 +394,7 @@ function SelectDropdown({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-muted-foreground font-medium shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-medium shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
           open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
         )}
       >
@@ -427,7 +402,7 @@ function SelectDropdown({
           className={cn(
             "truncate",
             value
-              ? "text-muted-foreground font-medium"
+              ? "text-foreground font-medium"
               : "text-muted-foreground/60 font-normal italic",
           )}
         >
@@ -442,7 +417,7 @@ function SelectDropdown({
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 z-[100] mt-1 max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-lg animate-in fade-in-80 select-none">
+        <div className="absolute top-full left-0 right-0 z-[100] mt-1 max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-lg animate-in fade-in-80 select-none custom-scrollbar">
           {options.map((opt) => {
             const isSelected = value === opt;
             return (
@@ -454,15 +429,15 @@ function SelectDropdown({
                   setOpen(false);
                 }}
                 className={cn(
-                  "flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-left text-xs cursor-pointer transition-colors",
+                  "flex w-full items-center justify-between rounded px-2 py-1.5 text-xs text-left cursor-pointer transition-colors",
                   isSelected
                     ? "bg-muted font-semibold text-foreground"
                     : "text-foreground hover:bg-muted/80 font-medium",
                 )}
               >
-                <span>{opt}</span>
+                <span className="truncate">{opt}</span>
                 {isSelected && (
-                  <Check className="h-3.5 w-3.5 text-[#0089FF]" />
+                  <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
                 )}
               </button>
             );
@@ -473,207 +448,208 @@ function SelectDropdown({
   );
 }
 
-// Expandable / Collapsible Multi-Select Vehicle Panel matching Reference Mockup
-function VehicleMultiSelectDropdown({
-  selectedVehicles,
-  onToggleVehicle,
-  onToggleRegion,
-  regionGroups,
-  allVisibleVehicleIds,
-  isAllSelected,
-  onToggleSelectAll,
+function UniversalMultiSelectDropdown({
+  label,
+  selected,
+  options,
+  onChange,
+  className,
+  placeholder,
 }: {
-  selectedVehicles: string[];
-  onToggleVehicle: (id: string) => void;
-  onToggleRegion: (vehicles: FleetObject[]) => void;
-  regionGroups: { region: string; vehicles: FleetObject[] }[];
-  allVisibleVehicleIds: string[];
-  isAllSelected: boolean;
-  onToggleSelectAll: () => void;
+  label: string;
+  selected: string[];
+  options: string[];
+  onChange: (next: string[]) => void;
+  className?: string;
+  placeholder?: string;
 }) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [draft, setDraft] = useState<string[]>(selected);
+  const ref = useRef<HTMLDivElement | null>(null);
 
-  const filteredGroups = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return regionGroups;
-    return regionGroups
-      .map((g) => ({
-        region: g.region,
-        vehicles: g.vehicles.filter(
-          (v) =>
-            v.name.toLowerCase().includes(q) ||
-            v.imei.toLowerCase().includes(q) ||
-            v.branch.toLowerCase().includes(q),
-        ),
-      }))
-      .filter((g) => g.vehicles.length > 0);
-  }, [regionGroups, search]);
-
-  // Selected vehicle summary when collapsed (e.g., "Fuel - 1001 +3" / "GJ21HS1609+100")
-  const collapsedSummary = useMemo(() => {
-    if (selectedVehicles.length === 0) return null;
-    const vehicleMap = new Map<string, FleetObject>();
-    for (const g of regionGroups) {
-      for (const v of g.vehicles) {
-        vehicleMap.set(v.id, v);
-      }
+  useEffect(() => {
+    if (open) {
+      setDraft(selected);
+      setSearch("");
     }
-    const firstVehicle =
-      vehicleMap.get(selectedVehicles[0]) ||
-      fleetObjects.find((f) => f.id === selectedVehicles[0]);
-    const firstName = firstVehicle ? firstVehicle.name : selectedVehicles[0];
-    const extraCount = selectedVehicles.length - 1;
-    return {
-      firstName,
-      extraCount,
+  }, [open, selected]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
     };
-  }, [regionGroups, selectedVehicles]);
+    if (open) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  const filteredOptions = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return options;
+    return options.filter((opt) => opt.toLowerCase().includes(q));
+  }, [options, search]);
+
+  const isAllDraftSelected =
+    filteredOptions.length > 0 &&
+    filteredOptions.every((opt) => draft.includes(opt));
+
+  const toggleDraft = (opt: string) => {
+    if (draft.includes(opt)) {
+      setDraft(draft.filter((s) => s !== opt));
+    } else {
+      setDraft([...draft, opt]);
+    }
+  };
+
+  const toggleAllDraft = () => {
+    if (isAllDraftSelected) {
+      setDraft(draft.filter((s) => !filteredOptions.includes(s)));
+    } else {
+      setDraft([...new Set([...draft, ...filteredOptions])]);
+    }
+  };
 
   return (
-    <div className="rounded-lg border border-border/80 bg-background overflow-hidden shadow-2xs transition-all">
-      {/* Top Search & Toggle Bar matching mockup */}
-      {isExpanded ? (
-        <div className="flex h-8 items-center px-2.5 gap-2 bg-background border-b border-border/60 transition-colors">
-          <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search vehicles..."
-            className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
-            autoFocus
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              className="p-0.5 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setIsExpanded(false)}
-            className="p-0.5 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
-            aria-label="Collapse vehicle list"
-          >
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground rotate-180 transition-transform duration-200" />
-          </button>
-        </div>
-      ) : (
-        <div
-          onClick={() => setIsExpanded(true)}
-          className="flex h-7.5 items-center px-2.5 gap-2 bg-background cursor-pointer hover:bg-muted/30 transition-colors select-none group"
-        >
-          <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          {collapsedSummary ? (
-            <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden">
-              <span className="text-xs font-semibold text-foreground truncate">
-                {collapsedSummary.firstName}
+    <div ref={ref} className={cn("relative", className)}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={cn(
+          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
+        )}
+      >
+        <div className="flex items-center min-w-0 flex-1 overflow-hidden">
+          {!selected || selected.length === 0 ? (
+            <span className="text-muted-foreground/60 font-medium italic truncate">
+              {placeholder || `Select ${label}`}
+            </span>
+          ) : (
+            <>
+              <span className="text-foreground font-medium truncate">
+                {selected[0]}
               </span>
-              {collapsedSummary.extraCount > 0 && (
-                <span className="inline-flex items-center px-1.5 py-0.2 rounded-md text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
-                  +{collapsedSummary.extraCount}
+              {selected.length > 1 && (
+                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                  +{selected.length - 1}
                 </span>
               )}
-            </div>
-          ) : (
-            <span className="flex-1 text-xs text-muted-foreground/60 font-normal italic truncate">
-              Search vehicles...
-            </span>
+            </>
           )}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsExpanded(true);
-            }}
-            className="p-0.5 text-muted-foreground hover:text-foreground cursor-pointer rounded-xs"
-            aria-label="Expand vehicle list"
-          >
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200" />
-          </button>
         </div>
-      )}
+        <ChevronDown
+          className={cn(
+            "h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1",
+            open && "rotate-180",
+          )}
+        />
+      </button>
 
-      {/* Expanded Tree List matching reference image */}
-      {isExpanded && (
-        <div className="max-h-52 overflow-y-auto p-3 space-y-3.5 custom-scrollbar bg-background">
-          {filteredGroups.map(({ region, vehicles }) => {
-            const groupIds = vehicles.map((v) => v.id);
-            const allChecked =
-              groupIds.length > 0 &&
-              groupIds.every((id) => selectedVehicles.includes(id));
-            const someChecked =
-              groupIds.some((id) => selectedVehicles.includes(id)) &&
-              !allChecked;
+      {open && (
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 w-full rounded-xl border border-border/80 bg-popover/95 backdrop-blur-md shadow-2xl animate-in fade-in-0 zoom-in-95 select-none overflow-hidden flex flex-col">
+          <div className="p-2.5 pb-2 border-b border-border/60 bg-muted/20 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-foreground">
+                Select {label}
+              </span>
+              <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+                {draft.length} selected
+              </span>
+            </div>
 
-            return (
-              <div key={region} className="space-y-2">
-                {/* Region Group Header */}
-                <div className="flex items-center gap-2">
+            <div className="flex h-7 items-center gap-1.5 rounded-md border border-input bg-background px-2 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+              <Search className="h-3 w-3 text-muted-foreground shrink-0" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={`Search ${label.toLowerCase()}...`}
+                className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="rounded-md p-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="px-3 py-1.5 border-b border-border/60 flex items-center justify-between bg-muted/10">
+            <label className="flex items-center gap-2 cursor-pointer select-none w-full text-xs font-semibold text-foreground">
+              <input
+                type="checkbox"
+                checked={isAllDraftSelected}
+                onChange={toggleAllDraft}
+                className="h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+              />
+              <span>Select All</span>
+            </label>
+          </div>
+
+          <div className="max-h-48 overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
+            {filteredOptions.map((opt) => {
+              const isChecked = draft.includes(opt);
+              return (
+                <label
+                  key={opt}
+                  className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none hover:bg-muted/80 font-medium"
+                >
                   <input
                     type="checkbox"
-                    checked={allChecked}
-                    ref={(el) => {
-                      if (el) el.indeterminate = someChecked;
-                    }}
-                    onChange={() => onToggleRegion(vehicles)}
-                    className="h-4 w-4 rounded border-border/80 text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
+                    checked={isChecked}
+                    onChange={() => toggleDraft(opt)}
+                    className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
                   />
-                  <span className="text-xs font-semibold text-foreground">
-                    {region}
+                  <span className={cn("truncate", isChecked && "font-semibold text-foreground")}>
+                    {opt}
                   </span>
-                  <span className="text-xs text-muted-foreground font-normal">
-                    [{vehicles.length}]
-                  </span>
-                </div>
+                </label>
+              );
+            })}
 
-                {/* Indented Vehicles List */}
-                <div className="pl-6 space-y-2.5">
-                  {vehicles.map((v) => {
-                    const isChecked = selectedVehicles.includes(v.id);
-                    return (
-                      <label
-                        key={v.id}
-                        className="flex items-start gap-2.5 cursor-pointer select-none group"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => onToggleVehicle(v.id)}
-                          className="h-4 w-4 mt-0.5 rounded border-border/80 text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
-                        />
-                        <div className="flex flex-col min-w-0">
-                          <span
-                            className={cn(
-                              "text-xs leading-tight transition-colors truncate text-foreground",
-                              isChecked
-                                ? "font-semibold text-foreground"
-                                : "font-medium text-foreground group-hover:text-foreground",
-                            )}
-                          >
-                            {v.name}
-                          </span>
-                          <span className="text-[11px] text-muted-foreground leading-tight mt-0.5 font-mono">
-                            {v.imei}
-                          </span>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
+            {filteredOptions.length === 0 && (
+              <div className="p-3 text-center text-xs text-muted-foreground italic">
+                No {label.toLowerCase()} found
               </div>
-            );
-          })}
+            )}
+          </div>
 
-          {filteredGroups.length === 0 && (
-            <div className="py-6 text-center text-xs text-muted-foreground">
-              No vehicles found matching &quot;{search}&quot;.
+          <div className="p-2 px-3 border-t border-border/70 flex items-center justify-between bg-muted/20">
+            <button
+              type="button"
+              onClick={() => setDraft([])}
+              className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors"
+            >
+              Clear
+            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setDraft(selected);
+                  setOpen(false);
+                }}
+                className="px-2.5 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(draft);
+                  setOpen(false);
+                }}
+                className="px-3.5 py-1 text-xs rounded-md font-semibold text-white bg-[#0089FF] hover:bg-[#0070d6] shadow-xs transition-all active:scale-98 cursor-pointer"
+              >
+                Apply
+              </button>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>
@@ -735,8 +711,6 @@ function getScheduleIconScheme(item: ScheduleItem) {
     icon: <FileText className="h-5 w-5" />,
   };
 }
-
-
 
 function RowDeletePopover({
   itemName,
@@ -803,9 +777,13 @@ function RowDeletePopover({
 export function ScheduleModal({
   open,
   onClose,
+  currentFilters,
+  reportTitle = "Today Activity",
 }: {
   open: boolean;
   onClose: () => void;
+  currentFilters?: ReportFilters;
+  reportTitle?: string;
 }) {
   const [schedules, setSchedules] = useState<ScheduleItem[]>(() => {
     if (typeof window !== "undefined") {
@@ -831,16 +809,258 @@ export function ScheduleModal({
     }
   }, [schedules]);
 
+  // Main View: Directly open in 'form' (create schedule) by default
+  const [view, setView] = useState<"form" | "list">("form");
   const [searchQuery, setSearchQuery] = useState("");
-  const [view, setView] = useState<"list" | "form">("list");
-  const [step, setStep] = useState<1 | 2>(1);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<Omit<ScheduleItem, "id">>(DEFAULT_DRAFT);
+
+  // Compute Loaded Vehicles from the Active Report Page
+  const currentLoadedVehicles = useMemo(() => {
+    const selectedBranches =
+      currentFilters?.branches && currentFilters.branches.length > 0 && !currentFilters.branches.includes("All")
+        ? currentFilters.branches
+        : getBranchesForCompanies(currentFilters?.companies || []);
+    
+    const branchVehicles = getVehiclesForBranches(selectedBranches);
+    if (currentFilters?.objects && currentFilters.objects.length > 0) {
+      return branchVehicles.filter((v) => currentFilters.objects.includes(v.id));
+    }
+    return branchVehicles;
+  }, [currentFilters]);
+
+  const currentLoadedVehicleIds = useMemo(() => {
+    return currentLoadedVehicles.map((v) => v.id);
+  }, [currentLoadedVehicles]);
+
+  // Draft form state
+  const [draft, setDraft] = useState<Omit<ScheduleItem, "id">>(() => ({
+    ...DEFAULT_DRAFT,
+    name: `${reportTitle} Schedule`,
+    vehicleScope: "current",
+    selectedVehicles: currentLoadedVehicleIds,
+  }));
+
+  // Synchronize initial draft when panel opens
+  useEffect(() => {
+    if (open && !editingId) {
+      setView("form");
+      setDraft((d) => ({
+        ...DEFAULT_DRAFT,
+        name: `${reportTitle} Schedule`,
+        vehicleScope: "current",
+        selectedVehicles: currentLoadedVehicleIds,
+      }));
+      setVehicleFilterMode("current");
+    }
+  }, [open, reportTitle, currentLoadedVehicleIds, editingId]);
+
+  // Vehicle Scope Mode: "current" (use loaded filter) or "custom" (pick custom)
+  const [vehicleFilterMode, setVehicleFilterMode] = useState<"current" | "custom">("current");
+
+  // Overlay state for Custom Vehicle Selection
+  const [vehicleOverlayOpen, setVehicleOverlayOpen] = useState(false);
+  const [customFilterOverlayOpen, setCustomFilterOverlayOpen] = useState(false);
+  const [customCompanies, setCustomCompanies] = useState<string[]>([]);
+  const [customBranches, setCustomBranches] = useState<string[]>([]);
+  const [customVehicleSearch, setCustomVehicleSearch] = useState("");
+  const [draftCustomVehicles, setDraftCustomVehicles] = useState<string[]>([]);
+  const [vehicleBoxHeight, setVehicleBoxHeight] = useState<number>(200);
+
+  // Branch Accordions for Custom Vehicle Selection
+  const [openBranchGroups, setOpenBranchGroups] = useState<string[]>(() => [
+    "Indonesia",
+    "Thailand",
+    "Valsad",
+    "Planet Eco AL Khabaisi",
+    "Planet Eco AL Nakheel",
+    "HP Branch 1",
+    "HP Branch 2",
+    "Delhi Branch",
+    "Mumbai Branch",
+    "Planet Eco Abu Dhabi",
+    "Planet Eco Ajman",
+  ]);
+
+  // Advance Configuration Sub-Modal State
+  const [advanceModalOpen, setAdvanceModalOpen] = useState(false);
+  const [columnsConfig, setColumnsConfig] = useState<ReportColumnConfig[]>(INITIAL_COLUMNS);
+  const [detailDownloadMode, setDetailDownloadMode] = useState<"multiple" | "single">("multiple");
   const [copyFrom, setCopyFrom] = useState<string>("None");
-  const [errors, setErrors] = useState<{ name?: string; toAddress?: string }>({});
+  const [errors, setErrors] = useState<{
+    name?: string;
+    toAddress?: string;
+    ftpHost?: string;
+    ftpPort?: string;
+    ftpUsername?: string;
+    ftpPassword?: string;
+    ftpFolder?: string;
+    sftpAccessKey?: string;
+    sftpSecretKey?: string;
+    sftpRegion?: string;
+    sftpBucketName?: string;
+    mediaRecipientNumber?: string;
+  }>({});
+
   const [emailVerificationStatus, setEmailVerificationStatus] = useState<
     "idle" | "verifying" | "success" | "failed"
   >("idle");
+
+  // Custom Vehicle Filtering Logic inside Overlay
+  const customAvailableBranches = useMemo(() => {
+    return getBranchesForCompanies(customCompanies);
+  }, [customCompanies]);
+
+  const customActiveBranches = useMemo(() => {
+    if (!customBranches || customBranches.length === 0 || customBranches.includes("All")) {
+      return customAvailableBranches;
+    }
+    const valid = customBranches.filter((b) => customAvailableBranches.includes(b));
+    return valid.length > 0 ? valid : customAvailableBranches;
+  }, [customBranches, customAvailableBranches]);
+
+  const customFilteredVehicles = useMemo(() => {
+    return getVehiclesForBranches(customActiveBranches);
+  }, [customActiveBranches]);
+
+  const customFilteredVehicleIds = useMemo(() => {
+    return customFilteredVehicles.map((v) => v.id);
+  }, [customFilteredVehicles]);
+
+  const customActiveFilterCount = useMemo(() => {
+    let count = 0;
+    if (customCompanies.length > 0 && !customCompanies.includes("All")) count++;
+    if (customBranches.length > 0 && !customBranches.includes("All")) count++;
+    return count;
+  }, [customCompanies, customBranches]);
+
+  const handleCustomCompanyChange = (companies: string[]) => {
+    const newAvail = getBranchesForCompanies(companies);
+    const nextB = customBranches.filter((b) => newAvail.includes(b));
+    setCustomCompanies(companies);
+    setCustomBranches(nextB);
+  };
+
+  const handleCustomBranchChange = (branches: string[]) => {
+    setCustomBranches(branches);
+  };
+
+  const groupedCustomVehicles = useMemo(() => {
+    const q = customVehicleSearch.trim().toLowerCase();
+    const map = new Map<
+      string,
+      { id: string; name: string; imei: string; branch: string; driver?: string }[]
+    >();
+
+    for (const branch of customActiveBranches) {
+      const vList = customFilteredVehicles.filter((v) => v.branch === branch);
+      const matched = vList.filter((v) => {
+        if (!q) return true;
+        const matchName = v.name.toLowerCase().includes(q);
+        const matchImei = v.imei.toLowerCase().includes(q);
+        const matchBranch = v.branch.toLowerCase().includes(q);
+        const matchDriver = (v.driver || "").toLowerCase().includes(q);
+        return matchName || matchImei || matchBranch || matchDriver;
+      });
+      if (matched.length > 0) {
+        map.set(branch, matched);
+      }
+    }
+
+    return Array.from(map.entries()).map(([branch, vehicles]) => ({
+      branch,
+      vehicles,
+    }));
+  }, [customActiveBranches, customFilteredVehicles, customVehicleSearch]);
+
+  const isCustomAllVehiclesSelected =
+    customFilteredVehicleIds.length > 0 &&
+    customFilteredVehicleIds.every((id) => draftCustomVehicles.includes(id));
+
+  const isCustomSomeVehiclesSelected =
+    draftCustomVehicles.length > 0 && !isCustomAllVehiclesSelected;
+
+  const toggleSelectAllCustomVehicles = () => {
+    if (isCustomAllVehiclesSelected) {
+      setDraftCustomVehicles([]);
+    } else {
+      setDraftCustomVehicles(customFilteredVehicleIds);
+    }
+  };
+
+  const toggleCustomBranchVehicles = (branchVehicles: { id: string }[]) => {
+    const bIds = branchVehicles.map((v) => v.id);
+    const allIn = bIds.every((id) => draftCustomVehicles.includes(id));
+    if (allIn) {
+      setDraftCustomVehicles(draftCustomVehicles.filter((id) => !bIds.includes(id)));
+    } else {
+      setDraftCustomVehicles(Array.from(new Set([...draftCustomVehicles, ...bIds])));
+    }
+  };
+
+  const toggleCustomSingleVehicle = (id: string) => {
+    if (draftCustomVehicles.includes(id)) {
+      setDraftCustomVehicles(draftCustomVehicles.filter((vId) => vId !== id));
+    } else {
+      setDraftCustomVehicles([...draftCustomVehicles, id]);
+    }
+  };
+
+  const toggleBranchAccordion = (branch: string) => {
+    setOpenBranchGroups((prev) =>
+      prev.includes(branch) ? prev.filter((b) => b !== branch) : [...prev, branch],
+    );
+  };
+
+  const toggleAllBranchAccordions = () => {
+    if (openBranchGroups.length === groupedCustomVehicles.length) {
+      setOpenBranchGroups([]);
+    } else {
+      setOpenBranchGroups(groupedCustomVehicles.map((g) => g.branch));
+    }
+  };
+
+  // Drag resizer for vehicle list box inside overlay
+  const isResizingVehicleBox = useRef(false);
+  const resizeStartY = useRef(0);
+  const resizeStartHeight = useRef(200);
+
+  const startResizeVehicleBox = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      isResizingVehicleBox.current = true;
+      resizeStartY.current = e.clientY;
+      resizeStartHeight.current = vehicleBoxHeight;
+
+      const handleMouseMove = (event: MouseEvent) => {
+        if (!isResizingVehicleBox.current) return;
+        const delta = event.clientY - resizeStartY.current;
+        const newH = Math.min(Math.max(resizeStartHeight.current + delta, 120), 480);
+        setVehicleBoxHeight(newH);
+      };
+
+      const handleMouseUp = () => {
+        isResizingVehicleBox.current = false;
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "ns-resize";
+      document.body.style.userSelect = "none";
+    },
+    [vehicleBoxHeight],
+  );
+
+  const handleOpenCustomVehicleOverlay = () => {
+    setDraftCustomVehicles(
+      draft.selectedVehicles.length > 0 ? draft.selectedVehicles : customFilteredVehicleIds,
+    );
+    setCustomVehicleSearch("");
+    setVehicleOverlayOpen(true);
+  };
 
   const handleVerifyEmail = () => {
     const email = (draft.toAddress || "").trim();
@@ -871,161 +1091,15 @@ export function ScheduleModal({
           ...prev,
           toAddress: "Verification failed: Invalid email Id",
         }));
-        toast.error(
-          `Verification failed: Invalid email Id`,
-        );
+        toast.error("Verification failed: Invalid email Id");
       } else {
         setEmailVerificationStatus("success");
         setErrors((prev) => ({ ...prev, toAddress: undefined }));
-        toast.success(
-          `Recipient email "${email}" verified successfully. Mailbox is active!`,
-        );
+        toast.success(`Recipient email "${email}" verified successfully. Mailbox is active!`);
       }
     }, 450);
   };
 
-  const filteredSchedules = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return schedules;
-    return schedules.filter(
-      (s) =>
-        s.name.toLowerCase().includes(q) ||
-        s.actionType.toLowerCase().includes(q) ||
-        s.format.toLowerCase().includes(q) ||
-        (s.toAddress && s.toAddress.toLowerCase().includes(q)) ||
-        s.relativeType.toLowerCase().includes(q),
-    );
-  }, [schedules, searchQuery]);
-
-  const handleDuplicate = (item: ScheduleItem) => {
-    const duplicated: ScheduleItem = {
-      ...item,
-      id: `sched-${Date.now()}`,
-      name: `${item.name} (Copy)`,
-    };
-    setSchedules((prev) => [...prev, duplicated]);
-    toast.success(`Duplicated "${item.name}"`);
-  };
-
-  // Advance Configuration Sub-Modal State
-  const [advanceModalOpen, setAdvanceModalOpen] = useState(false);
-  const [columnsConfig, setColumnsConfig] =
-    useState<ReportColumnConfig[]>(INITIAL_COLUMNS);
-  const [detailDownloadMode, setDetailDownloadMode] = useState<
-    "multiple" | "single"
-  >("multiple");
-
-  // Step 1: Filter Criteria State
-  const [criteriaCompany, setCriteriaCompany] = useState<string>("All");
-  const [criteriaBranch, setCriteriaBranch] = useState<string>("All");
-  const [criteriaGroup, setCriteriaGroup] = useState<string>("All");
-  const [criteriaType, setCriteriaType] = useState<string>("All");
-  const [criteriaBrand, setCriteriaBrand] = useState<string>("All");
-  const [criteriaModel, setCriteriaModel] = useState<string>("All");
-  const [criteriaDurationStatus, setCriteriaDurationStatus] =
-    useState<string>("All");
-  const [criteriaDurationCompare, setCriteriaDurationCompare] =
-    useState<string>("Greater Than");
-  const [criteriaDurationUnit, setCriteriaDurationUnit] =
-    useState<string>("Hour");
-  const [criteriaDurationValue, setCriteriaDurationValue] =
-    useState<string>("");
-  const [criteriaDistanceCompare, setCriteriaDistanceCompare] =
-    useState<string>("Greater Than");
-  const [criteriaDistanceValue, setCriteriaDistanceValue] =
-    useState<string>("");
-  const [criteriaDurationFormat, setCriteriaDurationFormat] = useState<
-    "hhmm" | "decimal"
-  >("hhmm");
-
-  // Derive Region Hierarchical Groups from Fleet Data
-  const regionGroups = useMemo(() => {
-    let list = fleetObjects;
-
-    if (criteriaBranch !== "All") {
-      list = list.filter((o) =>
-        o.branch.toLowerCase().includes(criteriaBranch.toLowerCase()),
-      );
-    }
-    if (criteriaCompany !== "All") {
-      list = list.filter((o) =>
-        o.company.toLowerCase().includes(criteriaCompany.toLowerCase()),
-      );
-    }
-
-    const map = new Map<string, FleetObject[]>();
-    for (const v of list) {
-      const g = map.get(v.branch) ?? [];
-      g.push(v);
-      map.set(v.branch, g);
-    }
-
-    return [...map.entries()].map(([region, vehicles]) => ({
-      region,
-      vehicles,
-    }));
-  }, [criteriaBranch, criteriaCompany]);
-
-  const allVisibleVehicleIds = useMemo(
-    () => regionGroups.flatMap((g) => g.vehicles.map((v) => v.id)),
-    [regionGroups],
-  );
-
-  const isAllVehiclesSelected =
-    allVisibleVehicleIds.length > 0 &&
-    allVisibleVehicleIds.every((id) => draft.selectedVehicles.includes(id));
-
-  const toggleSelectAllVehicles = () => {
-    if (isAllVehiclesSelected) {
-      setDraft((d) => ({
-        ...d,
-        selectedVehicles: d.selectedVehicles.filter(
-          (id) => !allVisibleVehicleIds.includes(id),
-        ),
-      }));
-    } else {
-      setDraft((d) => ({
-        ...d,
-        selectedVehicles: Array.from(
-          new Set([...d.selectedVehicles, ...allVisibleVehicleIds]),
-        ),
-      }));
-    }
-  };
-
-  const toggleRegionVehicles = (vehicles: FleetObject[]) => {
-    const ids = vehicles.map((v) => v.id);
-    const allIn = ids.every((id) => draft.selectedVehicles.includes(id));
-    setDraft((d) => {
-      if (allIn) {
-        return {
-          ...d,
-          selectedVehicles: d.selectedVehicles.filter(
-            (id) => !ids.includes(id),
-          ),
-        };
-      } else {
-        return {
-          ...d,
-          selectedVehicles: Array.from(
-            new Set([...d.selectedVehicles, ...ids]),
-          ),
-        };
-      }
-    });
-  };
-
-  const toggleSingleVehicle = (vehicleId: string) => {
-    setDraft((d) => {
-      const current = d.selectedVehicles;
-      const next = current.includes(vehicleId)
-        ? current.filter((id) => id !== vehicleId)
-        : [...current, vehicleId];
-      return { ...d, selectedVehicles: next };
-    });
-  };
-
-  // Step 2 Dynamic Timing Handlers
   const handleRelativeTypeChange = (newType: string) => {
     let schedType: "Daily" | "Weekly" | "Monthly" = "Daily";
     if (newType.includes("Week") || newType.includes("7 Days")) {
@@ -1044,9 +1118,7 @@ export function ScheduleModal({
   const toggleDay = (dayId: string) => {
     setDraft((d) => {
       const current = d.selectedDays || [];
-      const next = current.includes(dayId)
-        ? current.filter((x) => x !== dayId)
-        : [...current, dayId];
+      const next = current.includes(dayId) ? current.filter((x) => x !== dayId) : [...current, dayId];
       return { ...d, selectedDays: next.length > 0 ? next : [dayId] };
     });
   };
@@ -1077,17 +1149,22 @@ export function ScheduleModal({
 
   const startCreate = () => {
     setEditingId(null);
-    setDraft({ ...DEFAULT_DRAFT, selectedVehicles: [] });
+    setDraft({
+      ...DEFAULT_DRAFT,
+      name: `${reportTitle} Schedule`,
+      vehicleScope: "current",
+      selectedVehicles: currentLoadedVehicleIds,
+    });
+    setVehicleFilterMode("current");
     setErrors({});
-    setStep(1);
     setView("form");
   };
 
   const startEdit = (item: ScheduleItem) => {
     setEditingId(item.id);
     setDraft({ ...item });
+    setVehicleFilterMode(item.vehicleScope || "current");
     setErrors({});
-    setStep(1);
     setView("form");
   };
 
@@ -1121,28 +1198,48 @@ export function ScheduleModal({
       return;
     }
 
+    const finalVehicles =
+      vehicleFilterMode === "current"
+        ? currentLoadedVehicleIds
+        : draft.selectedVehicles.length > 0
+          ? draft.selectedVehicles
+          : customFilteredVehicleIds;
+
+    const payload: ScheduleItem = {
+      ...draft,
+      id: editingId || `sched-${Date.now()}`,
+      vehicleScope: vehicleFilterMode,
+      selectedVehicles: finalVehicles,
+    };
+
     if (editingId) {
-      setSchedules((prev) =>
-        prev.map((s) => (s.id === editingId ? { ...draft, id: editingId } : s)),
-      );
+      setSchedules((prev) => prev.map((s) => (s.id === editingId ? payload : s)));
       toast.success("Schedule updated successfully");
     } else {
-      const newSchedule: ScheduleItem = {
-        ...draft,
-        id: `sched-${Date.now()}`,
-      };
-      setSchedules((prev) => [...prev, newSchedule]);
-      toast.success("Schedule created successfully");
+      setSchedules((prev) => [...prev, payload]);
+      toast.success("Schedule report created successfully");
     }
 
-    setView("list");
+    onClose();
   };
 
   const handleDelete = (id: string) => {
     setSchedules((prev) => prev.filter((s) => s.id !== id));
     toast.success("Schedule removed");
-    setView("list");
   };
+
+  const filteredSchedules = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return schedules;
+    return schedules.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.actionType.toLowerCase().includes(q) ||
+        s.format.toLowerCase().includes(q) ||
+        (s.toAddress && s.toAddress.toLowerCase().includes(q)) ||
+        s.relativeType.toLowerCase().includes(q),
+    );
+  }, [schedules, searchQuery]);
 
   return (
     <>
@@ -1167,516 +1264,812 @@ export function ScheduleModal({
       >
         {/* Standardized 56px Header */}
         <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
-          <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
-            {view === "list"
-              ? "Scheduled Reports"
-              : editingId
-                ? "Edit Schedule Report"
-                : "Create Schedule Report"}
-          </h2>
-          <button
-            type="button"
-            aria-label="Close scheduled reports panel"
-            onClick={onClose}
-            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </header>
-
-        {/* Stepper (Sticky under Header in Creation / Edit Flow) */}
-        {view === "form" && (
-          <div className="flex h-10 items-center justify-between border-b border-border bg-muted/20 px-5 text-xs select-none shrink-0">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
+              {view === "list"
+                ? "Scheduled Reports"
+                : editingId
+                  ? "Edit Schedule Report"
+                  : "Create Schedule Report"}
+            </h2>
+            {schedules.length > 0 && view === "form" && (
               <button
                 type="button"
-                onClick={() => setStep(1)}
-                className={cn(
-                  "flex items-center gap-1.5 font-semibold transition-colors cursor-pointer",
-                  step === 1
-                    ? "text-[#0089FF]"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
+                onClick={() => setView("list")}
+                className="px-2 py-0.5 text-[11px] font-semibold text-[#0089FF] bg-[#0089FF]/10 hover:bg-[#0089FF]/20 rounded-md transition-colors cursor-pointer"
+                title="View saved scheduled reports"
               >
-                <span
-                  className={cn(
-                    "flex h-5 w-5 items-center justify-center rounded-md text-[11px] font-bold",
-                    step === 1
-                      ? "bg-[#0089FF] text-white shadow-xs"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  1
-                </span>
-                <span>Select Vehicles</span>
+                Saved ({schedules.length})
               </button>
-
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
-
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className={cn(
-                  "flex items-center gap-1.5 font-semibold transition-colors cursor-pointer",
-                  step === 2
-                    ? "text-[#0089FF]"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <span
-                  className={cn(
-                    "flex h-5 w-5 items-center justify-center rounded-md text-[11px] font-bold",
-                    step === 2
-                      ? "bg-[#0089FF] text-white shadow-xs"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  2
-                </span>
-                <span>Configure Settings</span>
-              </button>
-            </div>
-
-            <div className="text-[11px] text-muted-foreground font-semibold bg-muted/60 px-2 py-0.5 rounded-md">
-              Step {step} of 2
-            </div>
+            )}
           </div>
-        )}
+          <div className="flex items-center gap-1">
+            {view === "list" && (
+              <button
+                type="button"
+                onClick={startCreate}
+                className="px-2 py-1 text-xs font-semibold text-[#0089FF] hover:bg-muted rounded-md transition-colors cursor-pointer flex items-center gap-1"
+                title="Create New Schedule"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>New</span>
+              </button>
+            )}
+            <button
+              type="button"
+              aria-label="Close scheduled reports panel"
+              onClick={onClose}
+              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </header>
 
         {/* Side Panel Body Content Area */}
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            {view === "list" ? (
-              schedules.length === 0 ? (
-                /* VIEW 1A: Empty State View */
-                <div className="flex flex-col items-center justify-center flex-1 py-12 px-6 text-center animate-in fade-in-50 duration-200 select-none">
-                  <div className="mb-4 flex items-center justify-center">
-                    <CalendarClock className="h-14 w-14 text-[#0089FF] stroke-[1.5]" />
-                  </div>
-
-                  <h3 className="text-base font-bold text-foreground tracking-tight">
-                    No scheduled reports yet
-                  </h3>
-
-                  <p className="mt-2 text-xs text-muted-foreground max-w-xs leading-relaxed">
-                    Create a schedule to receive reports automatically at your
-                    preferred time and frequency.
-                  </p>
-                </div>
-              ) : (
-                /* VIEW 1B: Scheduled Reports List View */
-                <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-                  {/* Top Action Toolbar */}
-                  <div className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-2 shrink-0">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search scheduled reports..."
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
-                      />
-                      {searchQuery && (
-                        <button
-                          type="button"
-                          onClick={() => setSearchQuery("")}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-md cursor-pointer"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-
+          {view === "list" ? (
+            /* SAVED SCHEDULES LIST VIEW */
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-2 shrink-0">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search scheduled reports..."
+                    className="h-7.5 w-full rounded-md border border-input/80 bg-background pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+                  />
+                  {searchQuery && (
                     <button
                       type="button"
-                      onClick={startCreate}
-                      title="Create New Schedule"
-                      aria-label="Create New Schedule"
-                      className="inline-flex items-center justify-center rounded-md bg-[#0089FF] h-7.5 w-7.5 text-white shadow-2xs hover:bg-[#0070d6] active:scale-95 cursor-pointer transition-all shrink-0"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-md cursor-pointer"
                     >
-                      <Plus className="h-4 w-4" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
-                  </div>
+                  )}
+                </div>
 
-                  {/* List View Items */}
-                  <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 divide-y divide-border/60 custom-scrollbar">
-                    {filteredSchedules.map((item) => {
-                      const iconScheme = getScheduleIconScheme(item);
-                      const recurrenceText = formatRecurrence(item);
+                <button
+                  type="button"
+                  onClick={startCreate}
+                  title="Create New Schedule"
+                  aria-label="Create New Schedule"
+                  className="inline-flex items-center justify-center rounded-md bg-[#0089FF] h-7.5 w-7.5 text-white shadow-2xs hover:bg-[#0070d6] active:scale-95 cursor-pointer transition-all shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
 
-                      return (
+              <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 divide-y divide-border/60 custom-scrollbar">
+                {filteredSchedules.map((item) => {
+                  const iconScheme = getScheduleIconScheme(item);
+                  const recurrenceText = formatRecurrence(item);
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="py-3 px-1 flex items-center justify-between gap-3 transition-colors group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
                         <div
-                          key={item.id}
-                          className="py-3 px-1 flex items-center justify-between gap-3 transition-colors group"
+                          className={cn(
+                            "h-8.5 w-8.5 rounded-md flex items-center justify-center shrink-0 transition-transform group-hover:scale-105",
+                            iconScheme.badgeBg,
+                            iconScheme.iconColor,
+                          )}
                         >
-                          {/* Left section: Icon badge + Details */}
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div
-                              className={cn(
-                                "h-8.5 w-8.5 rounded-md flex items-center justify-center shrink-0 transition-transform group-hover:scale-105",
-                                iconScheme.badgeBg,
-                                iconScheme.iconColor,
-                              )}
-                            >
-                              {iconScheme.icon}
-                            </div>
+                          {iconScheme.icon}
+                        </div>
 
-                            <div className="min-w-0 flex-1 space-y-0.5">
-                              <h3 className="text-xs font-bold text-foreground truncate">
-                                {item.name}
-                              </h3>
+                        <div className="min-w-0 flex-1 space-y-0.5">
+                          <h3 className="text-xs font-bold text-foreground truncate">
+                            {item.name}
+                          </h3>
 
-                              {/* Row 1: Next run + Recurrence */}
-                              <div className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground">
-                                <span className="inline-flex items-center gap-1 font-medium">
-                                  <Calendar className="h-3 w-3 text-muted-foreground/70 shrink-0" />
-                                  <span>{item.nextRun}</span>
-                                </span>
-                                <span className="text-muted-foreground/40">•</span>
-                                <span className="inline-flex items-center gap-1 font-medium">
-                                  <RotateCcw className="h-3 w-3 text-muted-foreground/70 shrink-0" />
-                                  <span>{recurrenceText}</span>
-                                </span>
-                              </div>
-
-                              {/* Row 2: Delivery + Format */}
-                              <div className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground">
-                                <span className="inline-flex items-center gap-1 font-medium">
-                                  <Mail className="h-3 w-3 text-muted-foreground/70 shrink-0" />
-                                  <span>{item.actionType}</span>
-                                </span>
-                                <span className="text-muted-foreground/40">•</span>
-                                <span className="inline-flex items-center gap-1 font-medium">
-                                  <FileSpreadsheet className="h-3 w-3 text-muted-foreground/70 shrink-0" />
-                                  <span>{item.format}</span>
-                                </span>
-                              </div>
-                            </div>
+                          <div className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground">
+                            <span className="inline-flex items-center gap-1 font-medium">
+                              <Calendar className="h-3 w-3 text-muted-foreground/70 shrink-0" />
+                              <span>{item.nextRun}</span>
+                            </span>
+                            <span className="text-muted-foreground/40">•</span>
+                            <span className="inline-flex items-center gap-1 font-medium">
+                              <RotateCcw className="h-3 w-3 text-muted-foreground/70 shrink-0" />
+                              <span>{recurrenceText}</span>
+                            </span>
                           </div>
 
-                          {/* Right section: Actions */}
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => startEdit(item)}
-                              className="inline-flex items-center justify-center rounded-md border border-border/80 bg-background h-7.5 w-7.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-95"
-                              title="Edit schedule"
-                            >
-                              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                            </button>
-
-                            <RowDeletePopover
-                              itemName={item.name}
-                              onDelete={() => handleDelete(item.id)}
-                            />
+                          <div className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground">
+                            <span className="inline-flex items-center gap-1 font-medium">
+                              <Mail className="h-3 w-3 text-muted-foreground/70 shrink-0" />
+                              <span>{item.actionType}</span>
+                            </span>
+                            <span className="text-muted-foreground/40">•</span>
+                            <span className="inline-flex items-center gap-1 font-medium">
+                              <FileSpreadsheet className="h-3 w-3 text-muted-foreground/70 shrink-0" />
+                              <span>{item.format}</span>
+                            </span>
                           </div>
                         </div>
-                      );
-                    })}
-
-                    {filteredSchedules.length === 0 && schedules.length > 0 && (
-                      <div className="py-10 text-center text-xs text-muted-foreground">
-                        No scheduled reports found matching &quot;{searchQuery}&quot;.
                       </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => startEdit(item)}
+                          className="inline-flex items-center justify-center rounded-md border border-border/80 bg-background h-7.5 w-7.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-95"
+                          title="Edit schedule"
+                        >
+                          <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                        </button>
+
+                        <RowDeletePopover
+                          itemName={item.name}
+                          onDelete={() => handleDelete(item.id)}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {filteredSchedules.length === 0 && schedules.length > 0 && (
+                  <div className="py-10 text-center text-xs text-muted-foreground">
+                    No scheduled reports found matching &quot;{searchQuery}&quot;.
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* SCHEDULE CONFIGURATION FORM (DIRECT DEFAULT VIEW) */
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar select-none">
+              {/* 1. Report Name */}
+              <div className="space-y-1">
+                <label className="block text-[11px] font-semibold text-foreground">
+                  Report Name <span className="text-red-500 font-bold ml-0.5">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={draft.name}
+                  onChange={(e) => {
+                    setDraft((d) => ({ ...d, name: e.target.value }));
+                    if (e.target.value.trim()) {
+                      setErrors((prev) => ({ ...prev, name: undefined }));
+                    }
+                  }}
+                  placeholder="e.g. Weekly Operations Summary"
+                  className={cn(
+                    "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                    errors.name
+                      ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                      : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                  )}
+                />
+                {errors.name && (
+                  <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150">
+                    <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
+                    <span>{errors.name}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 2. Vehicle Scope & Selection Option */}
+              <div className="space-y-2 p-3 rounded-lg border border-border/80 bg-muted/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-foreground">
+                    Vehicles to Include
+                  </span>
+                  <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+                    {vehicleFilterMode === "current"
+                      ? `${currentLoadedVehicles.length} Loaded Vehicles`
+                      : `${draft.selectedVehicles.length > 0 ? draft.selectedVehicles.length : customFilteredVehicleIds.length} Custom Selected`}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Option 1: Current Applied Filter */}
+                  <label
+                    className={cn(
+                      "flex flex-col gap-1 p-2.5 rounded-md border text-xs cursor-pointer transition-all select-none",
+                      vehicleFilterMode === "current"
+                        ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30"
+                        : "border-border/70 bg-background hover:bg-muted/40",
                     )}
-                  </div>
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="radio"
+                        name="vehicleFilterMode"
+                        checked={vehicleFilterMode === "current"}
+                        onChange={() => {
+                          setVehicleFilterMode("current");
+                          setDraft((d) => ({ ...d, selectedVehicles: currentLoadedVehicleIds }));
+                        }}
+                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                      />
+                      <span className="font-semibold text-foreground">Current Filter</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground pl-5 leading-tight">
+                      Use currently loaded vehicles ({currentLoadedVehicles.length})
+                    </p>
+                  </label>
+
+                  {/* Option 2: Custom Vehicles Selection */}
+                  <label
+                    onClick={() => {
+                      if (vehicleFilterMode !== "custom") {
+                        setVehicleFilterMode("custom");
+                      }
+                    }}
+                    className={cn(
+                      "flex flex-col gap-1 p-2.5 rounded-md border text-xs cursor-pointer transition-all select-none",
+                      vehicleFilterMode === "custom"
+                        ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30"
+                        : "border-border/70 bg-background hover:bg-muted/40",
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="radio"
+                          name="vehicleFilterMode"
+                          checked={vehicleFilterMode === "custom"}
+                          onChange={() => {
+                            setVehicleFilterMode("custom");
+                            handleOpenCustomVehicleOverlay();
+                          }}
+                          className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                        />
+                        <span className="font-semibold text-foreground">Custom Filter</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between pl-5 mt-0.5">
+                      <span className="text-[10px] text-muted-foreground leading-tight">
+                        {vehicleFilterMode === "custom" && draft.selectedVehicles.length > 0
+                          ? `${draft.selectedVehicles.length} vehicles`
+                          : "Pick vehicles"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setVehicleFilterMode("custom");
+                          handleOpenCustomVehicleOverlay();
+                        }}
+                        className="text-[10px] font-semibold text-[#0089FF] hover:underline cursor-pointer"
+                      >
+                        {vehicleFilterMode === "custom" && draft.selectedVehicles.length > 0
+                          ? "Change"
+                          : "Select"}
+                      </button>
+                    </div>
+                  </label>
                 </div>
-              )
-            ) : step === 1 ? (
-              /* VIEW 2 - STEP 1: Select Vehicles & Filter Criteria */
-              <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar select-none">
-                {/* Filter Selectors - 2 Columns Grid tailored for Side Panel */}
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Company */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Company
-                    </label>
-                    <SelectDropdown
-                      value={criteriaCompany}
-                      options={COMPANIES}
-                      onChange={setCriteriaCompany}
-                    />
-                  </div>
+              </div>
 
-                  {/* Branch */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Branch
-                    </label>
-                    <SelectDropdown
-                      value={criteriaBranch}
-                      options={[
-                        "All",
-                        ...getBranchesForCompanies(
-                          criteriaCompany === "All"
-                            ? ["ABC Logistic"]
-                            : [criteriaCompany],
-                        ),
-                      ]}
-                      onChange={setCriteriaBranch}
-                    />
-                  </div>
-
-                  {/* Vehicle Group */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Vehicle Group
-                    </label>
-                    <SelectDropdown
-                      value={criteriaGroup}
-                      options={[
-                        "All",
-                        "HP Group",
-                        "Trucks",
-                        "Buses",
-                        "Cars",
-                        "Cold Chain",
-                      ]}
-                      onChange={setCriteriaGroup}
-                    />
-                  </div>
-
-                  {/* Vehicle Type */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Vehicle Type
-                    </label>
-                    <SelectDropdown
-                      value={criteriaType}
-                      options={[
-                        "All",
-                        "Dumper",
-                        "Truck",
-                        "Bus",
-                        "SUV",
-                        "Taxi",
-                      ]}
-                      onChange={setCriteriaType}
-                    />
-                  </div>
-
-                  {/* Vehicle Brand */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Vehicle Brand
-                    </label>
-                    <SelectDropdown
-                      value={criteriaBrand}
-                      options={[
-                        "All",
-                        "Ashok Leyland",
-                        "Tata Motors",
-                        "BharatBenz",
-                        "Volvo",
-                      ]}
-                      onChange={setCriteriaBrand}
-                    />
-                  </div>
-
-                  {/* Vehicle Model */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Vehicle Model
-                    </label>
-                    <SelectDropdown
-                      value={criteriaModel}
-                      options={[
-                        "All",
-                        "10 Wheel",
-                        "12 Wheel",
-                        "6 Wheel",
-                        "4 Wheel",
-                      ]}
-                      onChange={setCriteriaModel}
-                    />
-                  </div>
-                </div>
-
-                {/* Select Vehicle: Multi-Select Box */}
-                <div className="space-y-1 pt-1">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Select Vehicle
-                    </label>
-                    <span className="text-[10px] font-medium text-muted-foreground">
-                      {draft.selectedVehicles.length} of {allVisibleVehicleIds.length} Selected
-                    </span>
-                  </div>
-                  <VehicleMultiSelectDropdown
-                    selectedVehicles={draft.selectedVehicles}
-                    onToggleVehicle={toggleSingleVehicle}
-                    onToggleRegion={toggleRegionVehicles}
-                    regionGroups={regionGroups}
-                    allVisibleVehicleIds={allVisibleVehicleIds}
-                    isAllSelected={isAllVehiclesSelected}
-                    onToggleSelectAll={toggleSelectAllVehicles}
+              {/* 3. Copy From & Relative Type */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Copy From
+                  </label>
+                  <SelectDropdown
+                    value={copyFrom}
+                    options={["None", ...schedules.map((s) => s.name)]}
+                    onChange={handleCopySettings}
                   />
                 </div>
 
-                {/* Duration & Distance Filters */}
-                <div className="space-y-3 pt-1 border-t border-border/60">
-                  {/* Duration Status & Format */}
-                  <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Relative Type
+                  </label>
+                  <SelectDropdown
+                    value={draft.relativeType}
+                    options={RELATIVE_TYPES}
+                    onChange={handleRelativeTypeChange}
+                  />
+                </div>
+              </div>
+
+              {/* 4. Timezone & Generation Time */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Timezone
+                  </label>
+                  <SelectDropdown
+                    value={draft.timezone}
+                    options={TIMEZONES}
+                    onChange={(timezone) => setDraft((d) => ({ ...d, timezone }))}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Generation Time
+                  </label>
+                  <SelectDropdown
+                    value={draft.generationTime}
+                    options={GENERATION_TIMES}
+                    onChange={(generationTime) =>
+                      setDraft((d) => ({ ...d, generationTime }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Dynamic Timing Sub-Section Based on Relative Type */}
+              {(draft.scheduleType === "Weekly" || draft.scheduleType === "Monthly") && (
+                <div className="pt-1 space-y-2 border-t border-border/60">
+                  {draft.scheduleType === "Weekly" && (
+                    <div className="space-y-1.5">
+                      <span className="block text-[11px] font-semibold text-foreground">
+                        Select execution days:
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {WEEK_DAYS.map(({ id, label }) => {
+                          const isSelected = (draft.selectedDays || []).includes(id);
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => toggleDay(id)}
+                              className={cn(
+                                "h-7 w-7 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95",
+                                isSelected
+                                  ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
+                                  : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60",
+                              )}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {draft.scheduleType === "Monthly" && (
+                    <div className="space-y-1.5">
+                      <span className="block text-[11px] font-semibold text-foreground">
+                        Select execution day of month:
+                      </span>
+                      <div className="grid grid-cols-7 gap-1">
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map((dateNum) => {
+                          const isSelected = (draft.selectedDates || []).includes(dateNum);
+                          return (
+                            <button
+                              key={dateNum}
+                              type="button"
+                              onClick={() => toggleDate(dateNum)}
+                              className={cn(
+                                "h-6.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95",
+                                isSelected
+                                  ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
+                                  : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60",
+                              )}
+                            >
+                              {dateNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 5. Time Range */}
+              <div className="pt-1 space-y-2 border-t border-border/60">
+                <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={draft.hasTimeRange}
+                    onChange={(e) =>
+                      setDraft((d) => ({
+                        ...d,
+                        hasTimeRange: e.target.checked,
+                      }))
+                    }
+                    className="h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
+                  />
+                  <span>Time Range</span>
+                </label>
+
+                {draft.hasTimeRange && (
+                  <div className="grid grid-cols-2 gap-3 pt-0.5">
                     <div className="space-y-1">
                       <label className="block text-[11px] font-semibold text-foreground">
-                        Duration Status
+                        Start Time
                       </label>
-                      <SelectDropdown
-                        value={criteriaDurationStatus}
-                        options={DURATION_STATUS}
-                        onChange={setCriteriaDurationStatus}
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          value={draft.timeRangeStart}
+                          onChange={(e) =>
+                            setDraft((d) => ({
+                              ...d,
+                              timeRangeStart: e.target.value,
+                            }))
+                          }
+                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                        />
+                        <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        End Time
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          value={draft.timeRangeEnd}
+                          onChange={(e) =>
+                            setDraft((d) => ({
+                              ...d,
+                              timeRangeEnd: e.target.value,
+                            }))
+                          }
+                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                        />
+                        <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 6. Report Type */}
+              <div className="pt-1 space-y-1 border-t border-border/60">
+                <label className="block text-[11px] font-semibold text-foreground">
+                  Report Type
+                </label>
+                <div className="flex items-center gap-5 h-7.5">
+                  {(["Summary", "Daily", "Detail"] as const).map((level) => (
+                    <label
+                      key={level}
+                      className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
+                    >
+                      <input
+                        type="radio"
+                        name="reportType"
+                        checked={draft.reportType === level}
+                        onChange={() => setDraft((d) => ({ ...d, reportType: level }))}
+                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                      />
+                      <span>{level}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* 7. Delivery Method */}
+              <div className="space-y-1">
+                <label className="block text-[11px] font-semibold text-foreground">
+                  Delivery Method
+                </label>
+                <div className="flex items-center gap-4 h-7.5 flex-wrap">
+                  {(["Email", "FTP", "SFTP", "Media API"] as const).map((method) => (
+                    <label
+                      key={method}
+                      className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
+                    >
+                      <input
+                        type="radio"
+                        name="actionType"
+                        checked={draft.actionType === method}
+                        onChange={() => setDraft((d) => ({ ...d, actionType: method }))}
+                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                      />
+                      <span>{method}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Delivery Configuration Details: EMAIL */}
+              {draft.actionType === "Email" && (
+                <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
+                      To Address <span className="text-red-500 font-bold ml-0.5">*</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="email"
+                        value={draft.toAddress}
+                        onChange={(e) => {
+                          setEmailVerificationStatus("idle");
+                          setDraft((d) => ({ ...d, toAddress: e.target.value }));
+                          if (e.target.value.trim()) {
+                            setErrors((prev) => ({ ...prev, toAddress: undefined }));
+                          }
+                        }}
+                        placeholder="manager@company.com"
+                        className={cn(
+                          "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                          emailVerificationStatus === "success"
+                            ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                            : emailVerificationStatus === "failed" || errors.toAddress
+                              ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                              : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                        )}
+                      />
+                      <button
+                        type="button"
+                        disabled={emailVerificationStatus === "verifying"}
+                        onClick={handleVerifyEmail}
+                        className={cn(
+                          "px-3 h-7.5 text-xs rounded-md border font-semibold cursor-pointer transition-all shadow-2xs active:scale-98 inline-flex items-center gap-1.5 shrink-0",
+                          emailVerificationStatus === "verifying" &&
+                            "opacity-75 cursor-wait border-input/80 bg-muted/40 text-muted-foreground",
+                          emailVerificationStatus === "success" &&
+                            "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20",
+                          emailVerificationStatus === "failed" &&
+                            "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20",
+                          emailVerificationStatus === "idle" &&
+                            "border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 text-foreground",
+                        )}
+                      >
+                        {emailVerificationStatus === "verifying" && (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-[#0089FF]" />
+                            <span>Verifying...</span>
+                          </>
+                        )}
+                        {emailVerificationStatus === "success" && (
+                          <>
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span>Verified</span>
+                          </>
+                        )}
+                        {emailVerificationStatus === "failed" && (
+                          <>
+                            <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
+                            <span>Failed</span>
+                          </>
+                        )}
+                        {emailVerificationStatus === "idle" && <span>Verify</span>}
+                      </button>
+                    </div>
+                    {emailVerificationStatus === "success" && (
+                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium animate-in fade-in duration-150">
+                        <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600" />
+                        <span>Recipient email verified & active.</span>
+                      </div>
+                    )}
+                    {(emailVerificationStatus === "failed" || errors.toAddress) && (
+                      <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150">
+                        <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
+                        <span>{errors.toAddress || "Verification failed: Invalid email Id"}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        Retry Window (Mins)
+                      </label>
+                      <input
+                        type="text"
+                        value={draft.emailRetryWindow}
+                        onChange={(e) =>
+                          setDraft((d) => ({
+                            ...d,
+                            emailRetryWindow: e.target.value,
+                          }))
+                        }
+                        placeholder="15"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
                       />
                     </div>
 
                     <div className="space-y-1">
                       <label className="block text-[11px] font-semibold text-foreground">
-                        Duration Format
+                        Subject
                       </label>
-                      <div className="flex items-center gap-4 h-7.5">
-                        <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer select-none font-medium">
-                          <input
-                            type="radio"
-                            name="durationFormat"
-                            checked={criteriaDurationFormat === "hhmm"}
-                            onChange={() => setCriteriaDurationFormat("hhmm")}
-                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                          />
-                          <span>HH:MM</span>
-                        </label>
-                        <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer select-none font-medium">
-                          <input
-                            type="radio"
-                            name="durationFormat"
-                            checked={criteriaDurationFormat === "decimal"}
-                            onChange={() => setCriteriaDurationFormat("decimal")}
-                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                          />
-                          <span>Decimal</span>
-                        </label>
-                      </div>
+                      <input
+                        type="text"
+                        value={draft.subject}
+                        onChange={(e) => setDraft((d) => ({ ...d, subject: e.target.value }))}
+                        placeholder="Weekly Report"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                      />
                     </div>
                   </div>
 
-                  {/* Duration Filter */}
                   <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Duration Filter
-                    </label>
-                    <div className="grid grid-cols-12 gap-1.5">
-                      <div className="col-span-5">
-                        <SelectDropdown
-                          value={criteriaDurationCompare}
-                          options={COMPARATORS}
-                          onChange={setCriteriaDurationCompare}
-                          placeholder="Comparator"
-                        />
-                      </div>
-                      <div className="col-span-4">
-                        <SelectDropdown
-                          value={criteriaDurationUnit}
-                          options={DURATION_UNITS}
-                          onChange={setCriteriaDurationUnit}
-                          placeholder="Unit"
-                        />
-                      </div>
-                      <div className="col-span-3">
-                        <input
-                          type="text"
-                          value={criteriaDurationValue}
-                          onChange={(e) =>
-                            setCriteriaDurationValue(e.target.value)
-                          }
-                          placeholder="e.g. 5"
-                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                        />
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        Message
+                      </label>
+                      <div className="flex items-center gap-0.5 border border-border rounded-md bg-muted/30 px-1 py-0.5">
+                        <button
+                          type="button"
+                          className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                        >
+                          <Bold className="h-2.5 w-2.5" />
+                        </button>
+                        <button
+                          type="button"
+                          className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                        >
+                          <Italic className="h-2.5 w-2.5" />
+                        </button>
+                        <button
+                          type="button"
+                          className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                        >
+                          <Underline className="h-2.5 w-2.5" />
+                        </button>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Distance Filter */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Distance Filter (km)
-                    </label>
-                    <div className="grid grid-cols-12 gap-1.5">
-                      <div className="col-span-7">
-                        <SelectDropdown
-                          value={criteriaDistanceCompare}
-                          options={COMPARATORS}
-                          onChange={setCriteriaDistanceCompare}
-                          placeholder="Comparator"
-                        />
-                      </div>
-                      <div className="col-span-5">
-                        <input
-                          type="text"
-                          value={criteriaDistanceValue}
-                          onChange={(e) =>
-                            setCriteriaDistanceValue(e.target.value)
-                          }
-                          placeholder="e.g. 100"
-                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                        />
-                      </div>
-                    </div>
+                    <textarea
+                      rows={2}
+                      value={draft.message}
+                      onChange={(e) => setDraft((d) => ({ ...d, message: e.target.value }))}
+                      placeholder="Write your email body message here..."
+                      className="w-full rounded-md border border-input/80 bg-background p-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
+                    />
                   </div>
                 </div>
-              </div>
-            ) : (
-              /* VIEW 2 - STEP 2: Configure Settings */
-              <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar select-none">
-                {/* 1. Report Information */}
-                <div className="space-y-3">
+              )}
+
+              {/* Delivery Configuration Details: FTP */}
+              {draft.actionType === "FTP" && (
+                <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        Host Address <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={draft.ftpHost || ""}
+                        onChange={(e) => {
+                          setDraft((d) => ({ ...d, ftpHost: e.target.value }));
+                          if (e.target.value.trim())
+                            setErrors((prev) => ({ ...prev, ftpHost: undefined }));
+                        }}
+                        placeholder="ftp.example.com"
+                        className={cn(
+                          "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                          errors.ftpHost
+                            ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                            : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                        )}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        Port <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={draft.ftpPort || "21"}
+                        onChange={(e) => {
+                          setDraft((d) => ({ ...d, ftpPort: e.target.value }));
+                          if (e.target.value.trim())
+                            setErrors((prev) => ({ ...prev, ftpPort: undefined }));
+                        }}
+                        placeholder="21"
+                        className={cn(
+                          "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                          errors.ftpPort
+                            ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                            : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        Username <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={draft.ftpUsername || ""}
+                        onChange={(e) => {
+                          setDraft((d) => ({ ...d, ftpUsername: e.target.value }));
+                          if (e.target.value.trim())
+                            setErrors((prev) => ({ ...prev, ftpUsername: undefined }));
+                        }}
+                        placeholder="ftp_user"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        Password <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <input
+                        type="password"
+                        value={draft.ftpPassword || ""}
+                        onChange={(e) => {
+                          setDraft((d) => ({ ...d, ftpPassword: e.target.value }));
+                          if (e.target.value.trim())
+                            setErrors((prev) => ({ ...prev, ftpPassword: undefined }));
+                        }}
+                        placeholder="••••••••"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-1">
                     <label className="block text-[11px] font-semibold text-foreground">
-                      Report Name <span className="text-red-500 font-bold ml-0.5">*</span>
+                      Folder Name <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <input
                       type="text"
-                      value={draft.name}
+                      value={draft.ftpFolder || ""}
                       onChange={(e) => {
-                        setDraft((d) => ({ ...d, name: e.target.value }));
-                        if (e.target.value.trim()) {
-                          setErrors((prev) => ({ ...prev, name: undefined }));
-                        }
+                        setDraft((d) => ({ ...d, ftpFolder: e.target.value }));
+                        if (e.target.value.trim())
+                          setErrors((prev) => ({ ...prev, ftpFolder: undefined }));
                       }}
-                      placeholder="e.g. Weekly Operations Summary"
-                      className={cn(
-                        "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                        errors.name
-                          ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                          : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                      )}
+                      placeholder="/reports/daily"
+                      className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                     />
-                    {errors.name && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150">
-                        <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                        <span>{errors.name}</span>
-                      </div>
-                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Delivery Configuration Details: SFTP */}
+              {draft.actionType === "SFTP" && (
+                <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
+                      Platform <span className="text-red-500 font-bold ml-0.5">*</span>
+                    </label>
+                    <SelectDropdown
+                      value={draft.sftpPlatform || "Amazon S3"}
+                      options={SFTP_PLATFORMS}
+                      onChange={(sftpPlatform) => setDraft((d) => ({ ...d, sftpPlatform }))}
+                    />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label className="block text-[11px] font-semibold text-foreground">
-                        Copy From
+                        Access key ID <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
-                      <SelectDropdown
-                        value={copyFrom}
-                        options={["None", ...schedules.map((s) => s.name)]}
-                        onChange={handleCopySettings}
+                      <input
+                        type="text"
+                        value={draft.sftpAccessKey || ""}
+                        onChange={(e) => {
+                          setDraft((d) => ({ ...d, sftpAccessKey: e.target.value }));
+                          if (e.target.value.trim())
+                            setErrors((prev) => ({ ...prev, sftpAccessKey: undefined }));
+                        }}
+                        placeholder="AKIAIOSFODNN7EXAMPLE"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1">
                       <label className="block text-[11px] font-semibold text-foreground">
-                        Relative Type
+                        Secret Access Key <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
-                      <SelectDropdown
-                        value={draft.relativeType}
-                        options={RELATIVE_TYPES}
-                        onChange={handleRelativeTypeChange}
+                      <input
+                        type="password"
+                        value={draft.sftpSecretKey || ""}
+                        onChange={(e) => {
+                          setDraft((d) => ({ ...d, sftpSecretKey: e.target.value }));
+                          if (e.target.value.trim())
+                            setErrors((prev) => ({ ...prev, sftpSecretKey: undefined }));
+                        }}
+                        placeholder="••••••••••••••••••••"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
                   </div>
@@ -1684,732 +2077,116 @@ export function ScheduleModal({
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label className="block text-[11px] font-semibold text-foreground">
-                        Timezone
+                        Region <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
-                      <SelectDropdown
-                        value={draft.timezone}
-                        options={TIMEZONES}
-                        onChange={(timezone) =>
-                          setDraft((d) => ({ ...d, timezone }))
-                        }
+                      <input
+                        type="text"
+                        value={draft.sftpRegion || ""}
+                        onChange={(e) => {
+                          setDraft((d) => ({ ...d, sftpRegion: e.target.value }));
+                          if (e.target.value.trim())
+                            setErrors((prev) => ({ ...prev, sftpRegion: undefined }));
+                        }}
+                        placeholder="ap-south-1"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1">
                       <label className="block text-[11px] font-semibold text-foreground">
-                        Generation Time
+                        Bucket Name <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
-                      <SelectDropdown
-                        value={draft.generationTime}
-                        options={GENERATION_TIMES}
-                        onChange={(generationTime) =>
-                          setDraft((d) => ({ ...d, generationTime }))
-                        }
+                      <input
+                        type="text"
+                        value={draft.sftpBucketName || ""}
+                        onChange={(e) => {
+                          setDraft((d) => ({ ...d, sftpBucketName: e.target.value }));
+                          if (e.target.value.trim())
+                            setErrors((prev) => ({ ...prev, sftpBucketName: undefined }));
+                        }}
+                        placeholder="fleet-reports"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Dynamic Timing Sub-Section Based on Relative Type */}
-                {(draft.scheduleType === "Weekly" ||
-                  draft.scheduleType === "Monthly") && (
-                  <div className="pt-1 space-y-2 border-t border-border/60">
-                    {/* If Weekly: Day Selector */}
-                    {draft.scheduleType === "Weekly" && (
-                      <div className="space-y-1.5">
-                        <span className="block text-[11px] font-semibold text-foreground">
-                          Select execution days:
-                        </span>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {WEEK_DAYS.map(({ id, label }) => {
-                            const isSelected = (
-                              draft.selectedDays || []
-                            ).includes(id);
-                            return (
-                              <button
-                                key={id}
-                                type="button"
-                                onClick={() => toggleDay(id)}
-                                className={cn(
-                                  "h-7 w-7 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95",
-                                  isSelected
-                                    ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
-                                    : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60",
-                                )}
-                              >
-                                {label}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* If Monthly: Date Grid (1-31) */}
-                    {draft.scheduleType === "Monthly" && (
-                      <div className="space-y-1.5">
-                        <span className="block text-[11px] font-semibold text-foreground">
-                          Select execution day of month:
-                        </span>
-                        <div className="grid grid-cols-7 gap-1">
-                          {Array.from({ length: 31 }, (_, i) => i + 1).map(
-                            (dateNum) => {
-                              const isSelected = (
-                                draft.selectedDates || []
-                              ).includes(dateNum);
-                              return (
-                                <button
-                                  key={dateNum}
-                                  type="button"
-                                  onClick={() => toggleDate(dateNum)}
-                                  className={cn(
-                                    "h-6.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95",
-                                    isSelected
-                                      ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
-                                      : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60",
-                                  )}
-                                >
-                                  {dateNum}
-                                </button>
-                              );
-                            },
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Time Range */}
-                <div className="pt-1 space-y-2 border-t border-border/60">
-                  <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-foreground">
-                    <input
-                      type="checkbox"
-                      checked={draft.hasTimeRange}
-                      onChange={(e) =>
-                        setDraft((d) => ({
-                          ...d,
-                          hasTimeRange: e.target.checked,
-                        }))
-                      }
-                      className="h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
+              {/* Delivery Configuration Details: MEDIA API */}
+              {draft.actionType === "Media API" && (
+                <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-semibold text-foreground">
+                      Gateway <span className="text-red-500 font-bold ml-0.5">*</span>
+                    </label>
+                    <SelectDropdown
+                      value={draft.mediaGateway || "WhatsApp"}
+                      options={MEDIA_GATEWAYS}
+                      onChange={(mediaGateway) => setDraft((d) => ({ ...d, mediaGateway }))}
                     />
-                    <span>Time Range</span>
-                  </label>
+                  </div>
 
-                  {draft.hasTimeRange && (
-                    <div className="grid grid-cols-2 gap-3 pt-0.5">
-                      <div className="space-y-1">
-                        <label className="block text-[11px] font-semibold text-foreground">
-                          Start Time
-                        </label>
-                        <div className="relative flex items-center">
-                          <input
-                            type="text"
-                            value={draft.timeRangeStart}
-                            onChange={(e) =>
-                              setDraft((d) => ({
-                                ...d,
-                                timeRangeStart: e.target.value,
-                              }))
-                            }
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                          />
-                          <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-[11px] font-semibold text-foreground">
-                          End Time
-                        </label>
-                        <div className="relative flex items-center">
-                          <input
-                            type="text"
-                            value={draft.timeRangeEnd}
-                            onChange={(e) =>
-                              setDraft((d) => ({
-                                ...d,
-                                timeRangeEnd: e.target.value,
-                              }))
-                            }
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                          />
-                          <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                        </div>
-                      </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        Recipient Number <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <span className="text-[10px] text-muted-foreground font-medium">
+                        Comma (,) for multiple
+                      </span>
                     </div>
-                  )}
+                    <textarea
+                      rows={2}
+                      value={draft.mediaRecipientNumber || ""}
+                      onChange={(e) => {
+                        setDraft((d) => ({ ...d, mediaRecipientNumber: e.target.value }));
+                        if (e.target.value.trim())
+                          setErrors((prev) => ({ ...prev, mediaRecipientNumber: undefined }));
+                      }}
+                      placeholder="+91 9876543210, +1 5550192834"
+                      className="w-full rounded-md border border-input/80 bg-background p-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none"
+                    />
+                  </div>
                 </div>
+              )}
 
-                {/* Report Type & Delivery Method */}
-                <div className="pt-1 space-y-3 border-t border-border/60">
-                  {/* Report Type */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Report Type
-                    </label>
-                    <div className="flex items-center gap-5 h-7.5">
-                      {(["Summary", "Daily", "Detail"] as const).map((level) => (
-                        <label
-                          key={level}
-                          className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
-                        >
-                          <input
-                            type="radio"
-                            name="reportType"
-                            checked={draft.reportType === level}
-                            onChange={() =>
-                              setDraft((d) => ({ ...d, reportType: level }))
-                            }
-                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                          />
-                          <span>{level}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Delivery Method */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Delivery Method
-                    </label>
-                    <div className="flex items-center gap-4 h-7.5 flex-wrap">
-                      {(["Email", "FTP", "SFTP", "Media API"] as const).map(
-                        (method) => (
-                          <label
-                            key={method}
-                            className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
-                          >
-                            <input
-                              type="radio"
-                              name="actionType"
-                              checked={draft.actionType === method}
-                              onChange={() =>
-                                setDraft((d) => ({ ...d, actionType: method }))
-                              }
-                              className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                            />
-                            <span>{method}</span>
-                          </label>
-                        ),
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Delivery Configuration Details: EMAIL */}
-                  {draft.actionType === "Email" && (
-                    <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
-                      <div className="space-y-1">
-                        <label className="block text-[11px] font-semibold text-foreground">
-                          To Address <span className="text-red-500 font-bold ml-0.5">*</span>
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="email"
-                            value={draft.toAddress}
-                            onChange={(e) => {
-                              setEmailVerificationStatus("idle");
-                              setDraft((d) => ({
-                                ...d,
-                                toAddress: e.target.value,
-                              }));
-                              if (e.target.value.trim()) {
-                                setErrors((prev) => ({ ...prev, toAddress: undefined }));
-                              }
-                            }}
-                            placeholder="manager@company.com"
-                            className={cn(
-                              "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                              emailVerificationStatus === "success"
-                                ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                                : emailVerificationStatus === "failed" || errors.toAddress
-                                  ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                  : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                            )}
-                          />
-                          <button
-                            type="button"
-                            disabled={emailVerificationStatus === "verifying"}
-                            onClick={handleVerifyEmail}
-                            className={cn(
-                              "px-3 h-7.5 text-xs rounded-md border font-semibold cursor-pointer transition-all shadow-2xs active:scale-98 inline-flex items-center gap-1.5 shrink-0",
-                              emailVerificationStatus === "verifying" && "opacity-75 cursor-wait border-input/80 bg-muted/40 text-muted-foreground",
-                              emailVerificationStatus === "success" && "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20",
-                              emailVerificationStatus === "failed" && "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20",
-                              emailVerificationStatus === "idle" && "border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 text-foreground",
-                            )}
-                          >
-                            {emailVerificationStatus === "verifying" && (
-                              <>
-                                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#0089FF]" />
-                                <span>Verifying...</span>
-                              </>
-                            )}
-                            {emailVerificationStatus === "success" && (
-                              <>
-                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                                <span>Verified</span>
-                              </>
-                            )}
-                            {emailVerificationStatus === "failed" && (
-                              <>
-                                <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-                                <span>Failed</span>
-                              </>
-                            )}
-                            {emailVerificationStatus === "idle" && <span>Verify</span>}
-                          </button>
-                        </div>
-                        {emailVerificationStatus === "success" && (
-                          <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium animate-in fade-in duration-150">
-                            <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600" />
-                            <span>Recipient email verified & active.</span>
-                          </div>
-                        )}
-                        {(emailVerificationStatus === "failed" || errors.toAddress) && (
-                          <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150">
-                            <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                            <span>{errors.toAddress || "Verification failed: Invalid email Id"}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Retry Window (Mins)
-                          </label>
-                          <input
-                            type="text"
-                            value={draft.emailRetryWindow}
-                            onChange={(e) =>
-                              setDraft((d) => ({
-                                ...d,
-                                emailRetryWindow: e.target.value,
-                              }))
-                            }
-                            placeholder="15"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Subject
-                          </label>
-                          <input
-                            type="text"
-                            value={draft.subject}
-                            onChange={(e) =>
-                              setDraft((d) => ({ ...d, subject: e.target.value }))
-                            }
-                            placeholder="Weekly Report"
-                            className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Message
-                          </label>
-                          <div className="flex items-center gap-0.5 border border-border rounded-md bg-muted/30 px-1 py-0.5">
-                            <button
-                              type="button"
-                              className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
-                            >
-                              <Bold className="h-2.5 w-2.5" />
-                            </button>
-                            <button
-                              type="button"
-                              className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
-                            >
-                              <Italic className="h-2.5 w-2.5" />
-                            </button>
-                            <button
-                              type="button"
-                              className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground"
-                            >
-                              <Underline className="h-2.5 w-2.5" />
-                            </button>
-                          </div>
-                        </div>
-                        <textarea
-                          rows={2}
-                          value={draft.message}
-                          onChange={(e) =>
-                            setDraft((d) => ({ ...d, message: e.target.value }))
-                          }
-                          placeholder="Write your email body message here..."
-                          className="w-full rounded-md border border-input/80 bg-background p-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Delivery Configuration Details: FTP */}
-                  {draft.actionType === "FTP" && (
-                    <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Host Address <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={draft.ftpHost || ""}
-                            onChange={(e) => {
-                              setDraft((d) => ({ ...d, ftpHost: e.target.value }));
-                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpHost: undefined }));
-                            }}
-                            placeholder="ftp.example.com"
-                            className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                              errors.ftpHost
-                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                            )}
-                          />
-                          {errors.ftpHost && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                              <span>{errors.ftpHost}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Port <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={draft.ftpPort || "21"}
-                            onChange={(e) => {
-                              setDraft((d) => ({ ...d, ftpPort: e.target.value }));
-                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpPort: undefined }));
-                            }}
-                            placeholder="21"
-                            className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                              errors.ftpPort
-                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                            )}
-                          />
-                          {errors.ftpPort && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                              <span>{errors.ftpPort}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Username <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={draft.ftpUsername || ""}
-                            onChange={(e) => {
-                              setDraft((d) => ({ ...d, ftpUsername: e.target.value }));
-                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpUsername: undefined }));
-                            }}
-                            placeholder="ftp_user"
-                            className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                              errors.ftpUsername
-                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                            )}
-                          />
-                          {errors.ftpUsername && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                              <span>{errors.ftpUsername}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Password <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <input
-                            type="password"
-                            value={draft.ftpPassword || ""}
-                            onChange={(e) => {
-                              setDraft((d) => ({ ...d, ftpPassword: e.target.value }));
-                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpPassword: undefined }));
-                            }}
-                            placeholder="••••••••"
-                            className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                              errors.ftpPassword
-                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                            )}
-                          />
-                          {errors.ftpPassword && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                              <span>{errors.ftpPassword}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-[11px] font-semibold text-foreground">
-                          Folder Name <span className="text-red-500 font-bold ml-0.5">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={draft.ftpFolder || ""}
-                          onChange={(e) => {
-                            setDraft((d) => ({ ...d, ftpFolder: e.target.value }));
-                            if (e.target.value.trim()) setErrors((prev) => ({ ...prev, ftpFolder: undefined }));
-                          }}
-                          placeholder="/reports/daily"
-                          className={cn(
-                            "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                            errors.ftpFolder
-                              ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                              : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                          )}
-                        />
-                        {errors.ftpFolder && (
-                          <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                            <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                            <span>{errors.ftpFolder}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Delivery Configuration Details: SFTP */}
-                  {draft.actionType === "SFTP" && (
-                    <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
-                      <div className="space-y-1">
-                        <label className="block text-[11px] font-semibold text-foreground">
-                          Platform <span className="text-red-500 font-bold ml-0.5">*</span>
-                        </label>
-                        <SelectDropdown
-                          value={draft.sftpPlatform || "Amazon S3"}
-                          options={SFTP_PLATFORMS}
-                          onChange={(sftpPlatform) => setDraft((d) => ({ ...d, sftpPlatform }))}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Access key ID <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={draft.sftpAccessKey || ""}
-                            onChange={(e) => {
-                              setDraft((d) => ({ ...d, sftpAccessKey: e.target.value }));
-                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpAccessKey: undefined }));
-                            }}
-                            placeholder="AKIAIOSFODNN7EXAMPLE"
-                            className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                              errors.sftpAccessKey
-                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                            )}
-                          />
-                          {errors.sftpAccessKey && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                              <span>{errors.sftpAccessKey}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Secret Access Key <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <input
-                            type="password"
-                            value={draft.sftpSecretKey || ""}
-                            onChange={(e) => {
-                              setDraft((d) => ({ ...d, sftpSecretKey: e.target.value }));
-                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpSecretKey: undefined }));
-                            }}
-                            placeholder="••••••••••••••••••••"
-                            className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                              errors.sftpSecretKey
-                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                            )}
-                          />
-                          {errors.sftpSecretKey && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                              <span>{errors.sftpSecretKey}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Region <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={draft.sftpRegion || ""}
-                            onChange={(e) => {
-                              setDraft((d) => ({ ...d, sftpRegion: e.target.value }));
-                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpRegion: undefined }));
-                            }}
-                            placeholder="ap-south-1"
-                            className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                              errors.sftpRegion
-                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                            )}
-                          />
-                          {errors.sftpRegion && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                              <span>{errors.sftpRegion}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Bucket Name <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={draft.sftpBucketName || ""}
-                            onChange={(e) => {
-                              setDraft((d) => ({ ...d, sftpBucketName: e.target.value }));
-                              if (e.target.value.trim()) setErrors((prev) => ({ ...prev, sftpBucketName: undefined }));
-                            }}
-                            placeholder="fleet-reports"
-                            className={cn(
-                              "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                              errors.sftpBucketName
-                                ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                            )}
-                          />
-                          {errors.sftpBucketName && (
-                            <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                              <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                              <span>{errors.sftpBucketName}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Delivery Configuration Details: MEDIA API */}
-                  {draft.actionType === "Media API" && (
-                    <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
-                      <div className="space-y-1">
-                        <label className="block text-[11px] font-semibold text-foreground">
-                          Gateway <span className="text-red-500 font-bold ml-0.5">*</span>
-                        </label>
-                        <SelectDropdown
-                          value={draft.mediaGateway || "WhatsApp"}
-                          options={MEDIA_GATEWAYS}
-                          onChange={(mediaGateway) => setDraft((d) => ({ ...d, mediaGateway }))}
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <label className="block text-[11px] font-semibold text-foreground">
-                            Recipient Number <span className="text-red-500 font-bold ml-0.5">*</span>
-                          </label>
-                          <span className="text-[10px] text-muted-foreground font-medium">
-                            Comma (,) for multiple
-                          </span>
-                        </div>
-                        <textarea
-                          rows={2}
-                          value={draft.mediaRecipientNumber || ""}
-                          onChange={(e) => {
-                            setDraft((d) => ({ ...d, mediaRecipientNumber: e.target.value }));
-                            if (e.target.value.trim()) setErrors((prev) => ({ ...prev, mediaRecipientNumber: undefined }));
-                          }}
-                          placeholder="+91 9876543210, +1 5550192834"
-                          className={cn(
-                            "w-full rounded-md border bg-background p-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none",
-                            errors.mediaRecipientNumber
-                              ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                              : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
-                          )}
-                        />
-                        {errors.mediaRecipientNumber && (
-                          <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium">
-                            <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                            <span>{errors.mediaRecipientNumber}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* File Format */}
-                  <div className="space-y-1 pt-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      File Format
-                    </label>
-                    <div className="flex items-center gap-5 h-7.5">
-                      {(["XLS", "PDF", "CSV"] as const).map((fmt) => (
-                        <label
-                          key={fmt}
-                          className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
-                        >
-                          <input
-                            type="radio"
-                            name="format"
-                            checked={draft.format === fmt}
-                            onChange={() =>
-                              setDraft((d) => ({ ...d, format: fmt }))
-                            }
-                            className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                          />
-                          <span>{fmt}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Advance Configuration Button */}
-                  <div className="pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setAdvanceModalOpen(true)}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/60 transition-all cursor-pointer shadow-2xs active:scale-98"
+              {/* 8. File Format */}
+              <div className="space-y-1 pt-1">
+                <label className="block text-[11px] font-semibold text-foreground">
+                  File Format
+                </label>
+                <div className="flex items-center gap-5 h-7.5">
+                  {(["XLS", "PDF", "CSV"] as const).map((fmt) => (
+                    <label
+                      key={fmt}
+                      className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
                     >
-                      <Settings2 className="h-3.5 w-3.5 text-[#0089FF]" />
-                      <span>Advance Configuration</span>
-                    </button>
-                  </div>
+                      <input
+                        type="radio"
+                        name="format"
+                        checked={draft.format === fmt}
+                        onChange={() => setDraft((d) => ({ ...d, format: fmt }))}
+                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                      />
+                      <span>{fmt}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
-            )}
+
+              {/* 9. Advance Configuration Button */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setAdvanceModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/60 transition-all cursor-pointer shadow-2xs active:scale-98"
+                >
+                  <Settings2 className="h-3.5 w-3.5 text-[#0089FF]" />
+                  <span>Advance Configuration</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Standardized 56px Drawer Footer */}
@@ -2418,17 +2195,10 @@ export function ScheduleModal({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  if (step === 1) {
-                    setView("list");
-                  } else {
-                    setStep(1);
-                  }
-                }}
+                onClick={onClose}
                 className="flex items-center gap-1.5 px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
               >
-                <ArrowLeft className="h-3.5 w-3.5" />
-                <span>Back</span>
+                <span>Close</span>
               </button>
 
               {editingId && (
@@ -2444,27 +2214,18 @@ export function ScheduleModal({
 
             <div className="flex items-center gap-3">
               <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
-                {draft.selectedVehicles.length} Vehicles
+                {vehicleFilterMode === "current"
+                  ? `${currentLoadedVehicles.length} Vehicles`
+                  : `${draft.selectedVehicles.length > 0 ? draft.selectedVehicles.length : customFilteredVehicleIds.length} Vehicles`}
               </span>
 
-              {step === 1 ? (
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="flex items-center gap-1.5 rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
-                >
-                  <span>Next</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  className="rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
-                >
-                  Save Schedule
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleSave}
+                className="rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
+              >
+                {editingId ? "Update Schedule" : "Schedule"}
+              </button>
             </div>
           </footer>
         ) : (
@@ -2489,6 +2250,351 @@ export function ScheduleModal({
         )}
       </aside>
 
+      {/* OVERLAY: Custom Vehicle Selection Overlay matching Reference Image */}
+      {vehicleOverlayOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in-0 duration-200">
+          <div className="w-full max-w-[440px] rounded-xl border border-border bg-background text-foreground shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Header (56px) */}
+            <div className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+              <div>
+                <h3 className="text-[15px] font-semibold text-foreground tracking-tight">
+                  Select Vehicles
+                </h3>
+                <p className="text-[10px] text-muted-foreground font-medium">
+                  Choose specific vehicles for this schedule
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setVehicleOverlayOpen(false)}
+                className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Overlay Body */}
+            <div className="p-4 space-y-3 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+              {/* Top Search Bar & Filter button */}
+              <div className="relative shrink-0">
+                <div className="flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all">
+                  <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={customVehicleSearch}
+                    onChange={(e) => setCustomVehicleSearch(e.target.value)}
+                    placeholder="Select vehicle"
+                    className="h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
+                  />
+
+                  {customVehicleSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setCustomVehicleSearch("")}
+                      className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded mr-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setCustomFilterOverlayOpen(!customFilterOverlayOpen)}
+                    className="flex items-center gap-1 px-1 py-0.5 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] transition-colors cursor-pointer select-none shrink-0 active:scale-95"
+                    title="Filter by Company and Branch"
+                  >
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-[#0089FF]" />
+                    <span>Filter</span>
+                    {customActiveFilterCount > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white">
+                        {customActiveFilterCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                {/* Company & Branch Filter Popover inside Vehicle Selection Overlay */}
+                {customFilterOverlayOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40 bg-black/10"
+                      onClick={() => setCustomFilterOverlayOpen(false)}
+                    />
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1.5 rounded-xl border border-border/80 bg-card p-4 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 space-y-3 custom-scrollbar">
+                      {/* Company */}
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-semibold text-foreground">
+                          Company
+                        </label>
+                        <UniversalMultiSelectDropdown
+                          label="Company"
+                          selected={customCompanies}
+                          options={COMPANIES.filter((c) => c !== "All")}
+                          onChange={handleCustomCompanyChange}
+                          placeholder="Select Company"
+                        />
+                      </div>
+
+                      {/* Branch */}
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-semibold text-foreground">
+                          Branch
+                        </label>
+                        <UniversalMultiSelectDropdown
+                          label="Branch"
+                          selected={customBranches}
+                          options={customAvailableBranches}
+                          onChange={handleCustomBranchChange}
+                          placeholder="Select Branch"
+                        />
+                      </div>
+
+                      {/* Overlay Footer */}
+                      <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCustomCompanies([]);
+                            setCustomBranches([]);
+                          }}
+                          className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors"
+                        >
+                          Reset
+                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setCustomFilterOverlayOpen(false)}
+                            className="px-2.5 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
+                          >
+                            Close
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCustomFilterOverlayOpen(false)}
+                            className="px-3.5 py-1 rounded-md bg-[#0089FF] text-white text-xs font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98"
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Resizable Vehicle Checklist Tree */}
+              <div className="rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs">
+                {/* Master Select All Toolbar */}
+                <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={isCustomAllVehiclesSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = isCustomSomeVehiclesSelected;
+                      }}
+                      onChange={toggleSelectAllCustomVehicles}
+                      className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                    />
+                    <span>Select all</span>
+                  </label>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-medium text-muted-foreground">
+                      {draftCustomVehicles.length === 0
+                        ? `All (${customFilteredVehicleIds.length})`
+                        : `${draftCustomVehicles.length} / ${customFilteredVehicleIds.length} selected`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={toggleAllBranchAccordions}
+                      className="text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted"
+                      title="Expand/Collapse All Branches"
+                    >
+                      <ChevronsUpDown className="h-3 w-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setVehicleBoxHeight((prev) => (prev > 220 ? 190 : 340))
+                      }
+                      className="text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted ml-0.5"
+                      title={vehicleBoxHeight > 220 ? "Compact height" : "Expand height"}
+                    >
+                      {vehicleBoxHeight > 220 ? (
+                        <Minimize2 className="h-3 w-3" />
+                      ) : (
+                        <Maximize2 className="h-3 w-3" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Scrollable Branch Tree */}
+                <div
+                  style={{
+                    height: `${vehicleBoxHeight}px`,
+                    maxHeight: `${vehicleBoxHeight}px`,
+                  }}
+                  className="overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar transition-[height] duration-75 ease-out"
+                >
+                  {groupedCustomVehicles.map(({ branch, vehicles }) => {
+                    const isExpanded =
+                      openBranchGroups.includes(branch) ||
+                      customVehicleSearch.trim() !== "";
+                    const branchIds = vehicles.map((v) => v.id);
+                    const selectedBranchCount = vehicles.filter((v) =>
+                      draftCustomVehicles.includes(v.id),
+                    ).length;
+                    const isBranchAllSelected =
+                      selectedBranchCount === vehicles.length && vehicles.length > 0;
+                    const isBranchSomeSelected =
+                      selectedBranchCount > 0 && !isBranchAllSelected;
+
+                    return (
+                      <div key={branch} className="py-1">
+                        {/* Branch Accordion Header */}
+                        <div className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors select-none">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <input
+                              type="checkbox"
+                              aria-label={`Select all vehicles in ${branch}`}
+                              checked={isBranchAllSelected}
+                              ref={(el) => {
+                                if (el) el.indeterminate = isBranchSomeSelected;
+                              }}
+                              onChange={() => toggleCustomBranchVehicles(vehicles)}
+                              className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => toggleBranchAccordion(branch)}
+                              className="flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate"
+                            >
+                              <ChevronRight
+                                className={cn(
+                                  "h-3.5 w-3.5 text-muted-foreground transition-transform duration-150",
+                                  isExpanded && "rotate-90",
+                                )}
+                              />
+                              <span className="truncate">{branch}</span>
+                              <span className="text-[10px] tabular-nums text-muted-foreground font-normal">
+                                [{vehicles.length}]
+                              </span>
+                            </button>
+                          </div>
+                          <span className="text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full">
+                            {selectedBranchCount}/{vehicles.length}
+                          </span>
+                        </div>
+
+                        {/* Branch Vehicles Sub-List */}
+                        {isExpanded && (
+                          <div className="mt-1 pl-6 pr-2 space-y-0.5">
+                            {vehicles.map((v) => {
+                              const isChecked = draftCustomVehicles.includes(v.id);
+                              return (
+                                <label
+                                  key={v.id}
+                                  className="flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium"
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={() => toggleCustomSingleVehicle(v.id)}
+                                      className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                                    />
+                                    <Truck className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <div className="min-w-0 truncate">
+                                      <span className="block truncate leading-tight text-xs font-semibold">
+                                        {v.name}
+                                      </span>
+                                      <span className="block text-[10px] text-muted-foreground truncate leading-tight font-normal">
+                                        {v.imei} · {v.driver}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {groupedCustomVehicles.length === 0 && (
+                    <div className="p-6 text-center text-xs text-muted-foreground italic">
+                      No vehicles found matching &ldquo;{customVehicleSearch}&rdquo;
+                    </div>
+                  )}
+                </div>
+
+                {/* Resizer Bar at bottom */}
+                <div
+                  onMouseDown={startResizeVehicleBox}
+                  onDoubleClick={() =>
+                    setVehicleBoxHeight((prev) => (prev > 220 ? 190 : 340))
+                  }
+                  className="relative flex h-3.5 w-full cursor-ns-resize items-center justify-center border-t border-border/60 bg-muted/20 hover:bg-muted/60 transition-colors select-none group"
+                  title="Drag to resize height (Double-click to expand/collapse)"
+                >
+                  <div className="h-1 w-8 rounded-full bg-muted-foreground/30 group-hover:bg-[#0089FF] transition-colors" />
+                  <div
+                    className="absolute right-1 bottom-0.5 text-muted-foreground/40 group-hover:text-[#0089FF] transition-colors pointer-events-none"
+                    title="Resize handle"
+                  >
+                    <svg width="6" height="6" viewBox="0 0 6 6" fill="currentColor">
+                      <circle cx="5" cy="5" r="1" />
+                      <circle cx="5" cy="1" r="1" />
+                      <circle cx="1" cy="5" r="1" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Overlay Footer (56px) */}
+            <div className="flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0">
+              <button
+                type="button"
+                onClick={() => setDraftCustomVehicles([])}
+                className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
+              >
+                Clear All
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setVehicleOverlayOpen(false)}
+                  className="px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const chosen =
+                      draftCustomVehicles.length > 0
+                        ? draftCustomVehicles
+                        : customFilteredVehicleIds;
+                    setDraft((d) => ({ ...d, selectedVehicles: chosen }));
+                    setVehicleFilterMode("custom");
+                    setVehicleOverlayOpen(false);
+                    toast.success(`${chosen.length} vehicles selected for report schedule`);
+                  }}
+                  className="px-4 h-8 text-xs rounded-md bg-[#0089FF] text-white font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98"
+                >
+                  Apply Vehicles
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Advance Configuration Sub-Modal */}
       {advanceModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -2499,7 +2605,6 @@ export function ScheduleModal({
             className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
           />
           <div className="relative z-10 w-full max-w-2xl max-h-[85vh] flex flex-col bg-background border border-border text-foreground shadow-2xl rounded-lg overflow-hidden animate-in zoom-in-95">
-            {/* Header (56px) */}
             <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
               <div className="flex items-center gap-2">
                 <Settings2 className="h-4 w-4 text-[#0089FF]" />
@@ -2517,9 +2622,7 @@ export function ScheduleModal({
               </button>
             </header>
 
-            {/* Sub-Modal Body */}
             <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4 custom-scrollbar text-xs">
-              {/* Columns Configuration Table */}
               <div className="rounded-md border border-border overflow-hidden bg-card shadow-2xs">
                 <table className="w-full text-left">
                   <thead className="bg-muted/60 text-muted-foreground text-[10px] font-bold uppercase tracking-wider border-b border-border">
@@ -2553,9 +2656,7 @@ export function ScheduleModal({
                               const checked = e.target.checked;
                               setColumnsConfig((prev) =>
                                 prev.map((c) =>
-                                  c.id === col.id
-                                    ? { ...c, showable: checked }
-                                    : c,
+                                  c.id === col.id ? { ...c, showable: checked } : c,
                                 ),
                               );
                             }}
@@ -2570,9 +2671,7 @@ export function ScheduleModal({
                               const checked = e.target.checked;
                               setColumnsConfig((prev) =>
                                 prev.map((c) =>
-                                  c.id === col.id
-                                    ? { ...c, printable: checked }
-                                    : c,
+                                  c.id === col.id ? { ...c, printable: checked } : c,
                                 ),
                               );
                             }}
@@ -2587,9 +2686,7 @@ export function ScheduleModal({
                               const checked = e.target.checked;
                               setColumnsConfig((prev) =>
                                 prev.map((c) =>
-                                  c.id === col.id
-                                    ? { ...c, sortable: checked }
-                                    : c,
+                                  c.id === col.id ? { ...c, sortable: checked } : c,
                                 ),
                               );
                             }}
@@ -2603,9 +2700,7 @@ export function ScheduleModal({
                             onChange={(val) => {
                               setColumnsConfig((prev) =>
                                 prev.map((c) =>
-                                  c.id === col.id
-                                    ? { ...c, sortPriority: val }
-                                    : c,
+                                  c.id === col.id ? { ...c, sortPriority: val } : c,
                                 ),
                               );
                             }}
@@ -2622,9 +2717,7 @@ export function ScheduleModal({
                                     ? {
                                         ...c,
                                         sortDirection:
-                                          c.sortDirection === "asc"
-                                            ? "desc"
-                                            : "asc",
+                                          c.sortDirection === "asc" ? "desc" : "asc",
                                       }
                                     : c,
                                 ),
@@ -2641,7 +2734,6 @@ export function ScheduleModal({
                 </table>
               </div>
 
-              {/* Detail Report Download Settings */}
               <div className="p-3.5 rounded-md border border-border bg-card space-y-2">
                 <label className="block text-xs font-semibold text-foreground">
                   Detail Report Download Mode
@@ -2671,7 +2763,6 @@ export function ScheduleModal({
               </div>
             </div>
 
-            {/* Sub-Modal Footer (56px) */}
             <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
               <button
                 type="button"
@@ -2709,5 +2800,4 @@ export function ScheduleModal({
   );
 }
 
-// Export for backward-compatibility
 export const ScheduleDrawer = ScheduleModal;
