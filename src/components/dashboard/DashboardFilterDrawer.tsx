@@ -214,20 +214,17 @@ function UniversalMultiSelectDropdown({
               return (
                 <label
                   key={opt}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none",
-                    isChecked
-                      ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold hover:bg-[#0089FF]/15"
-                      : "hover:bg-muted/80 hover:text-foreground font-medium",
-                  )}
+                  className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none hover:bg-muted/80 font-medium"
                 >
                   <input
                     type="checkbox"
                     checked={isChecked}
                     onChange={() => toggleDraft(opt)}
-                    className="rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                    className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
                   />
-                  <span className="truncate">{opt}</span>
+                  <span className={cn("truncate", isChecked && "font-semibold text-foreground")}>
+                    {opt}
+                  </span>
                 </label>
               );
             })}
@@ -703,12 +700,7 @@ export function DashboardFilterDrawer({
                             return (
                               <label
                                 key={v.id}
-                                className={cn(
-                                  "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none",
-                                  isChecked
-                                    ? "bg-[#0089FF]/10 text-foreground font-semibold"
-                                    : "hover:bg-muted/60 text-foreground font-medium",
-                                )}
+                                className="flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium"
                               >
                                 <div className="flex items-center gap-2 min-w-0">
                                   <input

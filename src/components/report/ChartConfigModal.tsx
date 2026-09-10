@@ -192,7 +192,7 @@ export function ChartConfigModal({
                         className={cn(
                           "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
                           isSelected
-                            ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold"
+                            ? "bg-muted font-semibold text-foreground"
                             : "text-foreground hover:bg-muted/80 font-medium",
                         )}
                       >
@@ -255,8 +255,8 @@ export function ChartConfigModal({
                         className={cn(
                           "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
                           isSelected
-                            ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold"
-                            : "text-foreground hover:bg-muted/80 font-normal",
+                            ? "bg-muted font-semibold text-foreground"
+                            : "text-foreground hover:bg-muted/80 font-medium",
                         )}
                       >
                         <span>{opt}</span>

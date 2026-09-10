@@ -1327,7 +1327,7 @@ export function ColumnConfigModal({
                                           className={cn(
                                             "flex w-full items-center justify-between px-2 py-1 text-xs rounded cursor-pointer transition-colors text-left select-none",
                                             isSelected
-                                              ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold"
+                                              ? "bg-slate-100 dark:bg-slate-700 font-semibold text-foreground"
                                               : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium",
                                           )}
                                         >

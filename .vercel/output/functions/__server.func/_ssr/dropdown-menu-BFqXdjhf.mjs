@@ -4,7 +4,7 @@ import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { Bt as Circle, Xt as Check, qt as ChevronRight } from "../_libs/lucide-react.mjs";
 import { a as ItemIndicator2, c as RadioItem2, d as Sub2, f as SubContent2, i as Item2, l as Root2, m as Trigger, n as Content2, o as Label2, p as SubTrigger2, r as Group2, s as Portal2, t as CheckboxItem2, u as Separator2 } from "../_libs/@radix-ui/react-dropdown-menu+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/dropdown-menu-MlMtCtZi.js
+//#region node_modules/.nitro/vite/services/ssr/assets/dropdown-menu-BFqXdjhf.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var DropdownMenu = Root2;
@@ -33,7 +33,7 @@ var DropdownMenuContent = import_react.forwardRef(({ className, sideOffset = 4, 
 DropdownMenuContent.displayName = Content2.displayName;
 var DropdownMenuItem = import_react.forwardRef(({ className, inset, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Item2, {
 	ref,
-	className: cn("relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs font-medium outline-none transition-colors hover:bg-muted/80 focus:bg-[#0089FF]/10 focus:text-[#0089FF] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-3.5 [&>svg]:shrink-0", inset && "pl-8", className),
+	className: cn("relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs font-medium outline-none transition-colors hover:bg-muted/80 focus:bg-muted focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-3.5 [&>svg]:shrink-0", inset && "pl-8", className),
 	...props
 }));
 DropdownMenuItem.displayName = Item2.displayName;

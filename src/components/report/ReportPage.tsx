@@ -742,8 +742,8 @@ export function ReportPage() {
                     className={cn(
                       "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
                       selectedSearchField === "ALL" ||
-                        selectedSearchField === "all"
-                        ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
+                      selectedSearchField === "all"
+                        ? "bg-muted font-semibold text-foreground"
                         : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
                     )}
                   >
@@ -763,7 +763,7 @@ export function ReportPage() {
                         className={cn(
                           "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
                           isSelected
-                            ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
+                            ? "bg-muted font-semibold text-foreground"
                             : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
                         )}
                       >
@@ -863,7 +863,7 @@ export function ReportPage() {
                       className={cn(
                         "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
                         isActive
-                          ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15"
+                          ? "bg-muted font-semibold text-foreground"
                           : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
                       )}
                     >

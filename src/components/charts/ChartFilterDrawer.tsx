@@ -270,19 +270,14 @@ export function ChartFilterDrawer({
                       <ul>
                         {g.vehicles.map((v) => (
                           <li key={v}>
-                            <label className={cn(
-                              "flex cursor-pointer items-center gap-2 py-1.5 pl-8 pr-2.5 text-xs transition-colors duration-150 select-none",
-                              value.vehicles.includes(v)
-                                ? "bg-[#0089FF]/10 text-foreground font-semibold"
-                                : "hover:bg-muted text-foreground font-medium",
-                            )}>
+                            <label className="flex cursor-pointer items-center gap-2 py-1.5 pl-8 pr-2.5 text-xs transition-colors duration-150 select-none hover:bg-muted text-foreground font-medium">
                               <input
                                 type="checkbox"
                                 checked={value.vehicles.includes(v)}
                                 onChange={() => toggleVehicle(v)}
                                 className="rounded border-input text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer h-3.5 w-3.5"
                               />
-                              <span className="flex-1 truncate">{v}</span>
+                              <span className={cn("flex-1 truncate", value.vehicles.includes(v) && "font-semibold")}>{v}</span>
                             </label>
                           </li>
                         ))}

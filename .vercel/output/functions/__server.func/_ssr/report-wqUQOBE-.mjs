@@ -4,14 +4,14 @@ import { C as getGroupsForBranches, D as temperatureSummaryRows, S as getBranche
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { B as RefreshCw, F as Search, Ft as CornerDownLeft, H as Plus, Ht as CircleQuestionMark, Jt as ChevronLeft, M as Settings, Mt as Download, N as Settings2, O as SlidersHorizontal, Q as Minus, St as Fuel, Tt as FileSpreadsheet, U as Play, Vt as CircleX, W as Pin, Wt as CircleCheck, Xt as Check, Yt as ChevronDown, _t as GripVertical, an as CalendarClock, ct as List, dn as ArrowUp, en as ChartColumn, fn as ArrowRight, in as Calendar, it as Mail, m as Underline, mn as ArrowDown, mt as Italic, n as X, nt as Map$1, p as Undo2, pn as ArrowLeft, q as Pencil, qt as ChevronRight, sn as Bold, st as LoaderCircle, wt as FileText, x as Thermometer, y as Trash2, z as RotateCcw, zt as Clock } from "../_libs/lucide-react.mjs";
-import { a as DropdownMenuLabel, i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSeparator, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-MlMtCtZi.mjs";
+import { a as DropdownMenuLabel, i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSeparator, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-BFqXdjhf.mjs";
 import { y as useSearch } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as Tooltip } from "./tooltip-yj1PAv0W.mjs";
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-5aAnLDi6.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-C0dM8EOf.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-wqUQOBE-.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -162,7 +162,7 @@ function SelectDropdown$1({ value, options, onChange, className, placeholder }) 
 					onChange(opt);
 					setOpen(false);
 				},
-				className: cn("flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none", value === opt ? "bg-[#0089FF]/10 font-semibold text-[#0089FF] hover:bg-[#0089FF]/15" : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium"),
+				className: cn("flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none", value === opt ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 					className: "truncate",
 					children: opt
@@ -308,14 +308,14 @@ function UniversalMultiSelectDropdown({ label, selected, options, onChange, clas
 					children: [filteredOptions.map((opt) => {
 						const isChecked = draft.includes(opt);
 						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-							className: cn("flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none", isChecked ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold hover:bg-[#0089FF]/15" : "hover:bg-muted/80 hover:text-foreground font-medium"),
+							className: "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none hover:bg-muted/80 font-medium",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 								type: "checkbox",
 								checked: isChecked,
 								onChange: () => toggleDraft(opt),
-								className: "rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+								className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "truncate",
+								className: cn("truncate", isChecked && "font-semibold text-foreground"),
 								children: opt
 							})]
 						}, opt);
@@ -345,7 +345,7 @@ function UniversalMultiSelectDropdown({ label, selected, options, onChange, clas
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
 							onClick: handleApply,
-							className: "px-3.5 py-1 text-xs rounded-md font-semibold text-white bg-[#155dfc] hover:bg-[#124ecf] shadow-xs transition-all active:scale-98 cursor-pointer",
+							className: "px-3.5 py-1 text-xs rounded-md font-semibold text-white bg-[#0089FF] hover:bg-[#0070d6] shadow-xs transition-all active:scale-98 cursor-pointer",
 							children: "Apply"
 						})]
 					})]
@@ -560,7 +560,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 				]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-				className: "flex items-center justify-between border-t border-border bg-background px-5 py-3.5 shrink-0 select-none",
+				className: "flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 					type: "button",
 					onClick: handleReset,
@@ -569,7 +569,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 					type: "button",
 					onClick: handleDrawerApply,
-					className: "h-8 rounded-md bg-[#155dfc] px-5 text-xs font-medium text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98",
+					className: "h-8 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#0070d6] cursor-pointer active:scale-98",
 					children: "Apply Filters"
 				})]
 			})
@@ -1590,7 +1590,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 																return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 																	type: "button",
 																	onClick: () => updateColumn(col.id, { sortPriority: pVal }),
-																	className: cn("flex w-full items-center justify-between px-2 py-1 text-xs rounded cursor-pointer transition-colors text-left select-none", isSelected ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold" : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium"),
+																	className: cn("flex w-full items-center justify-between px-2 py-1 text-xs rounded cursor-pointer transition-colors text-left select-none", isSelected ? "bg-slate-100 dark:bg-slate-700 font-semibold text-foreground" : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium"),
 																	children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: pVal ?? "--" }), isSelected && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3 w-3 text-[#0089FF]" })]
 																}, pVal ?? "none");
 															})
@@ -1851,7 +1851,7 @@ function ChartConfigModal({ open, onClose, config, onSave }) {
 											return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 												type: "button",
 												onClick: () => handleXAxisChange(opt),
-												className: cn("flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none", isSelected ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold" : "text-foreground hover:bg-muted/80 font-medium"),
+												className: cn("flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: opt }), isSelected && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF]" })]
 											}, opt);
 										})
@@ -1891,7 +1891,7 @@ function ChartConfigModal({ open, onClose, config, onSave }) {
 											return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 												type: "button",
 												onClick: () => handleYAxisChange(opt),
-												className: cn("flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none", isSelected ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold" : "text-foreground hover:bg-muted/80 font-normal"),
+												className: cn("flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: opt }), isSelected && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF]" })]
 											}, opt);
 										})
@@ -2282,7 +2282,7 @@ function SelectDropdown({ value, options, onChange, className, placeholder }) {
 						onChange(opt);
 						setOpen(false);
 					},
-					className: cn("flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-left text-xs cursor-pointer transition-colors", isSelected ? "bg-[#0089FF]/10 font-semibold text-[#0089FF]" : "text-foreground hover:bg-muted/80 font-medium"),
+					className: cn("flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-left text-xs cursor-pointer transition-colors", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: opt }), isSelected && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF]" })]
 				}, opt);
 			})
@@ -2414,7 +2414,7 @@ function VehicleMultiSelectDropdown({ selectedVehicles, onToggleVehicle, onToggl
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "flex flex-col min-w-0",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: cn("text-xs leading-tight transition-colors truncate", isChecked ? "font-semibold text-[#0089FF]" : "font-semibold text-foreground group-hover:text-[#0089FF]"),
+										className: cn("text-xs leading-tight transition-colors truncate text-foreground", isChecked ? "font-semibold text-foreground" : "font-medium text-foreground group-hover:text-foreground"),
 										children: v.name
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 										className: "text-[11px] text-muted-foreground leading-tight mt-0.5 font-mono",
@@ -6195,7 +6195,7 @@ function ProgressComparisonOverlay({ config, onSave, className, triggerClassName
 													setXAxis(opt);
 													setXAxisOpen(false);
 												},
-												className: cn("flex w-full items-center justify-between px-2 py-1 text-xs rounded-sm cursor-pointer transition-colors text-left", isSelected ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold" : "text-foreground hover:bg-muted/80 font-medium"),
+												className: cn("flex w-full items-center justify-between px-2 py-1 text-xs rounded-sm cursor-pointer transition-colors text-left", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "truncate",
 													children: opt
@@ -6237,7 +6237,7 @@ function ProgressComparisonOverlay({ config, onSave, className, triggerClassName
 													setYAxis(opt);
 													setYAxisOpen(false);
 												},
-												className: cn("flex w-full items-center justify-between px-2 py-1 text-xs rounded-sm cursor-pointer transition-colors text-left", isSelected ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold" : "text-foreground hover:bg-muted/80 font-medium"),
+												className: cn("flex w-full items-center justify-between px-2 py-1 text-xs rounded-sm cursor-pointer transition-colors text-left", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "truncate",
 													children: opt
@@ -7488,7 +7488,7 @@ function ReportPage() {
 										children: [
 											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuItem, {
 												onClick: () => setSelectedSearchField("ALL"),
-												className: cn("cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none", selectedSearchField === "ALL" || selectedSearchField === "all" ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15" : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium"),
+												className: cn("cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none", selectedSearchField === "ALL" || selectedSearchField === "all" ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium"),
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "All Fields" }), (selectedSearchField === "ALL" || selectedSearchField === "all") && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF]" })]
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DropdownMenuSeparator, { className: "my-1 -mx-1" }),
@@ -7496,7 +7496,7 @@ function ReportPage() {
 												const isSelected = selectedSearchField === c.id;
 												return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuItem, {
 													onClick: () => setSelectedSearchField(c.id),
-													className: cn("cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none", isSelected ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15" : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium"),
+													className: cn("cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium"),
 													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 														className: "truncate",
 														children: c.label
@@ -7560,7 +7560,7 @@ function ReportPage() {
 												setPage(1);
 												setPageSizeOpen(false);
 											},
-											className: cn("flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none", isActive ? "bg-[#0089FF]/10 text-[#0089FF] font-bold hover:bg-[#0089FF]/15" : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium"),
+											className: cn("flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none", isActive ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium"),
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [s, " / page"] }), isActive && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF]" })]
 										}, s);
 									})

@@ -139,7 +139,7 @@ export function ProgressComparisonOverlay({
                         className={cn(
                           "flex w-full items-center justify-between px-2 py-1 text-xs rounded-sm cursor-pointer transition-colors text-left",
                           isSelected
-                            ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold"
+                            ? "bg-muted font-semibold text-foreground"
                             : "text-foreground hover:bg-muted/80 font-medium",
                         )}
                       >
@@ -197,7 +197,7 @@ export function ProgressComparisonOverlay({
                         className={cn(
                           "flex w-full items-center justify-between px-2 py-1 text-xs rounded-sm cursor-pointer transition-colors text-left",
                           isSelected
-                            ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold"
+                            ? "bg-muted font-semibold text-foreground"
                             : "text-foreground hover:bg-muted/80 font-medium",
                         )}
                       >

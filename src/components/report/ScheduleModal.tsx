@@ -456,7 +456,7 @@ function SelectDropdown({
                 className={cn(
                   "flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-left text-xs cursor-pointer transition-colors",
                   isSelected
-                    ? "bg-[#0089FF]/10 font-semibold text-[#0089FF]"
+                    ? "bg-muted font-semibold text-foreground"
                     : "text-foreground hover:bg-muted/80 font-medium",
                 )}
               >
@@ -649,10 +649,10 @@ function VehicleMultiSelectDropdown({
                         <div className="flex flex-col min-w-0">
                           <span
                             className={cn(
-                              "text-xs leading-tight transition-colors truncate",
+                              "text-xs leading-tight transition-colors truncate text-foreground",
                               isChecked
-                                ? "font-semibold text-[#0089FF]"
-                                : "font-semibold text-foreground group-hover:text-[#0089FF]",
+                                ? "font-semibold text-foreground"
+                                : "font-medium text-foreground group-hover:text-foreground",
                             )}
                           >
                             {v.name}

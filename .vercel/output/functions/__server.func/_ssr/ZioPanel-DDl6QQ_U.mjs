@@ -3,9 +3,9 @@ import { t as cn } from "./utils-C_uf36nf.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { A as Shield, F as Search, H as Plus, It as Copy, P as Send, Q as Minus, Y as PanelRight, _ as TrendingUp, dt as LayoutDashboard, et as MessageSquare, g as TriangleAlert, gt as History, h as Truck, l as Users, n as X, rt as MapPin, tt as Maximize2, y as Trash2, zt as Clock } from "../_libs/lucide-react.mjs";
-import { i as DropdownMenuItem, n as DropdownMenuContent, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-MlMtCtZi.mjs";
+import { i as DropdownMenuItem, n as DropdownMenuContent, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-BFqXdjhf.mjs";
 import { n as useZio } from "./ZioContext-Cw_R09Nu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/ZioPanel-BFN_X_IW.js
+//#region node_modules/.nitro/vite/services/ssr/assets/ZioPanel-DDl6QQ_U.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ApplicationScreenPreview({ type, title, data }) {
@@ -1102,298 +1102,296 @@ function ZioPanel({ mode: forcedMode, className }) {
 	};
 	if (!isOpen && mode !== "fullscreen") return null;
 	const CurrentModeIcon = mode === "sidebar" ? PanelRight : mode === "fullscreen" ? Maximize2 : Copy;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		style: {
-			border: "1.5px solid transparent",
-			background: "linear-gradient(to bottom, #ffffff 0%, #faf7ff 45%, #f4ebff 100%) padding-box, linear-gradient(to bottom, #7c3aed 0%, #a855f7 30%, #ec4899 70%, #f43f5e 100%) border-box",
-			borderRadius: "0.75rem"
-		},
-		className: cn("flex flex-col text-foreground transition-all duration-300 ease-out overflow-hidden shadow-[0_16px_50px_-10px_rgba(139,92,246,0.18)] relative", isFullscreen && "w-full h-full flex-1", mode === "floating" && "w-[380px] sm:w-[410px] h-[580px] max-h-[85vh]", mode === "sidebar" && "w-full h-full flex-1", className),
-		children: [
-			isFullscreen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				className: "pointer-events-none absolute inset-0 z-0 opacity-60 transition-opacity duration-500",
-				style: { background: "radial-gradient(circle at 12% 75%, rgba(254, 205, 211, 0.45) 0%, transparent 45%), radial-gradient(circle at 88% 75%, rgba(219, 234, 254, 0.55) 0%, transparent 45%), radial-gradient(circle at 50% 90%, rgba(237, 233, 254, 0.45) 0%, transparent 50%)" }
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-				className: cn("flex items-center justify-between border-b border-violet-100/70 bg-white/80 px-4 py-2.5 backdrop-blur-xs transition-all duration-300 ease-out shrink-0 select-none z-10", isFullscreen && "px-6 py-3"),
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: "flex items-center gap-2 min-w-0",
-					children: isHistoryOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center gap-1.5 text-xs font-semibold text-slate-800",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(History, { className: "h-3.5 w-3.5 text-violet-600 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Chat History" })]
-					})
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex items-center gap-1",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: createNewChat,
-							title: "New chat",
-							"aria-label": "New chat",
-							className: "inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-4 w-4 text-slate-700" })
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: toggleHistory,
-							title: isHistoryOpen ? "Back to chat" : "Chat history",
-							"aria-label": "Chat history",
-							className: cn("inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer", isHistoryOpen && "bg-violet-100 text-violet-900 ring-1 ring-violet-200"),
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(History, { className: "h-4 w-4 text-slate-700" })
-						}),
-						!isHistoryOpen && messages.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: clearMessages,
-							title: "Clear chat messages",
-							"aria-label": "Clear chat messages",
-							className: "inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { className: "h-4 w-4 text-slate-700" })
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-3.5 w-px bg-violet-200/70 mx-0.5" }),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenu, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DropdownMenuTrigger, {
-							asChild: true,
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								title: `Layout mode: ${mode}`,
-								"aria-label": `Switch layout mode (current: ${mode})`,
-								className: "inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CurrentModeIcon, { className: "h-4 w-4 text-slate-700" })
-							})
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuContent, {
-							align: "end",
-							className: "w-40 rounded-lg p-1.5 shadow-2xl border border-violet-100 text-xs z-50 bg-white",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground",
-									children: "Switch to"
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuItem, {
-									onClick: () => setMode("floating"),
-									className: cn("flex items-center gap-2 rounded-md px-2.5 py-2 cursor-pointer", mode === "floating" && "bg-violet-50 text-violet-900 font-semibold"),
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Copy, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Floating" })]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuItem, {
-									onClick: () => setMode("sidebar"),
-									className: cn("flex items-center gap-2 rounded-md px-2.5 py-2 cursor-pointer", mode === "sidebar" && "bg-violet-50 text-violet-900 font-semibold"),
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PanelRight, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Sidebar" })]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuItem, {
-									onClick: () => setMode("fullscreen"),
-									className: cn("flex items-center gap-2 rounded-md px-2.5 py-2 cursor-pointer", mode === "fullscreen" && "bg-violet-50 text-violet-900 font-semibold"),
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Maximize2, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Full screen" })]
-								})
-							]
-						})] }),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: closeZio,
-							"aria-label": "Close Zio",
-							className: "inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		className: cn("relative rounded-xl p-[1.5px] bg-gradient-to-b from-[#7c3aed] via-[#a855f7] via-[#ec4899] to-[#f43f5e] shadow-[0_16px_50px_-10px_rgba(139,92,246,0.18)] transition-all duration-300 ease-out flex flex-col", isFullscreen && "w-full h-full flex-1", mode === "floating" && "w-[380px] sm:w-[410px] h-[580px] max-h-[85vh]", mode === "sidebar" && "w-full h-full flex-1", className),
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "flex flex-col w-full h-full text-foreground bg-gradient-to-b from-white via-[#faf7ff] to-[#f4ebff] rounded-[10.5px] overflow-hidden relative",
+			children: [
+				isFullscreen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					className: "pointer-events-none absolute inset-0 z-0 opacity-60 transition-opacity duration-500",
+					style: { background: "radial-gradient(circle at 12% 75%, rgba(254, 205, 211, 0.45) 0%, transparent 45%), radial-gradient(circle at 88% 75%, rgba(219, 234, 254, 0.55) 0%, transparent 45%), radial-gradient(circle at 50% 90%, rgba(237, 233, 254, 0.45) 0%, transparent 50%)" }
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
+					className: cn("flex items-center justify-between border-b border-violet-100/70 bg-white/90 px-4 py-2.5 transition-all duration-300 ease-out shrink-0 select-none z-10", isFullscreen && "px-6 py-3"),
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						className: "flex items-center gap-2 min-w-0",
+						children: isHistoryOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center gap-1.5 text-xs font-semibold text-slate-800",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(History, { className: "h-3.5 w-3.5 text-violet-600 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Chat History" })]
 						})
-					]
-				})]
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				className: cn("flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 transition-all duration-300 ease-out z-10 flex flex-col", "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300", isFullscreen ? "p-6" : "space-y-4"),
-				children: isHistoryOpen ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ZioHistoryView, { isFullscreen }) : messages.length === 0 ? isFullscreen ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex flex-col items-center justify-end h-full py-6 w-full max-w-4xl mx-auto mt-auto animate-in fade-in duration-200",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "mb-6 text-center space-y-1",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							className: "text-2xl font-bold text-foreground tracking-tight",
-							children: "Hi, I’m Zio. How can I help?"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							className: "text-xs text-muted-foreground",
-							children: "How can I help you analyze your fleet today?"
-						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "w-full flex flex-col items-center gap-4",
+						className: "flex items-center gap-1",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: createNewChat,
+								title: "New chat",
+								"aria-label": "New chat",
+								className: "inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-4 w-4 text-slate-700" })
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: toggleHistory,
+								title: isHistoryOpen ? "Back to chat" : "Chat history",
+								"aria-label": "Chat history",
+								className: cn("inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer", isHistoryOpen && "bg-violet-100 text-violet-900 ring-1 ring-violet-200"),
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(History, { className: "h-4 w-4 text-slate-700" })
+							}),
+							!isHistoryOpen && messages.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: clearMessages,
+								title: "Clear chat messages",
+								"aria-label": "Clear chat messages",
+								className: "inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { className: "h-4 w-4 text-slate-700" })
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-3.5 w-px bg-violet-200/70 mx-0.5" }),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenu, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DropdownMenuTrigger, {
+								asChild: true,
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									title: `Layout mode: ${mode}`,
+									"aria-label": `Switch layout mode (current: ${mode})`,
+									className: "inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CurrentModeIcon, { className: "h-4 w-4 text-slate-700" })
+								})
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuContent, {
+								align: "end",
+								className: "w-40 rounded-lg p-1.5 shadow-2xl border border-violet-100 text-xs z-50 bg-white",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground",
+										children: "Switch to"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuItem, {
+										onClick: () => setMode("floating"),
+										className: cn("flex items-center gap-2 rounded-md px-2.5 py-2 cursor-pointer", mode === "floating" && "bg-violet-50 text-violet-900 font-semibold"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Copy, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Floating" })]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuItem, {
+										onClick: () => setMode("sidebar"),
+										className: cn("flex items-center gap-2 rounded-md px-2.5 py-2 cursor-pointer", mode === "sidebar" && "bg-violet-50 text-violet-900 font-semibold"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PanelRight, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Sidebar" })]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuItem, {
+										onClick: () => setMode("fullscreen"),
+										className: cn("flex items-center gap-2 rounded-md px-2.5 py-2 cursor-pointer", mode === "fullscreen" && "bg-violet-50 text-violet-900 font-semibold"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Maximize2, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Full screen" })]
+									})
+								]
+							})] }),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: closeZio,
+								"aria-label": "Close Zio",
+								className: "inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
+							})
+						]
+					})]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					className: cn("flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 transition-all duration-300 ease-out z-10 flex flex-col", "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200 hover:scrollbar-thumb-slate-300", isFullscreen ? "p-6" : "space-y-4"),
+					children: isHistoryOpen ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ZioHistoryView, { isFullscreen }) : messages.length === 0 ? isFullscreen ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex flex-col items-center justify-end h-full py-6 w-full max-w-4xl mx-auto mt-auto animate-in fade-in duration-200",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex flex-wrap items-center justify-center gap-2.5",
+							className: "mb-6 text-center space-y-1",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+								className: "text-2xl font-bold text-foreground tracking-tight",
+								children: "Hi, I’m Zio. How can I help?"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								className: "text-xs text-muted-foreground",
+								children: "How can I help you analyze your fleet today?"
+							})]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "w-full flex flex-col items-center gap-4",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex flex-wrap items-center justify-center gap-2.5",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: () => sendMessage("Show me the fleet dashboard"),
+										className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
+										children: "Show me the fleet dashboard"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: () => sendMessage("Where are my vehicles right now?"),
+										className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
+										children: "Where are my vehicles right now?"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: () => sendMessage("Show me the trip summary with dashboard"),
+										className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
+										children: "Show me the trip summary with dashboard"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: () => sendMessage("Why is the Safety low?"),
+										className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
+										children: "Why is the Safety low?"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: () => sendMessage("How to improve vehicle score?"),
+										className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
+										children: "How to improve vehicle score?"
+									})
+								]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								className: "w-full max-w-3xl",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "flex items-center gap-2 rounded-md border border-violet-100/80 bg-white/80 backdrop-blur-xs p-1.5 shadow-2xs focus-within:border-primary focus-within:bg-white focus-within:ring-1.5 focus-within:ring-primary/40",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										ref: inputRef,
+										type: "text",
+										value: input,
+										onChange: (e) => setInput(e.target.value),
+										onKeyDown: handleKeyDown,
+										disabled: isStreaming,
+										placeholder: "Ask me ...",
+										className: "flex-1 bg-transparent px-2.5 py-1 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: handleSend,
+										disabled: !input.trim() || isStreaming,
+										"aria-label": "Send message",
+										className: cn("flex h-8 w-8 items-center justify-center rounded-md transition-colors cursor-pointer shadow-2xs shrink-0", input.trim() ? "bg-[#111c38] text-white hover:bg-[#0c1429]" : "bg-[#111c38] text-white opacity-80 cursor-not-allowed"),
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Send, { className: "h-4 w-4 fill-white text-white" })
+									})]
+								})
+							})]
+						})]
+					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "mt-auto flex flex-col space-y-3 pb-2 text-left justify-end animate-in fade-in duration-200",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "space-y-1",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+								className: "text-xl font-bold tracking-tight text-foreground leading-snug",
+								children: "Hi, I’m Zio"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								className: "text-xs text-muted-foreground",
+								children: "How can I help you analyze your fleet today?"
+							})]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex flex-col gap-2 pt-1 w-full",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
 									onClick: () => sendMessage("Show me the fleet dashboard"),
-									className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
-									children: "Show me the fleet dashboard"
+									className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Show me the fleet dashboard" })
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
 									onClick: () => sendMessage("Where are my vehicles right now?"),
-									className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
-									children: "Where are my vehicles right now?"
+									className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Where are my vehicles right now?" })
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
 									onClick: () => sendMessage("Show me the trip summary with dashboard"),
-									className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
-									children: "Show me the trip summary with dashboard"
+									className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Show me the trip summary with dashboard" })
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
 									onClick: () => sendMessage("Why is the Safety low?"),
-									className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
-									children: "Why is the Safety low?"
+									className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Why is the Safety low?" })
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
 									onClick: () => sendMessage("How to improve vehicle score?"),
-									className: "rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer",
-									children: "How to improve vehicle score?"
+									className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "How to improve vehicle score?" })
 								})
 							]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "w-full max-w-3xl",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex items-center gap-2 rounded-md border border-violet-100/80 bg-white/80 backdrop-blur-xs p-1.5 shadow-2xs focus-within:border-primary focus-within:bg-white focus-within:ring-1.5 focus-within:ring-primary/40",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-									ref: inputRef,
-									type: "text",
-									value: input,
-									onChange: (e) => setInput(e.target.value),
-									onKeyDown: handleKeyDown,
-									disabled: isStreaming,
-									placeholder: "Ask me ...",
-									className: "flex-1 bg-transparent px-2.5 py-1 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									type: "button",
-									onClick: handleSend,
-									disabled: !input.trim() || isStreaming,
-									"aria-label": "Send message",
-									className: cn("flex h-8 w-8 items-center justify-center rounded-md transition-colors cursor-pointer shadow-2xs shrink-0", input.trim() ? "bg-[#111c38] text-white hover:bg-[#0c1429]" : "bg-[#111c38] text-white opacity-80 cursor-not-allowed"),
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Send, { className: "h-4 w-4 fill-white text-white" })
-								})]
-							})
 						})]
-					})]
-				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "mt-auto flex flex-col space-y-3 pb-2 text-left justify-end animate-in fade-in duration-200",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "space-y-1",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							className: "text-xl font-bold tracking-tight text-foreground leading-snug",
-							children: "Hi, I’m Zio"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							className: "text-xs text-muted-foreground",
-							children: "How can I help you analyze your fleet today?"
-						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex flex-col gap-2 pt-1 w-full",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => sendMessage("Show me the fleet dashboard"),
-								className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Show me the fleet dashboard" })
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => sendMessage("Where are my vehicles right now?"),
-								className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Where are my vehicles right now?" })
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => sendMessage("Show me the trip summary with dashboard"),
-								className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Show me the trip summary with dashboard" })
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => sendMessage("Why is the Safety low?"),
-								className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Why is the Safety low?" })
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => sendMessage("How to improve vehicle score?"),
-								className: "flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "How to improve vehicle score?" })
-							})
-						]
-					})]
-				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: cn("w-full space-y-4", isFullscreen ? "max-w-4xl mx-auto py-2" : "max-w-full"),
-					children: [messages.map((msg) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: cn("flex flex-col space-y-1.5 transition-all duration-200", msg.role === "user" ? "items-end" : "items-start"),
-						children: [msg.role === "user" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "max-w-[85%] rounded-2xl rounded-br-xs bg-[#111c38] px-4 py-2.5 text-xs sm:text-sm font-medium text-white shadow-sm leading-relaxed",
-							children: msg.content
-						}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "w-full max-w-[96%] px-1 py-1 leading-relaxed text-slate-800 space-y-2",
-							children: [
-								msg.appScreenType && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "animate-in fade-in zoom-in-95 duration-300",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ApplicationScreenPreview, {
-										type: msg.appScreenType,
-										data: msg.scoreData
+					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: cn("w-full space-y-4", isFullscreen ? "max-w-4xl mx-auto py-2" : "max-w-full"),
+						children: [messages.map((msg) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: cn("flex flex-col space-y-1.5 transition-all duration-200", msg.role === "user" ? "items-end" : "items-start"),
+							children: [msg.role === "user" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								className: "max-w-[85%] rounded-2xl rounded-br-xs bg-[#111c38] px-4 py-2.5 text-xs sm:text-sm font-medium text-white shadow-sm leading-relaxed",
+								children: msg.content
+							}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "w-full max-w-[96%] px-1 py-1 leading-relaxed text-slate-800 space-y-2",
+								children: [
+									msg.appScreenType && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "animate-in fade-in zoom-in-95 duration-300",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ApplicationScreenPreview, {
+											type: msg.appScreenType,
+											data: msg.scoreData
+										})
+									}),
+									msg.isStreaming && !msg.content && !msg.appScreenType && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-center gap-2 rounded-xl bg-white/80 p-3 border border-violet-100/80 shadow-2xs backdrop-blur-xs w-fit animate-in fade-in duration-200",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-center gap-1",
+											children: [
+												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "h-2 w-2 rounded-full bg-violet-600 animate-bounce [animation-delay:-0.3s]" }),
+												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "h-2 w-2 rounded-full bg-violet-400 animate-bounce [animation-delay:-0.15s]" }),
+												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "h-2 w-2 rounded-full bg-pink-500 animate-bounce" })
+											]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-[11px] font-medium text-slate-500",
+											children: "Zio is analyzing fleet data..."
+										})]
+									}),
+									msg.content && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "relative",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FormattedZioMessage, {
+											content: msg.content,
+											isFullscreen
+										}), msg.isStreaming && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "inline-block w-1.5 h-4 ml-1 bg-gradient-to-b from-violet-600 to-pink-500 rounded-full animate-pulse align-middle" })]
 									})
-								}),
-								msg.isStreaming && !msg.content && !msg.appScreenType && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "flex items-center gap-2 rounded-xl bg-white/80 p-3 border border-violet-100/80 shadow-2xs backdrop-blur-xs w-fit animate-in fade-in duration-200",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-center gap-1",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "h-2 w-2 rounded-full bg-violet-600 animate-bounce [animation-delay:-0.3s]" }),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "h-2 w-2 rounded-full bg-violet-400 animate-bounce [animation-delay:-0.15s]" }),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "h-2 w-2 rounded-full bg-pink-500 animate-bounce" })
-										]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-[11px] font-medium text-slate-500",
-										children: "Zio is analyzing fleet data..."
-									})]
-								}),
-								msg.content && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "relative",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FormattedZioMessage, {
-										content: msg.content,
-										isFullscreen
-									}), msg.isStreaming && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "inline-block w-1.5 h-4 ml-1 bg-gradient-to-b from-violet-600 to-pink-500 rounded-full animate-pulse align-middle" })]
-								})
-							]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-							className: "text-[10px] sm:text-xs text-muted-foreground px-1",
-							children: [
-								msg.role === "user" ? "You" : "Zio",
-								" ·",
-								" ",
-								msg.timestamp.toLocaleTimeString([], {
-									hour: "2-digit",
-									minute: "2-digit"
-								})
-							]
-						})]
-					}, msg.id)), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ref: messagesEndRef })]
-				})
-			}),
-			!isHistoryOpen && (!isFullscreen || messages.length > 0) && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("footer", {
-				className: cn("p-3 sm:p-4 pt-1 bg-transparent transition-all duration-300 ease-out shrink-0 z-10", isFullscreen && "p-6 pt-0 bg-transparent border-0"),
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: cn("w-full mx-auto", isFullscreen ? "max-w-4xl" : "max-w-full"),
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: cn("flex items-center gap-2 rounded-md bg-white/80 backdrop-blur-xs p-1.5 shadow-2xs border border-violet-100/80 focus-within:border-primary focus-within:bg-white focus-within:ring-1.5 focus-within:ring-primary/40"),
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-							ref: inputRef,
-							type: "text",
-							value: input,
-							onChange: (e) => setInput(e.target.value),
-							onKeyDown: handleKeyDown,
-							disabled: isStreaming,
-							placeholder: "Ask me ...",
-							className: "flex-1 bg-transparent px-2.5 py-1 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: handleSend,
-							disabled: !input.trim() || isStreaming,
-							"aria-label": "Send message",
-							className: cn("flex h-7.5 w-7.5 items-center justify-center rounded-md transition-colors cursor-pointer shadow-2xs shrink-0", input.trim() ? "bg-[#111c38] text-white hover:bg-[#0c1429]" : "bg-[#111c38] text-white opacity-80 cursor-not-allowed"),
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Send, { className: "h-3.5 w-3.5 fill-white text-white" })
-						})]
+								]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+								className: "text-[10px] sm:text-xs text-muted-foreground px-1",
+								children: [
+									msg.role === "user" ? "You" : "Zio",
+									" ·",
+									" ",
+									msg.timestamp.toLocaleTimeString([], {
+										hour: "2-digit",
+										minute: "2-digit"
+									})
+								]
+							})]
+						}, msg.id)), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ref: messagesEndRef })]
+					})
+				}),
+				!isHistoryOpen && (!isFullscreen || messages.length > 0) && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("footer", {
+					className: cn("p-3 sm:p-4 pt-1 bg-transparent transition-all duration-300 ease-out shrink-0 z-10", isFullscreen && "p-6 pt-0 bg-transparent border-0"),
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						className: cn("w-full mx-auto", isFullscreen ? "max-w-4xl" : "max-w-full"),
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: cn("flex items-center gap-2 rounded-md bg-white/80 backdrop-blur-xs p-1.5 shadow-2xs border border-violet-100/80 focus-within:border-primary focus-within:bg-white focus-within:ring-1.5 focus-within:ring-primary/40"),
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+								ref: inputRef,
+								type: "text",
+								value: input,
+								onChange: (e) => setInput(e.target.value),
+								onKeyDown: handleKeyDown,
+								disabled: isStreaming,
+								placeholder: "Ask me ...",
+								className: "flex-1 bg-transparent px-2.5 py-1 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: handleSend,
+								disabled: !input.trim() || isStreaming,
+								"aria-label": "Send message",
+								className: cn("flex h-7.5 w-7.5 items-center justify-center rounded-md transition-colors cursor-pointer shadow-2xs shrink-0", input.trim() ? "bg-[#111c38] text-white hover:bg-[#0c1429]" : "bg-[#111c38] text-white opacity-80 cursor-not-allowed"),
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Send, { className: "h-3.5 w-3.5 fill-white text-white" })
+							})]
+						})
 					})
 				})
-			})
-		]
+			]
+		})
 	});
 }
 //#endregion

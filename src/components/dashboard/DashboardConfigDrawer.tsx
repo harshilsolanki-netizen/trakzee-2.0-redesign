@@ -195,12 +195,7 @@ export function DashboardConfigDrawer({
                   return (
                     <label
                       key={w.id}
-                      className={cn(
-                        "flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors",
-                        isChecked
-                          ? "bg-[#0089FF]/10 text-foreground font-semibold"
-                          : "text-foreground font-medium hover:bg-muted/60",
-                      )}
+                      className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors text-foreground font-medium hover:bg-muted/60"
                     >
                       <input
                         type="checkbox"
@@ -208,7 +203,7 @@ export function DashboardConfigDrawer({
                         onChange={() => toggleWidget(w.id)}
                         className="rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
                       />
-                      <span className="truncate flex-1">
+                      <span className={cn("truncate flex-1", isChecked && "font-semibold")}>
                         {w.title}
                       </span>
                     </label>
@@ -228,12 +223,7 @@ export function DashboardConfigDrawer({
                   return (
                     <label
                       key={w.id}
-                      className={cn(
-                        "flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors",
-                        isChecked
-                          ? "bg-[#0089FF]/10 text-foreground font-semibold"
-                          : "text-foreground font-medium hover:bg-muted/60",
-                      )}
+                      className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors text-foreground font-medium hover:bg-muted/60"
                     >
                       <input
                         type="checkbox"
@@ -241,7 +231,7 @@ export function DashboardConfigDrawer({
                         onChange={() => toggleWidget(w.id)}
                         className="rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
                       />
-                      <span className="truncate flex-1">
+                      <span className={cn("truncate flex-1", isChecked && "font-semibold")}>
                         {w.title}
                       </span>
                     </label>

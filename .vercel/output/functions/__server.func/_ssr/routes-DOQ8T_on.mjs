@@ -5,15 +5,15 @@ import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { At as EllipsisVertical, Ct as FolderPlus, Et as FileDown, F as Search, G as PinOff, Gt as Cigarette, H as Plus, I as ScanFace, K as PhoneCall, M as Settings, O as SlidersHorizontal, Ot as Eye, T as SquarePen, W as Pin, Yt as ChevronDown, _ as TrendingUp, c as VideoOff, g as TriangleAlert, h as Truck, ht as Info, kt as EyeOff, ln as Bed, n as X, qt as ChevronRight, s as Video, tt as Maximize2, v as TrendingDown, vt as GripHorizontal, y as Trash2, z as RotateCcw } from "../_libs/lucide-react.mjs";
 import { a as Overlay2, c as Title2, i as Description2, n as Cancel, o as Portal2, r as Content2, s as Root2, t as Action } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
-import { i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSeparator, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-MlMtCtZi.mjs";
+import { i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSeparator, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-BFqXdjhf.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { _ as Tooltip, d as Bar, f as RadialBar, g as ResponsiveContainer, h as Cell, i as BarChart, m as PolarAngleAxis, n as RadialBarChart, o as YAxis, p as Pie, r as PieChart, s as XAxis } from "../_libs/recharts+[...].mjs";
 import { i as TooltipTrigger, n as TooltipContent, t as Tooltip$1 } from "./tooltip-yj1PAv0W.mjs";
-import { l as buttonVariants, n as Dialog, o as DialogHeader, r as DialogContent, s as DialogTitle } from "./dialog-CLASIwgA.mjs";
+import { l as buttonVariants, n as Dialog, o as DialogHeader, r as DialogContent, s as DialogTitle } from "./dialog-Bdeot34j.mjs";
 import { a as WIDGET_CATALOG, i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, s as widgetMeta } from "./store-Butx-LES.mjs";
 import { a as eventTypes, c as highlightEvents, i as cameraStatus, l as riskyDrivers, o as fleetObjects, r as bucketColor, s as fleetScore, t as RANGE_LABEL, u as scoreDistribution } from "./fleet-DZTK5mNe.mjs";
 import { a as Viewport, i as ScrollAreaThumb, n as Root, r as ScrollAreaScrollbar, t as Corner } from "../_libs/radix-ui__react-scroll-area.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-C5OvHxSz.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-DOQ8T_on.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var RANGES = [
@@ -1058,14 +1058,14 @@ function UniversalMultiSelectDropdown({ label, selected, options, onChange, plac
 					children: [filteredOptions.map((opt) => {
 						const isChecked = draft.includes(opt);
 						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-							className: cn("flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none", isChecked ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold hover:bg-[#0089FF]/15" : "hover:bg-muted/80 hover:text-foreground font-medium"),
+							className: "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs text-foreground transition-colors cursor-pointer select-none hover:bg-muted/80 font-medium",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 								type: "checkbox",
 								checked: isChecked,
 								onChange: () => toggleDraft(opt),
-								className: "rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+								className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "truncate",
+								className: cn("truncate", isChecked && "font-semibold text-foreground"),
 								children: opt
 							})]
 						}, opt);
@@ -1414,7 +1414,7 @@ function DashboardFilterDrawer({ open, onClose, onApply }) {
 												children: vehicles.map((v) => {
 													const isChecked = selectedVehicleIds.includes(v.id);
 													return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-														className: cn("flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none", isChecked ? "bg-[#0089FF]/10 text-foreground font-semibold" : "hover:bg-muted/60 text-foreground font-medium"),
+														className: "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium",
 														children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 															className: "flex items-center gap-2 min-w-0",
 															children: [
@@ -1460,7 +1460,7 @@ function DashboardFilterDrawer({ open, onClose, onApply }) {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-				className: "flex items-center justify-between border-t border-border bg-card/60 px-5 py-3.5 shrink-0 select-none",
+				className: "flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 					type: "button",
 					onClick: handleReset,
@@ -1469,7 +1469,7 @@ function DashboardFilterDrawer({ open, onClose, onApply }) {
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 					type: "button",
 					onClick: handleApply,
-					className: "h-9 rounded-md bg-[#155dfc] px-6 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98",
+					className: "h-9 rounded-md bg-[#0089FF] px-6 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#0070d6] cursor-pointer active:scale-98",
 					children: "Apply Filters"
 				})]
 			})
@@ -1604,14 +1604,14 @@ function DashboardConfigDrawer({ target, onClose }) {
 								children: videoTelematicsWidgets.map((w) => {
 									const isChecked = selectedWidgets.includes(w.id);
 									return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: cn("flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors", isChecked ? "bg-[#0089FF]/10 text-foreground font-semibold" : "text-foreground font-medium hover:bg-muted/60"),
+										className: "flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors text-foreground font-medium hover:bg-muted/60",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 											type: "checkbox",
 											checked: isChecked,
 											onChange: () => toggleWidget(w.id),
 											className: "rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "truncate flex-1",
+											className: cn("truncate flex-1", isChecked && "font-semibold"),
 											children: w.title
 										})]
 									}, w.id);
@@ -1628,14 +1628,14 @@ function DashboardConfigDrawer({ target, onClose }) {
 								children: activityWidgets.map((w) => {
 									const isChecked = selectedWidgets.includes(w.id);
 									return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: cn("flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors", isChecked ? "bg-[#0089FF]/10 text-foreground font-semibold" : "text-foreground font-medium hover:bg-muted/60"),
+										className: "flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors text-foreground font-medium hover:bg-muted/60",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 											type: "checkbox",
 											checked: isChecked,
 											onChange: () => toggleWidget(w.id),
 											className: "rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "truncate flex-1",
+											className: cn("truncate flex-1", isChecked && "font-semibold"),
 											children: w.title
 										})]
 									}, w.id);
@@ -1646,7 +1646,7 @@ function DashboardConfigDrawer({ target, onClose }) {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-				className: "flex items-center justify-between border-t border-border bg-background px-5 py-3.5 shrink-0 select-none",
+				className: "flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 					type: "button",
 					onClick: () => {
@@ -1670,81 +1670,13 @@ function DashboardConfigDrawer({ target, onClose }) {
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 						type: "button",
 						onClick: handleApply,
-						className: "h-8 rounded-md bg-[#155dfc] px-4 text-xs font-medium text-white shadow-xs transition-colors hover:bg-[#124ecf] cursor-pointer active:scale-98",
+						className: "h-8 rounded-md bg-[#0089FF] px-4 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-[#0070d6] cursor-pointer active:scale-98",
 						children: "Apply & Load"
 					})]
 				})]
 			})
 		]
 	})] });
-}
-/**
-* Chrome-style bottom-left concave flare SVG.
-* Curves smoothly outwards from the horizontal baseline up into the active tab's left vertical border.
-* Perfectly symmetric with ChromeTabFlareRight.
-*/
-function ChromeTabFlareLeft() {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", {
-		className: "absolute -left-[12px] -bottom-[1px] h-[12px] w-[12px] pointer-events-none z-20",
-		viewBox: "0 0 12 12",
-		fill: "none",
-		xmlns: "http://www.w3.org/2000/svg",
-		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", {
-				d: "M 12 0 A 12 12 0 0 1 0 12 L 12 12 Z",
-				className: "fill-card dark:fill-slate-900"
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", {
-				d: "M 0 12 A 12 12 0 0 0 12 0",
-				className: "stroke-slate-300 dark:stroke-slate-700",
-				strokeWidth: "1",
-				vectorEffect: "non-scaling-stroke",
-				fill: "none"
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", {
-				x1: "0",
-				y1: "12",
-				x2: "12",
-				y2: "12",
-				className: "stroke-card dark:stroke-slate-900",
-				strokeWidth: "2"
-			})
-		]
-	});
-}
-/**
-* Chrome-style bottom-right concave flare SVG.
-* Curves smoothly outwards from the active tab's right vertical border down into the horizontal baseline.
-* Perfectly symmetric with ChromeTabFlareLeft.
-*/
-function ChromeTabFlareRight() {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", {
-		className: "absolute -right-[12px] -bottom-[1px] h-[12px] w-[12px] pointer-events-none z-20",
-		viewBox: "0 0 12 12",
-		fill: "none",
-		xmlns: "http://www.w3.org/2000/svg",
-		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", {
-				d: "M 0 0 A 12 12 0 0 0 12 12 L 0 12 Z",
-				className: "fill-card dark:fill-slate-900"
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", {
-				d: "M 0 0 A 12 12 0 0 0 12 12",
-				className: "stroke-slate-300 dark:stroke-slate-700",
-				strokeWidth: "1",
-				vectorEffect: "non-scaling-stroke",
-				fill: "none"
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", {
-				x1: "0",
-				y1: "12",
-				x2: "12",
-				y2: "12",
-				className: "stroke-card dark:stroke-slate-900",
-				strokeWidth: "2"
-			})
-		]
-	});
 }
 function TabStrip() {
 	const { visibleTabs, hiddenTabs, activeTab, setActiveTab, renameTab, togglePin, hideTab, showTab, deleteTab, restoreTab, indexOfTab, reorderTabs, canHide, canDelete } = useDashboard();
@@ -1816,7 +1748,7 @@ function TabStrip() {
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "absolute bottom-0 left-0 right-0 h-[1px] bg-slate-300 dark:bg-slate-700 pointer-events-none z-0" }),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "relative z-10 flex min-w-0 flex-1 items-end gap-2 pl-3 pr-2 overflow-x-auto overflow-y-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+				className: "relative z-10 flex min-w-0 flex-1 items-end gap-1.5 px-1 overflow-x-auto overflow-y-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
 				children: [
 					visibleTabs.map((tab) => {
 						const isActive = tab.id === activeTab.id;
@@ -1843,11 +1775,9 @@ function TabStrip() {
 								setDragId(null);
 								setOverId(null);
 							},
-							className: cn("group relative flex shrink-0 cursor-pointer items-center gap-2 px-4 py-2 text-xs font-semibold transition-all duration-150", isActive ? "bg-card dark:bg-slate-900 rounded-t-[10px] border-t border-l border-r border-slate-300 dark:border-slate-700 -mb-[1px] z-10 shadow-xs text-[#1e40af] dark:text-blue-400" : "bg-transparent hover:bg-slate-200/60 dark:hover:bg-slate-800/60 rounded-t-[8px] text-[#1e40af] dark:text-blue-400 mb-0.5", dragId === tab.id ? "opacity-40" : "", overId === tab.id ? "ring-2 ring-primary/40" : ""),
+							className: cn("group relative flex shrink-0 cursor-pointer items-center gap-2 px-4 py-2 text-xs font-semibold transition-all duration-150 rounded-t-lg select-none", isActive ? "bg-card dark:bg-slate-900 border-t border-l border-r border-slate-300 dark:border-slate-700 -mb-[1px] z-10 shadow-xs text-[#1e40af] dark:text-blue-400 font-bold" : "bg-transparent hover:bg-slate-200/60 dark:hover:bg-slate-800/60 text-[#1e40af] dark:text-blue-400 mb-0", dragId === tab.id ? "opacity-40" : "", overId === tab.id ? "ring-2 ring-primary/40" : ""),
 							children: [
-								isActive && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChromeTabFlareLeft, {}),
-								isActive && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChromeTabFlareRight, {}),
-								isActive && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "absolute -bottom-[2px] -left-[12px] -right-[12px] h-[4px] bg-card dark:bg-slate-900 z-10 pointer-events-none" }),
+								isActive && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "absolute -bottom-[1px] left-0 right-0 h-[2px] bg-card dark:bg-slate-900 z-10 pointer-events-none" }),
 								renamingId === tab.id ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 									ref: inputRef,
 									value: draft,

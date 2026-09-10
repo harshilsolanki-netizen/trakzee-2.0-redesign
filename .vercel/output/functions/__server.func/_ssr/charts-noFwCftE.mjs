@@ -4,11 +4,11 @@ import { E as objectLevelData, T as hourlyLevelData, a as CHART_VEHICLES, b as f
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { $t as ChartLine, F as Search, G as PinOff, Mt as Download, O as SlidersHorizontal, Qt as ChartNoAxesColumn, W as Pin, Yt as ChevronDown, Zt as ChartPie, en as ChartColumn, n as X, q as Pencil, qt as ChevronRight, tn as ChartBar, z as RotateCcw } from "../_libs/lucide-react.mjs";
-import { i as DropdownMenuItem, n as DropdownMenuContent, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-MlMtCtZi.mjs";
+import { i as DropdownMenuItem, n as DropdownMenuContent, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-BFqXdjhf.mjs";
 import { l as useLocation, v as useNavigate, y as useSearch } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { _ as Tooltip, a as LineChart, c as Area, d as Bar, g as ResponsiveContainer, h as Cell, i as BarChart, l as Line, o as YAxis, p as Pie, r as PieChart, s as XAxis, t as ComposedChart, u as CartesianGrid, v as Legend } from "../_libs/recharts+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/charts-DRc5rcIS.js
+//#region node_modules/.nitro/vite/services/ssr/assets/charts-noFwCftE.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function AppliedFiltersSummary({ filters, selectedVehicleCount, onEditFilter, className }) {
@@ -208,7 +208,7 @@ function VehicleAttributeFilterOverlay({ open, onClose, value, onChange, onApply
 						onApply();
 						onClose();
 					},
-					className: "rounded-md bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white shadow-xs transition-opacity hover:bg-blue-700 cursor-pointer",
+					className: "rounded-md bg-[#0089FF] px-4 py-1.5 text-xs font-semibold text-white shadow-xs transition-opacity hover:bg-[#0070d6] cursor-pointer",
 					children: "Apply"
 				})]
 			})
@@ -393,14 +393,14 @@ function ChartFilterDrawer({ open, onClose, value, onChange, vehicleGroups, onAp
 											]
 										})]
 									}), expanded ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { children: g.vehicles.map((v) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: cn("flex cursor-pointer items-center gap-2 py-1.5 pl-8 pr-2.5 text-xs transition-colors duration-150 select-none", value.vehicles.includes(v) ? "bg-[#0089FF]/10 text-foreground font-semibold" : "hover:bg-muted text-foreground font-medium"),
+										className: "flex cursor-pointer items-center gap-2 py-1.5 pl-8 pr-2.5 text-xs transition-colors duration-150 select-none hover:bg-muted text-foreground font-medium",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 											type: "checkbox",
 											checked: value.vehicles.includes(v),
 											onChange: () => toggleVehicle(v),
 											className: "rounded border-input text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer h-3.5 w-3.5"
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "flex-1 truncate",
+											className: cn("flex-1 truncate", value.vehicles.includes(v) && "font-semibold"),
 											children: v
 										})]
 									}) }, v)) }) : null] }, g.group);
@@ -418,7 +418,7 @@ function ChartFilterDrawer({ open, onClose, value, onChange, vehicleGroups, onAp
 				]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-				className: "flex items-center justify-between border-t border-border bg-background px-5 py-3.5 shrink-0 select-none",
+				className: "flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 					type: "button",
 					"aria-label": "Clear filter",
@@ -440,7 +440,7 @@ function ChartFilterDrawer({ open, onClose, value, onChange, vehicleGroups, onAp
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 						type: "button",
 						onClick: onApply,
-						className: "h-8 rounded-md bg-[#155dfc] px-4 text-xs font-medium text-white shadow-xs transition-colors hover:bg-[#124ecf] cursor-pointer active:scale-98",
+						className: "h-8 rounded-md bg-[#0089FF] px-4 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-[#0070d6] cursor-pointer active:scale-98",
 						children: "Apply Filter"
 					})]
 				})]

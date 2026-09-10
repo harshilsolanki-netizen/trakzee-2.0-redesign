@@ -1,12 +1,10 @@
 import { i as __toESM } from "../_runtime.mjs";
-import { t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as cn } from "./utils-C_uf36nf.mjs";
 import { d as REPORT_CATEGORIES, i as CHART_CATEGORIES, t as ALL_REPORTS, y as findReport } from "./reports-D0j_491Z.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { A as Shield, C as Star, D as SlidersVertical, Dt as FileCode, E as Sparkles, F as Search, G as PinOff, L as Route, M as Settings, Mt as Download, Nt as CreditCard, Ot as Eye, Pt as Cpu, R as RotateCw, Rt as Cloud, St as Fuel, Ut as CircleGauge, V as Receipt, W as Pin, X as Palette, Xt as Check, Yt as ChevronDown, _ as TrendingUp, a as Waves, an as CalendarClock, at as LogOut, bt as Globe, cn as Bell, d as UserPlus, dt as LayoutDashboard, en as ChartColumn, f as UserCheck, fn as ArrowRight, g as TriangleAlert, hn as Activity, i as Weight, it as Mail, jt as Droplet, k as ShoppingCart, kt as EyeOff, l as Users, lt as LifeBuoy, n as X, nn as Car, o as Wallet, on as Briefcase, ot as Lock, pt as KeyRound, qt as ChevronRight, r as Wrench, rt as MapPin, t as Zap, u as User, un as Award, ut as LayoutGrid, wt as FileText, x as Thermometer, xt as Gauge, y as Trash2, yt as Grid2x2 } from "../_libs/lucide-react.mjs";
-import { d as DialogContent, f as DialogDescription, h as DialogTitle, l as Dialog, m as DialogPortal, p as DialogOverlay, u as DialogClose } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
-import { c as DropdownMenuSubContent, i as DropdownMenuItem, l as DropdownMenuSubTrigger, n as DropdownMenuContent, r as DropdownMenuGroup, s as DropdownMenuSub, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-MlMtCtZi.mjs";
+import { c as DropdownMenuSubContent, i as DropdownMenuItem, l as DropdownMenuSubTrigger, n as DropdownMenuContent, r as DropdownMenuGroup, s as DropdownMenuSub, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-BFqXdjhf.mjs";
 import { _ as Link, b as useRouter, c as HeadContent, f as createRouter, g as createRootRouteWithContext, h as createFileRoute, l as useLocation, m as lazyRouteComponent, p as Outlet, s as Scripts, u as useRouterState, v as useNavigate, y as useSearch } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
 import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as Tooltip } from "./tooltip-yj1PAv0W.mjs";
@@ -14,10 +12,10 @@ import { n as objectType, r as stringType, t as booleanType } from "../_libs/zod
 import { i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, t as DashboardProvider } from "./store-Butx-LES.mjs";
 import { n as FavoritesMenu } from "./FavoritesMenu-5aAnLDi6.mjs";
 import { n as useZio, t as ZioProvider } from "./ZioContext-Cw_R09Nu.mjs";
-import { t as ZioPanel } from "./ZioPanel-BFN_X_IW.mjs";
+import { t as ZioPanel } from "./ZioPanel-DDl6QQ_U.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-3QgeqVap.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-DMlEMXD3.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -773,58 +771,6 @@ function AppSidebar() {
 		})
 	});
 }
-var Sheet = Dialog;
-var SheetPortal = DialogPortal;
-var SheetOverlay = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogOverlay, {
-	className: cn("fixed inset-0 z-50 bg-black/40 backdrop-blur-xs data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
-	...props,
-	ref
-}));
-SheetOverlay.displayName = DialogOverlay.displayName;
-var sheetVariants = cva("fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out", {
-	variants: { side: {
-		top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
-		bottom: "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-		left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
-		right: "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm"
-	} },
-	defaultVariants: { side: "right" }
-});
-var SheetContent = import_react.forwardRef(({ side = "right", className, children, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SheetPortal, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SheetOverlay, {}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
-	ref,
-	className: cn(sheetVariants({ side }), className),
-	...props,
-	children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogClose, {
-		className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background cursor-pointer transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-			className: "sr-only",
-			children: "Close"
-		})]
-	}), children]
-})] }));
-SheetContent.displayName = DialogContent.displayName;
-var SheetHeader = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	className: cn("flex flex-col space-y-2 text-center sm:text-left", className),
-	...props
-});
-SheetHeader.displayName = "SheetHeader";
-var SheetFooter = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-	className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className),
-	...props
-});
-SheetFooter.displayName = "SheetFooter";
-var SheetTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
-	ref,
-	className: cn("text-[16px] font-semibold text-foreground", className),
-	...props
-}));
-SheetTitle.displayName = DialogTitle.displayName;
-var SheetDescription = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
-	ref,
-	className: cn("text-sm text-muted-foreground", className),
-	...props
-}));
-SheetDescription.displayName = DialogDescription.displayName;
 var ALERTS = [
 	{
 		id: "a1",
@@ -872,181 +818,196 @@ var COUNTS = [
 		key: "high",
 		label: "High",
 		count: 26,
-		className: "bg-danger/10 text-danger"
+		className: "bg-red-500/10 text-red-600 hover:bg-red-500/15 dark:text-red-400",
+		activeClass: "ring-2 ring-red-500/40 font-bold"
 	},
 	{
 		key: "medium",
 		label: "Medium",
 		count: 7,
-		className: "bg-warning/10 text-warning"
+		className: "bg-amber-500/10 text-amber-600 hover:bg-amber-500/15 dark:text-amber-400",
+		activeClass: "ring-2 ring-amber-500/40 font-bold"
 	},
 	{
 		key: "low",
 		label: "Low",
 		count: 21,
-		className: "bg-success/10 text-success"
+		className: "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/15 dark:text-emerald-400",
+		activeClass: "ring-2 ring-emerald-500/40 font-bold"
 	}
 ];
 var SEV_BAR = {
-	high: "bg-danger",
-	medium: "bg-warning",
-	low: "bg-success"
+	high: "bg-red-500",
+	medium: "bg-amber-500",
+	low: "bg-emerald-500"
 };
 function NotificationPanel({ open, onOpenChange }) {
 	const [tab, setTab] = (0, import_react.useState)("notification");
 	const [severity, setSeverity] = (0, import_react.useState)(null);
 	const [cleared, setCleared] = (0, import_react.useState)(false);
+	(0, import_react.useEffect)(() => {
+		if (!open) return;
+		const handleKeyDown = (e) => {
+			if (e.key === "Escape") onOpenChange(false);
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [open, onOpenChange]);
 	const rows = cleared ? [] : ALERTS.filter((a) => !severity || a.severity === severity);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sheet, {
-		open,
-		onOpenChange,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SheetContent, {
-			side: "right",
-			className: "flex w-[380px] flex-col gap-0 p-0 sm:max-w-[380px]",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SheetHeader, {
-				className: "space-y-0 border-b border-border p-0",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SheetTitle, {
-					className: "sr-only",
-					children: "Notifications"
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: "flex items-center gap-1 px-3 pt-3",
-					children: ["notification", "announcements"].map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [open && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+		type: "button",
+		"aria-label": "Close notifications overlay",
+		onClick: () => onOpenChange(false),
+		className: "fixed top-[45px] bottom-0 left-0 sm:left-14 right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer animate-in fade-in duration-200"
+	}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", {
+		"aria-hidden": !open,
+		"aria-label": "Notifications panel",
+		className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[390px] xl:max-w-[410px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
+			className: "flex h-[56px] items-center justify-between border-b border-border px-4 bg-background select-none shrink-0",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				className: "flex items-center gap-6 h-full",
+				children: ["notification", "announcements"].map((t) => {
+					const isActive = tab === t;
+					return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 						type: "button",
 						onClick: () => setTab(t),
-						className: cn("rounded-t-md px-3 py-2 text-sm capitalize transition-colors duration-150", tab === t ? "border-b-2 border-primary font-semibold text-foreground" : "text-muted-foreground hover:text-foreground"),
-						children: t
-					}, t))
-				})]
-			}), tab === "notification" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: "grid grid-cols-3 border-b border-border",
-					children: COUNTS.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-						type: "button",
-						onClick: () => setSeverity((s) => s === c.key ? null : c.key),
-						className: cn("py-3 text-center transition-opacity duration-150 hover:opacity-80", c.className, severity && severity !== c.key ? "opacity-40" : ""),
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							className: "block text-lg font-semibold",
-							children: c.count
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							className: "block text-[11px]",
-							children: c.label
-						})]
-					}, c.key))
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex items-center justify-between border-b border-border px-3 py-2",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "text-xs text-muted-foreground",
-						children: "01-04-2025"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-						type: "button",
-						onClick: () => {
-							setCleared(true);
-							toast("Notifications cleared", { action: {
-								label: "Undo",
-								onClick: () => setCleared(false)
-							} });
-						},
-						className: "rounded-md border border-input px-2 py-1 text-xs font-medium transition-colors hover:bg-muted",
-						children: "Clear All"
-					})]
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: "min-h-0 flex-1 space-y-2.5 overflow-y-auto p-3",
-					children: rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						className: "py-8 text-center text-xs text-muted-foreground",
-						children: "No notifications to show."
-					}) : rows.map((a) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
-						className: "relative overflow-hidden rounded-md border border-border bg-surface p-3",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: cn("absolute top-0 right-0 h-2 w-8 rounded-bl", SEV_BAR[a.severity]) }),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex items-center justify-between pr-9",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-									className: "flex items-center gap-1.5 text-sm font-medium text-primary",
-									children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Car, { className: "h-3.5 w-3.5" }),
-										" ",
-										a.vehicle
-									]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									className: "text-[11px] text-muted-foreground",
-									children: a.time
-								})]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-								className: "mt-1 flex items-center gap-1.5 text-xs text-muted-foreground",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(User, { className: "h-3.5 w-3.5" }),
-									" ",
-									a.driver
-								]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-								className: "mt-1 flex items-center gap-1.5 text-xs text-foreground",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { className: "h-3.5 w-3.5" }),
-									" ",
-									a.type
-								]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-								className: "mt-1.5 text-[11px] text-muted-foreground",
-								children: [
-									"Company",
-									" ",
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-foreground",
-										children: a.company
-									}),
-									" · Branch ",
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-foreground",
-										children: a.branch
-									})
-								]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "mt-2.5 grid grid-cols-2 gap-2",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									type: "button",
-									onClick: () => toast.success(`Tracking ${a.vehicle}`),
-									className: "rounded-md border border-input py-1.5 text-xs font-medium transition-colors hover:bg-muted",
-									children: "Track"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-									type: "button",
-									onClick: () => toast.info(`${a.vehicle} · ${a.branch}`, { description: "Opening last known location." }),
-									className: "flex items-center justify-center gap-1.5 rounded-md border border-input py-1.5 text-xs font-medium transition-colors hover:bg-muted",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { className: "h-3.5 w-3.5" }), " View Location"]
-								})]
-							})
-						]
-					}, a.id))
+						className: cn("relative h-full flex items-center text-xs font-semibold capitalize transition-colors cursor-pointer select-none", isActive ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground font-medium"),
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: t }), isActive && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#0089FF] rounded-t-full shadow-xs" })]
+					}, t);
 				})
-			] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "flex-1 space-y-2.5 overflow-y-auto p-3",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
-					className: "rounded-md border border-border bg-surface p-3",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						className: "text-sm font-medium text-foreground",
-						children: "Scheduled maintenance"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						className: "mt-1 text-xs text-muted-foreground",
-						children: "Reporting services will be briefly unavailable on Sunday 02:00–03:00 IST."
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+				type: "button",
+				"aria-label": "Close notifications",
+				onClick: () => onOpenChange(false),
+				className: "rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer focus:outline-none focus-visible:outline-none",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
+			})]
+		}), tab === "notification" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				className: "grid grid-cols-3 border-b border-border shrink-0",
+				children: COUNTS.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+					type: "button",
+					onClick: () => setSeverity((s) => s === c.key ? null : c.key),
+					className: cn("py-3 text-center transition-all duration-150 cursor-pointer", c.className, severity === c.key ? c.activeClass : "", severity && severity !== c.key ? "opacity-35" : ""),
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+						className: "block text-lg font-bold leading-tight",
+						children: c.count
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+						className: "block text-[11px] font-medium tracking-wide",
+						children: c.label
 					})]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
-					className: "rounded-md border border-border bg-surface p-3",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						className: "text-sm font-medium text-foreground",
-						children: "New widget: Event Heatmap"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						className: "mt-1 text-xs text-muted-foreground",
-						children: "Add it to any dashboard tab from the tab configuration panel."
-					})]
+				}, c.key))
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "flex items-center justify-between border-b border-border px-4 py-2.5 bg-muted/20 shrink-0",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "text-xs font-medium text-muted-foreground",
+					children: "01-04-2025"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+					type: "button",
+					onClick: () => {
+						setCleared(true);
+						toast("Notifications cleared", { action: {
+							label: "Undo",
+							onClick: () => setCleared(false)
+						} });
+					},
+					className: "rounded-md border border-input/80 bg-background px-2.5 py-1 text-xs font-semibold text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98",
+					children: "Clear All"
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				className: "min-h-0 flex-1 space-y-3 overflow-y-auto p-3.5",
+				children: rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					className: "py-12 text-center text-xs text-muted-foreground",
+					children: "No notifications to show."
+				}) : rows.map((a) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
+					className: "relative overflow-hidden rounded-lg border border-border bg-card p-3 shadow-2xs transition-all hover:border-border/80 hover:shadow-xs",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: cn("absolute top-0 right-0 h-1.5 w-10 rounded-bl-md", SEV_BAR[a.severity]) }),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center justify-between pr-8",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+								className: "flex items-center gap-1.5 text-xs font-bold text-foreground",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Car, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
+									" ",
+									a.vehicle
+								]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: "text-[11px] text-muted-foreground font-medium",
+								children: a.time
+							})]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "mt-2 space-y-1",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+								className: "flex items-center gap-1.5 text-xs text-muted-foreground",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(User, { className: "h-3.5 w-3.5 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: a.driver })]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+								className: "flex items-center gap-1.5 text-xs font-medium text-foreground",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { className: "h-3.5 w-3.5 text-amber-500 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: a.type })]
+							})]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+							className: "mt-2 text-[11px] text-muted-foreground",
+							children: [
+								"Company",
+								" ",
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									className: "text-foreground font-medium",
+									children: a.company
+								}),
+								" ",
+								"· Branch",
+								" ",
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									className: "text-foreground font-medium",
+									children: a.branch
+								})
+							]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "mt-3 grid grid-cols-2 gap-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: () => toast.success(`Tracking ${a.vehicle}`),
+								className: "rounded-md border border-input/80 bg-background py-1.5 text-xs font-medium text-foreground transition-all hover:bg-muted cursor-pointer active:scale-98 shadow-2xs",
+								children: "Track"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								type: "button",
+								onClick: () => toast.info(`${a.vehicle} · ${a.branch}`, { description: "Opening last known location." }),
+								className: "flex items-center justify-center gap-1.5 rounded-md border border-input/80 bg-background py-1.5 text-xs font-medium text-foreground transition-all hover:bg-muted cursor-pointer active:scale-98 shadow-2xs",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "View Location" })]
+							})]
+						})
+					]
+				}, a.id))
+			})
+		] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "min-h-0 flex-1 space-y-3 overflow-y-auto p-3.5",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
+				className: "rounded-lg border border-border bg-card p-3.5 shadow-2xs",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "text-xs font-bold text-foreground",
+					children: "Scheduled maintenance"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-1 text-xs text-muted-foreground leading-relaxed",
+					children: "Reporting services will be briefly unavailable on Sunday 02:00–03:00 IST."
+				})]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
+				className: "rounded-lg border border-border bg-card p-3.5 shadow-2xs",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "text-xs font-bold text-foreground",
+					children: "New widget: Event Heatmap"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-1 text-xs text-muted-foreground leading-relaxed",
+					children: "Add it to any dashboard tab from the tab configuration panel."
 				})]
 			})]
-		})
-	});
+		})]
+	})] });
 }
 var LANGUAGES = [
 	{
@@ -2452,7 +2413,7 @@ var Toaster$1 = ({ ...props }) => {
 		...props
 	});
 };
-var styles_default = "/assets/styles-2I5FeJ5T.css";
+var styles_default = "/assets/styles-ZLXqm4sz.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -2627,7 +2588,7 @@ function AppLayout() {
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {})
 						}),
 						isOpen && mode === "sidebar" && !isZioStandaloneRoute && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("aside", {
-							className: "w-[390px] xl:w-[420px] p-3 bg-slate-100/60 dark:bg-slate-900/50 flex flex-col shrink-0 min-h-0 transition-all duration-300 ease-out animate-in slide-in-from-right z-30",
+							className: "w-[390px] xl:w-[420px] p-3 bg-[#F0F0F0] dark:bg-slate-900/50 flex flex-col shrink-0 min-h-0 transition-all duration-300 ease-out animate-in slide-in-from-right z-30",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ZioPanel, {
 								mode: "sidebar",
 								className: "h-full w-full flex-1"
@@ -2689,7 +2650,7 @@ function TopBar() {
 		]
 	});
 }
-var $$splitComponentImporter$6 = () => import("./routes-C5OvHxSz.mjs");
+var $$splitComponentImporter$6 = () => import("./routes-DOQ8T_on.mjs");
 var Route$7 = createFileRoute("/")({
 	head: () => ({ meta: [
 		{ title: "Fleet Safety Dashboard — Fleet Command" },
@@ -2708,7 +2669,7 @@ var Route$7 = createFileRoute("/")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$6, "component")
 });
-var $$splitComponentImporter$5 = () => import("./charts-DRc5rcIS.mjs");
+var $$splitComponentImporter$5 = () => import("./charts-noFwCftE.mjs");
 var Route$6 = createFileRoute("/charts")({
 	validateSearch: (search) => {
 		const c = search["chart"];
@@ -2731,7 +2692,7 @@ var Route$6 = createFileRoute("/charts")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$5, "component")
 });
-var $$splitComponentImporter$4 = () => import("./components-BmFt87kV.mjs");
+var $$splitComponentImporter$4 = () => import("./components-BhcnoK_V.mjs");
 var Route$5 = createFileRoute("/components")({ component: lazyRouteComponent($$splitComponentImporter$4, "component") });
 objectType({
 	fullName: stringType().min(2, "Full name must be at least 2 characters"),
@@ -2739,7 +2700,7 @@ objectType({
 	role: stringType().min(1, "Please select a developer role"),
 	marketingUpdates: booleanType().default(false)
 });
-var $$splitComponentImporter$3 = () => import("./report-C0dM8EOf.mjs");
+var $$splitComponentImporter$3 = () => import("./report-wqUQOBE-.mjs");
 var Route$4 = createFileRoute("/report")({
 	validateSearch: (search) => {
 		const t = search["type"];
@@ -2800,7 +2761,7 @@ var Route$2 = createFileRoute("/tracking")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-var $$splitComponentImporter = () => import("./zio-yneSy_ru.mjs");
+var $$splitComponentImporter = () => import("./zio-C8MvPx-U.mjs");
 var Route$1 = createFileRoute("/zio")({
 	head: () => ({ meta: [{ title: "Zio AI Assistant — Fleet Safety & Telematics" }, {
 		name: "description",
