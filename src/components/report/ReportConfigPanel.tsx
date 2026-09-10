@@ -12,15 +12,8 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
-  BRANCHES,
   COMPANIES,
-  COMPARATORS,
-  DURATION_UNITS,
-  VEHICLE_BRANDS,
-  VEHICLE_MODELS,
-  VEHICLE_TYPES,
   getBranchesForCompanies,
-  getGroupsForBranches,
 } from "@/data/reports";
 import { fleetObjects } from "@/data/fleet";
 import { cn } from "@/lib/utils";
@@ -65,104 +58,14 @@ export const DEFAULT_FILTERS: ReportFilters = {
   companies: [],
   branches: [],
   groups: [],
-  types: ["Dumper", "Truck", "Bus"],
-  brands: ["Ashok Leyland"],
-  models: ["10 Wheel"],
+  types: [],
+  brands: [],
+  models: [],
   objects: [],
 };
 
 export type ExportFormat = "XLS" | "PDF" | "CSV";
 export type ExportScope = "summary" | "detail";
-
-/**
- * Single Select Dropdown visually matching the report title frame dropdowns
- */
-function SelectDropdown({
-  value,
-  options,
-  onChange,
-  className,
-  placeholder,
-}: {
-  value: string;
-  options: string[];
-  onChange: (v: string) => void;
-  className?: string;
-  placeholder?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [open]);
-
-  return (
-    <div ref={ref} className={cn("relative", className)}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className={cn(
-          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
-          open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
-        )}
-      >
-        <span
-          className={cn(
-            "truncate",
-            value
-              ? "text-muted-foreground font-medium"
-              : "text-muted-foreground/60 font-medium italic",
-          )}
-        >
-          {value || placeholder || "Select"}
-        </span>
-        <ChevronDown
-          className={cn(
-            "h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
-          {options.map((opt) => (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => {
-                onChange(opt);
-                setOpen(false);
-              }}
-              className={cn(
-                "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none",
-                value === opt
-                  ? "bg-muted font-semibold text-foreground"
-                  : "text-foreground hover:bg-muted/80 font-medium",
-              )}
-            >
-              <span className="truncate">{opt}</span>
-              {value === opt && (
-                <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 /**
  * Universal Multi-Select Dropdown matching the title frame styling visually:
@@ -432,8 +335,6 @@ export function ReportConfigPanel({
 }) {
   const selectedCompanies = filters.companies || [];
   const selectedBranches = filters.branches || [];
-  const selectedGroups = filters.groups || [];
-  const selectedTypes = filters.types || [];
   const selectedVehicleIds = filters.objects || [];
 
   // Filter Overlay Popover State
@@ -449,39 +350,7 @@ export function ReportConfigPanel({
     return getBranchesForCompanies(selectedCompanies);
   }, [selectedCompanies]);
 
-  // 3. Group Options dynamically filtered by selected branches
-  const availableGroups = useMemo(() => {
-    return getGroupsForBranches(selectedBranches);
-  }, [selectedBranches]);
-
-  const groupOptions = useMemo(() => {
-    return availableGroups.length > 0
-      ? availableGroups
-      : ["HP Group", "Trucks", "Buses", "Cars", "Cold Chain"];
-  }, [availableGroups]);
-
-  // 4. Type Options
-  const typeOptions = useMemo(() => {
-    return VEHICLE_TYPES.filter((t) => t !== "All");
-  }, []);
-
-  // 5. Brand Options
-  const brandOptions = useMemo(() => {
-    return [
-      "Ashok Leyland",
-      ...VEHICLE_BRANDS.filter((b) => b !== "All" && b !== "Ashok Leyland"),
-    ];
-  }, []);
-
-  // 6. Model Options
-  const modelOptions = useMemo(() => {
-    return [
-      "10 Wheel",
-      ...VEHICLE_MODELS.filter((m) => m !== "All" && m !== "10 Wheel"),
-    ];
-  }, []);
-
-  // 7. Base Vehicle List enriched with metadata from fleetObjects
+  // 3. Base Vehicle List enriched with metadata from fleetObjects
   const allVehiclesList = useMemo(() => {
     return fleetObjects.map((f) => ({
       id: f.id,
@@ -494,7 +363,7 @@ export function ReportConfigPanel({
     }));
   }, []);
 
-  // 8. Dynamically filter vehicles based on selected Company, Branch, Type
+  // 4. Dynamically filter vehicles based on selected Company and Branch
   const allFilteredVehicles = useMemo(() => {
     return allVehiclesList.filter((v) => {
       if (
@@ -511,17 +380,9 @@ export function ReportConfigPanel({
       ) {
         return false;
       }
-      if (
-        selectedTypes.length > 0 &&
-        !selectedTypes.includes("All") &&
-        v.type &&
-        !selectedTypes.includes(v.type)
-      ) {
-        return false;
-      }
       return true;
     });
-  }, [allVehiclesList, selectedCompanies, selectedBranches, selectedTypes]);
+  }, [allVehiclesList, selectedCompanies, selectedBranches]);
 
   const allFilteredVehicleIds = useMemo(() => {
     return allFilteredVehicles.map((v) => v.id);
@@ -534,25 +395,8 @@ export function ReportConfigPanel({
       count++;
     if (selectedBranches.length > 0 && !selectedBranches.includes("All"))
       count++;
-    if (selectedGroups.length > 0 && !selectedGroups.includes("All")) count++;
-    if (selectedTypes.length > 0 && !selectedTypes.includes("All")) count++;
-    if (filters.brands && filters.brands[0] && filters.brands[0] !== "All")
-      count++;
-    if (filters.models && filters.models[0] && filters.models[0] !== "All")
-      count++;
-    if (filters.durationValue) count++;
-    if (filters.distanceValue) count++;
     return count;
-  }, [
-    selectedCompanies,
-    selectedBranches,
-    selectedGroups,
-    selectedTypes,
-    filters.brands,
-    filters.models,
-    filters.durationValue,
-    filters.distanceValue,
-  ]);
+  }, [selectedCompanies, selectedBranches]);
 
   // Chips Text Formatting
   const companyChipText = useMemo(() => {
@@ -576,17 +420,6 @@ export function ReportConfigPanel({
     if (selectedBranches.length === 1) return selectedBranches[0];
     return `${selectedBranches[0]} +${selectedBranches.length - 1}`;
   }, [selectedBranches]);
-
-  const typeChipText = useMemo(() => {
-    if (
-      !selectedTypes ||
-      selectedTypes.length === 0 ||
-      selectedTypes.includes("All")
-    )
-      return "All";
-    if (selectedTypes.length === 1) return selectedTypes[0];
-    return `${selectedTypes[0]} +${selectedTypes.length - 1}`;
-  }, [selectedTypes]);
 
   // Vehicle Search State
   const [vehicleSearch, setVehicleSearch] = useState("");
@@ -691,15 +524,6 @@ export function ReportConfigPanel({
     onChange({
       companies: [],
       branches: [],
-      groups: ["HP Group", "Trucks", "Buses", "Cars"],
-      types: ["Dumper", "Truck", "Bus"],
-      brands: ["Ashok Leyland"],
-      models: ["10 Wheel"],
-      durationCompare: "Greater Than",
-      durationUnit: "Hour",
-      durationValue: "",
-      distanceCompare: "Greater Than",
-      distanceValue: "",
       objects: [],
     });
     setVehicleSearch("");
@@ -707,16 +531,6 @@ export function ReportConfigPanel({
   };
 
   const handleDrawerApply = () => {
-    const patch: Partial<ReportFilters> = {};
-    if (!filters.groups || filters.groups.length === 0) {
-      patch.groups = groupOptions;
-    }
-    if (!filters.types || filters.types.length === 0) {
-      patch.types = typeOptions;
-    }
-    if (Object.keys(patch).length > 0) {
-      onChange(patch);
-    }
     onApply();
     onClose();
   };
@@ -816,7 +630,7 @@ export function ReportConfigPanel({
                   className="fixed inset-0 z-40 bg-black/10"
                   onClick={() => setFilterOverlayOpen(false)}
                 />
-                <div className="absolute top-full left-0 right-0 z-50 mt-1.5 rounded-xl border border-border/80 bg-card p-4 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 max-h-[70vh] overflow-y-auto space-y-3 custom-scrollbar">
+                <div className="absolute top-full left-0 right-0 z-50 mt-1.5 rounded-xl border border-border/80 bg-card p-4 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 space-y-3 custom-scrollbar">
                   <div className="flex items-center justify-between border-b border-border/60 pb-2">
                     <span className="text-xs font-bold text-foreground">
                       Filter Attributes
@@ -858,127 +672,6 @@ export function ReportConfigPanel({
                     />
                   </div>
 
-                  {/* Group */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Group
-                    </label>
-                    <UniversalMultiSelectDropdown
-                      label="Group"
-                      selected={selectedGroups}
-                      options={groupOptions}
-                      onChange={(groups) => onChange({ groups })}
-                      placeholder="Select Group"
-                    />
-                  </div>
-
-                  {/* Type */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Type
-                    </label>
-                    <UniversalMultiSelectDropdown
-                      label="Type"
-                      selected={selectedTypes}
-                      options={typeOptions}
-                      onChange={(types) => onChange({ types })}
-                      placeholder="Select Type"
-                    />
-                  </div>
-
-                  {/* Brand & Model Grid */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
-                        Brand
-                      </label>
-                      <SelectDropdown
-                        value={filters.brands?.[0] || "Ashok Leyland"}
-                        options={brandOptions}
-                        onChange={(b) => onChange({ brands: [b] })}
-                        placeholder="Select Brand"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
-                        Model
-                      </label>
-                      <SelectDropdown
-                        value={filters.models?.[0] || "10 Wheel"}
-                        options={modelOptions}
-                        onChange={(m) => onChange({ models: [m] })}
-                        placeholder="Select Model"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Duration Threshold */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Duration Threshold
-                    </label>
-                    <div className="grid grid-cols-12 gap-1.5">
-                      <div className="col-span-5">
-                        <SelectDropdown
-                          value={filters.durationCompare}
-                          options={COMPARATORS}
-                          onChange={(durationCompare) =>
-                            onChange({ durationCompare })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-4">
-                        <SelectDropdown
-                          value={filters.durationUnit}
-                          options={DURATION_UNITS}
-                          onChange={(durationUnit) =>
-                            onChange({ durationUnit })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-3">
-                        <input
-                          type="text"
-                          value={filters.durationValue}
-                          onChange={(e) =>
-                            onChange({ durationValue: e.target.value })
-                          }
-                          placeholder="e.g. 5"
-                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-muted-foreground focus:outline-none focus:border-[#0089FF] shadow-2xs"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Distance Threshold */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Distance Threshold (km)
-                    </label>
-                    <div className="grid grid-cols-12 gap-1.5">
-                      <div className="col-span-7">
-                        <SelectDropdown
-                          value={filters.distanceCompare}
-                          options={COMPARATORS}
-                          onChange={(distanceCompare) =>
-                            onChange({ distanceCompare })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-5">
-                        <input
-                          type="text"
-                          value={filters.distanceValue}
-                          onChange={(e) =>
-                            onChange({ distanceValue: e.target.value })
-                          }
-                          placeholder="e.g. 5"
-                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-muted-foreground focus:outline-none focus:border-[#0089FF] shadow-2xs"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Overlay Footer */}
                   <div className="flex items-center justify-between pt-2 border-t border-border/60">
                     <button
@@ -987,15 +680,6 @@ export function ReportConfigPanel({
                         onChange({
                           companies: [],
                           branches: [],
-                          groups: ["HP Group", "Trucks", "Buses", "Cars"],
-                          types: ["Dumper", "Truck", "Bus"],
-                          brands: ["Ashok Leyland"],
-                          models: ["10 Wheel"],
-                          durationCompare: "Greater Than",
-                          durationUnit: "Hour",
-                          durationValue: "",
-                          distanceCompare: "Greater Than",
-                          distanceValue: "",
                         });
                       }}
                       className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
@@ -1015,7 +699,7 @@ export function ReportConfigPanel({
             )}
           </div>
 
-          {/* 2. Applied Filter Tags / Chips directly matching Reference Image */}
+          {/* 2. Applied Filter Tags / Chips */}
           <div className="flex flex-wrap items-center gap-1.5 shrink-0 select-none">
             {/* Company Tag */}
             <button
@@ -1040,34 +724,6 @@ export function ReportConfigPanel({
                 {branchChipText}
               </span>
             </button>
-
-            {/* Type Tag */}
-            <button
-              type="button"
-              onClick={() => setFilterOverlayOpen(true)}
-              className="inline-flex items-center gap-1 rounded-md bg-muted/50 hover:bg-muted border border-border/70 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors cursor-pointer shadow-2xs"
-            >
-              <span>Type:</span>
-              <span className="font-semibold text-foreground">
-                {typeChipText}
-              </span>
-            </button>
-
-            {selectedGroups.length > 0 && !selectedGroups.includes("All") && (
-              <button
-                type="button"
-                onClick={() => setFilterOverlayOpen(true)}
-                className="inline-flex items-center gap-1 rounded-md bg-muted/50 hover:bg-muted border border-border/70 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors cursor-pointer shadow-2xs"
-              >
-                <span>Group:</span>
-                <span className="font-semibold text-foreground">
-                  {selectedGroups[0]}
-                  {selectedGroups.length > 1
-                    ? ` +${selectedGroups.length - 1}`
-                    : ""}
-                </span>
-              </button>
-            )}
           </div>
 
           {/* 3. Expandable / Collapsible Vehicle Tree List (Takes all remaining vertical space) */}
