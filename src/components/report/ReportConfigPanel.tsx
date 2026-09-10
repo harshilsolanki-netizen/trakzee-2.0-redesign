@@ -21,6 +21,7 @@ import {
   VEHICLE_TYPES,
   getBranchesForCompanies,
   getGroupsForBranches,
+  getVehiclesForBranches,
 } from "@/data/reports";
 import { fleetObjects } from "@/data/fleet";
 import { cn } from "@/lib/utils";

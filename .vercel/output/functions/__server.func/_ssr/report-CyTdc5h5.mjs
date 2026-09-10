@@ -1,6 +1,6 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { t as cn } from "./utils-C_uf36nf.mjs";
-import { C as getGroupsForBranches, D as temperatureSummaryRows, S as getBranchesForCompanies$1, _ as driverJobSummaryRows, f as VEHICLE_BRANDS, h as VEHICLE_TYPES, l as DURATION_STATUS, m as VEHICLE_MODELS, o as COMPANIES, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, u as DURATION_UNITS, w as getVehiclesForBranches$1, y as findReport } from "./reports-D0j_491Z.mjs";
+import { C as getGroupsForBranches, D as temperatureSummaryRows, S as getBranchesForCompanies$1, _ as driverJobSummaryRows, f as VEHICLE_BRANDS, h as VEHICLE_TYPES, l as DURATION_STATUS, m as VEHICLE_MODELS, o as COMPANIES, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, u as DURATION_UNITS, w as getVehiclesForBranches, y as findReport } from "./reports-D0j_491Z.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { B as RefreshCw, Bt as CircleX, Ct as FileText, F as Search, Gt as ChevronsUpDown, H as Plus, Jt as ChevronLeft, M as Settings, N as Settings2, O as SlidersHorizontal, Pt as CornerDownLeft, Q as Minus, Rt as Clock, U as Play, Ut as CircleCheck, Vt as CircleQuestionMark, W as Pin, Xt as Check, Yt as ChevronDown, an as CalendarClock, dn as ArrowUp, en as ChartColumn, fn as ArrowRight, gt as GripVertical, h as Truck, in as Calendar, it as Mail, jt as Download, m as Underline, mn as ArrowDown, n as X, nt as Map$1, p as Undo2, pn as ArrowLeft, pt as Italic, q as Pencil, qt as ChevronRight, sn as Bold, st as LoaderCircle, wt as FileSpreadsheet, x as Thermometer, xt as Fuel, y as Trash2, z as RotateCcw } from "../_libs/lucide-react.mjs";
@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-5aAnLDi6.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-lmsq9OLr.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-CyTdc5h5.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -5848,7 +5848,7 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 		return valid.length > 0 ? valid : availableBranches;
 	}, [filters.branches, availableBranches]);
 	const availableVehicles = (0, import_react.useMemo)(() => {
-		return getVehiclesForBranches$1(activeSelectedBranches);
+		return getVehiclesForBranches(activeSelectedBranches);
 	}, [activeSelectedBranches]);
 	const availableVehicleIds = (0, import_react.useMemo)(() => {
 		return availableVehicles.map((v) => v.id);
@@ -5926,7 +5926,7 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 		const newAvailBranches = getBranchesForCompanies$1(isAll ? allCompanies : draftCompanies);
 		const validBranches = (filters.branches || []).filter((b) => newAvailBranches.includes(b));
 		const nextBranches = validBranches.length > 0 && validBranches.length < newAvailBranches.length ? validBranches : [];
-		const newAvailVehicleIds = getVehiclesForBranches$1(nextBranches.length > 0 ? nextBranches : newAvailBranches).map((v) => v.id);
+		const newAvailVehicleIds = getVehiclesForBranches(nextBranches.length > 0 ? nextBranches : newAvailBranches).map((v) => v.id);
 		const validVehicles = (filters.objects || []).filter((id) => newAvailVehicleIds.includes(id));
 		onChange({
 			companies: appliedCompanies,
@@ -5938,7 +5938,7 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 	const handleApplyBranches = () => {
 		const isAll = draftBranches.length === 0 || draftBranches.length === availableBranches.length;
 		const appliedBranches = isAll ? [] : draftBranches;
-		const newAvailVehicleIds = getVehiclesForBranches$1(isAll ? availableBranches : draftBranches).map((v) => v.id);
+		const newAvailVehicleIds = getVehiclesForBranches(isAll ? availableBranches : draftBranches).map((v) => v.id);
 		const validVehicles = (filters.objects || []).filter((id) => newAvailVehicleIds.includes(id));
 		onChange({
 			branches: appliedBranches,
