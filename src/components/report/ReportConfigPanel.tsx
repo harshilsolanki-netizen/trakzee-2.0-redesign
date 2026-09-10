@@ -750,19 +750,6 @@ export function ReportConfigPanel({
                   onClick={() => setFilterOverlayOpen(false)}
                 />
                 <div className="absolute top-full left-0 right-0 z-50 mt-1.5 rounded-xl border border-border/80 bg-card p-4 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 space-y-3 custom-scrollbar">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-2">
-                    <span className="text-xs font-bold text-foreground">
-                      Filter Attributes
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setFilterOverlayOpen(false)}
-                      className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-
                   {/* Company */}
                   <div className="space-y-1">
                     <label className="block text-[11px] font-semibold text-foreground">
@@ -796,19 +783,37 @@ export function ReportConfigPanel({
                     <button
                       type="button"
                       onClick={() => {
-                        handleCompanyChange([]);
+                        const allVehicles = getVehiclesForBranches(BRANCHES);
+                        const allIds = allVehicles.map((v) => v.id);
+                        const nextObjects = (filters.objects || []).filter((id) =>
+                          allIds.includes(id),
+                        );
+                        onChange({
+                          companies: [],
+                          branches: [],
+                          objects: nextObjects,
+                        });
                       }}
-                      className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
+                      className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors"
                     >
                       Reset
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setFilterOverlayOpen(false)}
-                      className="px-3.5 py-1 rounded-md bg-[#0089FF] text-white text-xs font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs"
-                    >
-                      Done
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setFilterOverlayOpen(false)}
+                        className="px-2.5 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
+                      >
+                        Close
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFilterOverlayOpen(false)}
+                        className="px-3.5 py-1 rounded-md bg-[#0089FF] text-white text-xs font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98"
+                      >
+                        Done
+                      </button>
+                    </div>
                   </div>
                 </div>
               </>
