@@ -188,7 +188,7 @@ function ModernTimeSelector({
       <PopoverContent
         align="start"
         sideOffset={4}
-        className="w-64 p-2.5 text-xs bg-popover/98 backdrop-blur-xl border border-border/80 shadow-lg rounded-lg z-60 select-none animate-in fade-in zoom-in-95"
+        className="w-64 p-2.5 text-xs bg-popover/95 backdrop-blur-md border border-border/80 shadow-lg rounded-lg z-60 select-none animate-in fade-in zoom-in-95"
       >
         {/* Quick Presets */}
         <div className="grid grid-cols-2 gap-1.5 mb-2.5 pb-2 border-b border-border/70">
@@ -1026,7 +1026,7 @@ export function ReportQuickFilterBar({
           align="start"
           sideOffset={4}
           className={cn(
-            "p-0 text-xs bg-popover/98 backdrop-blur-xl border border-border/80 shadow-lg rounded-lg z-50 select-none overflow-visible transition-all duration-200 space-y-0",
+            "p-0 text-xs bg-popover/95 backdrop-blur-md border border-border/80 shadow-lg rounded-lg z-50 select-none overflow-visible transition-all duration-200 space-y-0",
             draftPreset === "Custom Range" ? "w-[580px]" : "w-[360px]",
           )}
         >
@@ -1069,7 +1069,7 @@ export function ReportQuickFilterBar({
 
               {/* Custom Preset Dropdown Menu matching application design system */}
               {presetMenuOpen && (
-                <div className="absolute left-0 top-full mt-1 w-full rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl shadow-lg p-1 z-60 animate-in fade-in zoom-in-95 space-y-0.5">
+                <div className="absolute left-0 top-full mt-1 w-full rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg p-1 z-60 animate-in fade-in zoom-in-95 space-y-0.5">
                   {PRESET_OPTIONS.map((opt) => {
                     const isSelected = draftPreset === opt;
                     return (
@@ -1196,7 +1196,7 @@ export function ReportQuickFilterBar({
         <PopoverContent
           align="start"
           sideOffset={4}
-          className="w-68 p-0 text-xs bg-popover/98 backdrop-blur-xl border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
+          className="w-68 p-0 text-xs bg-popover/95 backdrop-blur-md border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
         >
           <div className="p-3 px-4 border-b border-border/70 space-y-2 bg-muted/20">
             <div className="flex items-center justify-between text-xs font-semibold text-foreground">
@@ -1332,7 +1332,7 @@ export function ReportQuickFilterBar({
         <PopoverContent
           align="start"
           sideOffset={4}
-          className="w-68 p-0 text-xs bg-popover/98 backdrop-blur-xl border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
+          className="w-68 p-0 text-xs bg-popover/95 backdrop-blur-md border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
         >
           <div className="p-3 px-4 border-b border-border/70 space-y-2 bg-muted/20">
             <div className="flex items-center justify-between text-xs font-semibold text-foreground">
@@ -1468,7 +1468,7 @@ export function ReportQuickFilterBar({
         <PopoverContent
           align="start"
           sideOffset={4}
-          className="w-84 p-0 text-xs bg-popover/98 backdrop-blur-xl border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
+          className="w-84 p-0 text-xs bg-popover/95 backdrop-blur-md border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
         >
           {/* Header with Search */}
           <div className="p-3 px-4 border-b border-border/70 space-y-2 bg-muted/20">

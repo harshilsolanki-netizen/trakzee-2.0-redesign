@@ -55,7 +55,7 @@ export function ExportPopover({
       <PopoverContent
         align="end"
         sideOffset={6}
-        className="w-[280px] rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl p-3.5 text-foreground shadow-lg animate-in fade-in-0 zoom-in-95 select-none space-y-3"
+        className="w-[280px] rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-3.5 text-foreground shadow-lg animate-in fade-in-0 zoom-in-95 select-none space-y-3"
       >
         {/* Header Title */}
         <div className="text-xs font-semibold text-foreground">

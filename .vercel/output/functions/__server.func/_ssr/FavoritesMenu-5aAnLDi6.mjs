@@ -6,8 +6,8 @@ import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[..
 import { C as Star, F as Search, n as X, qt as ChevronRight, y as Trash2 } from "../_libs/lucide-react.mjs";
 import { l as useLocation, v as useNavigate } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
-import { i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent } from "./store-LVQlPua9.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/FavoritesMenu-HgudenNA.js
+import { i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent } from "./store-Butx-LES.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/FavoritesMenu-5aAnLDi6.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function FavoritesMenu() {

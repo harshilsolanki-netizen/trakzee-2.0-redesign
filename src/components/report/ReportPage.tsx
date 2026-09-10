@@ -735,7 +735,7 @@ export function ReportPage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="start"
-                  className="max-h-64 w-52 overflow-y-auto text-xs p-1 rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl shadow-lg z-50 select-none"
+                  className="max-h-64 w-52 overflow-y-auto text-xs p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50 select-none"
                 >
                   <DropdownMenuItem
                     onClick={() => setSelectedSearchField("ALL")}
@@ -847,7 +847,7 @@ export function ReportPage() {
               <PopoverContent
                 align="end"
                 sideOffset={6}
-                className="w-28 p-1 rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl shadow-lg select-none animate-in fade-in-0 zoom-in-95"
+                className="w-28 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none animate-in fade-in-0 zoom-in-95"
               >
                 {PAGE_SIZES.map((s) => {
                   const isActive = pageSize === s;
@@ -1387,7 +1387,7 @@ export function ReportPage() {
         </div>
 
         {loading ? (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-surface/70 backdrop-blur-[1px]">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-surface/75 backdrop-blur-xs">
             <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" /> Loading report…
             </span>

@@ -103,7 +103,7 @@ export function ChartConfigModal({
         type="button"
         aria-label="Close Chart Settings"
         onClick={onClose}
-        className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
+        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
       />
 
       {/* Modal Card */}

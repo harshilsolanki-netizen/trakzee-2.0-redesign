@@ -3,9 +3,9 @@ import { t as cn } from "./utils-C_uf36nf.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { A as Shield, F as Search, H as Plus, It as Copy, P as Send, Q as Minus, Y as PanelRight, _ as TrendingUp, dt as LayoutDashboard, et as MessageSquare, g as TriangleAlert, gt as History, h as Truck, l as Users, n as X, rt as MapPin, tt as Maximize2, y as Trash2, zt as Clock } from "../_libs/lucide-react.mjs";
-import { i as DropdownMenuItem, n as DropdownMenuContent, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-U4x0DS5F.mjs";
+import { i as DropdownMenuItem, n as DropdownMenuContent, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-MlMtCtZi.mjs";
 import { n as useZio } from "./ZioContext-Cw_R09Nu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/ZioPanel-lLJH_t-F.js
+//#region node_modules/.nitro/vite/services/ssr/assets/ZioPanel-BFN_X_IW.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ApplicationScreenPreview({ type, title, data }) {

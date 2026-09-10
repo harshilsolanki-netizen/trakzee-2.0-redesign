@@ -189,7 +189,7 @@ function AppLayout() {
 
           {/* Fullscreen Zio Mode: Smoothly covers the main workspace area matching reference screenshot */}
           {isFullscreen && (
-            <div className="fixed top-[44px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-background/60 backdrop-blur-xs animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col">
+            <div className="fixed top-[44px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-black/40 backdrop-blur-xs animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col">
               <ZioPanel mode="fullscreen" className="h-full w-full flex-1" />
             </div>
           )}

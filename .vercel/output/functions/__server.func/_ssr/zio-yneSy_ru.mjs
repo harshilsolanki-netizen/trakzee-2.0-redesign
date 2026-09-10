@@ -1,6 +1,6 @@
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
-import { t as ZioPanel } from "./ZioPanel-lLJH_t-F.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/zio-7sAIluDZ.js
+import { t as ZioPanel } from "./ZioPanel-BFN_X_IW.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/zio-yneSy_ru.js
 var import_jsx_runtime = require_jsx_runtime();
 function ZioFullscreenPage() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {

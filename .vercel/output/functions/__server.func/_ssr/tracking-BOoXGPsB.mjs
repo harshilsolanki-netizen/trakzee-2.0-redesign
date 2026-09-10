@@ -6,7 +6,7 @@ import { $ as Minimize2, F as Search, H as Plus, Ht as CircleQuestionMark, J as 
 import { n as toast } from "../_libs/sonner.mjs";
 import { n as STATUS_META, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
 import { n as useZio } from "./ZioContext-Cw_R09Nu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tracking-A2u_01wO.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tracking-BOoXGPsB.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function FleetExplorerPanel({ vehicles, selectedVehicleId, onSelectVehicle, checkedVehicleIds, onToggleCheckVehicle, onToggleCheckGroup, onToggleCheckAll, onOpenDashcam, onOpenSettings, onOpenTelemetry, onTraceVehicle, className }) {
@@ -910,7 +910,7 @@ function VehicleTelemetryDrawer({ vehicle, onClose, onSelectVehicle, allVehicles
 		if (currentIndex < allVehicles.length - 1 && allVehicles[currentIndex + 1]) onSelectVehicle(allVehicles[currentIndex + 1].id);
 	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: cn("flex flex-col bg-card/98 backdrop-blur-xl border border-border rounded-xl shadow-2xl overflow-hidden transition-all duration-200 w-full sm:w-[360px] text-xs", className),
+		className: cn("flex flex-col bg-card/95 backdrop-blur-md border border-border rounded-xl shadow-2xl overflow-hidden transition-all duration-200 w-full sm:w-[360px] text-xs", className),
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "flex h-[56px] items-center justify-between border-b border-border bg-surface-muted/60 px-3 select-none",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
@@ -1425,7 +1425,7 @@ function RoutePlaybackBar({ vehicle, onClose, className }) {
 		return () => clearInterval(timer);
 	}, [isPlaying, speedMultiplier]);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: cn("rounded-xl border border-border bg-card/98 backdrop-blur-xl shadow-2xl p-3 text-xs animate-in slide-in-from-bottom-4 duration-200 select-none", className),
+		className: cn("rounded-xl border border-border bg-card/95 backdrop-blur-md shadow-2xl p-3 text-xs animate-in slide-in-from-bottom-4 duration-200 select-none", className),
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				className: "flex items-center justify-between border-b border-border pb-2 mb-2.5",
@@ -1553,13 +1553,18 @@ function RoutePlaybackBar({ vehicle, onClose, className }) {
 function LiveDashcamModal({ vehicle, onClose }) {
 	const [activeChannel, setActiveChannel] = (0, import_react.useState)(1);
 	const [isRecording, setIsRecording] = (0, import_react.useState)(false);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200 select-none",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "relative w-full max-w-3xl rounded-2xl border border-border bg-surface text-foreground shadow-2xl overflow-hidden text-xs",
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "fixed inset-0 z-50 flex items-center justify-center p-4",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+			type: "button",
+			"aria-label": "Close Dashcam",
+			onClick: onClose,
+			className: "fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "relative z-10 w-full max-w-3xl rounded-lg border border-border bg-surface text-foreground shadow-xl overflow-hidden text-xs animate-in fade-in zoom-in-95 duration-150 select-none",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-					className: "flex h-[56px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none",
+					className: "flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shrink-0 select-none",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex items-center gap-2",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex h-2 w-2 rounded-full bg-rose-500 animate-pulse" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", {
@@ -1570,7 +1575,7 @@ function LiveDashcamModal({ vehicle, onClose }) {
 						type: "button",
 						"aria-label": "Close Dashcam",
 						onClick: onClose,
-						className: "rounded-md p-1 text-nav-foreground/80 transition-colors duration-150 hover:bg-white/10 hover:text-white cursor-pointer",
+						className: "rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
 					})]
 				}),
@@ -1649,7 +1654,7 @@ function LiveDashcamModal({ vehicle, onClose }) {
 					})]
 				})
 			]
-		})
+		})]
 	});
 }
 var TRACKING_COLUMNS = [
@@ -1727,13 +1732,18 @@ var TRACKING_COLUMNS = [
 function ObjectColumnSettingsModal({ open, onClose }) {
 	const [selectedColumns, setSelectedColumns] = (0, import_react.useState)(TRACKING_COLUMNS.filter((c) => c.default).map((c) => c.id));
 	if (!open) return null;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200 select-none",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "relative w-full max-w-md rounded-2xl border border-border bg-surface text-foreground shadow-2xl overflow-hidden text-xs",
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "fixed inset-0 z-50 flex items-center justify-center p-4",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+			type: "button",
+			"aria-label": "Close Settings",
+			onClick: onClose,
+			className: "fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "relative z-10 w-full max-w-md rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl overflow-hidden text-xs animate-in fade-in zoom-in-95 duration-150 select-none",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-					className: "flex h-[56px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none",
+					className: "flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shrink-0 select-none",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
 						className: "text-[16px] font-semibold tracking-tight",
 						children: "Object Display Settings"
@@ -1741,7 +1751,7 @@ function ObjectColumnSettingsModal({ open, onClose }) {
 						type: "button",
 						"aria-label": "Close Settings",
 						onClick: onClose,
-						className: "rounded-md p-1 text-nav-foreground/80 transition-colors duration-150 hover:bg-white/10 hover:text-white cursor-pointer",
+						className: "rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
 					})]
 				}),
@@ -1792,7 +1802,7 @@ function ObjectColumnSettingsModal({ open, onClose }) {
 					})]
 				})
 			]
-		})
+		})]
 	});
 }
 function TrackingPage() {

@@ -1154,7 +1154,7 @@ export function ScheduleModal({
           type="button"
           aria-label="Close schedule modal"
           onClick={onClose}
-          className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
         />
 
         {/* Main Modal Window - Enterprise SaaS styling with content-fit */}
@@ -2501,7 +2501,7 @@ export function ScheduleModal({
             type="button"
             aria-label="Close Advance Configuration"
             onClick={() => setAdvanceModalOpen(false)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
           />
           <div className="relative z-10 w-full max-w-3xl max-h-[85vh] flex flex-col bg-white dark:bg-slate-900 border border-border text-foreground shadow-xl rounded-lg overflow-hidden animate-in zoom-in-95">
             {/* Header (56px) */}

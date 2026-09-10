@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-DOGIp1tt.js
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-DPEIbn6S.js
 var tsrStartManifest = () => ({ routes: {
 	__root__: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/__root.tsx",
@@ -12,19 +12,19 @@ var tsrStartManifest = () => ({ routes: {
 			"/zio"
 		],
 		preloads: [
-			"/assets/index-ZMdM3klQ.js",
+			"/assets/index-wq8kFfDU.js",
 			"/assets/utils-BDRr8poQ.js",
 			"/assets/download-B5T2ibo3.js",
 			"/assets/x-B4JrkUkn.js",
-			"/assets/FavoritesMenu-DuSobGOl.js",
+			"/assets/FavoritesMenu-CrLGNsZ6.js",
 			"/assets/bell-C6i9-8z2.js",
 			"/assets/dist-BMaSEWCn.js",
 			"/assets/chevron-down-Dha4uT77.js",
 			"/assets/search-DDWeLJ_y.js",
-			"/assets/dropdown-menu-CB_qb0g-.js",
+			"/assets/dropdown-menu-CslIxtNS.js",
+			"/assets/ZioPanel-CZ5sCDmr.js",
 			"/assets/eye-D_8Go47a.js",
 			"/assets/file-text-GtX3tr5j.js",
-			"/assets/ZioPanel-DHwGeYYP.js",
 			"/assets/types-BsvVURBu.js",
 			"/assets/ZioContext-CzaToytR.js",
 			"/assets/triangle-alert-C02s0qPG.js",
@@ -35,36 +35,35 @@ var tsrStartManifest = () => ({ routes: {
 			"/assets/trash-2-CInxCb_F.js",
 			"/assets/user-CzQxYe2t.js",
 			"/assets/dist-DfMmrg6Y.js",
-			"/assets/store-DfsHHdWT.js",
+			"/assets/store-BVkq8JhO.js",
 			"/assets/tooltip-Wmarl7T3.js",
 			"/assets/dist-C5qbksrM.js"
 		],
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-ZMdM3klQ.js"
+			src: "/assets/index-wq8kFfDU.js"
 		} }]
 	},
 	"/": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/index.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/routes-DUs2hWKi.js",
-			"/assets/ellipsis-vertical-CafdgEyx.js",
+			"/assets/routes-BhRhtXQT.js",
 			"/assets/video-CiTIpoFR.js",
 			"/assets/fleet-DYGVpYjf.js",
 			"/assets/rotate-ccw-BknbzzFT.js",
 			"/assets/sliders-horizontal-Dw4fhHu4.js",
 			"/assets/truck-iBOT5k6W.js",
 			"/assets/PieChart-BTtKvk8n.js",
-			"/assets/dialog-6UQ7B6uT.js"
+			"/assets/dialog-Bm_pOQZw.js"
 		]
 	},
 	"/charts": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/charts.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/charts-Ap9cfw1s.js",
+			"/assets/charts-C4IexGxi.js",
 			"/assets/pencil-CWlwNF-Y.js",
 			"/assets/rotate-ccw-BknbzzFT.js",
 			"/assets/sliders-horizontal-Dw4fhHu4.js",
@@ -75,21 +74,19 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/components.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/components-JuBtjjcL.js",
+			"/assets/components-CUCkLlVL.js",
 			"/assets/layers-C7u_3DLV.js",
 			"/assets/minus-y5WOeQdi.js",
-			"/assets/dialog-6UQ7B6uT.js"
+			"/assets/dialog-Bm_pOQZw.js"
 		]
 	},
 	"/report": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/report.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/report-t-nv9t50.js",
+			"/assets/report-YNkrSXMR.js",
 			"/assets/play-CULVwW4v.js",
 			"/assets/clock-D7xLHN8c.js",
-			"/assets/copy-jdWaR1dT.js",
-			"/assets/ellipsis-vertical-CafdgEyx.js",
 			"/assets/minus-y5WOeQdi.js",
 			"/assets/pencil-CWlwNF-Y.js",
 			"/assets/fleet-DYGVpYjf.js",
@@ -106,7 +103,7 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/tracking.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/tracking-Bka2D4sS.js",
+			"/assets/tracking-DtOQhwKS.js",
 			"/assets/play-CULVwW4v.js",
 			"/assets/clock-D7xLHN8c.js",
 			"/assets/video-CiTIpoFR.js",
@@ -119,7 +116,7 @@ var tsrStartManifest = () => ({ routes: {
 	"/zio": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/zio.tsx",
 		children: void 0,
-		preloads: ["/assets/zio-B5gWVyBP.js"]
+		preloads: ["/assets/zio-CasWPW1s.js"]
 	}
 } });
 //#endregion

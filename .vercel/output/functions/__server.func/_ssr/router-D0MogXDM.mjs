@@ -6,18 +6,18 @@ import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { A as Shield, C as Star, D as SlidersVertical, Dt as FileCode, E as Sparkles, F as Search, G as PinOff, L as Route, M as Settings, Mt as Download, Nt as CreditCard, Ot as Eye, Pt as Cpu, R as RotateCw, Rt as Cloud, St as Fuel, Ut as CircleGauge, V as Receipt, W as Pin, X as Palette, Xt as Check, Yt as ChevronDown, _ as TrendingUp, a as Waves, an as CalendarClock, at as LogOut, bt as Globe, cn as Bell, d as UserPlus, dt as LayoutDashboard, en as ChartColumn, f as UserCheck, fn as ArrowRight, g as TriangleAlert, hn as Activity, i as Weight, it as Mail, jt as Droplet, k as ShoppingCart, kt as EyeOff, l as Users, lt as LifeBuoy, n as X, nn as Car, o as Wallet, on as Briefcase, ot as Lock, pt as KeyRound, qt as ChevronRight, r as Wrench, rt as MapPin, t as Zap, u as User, un as Award, ut as LayoutGrid, wt as FileText, x as Thermometer, xt as Gauge, y as Trash2, yt as Grid2x2 } from "../_libs/lucide-react.mjs";
 import { d as DialogContent, f as DialogDescription, h as DialogTitle, l as Dialog, m as DialogPortal, p as DialogOverlay, u as DialogClose } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
-import { c as DropdownMenuSubContent, i as DropdownMenuItem, l as DropdownMenuSubTrigger, n as DropdownMenuContent, r as DropdownMenuGroup, s as DropdownMenuSub, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-U4x0DS5F.mjs";
+import { c as DropdownMenuSubContent, i as DropdownMenuItem, l as DropdownMenuSubTrigger, n as DropdownMenuContent, r as DropdownMenuGroup, s as DropdownMenuSub, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-MlMtCtZi.mjs";
 import { _ as Link, b as useRouter, c as HeadContent, f as createRouter, g as createRootRouteWithContext, h as createFileRoute, l as useLocation, m as lazyRouteComponent, p as Outlet, s as Scripts, u as useRouterState, v as useNavigate, y as useSearch } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
 import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as Tooltip } from "./tooltip-yj1PAv0W.mjs";
 import { n as objectType, r as stringType, t as booleanType } from "../_libs/zod.mjs";
-import { i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, t as DashboardProvider } from "./store-LVQlPua9.mjs";
-import { n as FavoritesMenu } from "./FavoritesMenu-HgudenNA.mjs";
+import { i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, t as DashboardProvider } from "./store-Butx-LES.mjs";
+import { n as FavoritesMenu } from "./FavoritesMenu-5aAnLDi6.mjs";
 import { n as useZio, t as ZioProvider } from "./ZioContext-Cw_R09Nu.mjs";
-import { t as ZioPanel } from "./ZioPanel-lLJH_t-F.mjs";
+import { t as ZioPanel } from "./ZioPanel-BFN_X_IW.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-CRpSHXdS.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-D0MogXDM.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -776,7 +776,7 @@ function AppSidebar() {
 var Sheet = Dialog;
 var SheetPortal = DialogPortal;
 var SheetOverlay = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogOverlay, {
-	className: cn("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
+	className: cn("fixed inset-0 z-50 bg-black/40 backdrop-blur-xs data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
 	...props,
 	ref
 }));
@@ -2452,7 +2452,7 @@ var Toaster$1 = ({ ...props }) => {
 		...props
 	});
 };
-var styles_default = "/assets/styles-DcFu1qwd.css";
+var styles_default = "/assets/styles-DPPH2MLz.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -2634,7 +2634,7 @@ function AppLayout() {
 							})
 						}),
 						isOpen && mode === "fullscreen" && !isZioStandaloneRoute && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "fixed top-[44px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-background/60 backdrop-blur-xs animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col",
+							className: "fixed top-[44px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-black/40 backdrop-blur-xs animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ZioPanel, {
 								mode: "fullscreen",
 								className: "h-full w-full flex-1"
@@ -2689,7 +2689,7 @@ function TopBar() {
 		]
 	});
 }
-var $$splitComponentImporter$6 = () => import("./routes-CUgovGR3.mjs");
+var $$splitComponentImporter$6 = () => import("./routes-C5OvHxSz.mjs");
 var Route$7 = createFileRoute("/")({
 	head: () => ({ meta: [
 		{ title: "Fleet Safety Dashboard — Fleet Command" },
@@ -2708,7 +2708,7 @@ var Route$7 = createFileRoute("/")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$6, "component")
 });
-var $$splitComponentImporter$5 = () => import("./charts-4yAL48po.mjs");
+var $$splitComponentImporter$5 = () => import("./charts-DRc5rcIS.mjs");
 var Route$6 = createFileRoute("/charts")({
 	validateSearch: (search) => {
 		const c = search["chart"];
@@ -2731,7 +2731,7 @@ var Route$6 = createFileRoute("/charts")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$5, "component")
 });
-var $$splitComponentImporter$4 = () => import("./components-Zqm2uIJf.mjs");
+var $$splitComponentImporter$4 = () => import("./components-BmFt87kV.mjs");
 var Route$5 = createFileRoute("/components")({ component: lazyRouteComponent($$splitComponentImporter$4, "component") });
 objectType({
 	fullName: stringType().min(2, "Full name must be at least 2 characters"),
@@ -2739,7 +2739,7 @@ objectType({
 	role: stringType().min(1, "Please select a developer role"),
 	marketingUpdates: booleanType().default(false)
 });
-var $$splitComponentImporter$3 = () => import("./report-BUEYPsJ7.mjs");
+var $$splitComponentImporter$3 = () => import("./report-C0dM8EOf.mjs");
 var Route$4 = createFileRoute("/report")({
 	validateSearch: (search) => {
 		const t = search["type"];
@@ -2781,7 +2781,7 @@ var Route$3 = createFileRoute("/setting")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
-var $$splitComponentImporter$1 = () => import("./tracking-A2u_01wO.mjs");
+var $$splitComponentImporter$1 = () => import("./tracking-BOoXGPsB.mjs");
 var Route$2 = createFileRoute("/tracking")({
 	head: () => ({ meta: [
 		{ title: "Live Tracking — Fleet Command" },
@@ -2800,7 +2800,7 @@ var Route$2 = createFileRoute("/tracking")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-var $$splitComponentImporter = () => import("./zio-7sAIluDZ.mjs");
+var $$splitComponentImporter = () => import("./zio-yneSy_ru.mjs");
 var Route$1 = createFileRoute("/zio")({
 	head: () => ({ meta: [{ title: "Zio AI Assistant — Fleet Safety & Telematics" }, {
 		name: "description",

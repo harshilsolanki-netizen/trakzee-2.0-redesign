@@ -1,4 +1,4 @@
-﻿import {
+import {
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -42,7 +42,7 @@ export function RoutePlaybackBar({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card/98 backdrop-blur-xl shadow-2xl p-3 text-xs animate-in slide-in-from-bottom-4 duration-200 select-none",
+        "rounded-xl border border-border bg-card/95 backdrop-blur-md shadow-2xl p-3 text-xs animate-in slide-in-from-bottom-4 duration-200 select-none",
         className,
       )}
     >

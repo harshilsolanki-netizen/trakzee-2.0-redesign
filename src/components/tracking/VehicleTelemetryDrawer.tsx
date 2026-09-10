@@ -80,7 +80,7 @@ export function VehicleTelemetryDrawer({
   return (
     <div
       className={cn(
-        "flex flex-col bg-card/98 backdrop-blur-xl border border-border rounded-xl shadow-2xl overflow-hidden transition-all duration-200 w-full sm:w-[360px] text-xs",
+        "flex flex-col bg-card/95 backdrop-blur-md border border-border rounded-xl shadow-2xl overflow-hidden transition-all duration-200 w-full sm:w-[360px] text-xs",
         className,
       )}
     >

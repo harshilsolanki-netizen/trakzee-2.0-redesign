@@ -33,10 +33,16 @@ export function ObjectColumnSettingsModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-md rounded-2xl border border-border bg-surface text-foreground shadow-2xl overflow-hidden text-xs">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <button
+        type="button"
+        aria-label="Close Settings"
+        onClick={onClose}
+        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
+      />
+      <div className="relative z-10 w-full max-w-md rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl overflow-hidden text-xs animate-in fade-in zoom-in-95 duration-150 select-none">
         {/* Header */}
-        <header className="flex h-[56px] items-center justify-between bg-nav px-4 text-nav-foreground shrink-0 border-b border-white/10 select-none">
+        <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shrink-0 select-none">
           <h2 className="text-[16px] font-semibold tracking-tight">
             Object Display Settings
           </h2>
@@ -44,7 +50,7 @@ export function ObjectColumnSettingsModal({
             type="button"
             aria-label="Close Settings"
             onClick={onClose}
-            className="rounded-md p-1 text-nav-foreground/80 transition-colors duration-150 hover:bg-white/10 hover:text-white cursor-pointer"
+            className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>

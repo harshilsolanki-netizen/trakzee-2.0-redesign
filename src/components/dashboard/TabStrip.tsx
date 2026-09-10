@@ -324,7 +324,7 @@ export function TabStrip() {
                 <DropdownMenuContent
                   align="start"
                   sideOffset={4}
-                  className="w-40 rounded-xl border border-border/80 bg-popover/98 backdrop-blur-xl p-1 text-xs shadow-xl z-50 animate-in fade-in-0 zoom-in-95"
+                  className="w-40 rounded-xl border border-border/80 bg-popover/95 backdrop-blur-md p-1 text-xs shadow-xl z-50 animate-in fade-in-0 zoom-in-95"
                 >
                   <DropdownMenuItem
                     onClick={() => startRename(tab.id, tab.name)}

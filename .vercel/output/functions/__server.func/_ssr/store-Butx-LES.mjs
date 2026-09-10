@@ -3,7 +3,7 @@ import { t as cn } from "./utils-C_uf36nf.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { i as Trigger, n as Portal, r as Root2, t as Content2 } from "../_libs/radix-ui__react-popover.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/store-LVQlPua9.js
+//#region node_modules/.nitro/vite/services/ssr/assets/store-Butx-LES.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var Popover = Root2;
@@ -12,7 +12,7 @@ var PopoverContent = import_react.forwardRef(({ className, align = "center", sid
 	ref,
 	align,
 	sideOffset,
-	className: cn("z-50 w-72 rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl p-3 text-popover-foreground shadow-lg outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-popover-content-transform-origin)", className),
+	className: cn("z-50 w-72 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-3 text-popover-foreground shadow-lg outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-popover-content-transform-origin)", className),
 	...props
 }) }));
 PopoverContent.displayName = Content2.displayName;

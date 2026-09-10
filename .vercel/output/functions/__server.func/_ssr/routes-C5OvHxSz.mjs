@@ -5,15 +5,15 @@ import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { At as EllipsisVertical, Ct as FolderPlus, Et as FileDown, F as Search, G as PinOff, Gt as Cigarette, H as Plus, I as ScanFace, K as PhoneCall, M as Settings, O as SlidersHorizontal, Ot as Eye, T as SquarePen, W as Pin, Yt as ChevronDown, _ as TrendingUp, c as VideoOff, g as TriangleAlert, h as Truck, ht as Info, kt as EyeOff, ln as Bed, n as X, qt as ChevronRight, s as Video, tt as Maximize2, v as TrendingDown, vt as GripHorizontal, y as Trash2, z as RotateCcw } from "../_libs/lucide-react.mjs";
 import { a as Overlay2, c as Title2, i as Description2, n as Cancel, o as Portal2, r as Content2, s as Root2, t as Action } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
-import { i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSeparator, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-U4x0DS5F.mjs";
+import { i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSeparator, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-MlMtCtZi.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { _ as Tooltip, d as Bar, f as RadialBar, g as ResponsiveContainer, h as Cell, i as BarChart, m as PolarAngleAxis, n as RadialBarChart, o as YAxis, p as Pie, r as PieChart, s as XAxis } from "../_libs/recharts+[...].mjs";
 import { i as TooltipTrigger, n as TooltipContent, t as Tooltip$1 } from "./tooltip-yj1PAv0W.mjs";
-import { l as buttonVariants, n as Dialog, o as DialogHeader, r as DialogContent, s as DialogTitle } from "./dialog-CGmshmYo.mjs";
-import { a as WIDGET_CATALOG, i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, s as widgetMeta } from "./store-LVQlPua9.mjs";
+import { l as buttonVariants, n as Dialog, o as DialogHeader, r as DialogContent, s as DialogTitle } from "./dialog-CLASIwgA.mjs";
+import { a as WIDGET_CATALOG, i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, s as widgetMeta } from "./store-Butx-LES.mjs";
 import { a as eventTypes, c as highlightEvents, i as cameraStatus, l as riskyDrivers, o as fleetObjects, r as bucketColor, s as fleetScore, t as RANGE_LABEL, u as scoreDistribution } from "./fleet-DZTK5mNe.mjs";
 import { a as Viewport, i as ScrollAreaThumb, n as Root, r as ScrollAreaScrollbar, t as Corner } from "../_libs/radix-ui__react-scroll-area.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-CUgovGR3.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-C5OvHxSz.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var RANGES = [
@@ -880,7 +880,7 @@ function DashboardGrid() {
 var AlertDialog = Root2;
 var AlertDialogPortal = Portal2;
 var AlertDialogOverlay = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Overlay2, {
-	className: cn("fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
+	className: cn("fixed inset-0 z-50 bg-black/40 backdrop-blur-xs data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
 	...props,
 	ref
 }));
@@ -1878,7 +1878,7 @@ function TabStrip() {
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuContent, {
 									align: "start",
 									sideOffset: 4,
-									className: "w-40 rounded-xl border border-border/80 bg-popover/98 backdrop-blur-xl p-1 text-xs shadow-xl z-50 animate-in fade-in-0 zoom-in-95",
+									className: "w-40 rounded-xl border border-border/80 bg-popover/95 backdrop-blur-md p-1 text-xs shadow-xl z-50 animate-in fade-in-0 zoom-in-95",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DropdownMenuItem, {
 											onClick: () => startRename(tab.id, tab.name),

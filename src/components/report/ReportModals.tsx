@@ -31,7 +31,7 @@ function Shell({
         type="button"
         aria-label={"Close " + title}
         onClick={onClose}
-        className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
+        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
       />
       <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 overflow-hidden rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl duration-150">
         <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 shrink-0 select-none">

@@ -129,7 +129,7 @@ function SelectDropdown({
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
           {options.map((opt) => (
             <button
               key={opt}
@@ -292,7 +292,7 @@ function UniversalMultiSelectDropdown({
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 w-full rounded-xl border border-border/80 bg-popover/98 backdrop-blur-xl shadow-2xl animate-in fade-in-0 zoom-in-95 select-none overflow-hidden flex flex-col">
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 w-full rounded-xl border border-border/80 bg-popover/95 backdrop-blur-md shadow-2xl animate-in fade-in-0 zoom-in-95 select-none overflow-hidden flex flex-col">
           {/* Header Row */}
           <div className="p-2.5 pb-2 border-b border-border/60 bg-muted/20 space-y-2">
             <div className="flex items-center justify-between">

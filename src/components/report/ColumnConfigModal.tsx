@@ -908,7 +908,7 @@ export function ColumnConfigModal({
           type="button"
           aria-label="Close Column Setting"
           onClick={onClose}
-          className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
         />
         <div className="relative z-10 flex h-[600px] max-h-[88vh] w-[820px] max-w-[94vw] flex-col rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
           {/* Header (56px) */}
@@ -1470,7 +1470,7 @@ export function ColumnConfigModal({
         {showRestoreConfirm && (
           <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
             <div
-              className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity"
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
               onClick={() => setShowRestoreConfirm(false)}
             />
             <div className="relative z-10 w-full max-w-sm rounded-lg border border-border bg-white dark:bg-slate-900 p-6 text-foreground shadow-xl animate-in fade-in zoom-in-95 duration-150">
