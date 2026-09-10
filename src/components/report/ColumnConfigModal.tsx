@@ -681,7 +681,7 @@ export function ColumnConfigModal({
   };
 
   // Perform smooth physical FLIP animation after layout updates
-  useLayoutEffect(() => {
+  React.useEffect(() => {
     if (prevRects.current.size === 0) return;
 
     rowRefs.current.forEach((el, id) => {

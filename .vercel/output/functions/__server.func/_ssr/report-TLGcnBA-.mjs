@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-5aAnLDi6.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-fhUNPnFe.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-TLGcnBA-.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -1440,7 +1440,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 		});
 		prevRects.current = rects;
 	};
-	(0, import_react.useLayoutEffect)(() => {
+	import_react.useEffect(() => {
 		if (prevRects.current.size === 0) return;
 		rowRefs.current.forEach((el, id) => {
 			if (!el) return;
@@ -7529,7 +7529,7 @@ function ReportPage() {
 	const [loading, setLoading] = (0, import_react.useState)(false);
 	const [loaded, setLoaded] = (0, import_react.useState)(true);
 	const [chartConfig, setChartConfig] = (0, import_react.useState)(() => {
-		try {
+		if (typeof window !== "undefined") try {
 			const saved = localStorage.getItem("fleet-report-chart-config-v2");
 			if (saved) {
 				const parsed = JSON.parse(saved);
@@ -7539,12 +7539,12 @@ function ReportPage() {
 		return DEFAULT_CHART_CONFIG;
 	});
 	(0, import_react.useEffect)(() => {
-		try {
+		if (typeof window !== "undefined") try {
 			localStorage.setItem("fleet-report-chart-config-v2", JSON.stringify(chartConfig));
 		} catch {}
 	}, [chartConfig]);
 	const [columnSettings, setColumnSettings] = (0, import_react.useState)(() => {
-		try {
+		if (typeof window !== "undefined") try {
 			const saved = localStorage.getItem("fleet-report-columns-v3");
 			if (saved) {
 				const parsed = JSON.parse(saved);
@@ -7554,7 +7554,7 @@ function ReportPage() {
 		return DEFAULT_COLUMN_SETTINGS;
 	});
 	(0, import_react.useEffect)(() => {
-		try {
+		if (typeof window !== "undefined") try {
 			localStorage.setItem("fleet-report-columns-v3", JSON.stringify(columnSettings));
 		} catch {}
 	}, [columnSettings]);
@@ -7568,7 +7568,7 @@ function ReportPage() {
 		});
 	}, [columnSettings.columns, chartConfig.header]);
 	const [colWidths, setColWidths] = (0, import_react.useState)(() => {
-		try {
+		if (typeof window !== "undefined") try {
 			const saved = localStorage.getItem("fleet-report-col-widths-v2");
 			if (saved) return {
 				...DEFAULT_COLUMN_WIDTHS,
@@ -7578,7 +7578,7 @@ function ReportPage() {
 		return DEFAULT_COLUMN_WIDTHS;
 	});
 	(0, import_react.useEffect)(() => {
-		try {
+		if (typeof window !== "undefined") try {
 			localStorage.setItem("fleet-report-col-widths-v2", JSON.stringify(colWidths));
 		} catch {}
 	}, [colWidths]);

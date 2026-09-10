@@ -218,46 +218,54 @@ export function ReportPage() {
 
   // Chart Comparison Configuration State (Synchronized with chart settings modal)
   const [chartConfig, setChartConfig] = useState<ChartConfig>(() => {
-    try {
-      const saved = localStorage.getItem("fleet-report-chart-config-v2");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed?.header && parsed?.xAxis && parsed?.yAxis) return parsed;
-      }
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("fleet-report-chart-config-v2");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.header && parsed?.xAxis && parsed?.yAxis) return parsed;
+        }
+      } catch {}
+    }
     return DEFAULT_CHART_CONFIG;
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        "fleet-report-chart-config-v2",
-        JSON.stringify(chartConfig),
-      );
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(
+          "fleet-report-chart-config-v2",
+          JSON.stringify(chartConfig),
+        );
+      } catch {}
+    }
   }, [chartConfig]);
 
   // Column Configuration state with persistence
   const [columnSettings, setColumnSettings] = useState<ReportColumnSettings>(
     () => {
-      try {
-        const saved = localStorage.getItem("fleet-report-columns-v3");
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed?.columns?.length) return parsed;
-        }
-      } catch {}
+      if (typeof window !== "undefined") {
+        try {
+          const saved = localStorage.getItem("fleet-report-columns-v3");
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed?.columns?.length) return parsed;
+          }
+        } catch {}
+      }
       return DEFAULT_COLUMN_SETTINGS;
     },
   );
 
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        "fleet-report-columns-v3",
-        JSON.stringify(columnSettings),
-      );
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(
+          "fleet-report-columns-v3",
+          JSON.stringify(columnSettings),
+        );
+      } catch {}
+    }
   }, [columnSettings]);
 
   // Update comparison column label to match chartConfig.header dynamically
@@ -274,20 +282,24 @@ export function ReportPage() {
 
   // Column resizing state with persistent storage
   const [colWidths, setColWidths] = useState<Record<string, number>>(() => {
-    try {
-      const saved = localStorage.getItem("fleet-report-col-widths-v2");
-      if (saved) return { ...DEFAULT_COLUMN_WIDTHS, ...JSON.parse(saved) };
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("fleet-report-col-widths-v2");
+        if (saved) return { ...DEFAULT_COLUMN_WIDTHS, ...JSON.parse(saved) };
+      } catch {}
+    }
     return DEFAULT_COLUMN_WIDTHS;
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        "fleet-report-col-widths-v2",
-        JSON.stringify(colWidths),
-      );
-    } catch {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(
+          "fleet-report-col-widths-v2",
+          JSON.stringify(colWidths),
+        );
+      } catch {}
+    }
   }, [colWidths]);
 
   const [resizingCol, setResizingCol] = useState<string | null>(null);
