@@ -39,7 +39,13 @@ import { toast } from "sonner";
 import {
   BRANCHES,
   COMPANIES,
+  COMPARATORS,
+  DURATION_UNITS,
+  VEHICLE_BRANDS,
+  VEHICLE_MODELS,
+  VEHICLE_TYPES,
   getBranchesForCompanies,
+  getGroupsForBranches,
   getVehiclesForBranches,
 } from "@/data/reports";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
@@ -121,29 +127,20 @@ const INITIAL_COLUMNS: ReportColumnConfig[] = [
     sortDirection: "asc",
   },
   {
-    id: "company",
-    label: "Company",
-    showable: true,
-    printable: true,
-    sortable: false,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
     id: "branch",
     label: "Branch",
     showable: true,
     printable: true,
-    sortable: false,
-    sortPriority: "-",
+    sortable: true,
+    sortPriority: "3",
     sortDirection: "asc",
   },
   {
-    id: "startLocation",
-    label: "Start Location",
+    id: "vehicleType",
+    label: "Vehicle Type",
     showable: true,
     printable: true,
-    sortable: false,
+    sortable: true,
     sortPriority: "-",
     sortDirection: "asc",
   },
@@ -161,7 +158,7 @@ const INITIAL_COLUMNS: ReportColumnConfig[] = [
     label: "Running Duration",
     showable: true,
     printable: true,
-    sortable: false,
+    sortable: true,
     sortPriority: "-",
     sortDirection: "asc",
   },
@@ -184,8 +181,17 @@ const INITIAL_COLUMNS: ReportColumnConfig[] = [
     sortDirection: "asc",
   },
   {
-    id: "startOdometer",
-    label: "Start Odometer",
+    id: "maxSpeed",
+    label: "Max Speed (km/h)",
+    showable: true,
+    printable: true,
+    sortable: true,
+    sortPriority: "-",
+    sortDirection: "asc",
+  },
+  {
+    id: "avgSpeed",
+    label: "Average Speed",
     showable: true,
     printable: true,
     sortable: false,
@@ -249,23 +255,23 @@ const INITIAL_SCHEDULES: ScheduleItem[] = [
     id: "sched-2",
     name: "Daily Fuel & Activity Audit",
     status: "ACTIVE",
-    nextRun: "03 Sep 2026, 06:00 AM",
-    relativeType: "Yesterday",
+    nextRun: "18 Aug 2026, 08:30 PM",
+    relativeType: "Today",
     timezone: "Asia/Kolkata (UTC+05:30)",
     scheduleType: "Daily",
     hasTimeRange: true,
-    timeRangeStart: "00:00",
-    timeRangeEnd: "23:59",
-    generationTime: "06:00",
+    timeRangeStart: "08:00 AM",
+    timeRangeEnd: "08:00 PM",
+    generationTime: "21:00",
     reportType: "Daily",
     format: "PDF",
     actionType: "Email",
     toAddress: "audit@company.com",
     emailRetryWindow: "30",
-    subject: "Daily Fuel & Activity Audit",
-    message: "Attached is the automated daily audit log.",
+    subject: "Daily Fuel and Activity Audit",
+    message: "Automated daily fleet report containing fuel and activity details.",
     vehicleScope: "current",
-    selectedVehicles: ["KA01AB9988", "MH03DE4242"],
+    selectedVehicles: ["DL01XY5544", "GJ01EF3344", "MH03DE4242"],
   },
 ];
 
@@ -318,19 +324,20 @@ const SFTP_PLATFORMS = [
 
 const MEDIA_GATEWAYS = [
   "WhatsApp",
-  "Telegram",
-  "SMS Gateway",
+  "Telegram API",
+  "SMS Gateway Provider",
   "Slack Webhook",
 ];
 
-const DEFAULT_DRAFT: Omit<ScheduleItem, "id"> = {
-  name: "",
+const DEFAULT_DRAFT: ScheduleItem = {
+  id: "",
+  name: "Travel Summary Schedule",
   status: "ACTIVE",
-  nextRun: "03/09/2026 09:00 AM",
+  nextRun: "Tomorrow, 09:00 AM",
   relativeType: "Today",
   timezone: "Asia/Kolkata (UTC+05:30)",
   scheduleType: "Daily",
-  selectedDays: ["Mo"],
+  selectedDays: ["Mo", "Tu", "We", "Th", "Fr"],
   selectedDates: [1],
   hasTimeRange: true,
   timeRangeStart: "12:00 AM",
@@ -339,14 +346,14 @@ const DEFAULT_DRAFT: Omit<ScheduleItem, "id"> = {
   reportType: "Summary",
   format: "XLS",
   actionType: "Email",
-  toAddress: "",
+  toAddress: "manager@company.com",
   emailRetryWindow: "15",
   subject: "Scheduled Travel Report",
-  message: "Please find attached the scheduled report.",
+  message: "Please find attached the scheduled travel report for your review.",
   vehicleScope: "current",
   selectedVehicles: [],
   // FTP defaults
-  ftpHost: "",
+  ftpHost: "ftp.fleetplatform.net",
   ftpPort: "21",
   ftpUsername: "",
   ftpPassword: "",
@@ -403,7 +410,7 @@ function SelectDropdown({
             "truncate",
             value
               ? "text-foreground font-medium"
-              : "text-muted-foreground/60 font-normal italic",
+              : "text-muted-foreground/60 font-medium italic",
           )}
         >
           {value || placeholder || "Select"}
@@ -417,31 +424,28 @@ function SelectDropdown({
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 z-[100] mt-1 max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-lg animate-in fade-in-80 select-none custom-scrollbar">
-          {options.map((opt) => {
-            const isSelected = value === opt;
-            return (
-              <button
-                key={opt}
-                type="button"
-                onClick={() => {
-                  onChange(opt);
-                  setOpen(false);
-                }}
-                className={cn(
-                  "flex w-full items-center justify-between rounded px-2 py-1.5 text-xs text-left cursor-pointer transition-colors",
-                  isSelected
-                    ? "bg-muted font-semibold text-foreground"
-                    : "text-foreground hover:bg-muted/80 font-medium",
-                )}
-              >
-                <span className="truncate">{opt}</span>
-                {isSelected && (
-                  <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-                )}
-              </button>
-            );
-          })}
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
+          {options.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => {
+                onChange(opt);
+                setOpen(false);
+              }}
+              className={cn(
+                "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none",
+                value === opt
+                  ? "bg-muted font-semibold text-foreground"
+                  : "text-foreground hover:bg-muted/80 font-medium",
+              )}
+            >
+              <span className="truncate">{opt}</span>
+              {value === opt && (
+                <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
+              )}
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -559,39 +563,43 @@ function UniversalMultiSelectDropdown({
               </span>
             </div>
 
-            <div className="flex h-7 items-center gap-1.5 rounded-md border border-input bg-background px-2 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
-              <Search className="h-3 w-3 text-muted-foreground shrink-0" />
+            <div className="flex h-7 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2 focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+              <Search className="h-3 w-3 text-muted-foreground" />
               <input
+                type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={`Search ${label.toLowerCase()}...`}
-                className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+                placeholder={`Search ${label.toLowerCase()}…`}
+                className="h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
               />
               {search && (
                 <button
                   type="button"
                   onClick={() => setSearch("")}
-                  className="rounded-md p-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
+                  className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded"
                 >
-                  <X className="h-2.5 w-2.5" />
+                  <X className="h-3 w-3" />
                 </button>
               )}
             </div>
+
+            <div className="flex items-center justify-between pt-0.5">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground select-none">
+                <input
+                  type="checkbox"
+                  checked={isAllDraftSelected}
+                  onChange={toggleAllDraft}
+                  className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                />
+                <span>Select all</span>
+              </label>
+              <span className="text-[11px] text-muted-foreground">
+                {filteredOptions.length} available
+              </span>
+            </div>
           </div>
 
-          <div className="px-3 py-1.5 border-b border-border/60 flex items-center justify-between bg-muted/10">
-            <label className="flex items-center gap-2 cursor-pointer select-none w-full text-xs font-semibold text-foreground">
-              <input
-                type="checkbox"
-                checked={isAllDraftSelected}
-                onChange={toggleAllDraft}
-                className="h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-              />
-              <span>Select All</span>
-            </label>
-          </div>
-
-          <div className="max-h-48 overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
+          <div className="max-h-48 overflow-y-auto p-1.5 space-y-0.5 custom-scrollbar">
             {filteredOptions.map((opt) => {
               const isChecked = draft.includes(opt);
               return (
@@ -819,54 +827,75 @@ export function ScheduleModal({
     const selectedBranches =
       currentFilters?.branches && currentFilters.branches.length > 0 && !currentFilters.branches.includes("All")
         ? currentFilters.branches
-        : getBranchesForCompanies(currentFilters?.companies || []);
-    
-    const branchVehicles = getVehiclesForBranches(selectedBranches);
-    if (currentFilters?.objects && currentFilters.objects.length > 0) {
-      return branchVehicles.filter((v) => currentFilters.objects.includes(v.id));
-    }
-    return branchVehicles;
+        : currentFilters?.companies && currentFilters.companies.length > 0 && !currentFilters.companies.includes("All")
+          ? getBranchesForCompanies(currentFilters.companies)
+          : BRANCHES;
+    return getVehiclesForBranches(selectedBranches);
   }, [currentFilters]);
 
   const currentLoadedVehicleIds = useMemo(() => {
+    if (currentFilters?.objects && currentFilters.objects.length > 0) {
+      return currentFilters.objects;
+    }
     return currentLoadedVehicles.map((v) => v.id);
-  }, [currentLoadedVehicles]);
+  }, [currentFilters, currentLoadedVehicles]);
 
-  // Draft form state
-  const [draft, setDraft] = useState<Omit<ScheduleItem, "id">>(() => ({
+  // Form State
+  const [draft, setDraft] = useState<ScheduleItem>(() => ({
     ...DEFAULT_DRAFT,
     name: `${reportTitle} Schedule`,
     vehicleScope: "current",
     selectedVehicles: currentLoadedVehicleIds,
   }));
 
-  // Synchronize initial draft when panel opens
+  // Vehicle Selection Scope State: 'current' (Applied Filter) vs 'custom' (New Filter)
+  const [vehicleFilterMode, setVehicleFilterMode] = useState<"current" | "custom">("current");
+
+  // Advance Configuration Sub-Modal State
+  const [advanceModalOpen, setAdvanceModalOpen] = useState(false);
+  const [columnConfig, setColumnConfig] = useState<ReportColumnConfig[]>(INITIAL_COLUMNS);
+
+  // Email Verification State
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState<
+    "idle" | "verifying" | "success" | "failed"
+  >("idle");
+
+  // Errors State
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
+
+  // Reset Draft when opening Create Form
   useEffect(() => {
     if (open && !editingId) {
-      setView("form");
-      setDraft((d) => ({
+      setDraft({
         ...DEFAULT_DRAFT,
         name: `${reportTitle} Schedule`,
         vehicleScope: "current",
         selectedVehicles: currentLoadedVehicleIds,
-      }));
+      });
       setVehicleFilterMode("current");
+      setEmailVerificationStatus("idle");
+      setErrors({});
+      setView("form");
     }
-  }, [open, reportTitle, currentLoadedVehicleIds, editingId]);
+  }, [open, editingId, reportTitle, currentLoadedVehicleIds]);
 
-  // Vehicle Scope Mode: "current" (use loaded filter) or "custom" (pick custom)
-  const [vehicleFilterMode, setVehicleFilterMode] = useState<"current" | "custom">("current");
-
-  // Overlay state for Custom Vehicle Selection
+  // Custom Vehicle Selection & Filter Options Overlay State (Slides in directly over the side panel)
   const [vehicleOverlayOpen, setVehicleOverlayOpen] = useState(false);
+  const [customVehicleSearch, setCustomVehicleSearch] = useState("");
   const [customFilterOverlayOpen, setCustomFilterOverlayOpen] = useState(false);
   const [customCompanies, setCustomCompanies] = useState<string[]>([]);
   const [customBranches, setCustomBranches] = useState<string[]>([]);
-  const [customVehicleSearch, setCustomVehicleSearch] = useState("");
+  const [customGroups, setCustomGroups] = useState<string[]>([]);
+  const [customTypes, setCustomTypes] = useState<string[]>([]);
+  const [customBrands, setCustomBrands] = useState<string[]>([]);
+  const [customModels, setCustomModels] = useState<string[]>([]);
+  const [customDurationCompare, setCustomDurationCompare] = useState("Greater Than");
+  const [customDurationUnit, setCustomDurationUnit] = useState("Hour");
+  const [customDurationValue, setCustomDurationValue] = useState("");
+  const [customDistanceCompare, setCustomDistanceCompare] = useState("Greater Than");
+  const [customDistanceValue, setCustomDistanceValue] = useState("");
   const [draftCustomVehicles, setDraftCustomVehicles] = useState<string[]>([]);
-  const [vehicleBoxHeight, setVehicleBoxHeight] = useState<number>(200);
-
-  // Branch Accordions for Custom Vehicle Selection
+  const [vehicleBoxHeight, setVehicleBoxHeight] = useState<number>(190);
   const [openBranchGroups, setOpenBranchGroups] = useState<string[]>(() => [
     "Indonesia",
     "Thailand",
@@ -881,50 +910,24 @@ export function ScheduleModal({
     "Planet Eco Ajman",
   ]);
 
-  // Advance Configuration Sub-Modal State
-  const [advanceModalOpen, setAdvanceModalOpen] = useState(false);
-  const [columnsConfig, setColumnsConfig] = useState<ReportColumnConfig[]>(INITIAL_COLUMNS);
-  const [detailDownloadMode, setDetailDownloadMode] = useState<"multiple" | "single">("multiple");
-  const [copyFrom, setCopyFrom] = useState<string>("None");
-  const [errors, setErrors] = useState<{
-    name?: string;
-    toAddress?: string;
-    ftpHost?: string;
-    ftpPort?: string;
-    ftpUsername?: string;
-    ftpPassword?: string;
-    ftpFolder?: string;
-    sftpAccessKey?: string;
-    sftpSecretKey?: string;
-    sftpRegion?: string;
-    sftpBucketName?: string;
-    mediaRecipientNumber?: string;
-  }>({});
-
-  const [emailVerificationStatus, setEmailVerificationStatus] = useState<
-    "idle" | "verifying" | "success" | "failed"
-  >("idle");
-
-  // Custom Vehicle Filtering Logic inside Overlay
+  // Cascading Company/Branch Logic for Custom Filter
   const customAvailableBranches = useMemo(() => {
     return getBranchesForCompanies(customCompanies);
   }, [customCompanies]);
 
   const customActiveBranches = useMemo(() => {
-    if (!customBranches || customBranches.length === 0 || customBranches.includes("All")) {
+    if (customBranches.length > 0 && !customBranches.includes("All")) {
+      return customBranches;
+    }
+    if (customCompanies.length > 0 && !customCompanies.includes("All")) {
       return customAvailableBranches;
     }
-    const valid = customBranches.filter((b) => customAvailableBranches.includes(b));
-    return valid.length > 0 ? valid : customAvailableBranches;
-  }, [customBranches, customAvailableBranches]);
+    return BRANCHES;
+  }, [customBranches, customCompanies, customAvailableBranches]);
 
-  const customFilteredVehicles = useMemo(() => {
-    return getVehiclesForBranches(customActiveBranches);
+  const customGroupOptions = useMemo(() => {
+    return getGroupsForBranches(customActiveBranches);
   }, [customActiveBranches]);
-
-  const customFilteredVehicleIds = useMemo(() => {
-    return customFilteredVehicles.map((v) => v.id);
-  }, [customFilteredVehicles]);
 
   const customActiveFilterCount = useMemo(() => {
     let count = 0;
@@ -933,36 +936,77 @@ export function ScheduleModal({
     return count;
   }, [customCompanies, customBranches]);
 
-  const handleCustomCompanyChange = (companies: string[]) => {
-    const newAvail = getBranchesForCompanies(companies);
-    const nextB = customBranches.filter((b) => newAvail.includes(b));
-    setCustomCompanies(companies);
-    setCustomBranches(nextB);
-  };
+  const allAvailableCustomVehicles = useMemo(() => {
+    return getVehiclesForBranches(customActiveBranches);
+  }, [customActiveBranches]);
 
-  const handleCustomBranchChange = (branches: string[]) => {
-    setCustomBranches(branches);
-  };
+  // Filter custom vehicles based on search, group, type, brand, model
+  const filteredCustomVehicles = useMemo(() => {
+    const q = customVehicleSearch.trim().toLowerCase();
+    return allAvailableCustomVehicles.filter((v) => {
+      // Group filter
+      if (customGroups.length > 0 && !customGroups.includes("All")) {
+        const vFleet = fleetObjects.find((fo) => fo.id === v.id);
+        if (vFleet?.group && !customGroups.includes(vFleet.group)) {
+          return false;
+        }
+      }
+      // Type filter
+      if (customTypes.length > 0 && !customTypes.includes("All")) {
+        const vFleet = fleetObjects.find((fo) => fo.id === v.id);
+        if (vFleet?.type && !customTypes.includes(vFleet.type)) {
+          return false;
+        }
+      }
+      // Brand filter
+      if (customBrands.length > 0 && !customBrands.includes("All") && customBrands[0] !== "") {
+        const vFleet = fleetObjects.find((fo) => fo.id === v.id);
+        if (vFleet?.brand && vFleet.brand !== customBrands[0]) {
+          return false;
+        }
+      }
+      // Model filter
+      if (customModels.length > 0 && !customModels.includes("All") && customModels[0] !== "") {
+        const vFleet = fleetObjects.find((fo) => fo.id === v.id);
+        if (vFleet?.model && vFleet.model !== customModels[0]) {
+          return false;
+        }
+      }
+      // Search query filter
+      if (q) {
+        const matchName = v.name.toLowerCase().includes(q);
+        const matchImei = v.imei.toLowerCase().includes(q);
+        const matchBranch = v.branch.toLowerCase().includes(q);
+        const matchDriver = (v.driver || "").toLowerCase().includes(q);
+        if (!matchName && !matchImei && !matchBranch && !matchDriver) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [
+    allAvailableCustomVehicles,
+    customGroups,
+    customTypes,
+    customBrands,
+    customModels,
+    customVehicleSearch,
+  ]);
+
+  const customFilteredVehicleIds = useMemo(() => {
+    return filteredCustomVehicles.map((v) => v.id);
+  }, [filteredCustomVehicles]);
 
   const groupedCustomVehicles = useMemo(() => {
-    const q = customVehicleSearch.trim().toLowerCase();
     const map = new Map<
       string,
       { id: string; name: string; imei: string; branch: string; driver?: string }[]
     >();
 
     for (const branch of customActiveBranches) {
-      const vList = customFilteredVehicles.filter((v) => v.branch === branch);
-      const matched = vList.filter((v) => {
-        if (!q) return true;
-        const matchName = v.name.toLowerCase().includes(q);
-        const matchImei = v.imei.toLowerCase().includes(q);
-        const matchBranch = v.branch.toLowerCase().includes(q);
-        const matchDriver = (v.driver || "").toLowerCase().includes(q);
-        return matchName || matchImei || matchBranch || matchDriver;
-      });
-      if (matched.length > 0) {
-        map.set(branch, matched);
+      const vList = filteredCustomVehicles.filter((v) => v.branch === branch);
+      if (vList.length > 0) {
+        map.set(branch, vList);
       }
     }
 
@@ -970,7 +1014,17 @@ export function ScheduleModal({
       branch,
       vehicles,
     }));
-  }, [customActiveBranches, customFilteredVehicles, customVehicleSearch]);
+  }, [customActiveBranches, filteredCustomVehicles]);
+
+  const handleCustomCompanyChange = (companies: string[]) => {
+    setCustomCompanies(companies);
+    const newAvail = getBranchesForCompanies(companies);
+    setCustomBranches((prev) => prev.filter((b) => newAvail.includes(b)));
+  };
+
+  const handleCustomBranchChange = (branches: string[]) => {
+    setCustomBranches(branches);
+  };
 
   const isCustomAllVehiclesSelected =
     customFilteredVehicleIds.length > 0 &&
@@ -988,12 +1042,15 @@ export function ScheduleModal({
   };
 
   const toggleCustomBranchVehicles = (branchVehicles: { id: string }[]) => {
-    const bIds = branchVehicles.map((v) => v.id);
-    const allIn = bIds.every((id) => draftCustomVehicles.includes(id));
-    if (allIn) {
-      setDraftCustomVehicles(draftCustomVehicles.filter((id) => !bIds.includes(id)));
+    const branchIds = branchVehicles.map((v) => v.id);
+    const allInBranchSelected = branchIds.every((id) =>
+      draftCustomVehicles.includes(id),
+    );
+
+    if (allInBranchSelected) {
+      setDraftCustomVehicles(draftCustomVehicles.filter((id) => !branchIds.includes(id)));
     } else {
-      setDraftCustomVehicles(Array.from(new Set([...draftCustomVehicles, ...bIds])));
+      setDraftCustomVehicles(Array.from(new Set([...draftCustomVehicles, ...branchIds])));
     }
   };
 
@@ -1022,7 +1079,7 @@ export function ScheduleModal({
   // Drag resizer for vehicle list box inside overlay
   const isResizingVehicleBox = useRef(false);
   const resizeStartY = useRef(0);
-  const resizeStartHeight = useRef(200);
+  const resizeStartHeight = useRef(190);
 
   const startResizeVehicleBox = useCallback(
     (e: React.MouseEvent) => {
@@ -1034,7 +1091,7 @@ export function ScheduleModal({
       const handleMouseMove = (event: MouseEvent) => {
         if (!isResizingVehicleBox.current) return;
         const delta = event.clientY - resizeStartY.current;
-        const newH = Math.min(Math.max(resizeStartHeight.current + delta, 120), 480);
+        const newH = Math.min(Math.max(resizeStartHeight.current + delta, 100), 520);
         setVehicleBoxHeight(newH);
       };
 
@@ -1060,6 +1117,34 @@ export function ScheduleModal({
     );
     setCustomVehicleSearch("");
     setVehicleOverlayOpen(true);
+  };
+
+  const handleResetCustomFilters = () => {
+    setCustomCompanies([]);
+    setCustomBranches([]);
+    setCustomGroups([]);
+    setCustomTypes([]);
+    setCustomBrands([]);
+    setCustomModels([]);
+    setCustomDurationCompare("Greater Than");
+    setCustomDurationUnit("Hour");
+    setCustomDurationValue("");
+    setCustomDistanceCompare("Greater Than");
+    setCustomDistanceValue("");
+    setCustomVehicleSearch("");
+    setDraftCustomVehicles(allAvailableCustomVehicles.map((v) => v.id));
+    toast.info("Filter options reset to default");
+  };
+
+  const handleApplyCustomFilters = () => {
+    const chosen =
+      draftCustomVehicles.length > 0
+        ? draftCustomVehicles
+        : customFilteredVehicleIds;
+    setDraft((d) => ({ ...d, selectedVehicles: chosen }));
+    setVehicleFilterMode("custom");
+    setVehicleOverlayOpen(false);
+    toast.success(`${chosen.length} vehicles selected for report schedule`);
   };
 
   const handleVerifyEmail = () => {
@@ -1100,43 +1185,13 @@ export function ScheduleModal({
     }, 450);
   };
 
-  const handleRelativeTypeChange = (newType: string) => {
-    let schedType: "Daily" | "Weekly" | "Monthly" = "Daily";
-    if (newType.includes("Week") || newType.includes("7 Days")) {
-      schedType = "Weekly";
-    } else if (newType.includes("Month")) {
-      schedType = "Monthly";
-    }
+  const copyOptions = useMemo(() => {
+    return ["None", ...schedules.map((s) => s.name)];
+  }, [schedules]);
 
-    setDraft((d) => ({
-      ...d,
-      relativeType: newType,
-      scheduleType: schedType,
-    }));
-  };
-
-  const toggleDay = (dayId: string) => {
-    setDraft((d) => {
-      const current = d.selectedDays || [];
-      const next = current.includes(dayId) ? current.filter((x) => x !== dayId) : [...current, dayId];
-      return { ...d, selectedDays: next.length > 0 ? next : [dayId] };
-    });
-  };
-
-  const toggleDate = (dateNum: number) => {
-    setDraft((d) => {
-      const current = d.selectedDates || [];
-      const next = current.includes(dateNum)
-        ? current.filter((x) => x !== dateNum)
-        : [...current, dateNum];
-      return { ...d, selectedDates: next.length > 0 ? next : [dateNum] };
-    });
-  };
-
-  const handleCopySettings = (schedName: string) => {
-    setCopyFrom(schedName);
-    if (schedName === "None") return;
-    const found = schedules.find((s) => s.name === schedName);
+  const handleCopyFrom = (selectedName: string) => {
+    if (!selectedName || selectedName === "None") return;
+    const found = schedules.find((s) => s.name === selectedName);
     if (found) {
       setDraft({
         ...found,
@@ -1258,7 +1313,7 @@ export function ScheduleModal({
         aria-hidden={!open}
         aria-label="Scheduled Reports"
         className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden relative",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
@@ -1306,125 +1361,150 @@ export function ScheduleModal({
           </div>
         </header>
 
-        {/* Side Panel Body Content Area */}
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          {view === "list" ? (
-            /* SAVED SCHEDULES LIST VIEW */
-            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-              <div className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-2 shrink-0">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search scheduled reports..."
-                    className="h-7.5 w-full rounded-md border border-input/80 bg-background pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery("")}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-md cursor-pointer"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={startCreate}
-                  title="Create New Schedule"
-                  aria-label="Create New Schedule"
-                  className="inline-flex items-center justify-center rounded-md bg-[#0089FF] h-7.5 w-7.5 text-white shadow-2xs hover:bg-[#0070d6] active:scale-95 cursor-pointer transition-all shrink-0"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
+        {/* View 1: Saved Schedule List View */}
+        {view === "list" ? (
+          <div className="flex flex-1 min-h-0 flex-col bg-background">
+            {/* Search Bar */}
+            <div className="p-3 border-b border-border bg-muted/20 shrink-0">
+              <div className="flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+                <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search schedules by name, format, email..."
+                  className="h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
               </div>
+            </div>
 
-              <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 divide-y divide-border/60 custom-scrollbar">
-                {filteredSchedules.map((item) => {
-                  const iconScheme = getScheduleIconScheme(item);
-                  const recurrenceText = formatRecurrence(item);
-
-                  return (
-                    <div
-                      key={item.id}
-                      className="py-3 px-1 flex items-center justify-between gap-3 transition-colors group"
-                    >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
+            {/* List Body */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+              {filteredSchedules.map((item) => {
+                const iconScheme = getScheduleIconScheme(item);
+                return (
+                  <div
+                    key={item.id}
+                    className="group relative rounded-xl border border-border/80 bg-card p-3.5 shadow-2xs hover:border-[#0089FF]/50 hover:shadow-md transition-all duration-200"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
                         <div
                           className={cn(
-                            "h-8.5 w-8.5 rounded-md flex items-center justify-center shrink-0 transition-transform group-hover:scale-105",
+                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border",
                             iconScheme.badgeBg,
+                            iconScheme.borderColor,
                             iconScheme.iconColor,
                           )}
                         >
                           {iconScheme.icon}
                         </div>
-
-                        <div className="min-w-0 flex-1 space-y-0.5">
-                          <h3 className="text-xs font-bold text-foreground truncate">
-                            {item.name}
-                          </h3>
-
-                          <div className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground">
-                            <span className="inline-flex items-center gap-1 font-medium">
-                              <Calendar className="h-3 w-3 text-muted-foreground/70 shrink-0" />
-                              <span>{item.nextRun}</span>
-                            </span>
-                            <span className="text-muted-foreground/40">•</span>
-                            <span className="inline-flex items-center gap-1 font-medium">
-                              <RotateCcw className="h-3 w-3 text-muted-foreground/70 shrink-0" />
-                              <span>{recurrenceText}</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-semibold text-foreground truncate">
+                              {item.name}
+                            </h4>
+                            <span
+                              className={cn(
+                                "px-1.5 py-0.2 rounded-full text-[9px] font-bold tracking-wide uppercase shrink-0",
+                                item.status === "ACTIVE"
+                                  ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                                  : "bg-muted text-muted-foreground",
+                              )}
+                            >
+                              {item.status}
                             </span>
                           </div>
-
-                          <div className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground">
-                            <span className="inline-flex items-center gap-1 font-medium">
-                              <Mail className="h-3 w-3 text-muted-foreground/70 shrink-0" />
-                              <span>{item.actionType}</span>
+                          <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
+                            {formatRecurrence(item)} · {item.relativeType} · {item.generationTime}
+                          </p>
+                          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px]">
+                            <span className="px-1.5 py-0.5 rounded bg-muted font-medium text-foreground">
+                              {item.format}
                             </span>
-                            <span className="text-muted-foreground/40">•</span>
-                            <span className="inline-flex items-center gap-1 font-medium">
-                              <FileSpreadsheet className="h-3 w-3 text-muted-foreground/70 shrink-0" />
-                              <span>{item.format}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-[#0089FF] font-medium border border-blue-500/20">
+                              {item.actionType}
+                            </span>
+                            {item.toAddress && (
+                              <span className="px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground truncate max-w-[150px]">
+                                {item.toAddress}
+                              </span>
+                            )}
+                            <span className="px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground">
+                              {item.vehicleScope === "custom"
+                                ? `${item.selectedVehicles.length} custom vehicles`
+                                : "Report active vehicles"}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-1 shrink-0">
                         <button
                           type="button"
                           onClick={() => startEdit(item)}
-                          className="inline-flex items-center justify-center rounded-md border border-border/80 bg-background h-7.5 w-7.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-95"
+                          className="h-[30px] w-[30px] rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-[#0089FF] hover:border-[#0089FF]/60 hover:bg-muted/40 transition-all cursor-pointer shadow-2xs active:scale-95"
                           title="Edit schedule"
                         >
-                          <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                          <Pencil className="h-3.5 w-3.5" />
                         </button>
-
                         <RowDeletePopover
                           itemName={item.name}
                           onDelete={() => handleDelete(item.id)}
                         />
                       </div>
                     </div>
-                  );
-                })}
-
-                {filteredSchedules.length === 0 && schedules.length > 0 && (
-                  <div className="py-10 text-center text-xs text-muted-foreground">
-                    No scheduled reports found matching &quot;{searchQuery}&quot;.
                   </div>
-                )}
-              </div>
+                );
+              })}
+
+              {filteredSchedules.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+                  <FileSpreadsheet className="h-10 w-10 text-muted-foreground/40 mb-2" />
+                  <p className="text-xs font-semibold text-foreground">
+                    No scheduled reports found
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Create a new schedule to automate delivery
+                  </p>
+                </div>
+              )}
             </div>
-          ) : (
-            /* SCHEDULE CONFIGURATION FORM (DIRECT DEFAULT VIEW) */
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar select-none">
-              {/* 1. Report Name */}
+
+            {/* List Footer (56px) */}
+            <footer className="flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0">
+              <button
+                type="button"
+                onClick={onClose}
+                className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={startCreate}
+                className="h-8 rounded-md bg-[#0089FF] px-4 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98 flex items-center gap-1.5"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Create New Schedule</span>
+              </button>
+            </footer>
+          </div>
+        ) : (
+          /* View 2: Form View (Direct Create / Edit Schedule Configuration) */
+          <div className="flex flex-1 min-h-0 flex-col bg-background">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+              {/* Report Name */}
               <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-foreground">
                   Report Name <span className="text-red-500 font-bold ml-0.5">*</span>
@@ -1438,7 +1518,7 @@ export function ScheduleModal({
                       setErrors((prev) => ({ ...prev, name: undefined }));
                     }
                   }}
-                  placeholder="e.g. Weekly Operations Summary"
+                  placeholder="e.g. Travel Summary Schedule"
                   className={cn(
                     "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                     errors.name
@@ -1447,137 +1527,125 @@ export function ScheduleModal({
                   )}
                 />
                 {errors.name && (
-                  <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150">
-                    <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                    <span>{errors.name}</span>
-                  </div>
+                  <p className="text-[10px] text-red-500 font-medium">{errors.name}</p>
                 )}
               </div>
 
-              {/* 2. Vehicle Scope & Selection Option */}
-              <div className="space-y-2 p-3 rounded-lg border border-border/80 bg-muted/20">
+              {/* Vehicles Selection Scope matching Image 1 */}
+              <div className="space-y-1.5 rounded-xl border border-border/80 bg-muted/20 p-3 shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-foreground">
+                  <label className="block text-[11px] font-semibold text-foreground">
                     Vehicles to Include
-                  </span>
+                  </label>
                   <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
                     {vehicleFilterMode === "current"
-                      ? `${currentLoadedVehicles.length} Loaded Vehicles`
-                      : `${draft.selectedVehicles.length > 0 ? draft.selectedVehicles.length : customFilteredVehicleIds.length} Custom Selected`}
+                      ? `${currentLoadedVehicleIds.length} Loaded Vehicles`
+                      : `${draft.selectedVehicles.length || customFilteredVehicleIds.length} Custom Selected`}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Option 1: Current Applied Filter */}
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  {/* Option 1: Current Filter */}
                   <label
+                    onClick={() => setVehicleFilterMode("current")}
                     className={cn(
-                      "flex flex-col gap-1 p-2.5 rounded-md border text-xs cursor-pointer transition-all select-none",
+                      "flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left",
                       vehicleFilterMode === "current"
-                        ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30"
-                        : "border-border/70 bg-background hover:bg-muted/40",
+                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30"
+                        : "border-border/80 bg-background hover:bg-muted/40 hover:border-border",
                     )}
                   >
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <input
                         type="radio"
-                        name="vehicleFilterMode"
+                        name="vehicleScope"
                         checked={vehicleFilterMode === "current"}
-                        onChange={() => {
-                          setVehicleFilterMode("current");
-                          setDraft((d) => ({ ...d, selectedVehicles: currentLoadedVehicleIds }));
-                        }}
-                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                        onChange={() => setVehicleFilterMode("current")}
+                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
                       />
-                      <span className="font-semibold text-foreground">Current Filter</span>
+                      <span className="text-xs font-semibold text-foreground leading-tight">
+                        Current Filter
+                      </span>
                     </div>
-                    <p className="text-[10px] text-muted-foreground pl-5 leading-tight">
-                      Use currently loaded vehicles ({currentLoadedVehicles.length})
-                    </p>
+                    <span className="text-[10px] text-muted-foreground pl-5 leading-tight">
+                      Use currently loaded vehicles ({currentLoadedVehicleIds.length})
+                    </span>
                   </label>
 
-                  {/* Option 2: Custom Vehicles Selection */}
-                  <label
-                    onClick={() => {
-                      if (vehicleFilterMode !== "custom") {
-                        setVehicleFilterMode("custom");
-                      }
-                    }}
+                  {/* Option 2: Custom Filter */}
+                  <div
+                    onClick={() => setVehicleFilterMode("custom")}
                     className={cn(
-                      "flex flex-col gap-1 p-2.5 rounded-md border text-xs cursor-pointer transition-all select-none",
+                      "flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left relative",
                       vehicleFilterMode === "custom"
-                        ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30"
-                        : "border-border/70 bg-background hover:bg-muted/40",
+                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30"
+                        : "border-border/80 bg-background hover:bg-muted/40 hover:border-border",
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         <input
                           type="radio"
-                          name="vehicleFilterMode"
+                          name="vehicleScope"
                           checked={vehicleFilterMode === "custom"}
-                          onChange={() => {
-                            setVehicleFilterMode("custom");
-                            handleOpenCustomVehicleOverlay();
-                          }}
-                          className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                          onChange={() => setVehicleFilterMode("custom")}
+                          className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
                         />
-                        <span className="font-semibold text-foreground">Custom Filter</span>
+                        <span className="text-xs font-semibold text-foreground leading-tight">
+                          Custom Filter
+                        </span>
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between pl-5 mt-0.5">
-                      <span className="text-[10px] text-muted-foreground leading-tight">
-                        {vehicleFilterMode === "custom" && draft.selectedVehicles.length > 0
-                          ? `${draft.selectedVehicles.length} vehicles`
-                          : "Pick vehicles"}
-                      </span>
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setVehicleFilterMode("custom");
                           handleOpenCustomVehicleOverlay();
                         }}
-                        className="text-[10px] font-semibold text-[#0089FF] hover:underline cursor-pointer"
+                        className="text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors"
                       >
-                        {vehicleFilterMode === "custom" && draft.selectedVehicles.length > 0
-                          ? "Change"
-                          : "Select"}
+                        Change
                       </button>
                     </div>
-                  </label>
+                    <span className="text-[10px] text-muted-foreground pl-5 leading-tight">
+                      {draft.selectedVehicles.length > 0
+                        ? `${draft.selectedVehicles.length} vehicles`
+                        : `${customFilteredVehicleIds.length} vehicles`}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* 3. Copy From & Relative Type */}
+              {/* Copy From & Relative Type Row */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="block text-[11px] font-semibold text-foreground">
                     Copy From
                   </label>
                   <SelectDropdown
-                    value={copyFrom}
-                    options={["None", ...schedules.map((s) => s.name)]}
-                    onChange={handleCopySettings}
+                    value="None"
+                    options={copyOptions}
+                    onChange={handleCopyFrom}
+                    placeholder="None"
                   />
                 </div>
 
                 <div className="space-y-1">
                   <label className="block text-[11px] font-semibold text-foreground">
-                    Relative Type
+                    Relative Type <span className="text-red-500 font-bold ml-0.5">*</span>
                   </label>
                   <SelectDropdown
                     value={draft.relativeType}
                     options={RELATIVE_TYPES}
-                    onChange={handleRelativeTypeChange}
+                    onChange={(relativeType) => setDraft((d) => ({ ...d, relativeType }))}
                   />
                 </div>
               </div>
 
-              {/* 4. Timezone & Generation Time */}
+              {/* Timezone & Generation Time Row */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="block text-[11px] font-semibold text-foreground">
-                    Timezone
+                    Timezone <span className="text-red-500 font-bold ml-0.5">*</span>
                   </label>
                   <SelectDropdown
                     value={draft.timezone}
@@ -1588,284 +1656,185 @@ export function ScheduleModal({
 
                 <div className="space-y-1">
                   <label className="block text-[11px] font-semibold text-foreground">
-                    Generation Time
+                    Generation Time <span className="text-red-500 font-bold ml-0.5">*</span>
                   </label>
                   <SelectDropdown
                     value={draft.generationTime}
                     options={GENERATION_TIMES}
-                    onChange={(generationTime) =>
-                      setDraft((d) => ({ ...d, generationTime }))
-                    }
+                    onChange={(generationTime) => setDraft((d) => ({ ...d, generationTime }))}
                   />
                 </div>
               </div>
 
-              {/* Dynamic Timing Sub-Section Based on Relative Type */}
-              {(draft.scheduleType === "Weekly" || draft.scheduleType === "Monthly") && (
-                <div className="pt-1 space-y-2 border-t border-border/60">
-                  {draft.scheduleType === "Weekly" && (
-                    <div className="space-y-1.5">
-                      <span className="block text-[11px] font-semibold text-foreground">
-                        Select execution days:
-                      </span>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {WEEK_DAYS.map(({ id, label }) => {
-                          const isSelected = (draft.selectedDays || []).includes(id);
-                          return (
-                            <button
-                              key={id}
-                              type="button"
-                              onClick={() => toggleDay(id)}
-                              className={cn(
-                                "h-7 w-7 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95",
-                                isSelected
-                                  ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
-                                  : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60",
-                              )}
-                            >
-                              {label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {draft.scheduleType === "Monthly" && (
-                    <div className="space-y-1.5">
-                      <span className="block text-[11px] font-semibold text-foreground">
-                        Select execution day of month:
-                      </span>
-                      <div className="grid grid-cols-7 gap-1">
-                        {Array.from({ length: 31 }, (_, i) => i + 1).map((dateNum) => {
-                          const isSelected = (draft.selectedDates || []).includes(dateNum);
-                          return (
-                            <button
-                              key={dateNum}
-                              type="button"
-                              onClick={() => toggleDate(dateNum)}
-                              className={cn(
-                                "h-6.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95",
-                                isSelected
-                                  ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]"
-                                  : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60",
-                              )}
-                            >
-                              {dateNum}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 5. Time Range */}
-              <div className="pt-1 space-y-2 border-t border-border/60">
-                <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-foreground">
+              {/* Time Range Checkbox & Pickers */}
+              <div className="space-y-2 pt-0.5">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground select-none">
                   <input
                     type="checkbox"
                     checked={draft.hasTimeRange}
                     onChange={(e) =>
-                      setDraft((d) => ({
-                        ...d,
-                        hasTimeRange: e.target.checked,
-                      }))
+                      setDraft((d) => ({ ...d, hasTimeRange: e.target.checked }))
                     }
-                    className="h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
+                    className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
                   />
                   <span>Time Range</span>
                 </label>
 
                 {draft.hasTimeRange && (
-                  <div className="grid grid-cols-2 gap-3 pt-0.5">
+                  <div className="grid grid-cols-2 gap-3 pl-5.5 animate-in fade-in-50 duration-150">
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                      <label className="block text-[10px] font-medium text-muted-foreground">
                         Start Time
                       </label>
-                      <div className="relative flex items-center">
-                        <input
-                          type="text"
-                          value={draft.timeRangeStart}
-                          onChange={(e) =>
-                            setDraft((d) => ({
-                              ...d,
-                              timeRangeStart: e.target.value,
-                            }))
-                          }
-                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                        />
-                        <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                      <div className="flex h-7.5 items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs">
+                        <span className="font-medium text-foreground">
+                          {draft.timeRangeStart || "12:00 AM"}
+                        </span>
+                        <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                      <label className="block text-[10px] font-medium text-muted-foreground">
                         End Time
                       </label>
-                      <div className="relative flex items-center">
-                        <input
-                          type="text"
-                          value={draft.timeRangeEnd}
-                          onChange={(e) =>
-                            setDraft((d) => ({
-                              ...d,
-                              timeRangeEnd: e.target.value,
-                            }))
-                          }
-                          className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                        />
-                        <Clock className="absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                      <div className="flex h-7.5 items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs">
+                        <span className="font-medium text-foreground">
+                          {draft.timeRangeEnd || "11:59 PM"}
+                        </span>
+                        <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
                       </div>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* 6. Report Type */}
-              <div className="pt-1 space-y-1 border-t border-border/60">
+              {/* Report Type Radios */}
+              <div className="space-y-1.5">
                 <label className="block text-[11px] font-semibold text-foreground">
                   Report Type
                 </label>
-                <div className="flex items-center gap-5 h-7.5">
-                  {(["Summary", "Daily", "Detail"] as const).map((level) => (
+                <div className="flex items-center gap-4 text-xs font-medium text-foreground">
+                  {(["Summary", "Daily", "Detail"] as const).map((t) => (
                     <label
-                      key={level}
-                      className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
+                      key={t}
+                      className="flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors"
                     >
                       <input
                         type="radio"
                         name="reportType"
-                        checked={draft.reportType === level}
-                        onChange={() => setDraft((d) => ({ ...d, reportType: level }))}
-                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                        checked={draft.reportType === t}
+                        onChange={() => setDraft((d) => ({ ...d, reportType: t }))}
+                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
                       />
-                      <span>{level}</span>
+                      <span>{t}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              {/* 7. Delivery Method */}
-              <div className="space-y-1">
+              {/* Delivery Method Radios */}
+              <div className="space-y-1.5">
                 <label className="block text-[11px] font-semibold text-foreground">
                   Delivery Method
                 </label>
-                <div className="flex items-center gap-4 h-7.5 flex-wrap">
-                  {(["Email", "FTP", "SFTP", "Media API"] as const).map((method) => (
+                <div className="flex items-center gap-4 text-xs font-medium text-foreground">
+                  {(["Email", "FTP", "SFTP", "Media API"] as const).map((m) => (
                     <label
-                      key={method}
-                      className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
+                      key={m}
+                      className="flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors"
                     >
                       <input
                         type="radio"
                         name="actionType"
-                        checked={draft.actionType === method}
-                        onChange={() => setDraft((d) => ({ ...d, actionType: method }))}
-                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                        checked={draft.actionType === m}
+                        onChange={() => setDraft((d) => ({ ...d, actionType: m }))}
+                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
                       />
-                      <span>{method}</span>
+                      <span>{m}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              {/* Delivery Configuration Details: EMAIL */}
+              {/* Delivery Configuration Details: Email */}
               {draft.actionType === "Email" && (
                 <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
+                  {/* To Address with Verification */}
                   <div className="space-y-1">
                     <label className="block text-[11px] font-semibold text-foreground">
                       To Address <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
-                    <div className="flex items-center gap-2">
+                    <div className="relative flex items-center">
                       <input
                         type="email"
                         value={draft.toAddress}
                         onChange={(e) => {
-                          setEmailVerificationStatus("idle");
                           setDraft((d) => ({ ...d, toAddress: e.target.value }));
+                          setEmailVerificationStatus("idle");
                           if (e.target.value.trim()) {
                             setErrors((prev) => ({ ...prev, toAddress: undefined }));
                           }
                         }}
                         placeholder="manager@company.com"
                         className={cn(
-                          "h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
-                          emailVerificationStatus === "success"
-                            ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                            : emailVerificationStatus === "failed" || errors.toAddress
-                              ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                              : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
+                          "h-7.5 w-full rounded-md border bg-background pl-2.5 pr-20 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                          errors.toAddress
+                            ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                            : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                         )}
                       />
                       <button
                         type="button"
-                        disabled={emailVerificationStatus === "verifying"}
                         onClick={handleVerifyEmail}
+                        disabled={emailVerificationStatus === "verifying"}
                         className={cn(
-                          "px-3 h-7.5 text-xs rounded-md border font-semibold cursor-pointer transition-all shadow-2xs active:scale-98 inline-flex items-center gap-1.5 shrink-0",
-                          emailVerificationStatus === "verifying" &&
-                            "opacity-75 cursor-wait border-input/80 bg-muted/40 text-muted-foreground",
-                          emailVerificationStatus === "success" &&
-                            "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20",
-                          emailVerificationStatus === "failed" &&
-                            "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20",
-                          emailVerificationStatus === "idle" &&
-                            "border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 text-foreground",
+                          "absolute right-1 px-2.5 py-0.5 text-[11px] font-semibold rounded transition-all cursor-pointer active:scale-95 select-none",
+                          emailVerificationStatus === "success"
+                            ? "text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20"
+                            : emailVerificationStatus === "failed"
+                              ? "text-rose-600 bg-rose-500/10 hover:bg-rose-500/20"
+                              : "text-foreground hover:text-[#0089FF] hover:bg-muted/80",
                         )}
                       >
-                        {emailVerificationStatus === "verifying" && (
-                          <>
-                            <Loader2 className="h-3.5 w-3.5 animate-spin text-[#0089FF]" />
-                            <span>Verifying...</span>
-                          </>
+                        {emailVerificationStatus === "verifying" ? (
+                          <span className="flex items-center gap-1 text-muted-foreground">
+                            <Loader2 className="h-3 w-3 animate-spin" /> Verifying…
+                          </span>
+                        ) : emailVerificationStatus === "success" ? (
+                          <span className="flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" /> Verified
+                          </span>
+                        ) : emailVerificationStatus === "failed" ? (
+                          <span className="flex items-center gap-1">
+                            <XCircle className="h-3 w-3" /> Failed
+                          </span>
+                        ) : (
+                          "Verify"
                         )}
-                        {emailVerificationStatus === "success" && (
-                          <>
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                            <span>Verified</span>
-                          </>
-                        )}
-                        {emailVerificationStatus === "failed" && (
-                          <>
-                            <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-                            <span>Failed</span>
-                          </>
-                        )}
-                        {emailVerificationStatus === "idle" && <span>Verify</span>}
                       </button>
                     </div>
-                    {emailVerificationStatus === "success" && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium animate-in fade-in duration-150">
-                        <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600" />
-                        <span>Recipient email verified & active.</span>
-                      </div>
-                    )}
-                    {(emailVerificationStatus === "failed" || errors.toAddress) && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150">
-                        <HelpCircle className="h-3 w-3 shrink-0 text-red-500" />
-                        <span>{errors.toAddress || "Verification failed: Invalid email Id"}</span>
-                      </div>
+                    {errors.toAddress && (
+                      <p className="text-[10px] text-red-500 font-medium">{errors.toAddress}</p>
                     )}
                   </div>
 
+                  {/* Retry Window & Subject Row */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label className="block text-[11px] font-semibold text-foreground">
                         Retry Window (Mins)
                       </label>
                       <input
-                        type="text"
+                        type="number"
+                        min="1"
+                        max="120"
                         value={draft.emailRetryWindow}
                         onChange={(e) =>
-                          setDraft((d) => ({
-                            ...d,
-                            emailRetryWindow: e.target.value,
-                          }))
+                          setDraft((d) => ({ ...d, emailRetryWindow: e.target.value }))
                         }
                         placeholder="15"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
                       />
                     </div>
 
@@ -1877,18 +1846,19 @@ export function ScheduleModal({
                         type="text"
                         value={draft.subject}
                         onChange={(e) => setDraft((d) => ({ ...d, subject: e.target.value }))}
-                        placeholder="Weekly Report"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                        placeholder="Scheduled Travel Report"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
                       />
                     </div>
                   </div>
 
+                  {/* Message with Rich Text Buttons */}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <label className="block text-[11px] font-semibold text-foreground">
                         Message
                       </label>
-                      <div className="flex items-center gap-0.5 border border-border rounded-md bg-muted/30 px-1 py-0.5">
+                      <div className="flex items-center gap-1 border border-border/80 rounded-md px-1 py-0.5 bg-background shadow-2xs">
                         <button
                           type="button"
                           className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
@@ -2068,7 +2038,7 @@ export function ScheduleModal({
                           if (e.target.value.trim())
                             setErrors((prev) => ({ ...prev, sftpSecretKey: undefined }));
                         }}
-                        placeholder="••••••••••••••••••••"
+                        placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
                         className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
@@ -2081,7 +2051,7 @@ export function ScheduleModal({
                       </label>
                       <input
                         type="text"
-                        value={draft.sftpRegion || ""}
+                        value={draft.sftpRegion || "ap-south-1"}
                         onChange={(e) => {
                           setDraft((d) => ({ ...d, sftpRegion: e.target.value }));
                           if (e.target.value.trim())
@@ -2104,7 +2074,7 @@ export function ScheduleModal({
                           if (e.target.value.trim())
                             setErrors((prev) => ({ ...prev, sftpBucketName: undefined }));
                         }}
-                        placeholder="fleet-reports"
+                        placeholder="my-fleet-reports"
                         className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
@@ -2112,12 +2082,12 @@ export function ScheduleModal({
                 </div>
               )}
 
-              {/* Delivery Configuration Details: MEDIA API */}
+              {/* Delivery Configuration Details: Media API / WhatsApp */}
               {draft.actionType === "Media API" && (
                 <div className="pt-1 space-y-3 animate-in fade-in-50 duration-150">
                   <div className="space-y-1">
                     <label className="block text-[11px] font-semibold text-foreground">
-                      Gateway <span className="text-red-500 font-bold ml-0.5">*</span>
+                      Media Gateway <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <SelectDropdown
                       value={draft.mediaGateway || "WhatsApp"}
@@ -2127,155 +2097,91 @@ export function ScheduleModal({
                   </div>
 
                   <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-[11px] font-semibold text-foreground">
-                        Recipient Number <span className="text-red-500 font-bold ml-0.5">*</span>
-                      </label>
-                      <span className="text-[10px] text-muted-foreground font-medium">
-                        Comma (,) for multiple
-                      </span>
-                    </div>
-                    <textarea
-                      rows={2}
+                    <label className="block text-[11px] font-semibold text-foreground">
+                      Recipient Mobile Number(s) <span className="text-red-500 font-bold ml-0.5">*</span>
+                    </label>
+                    <input
+                      type="text"
                       value={draft.mediaRecipientNumber || ""}
                       onChange={(e) => {
                         setDraft((d) => ({ ...d, mediaRecipientNumber: e.target.value }));
                         if (e.target.value.trim())
                           setErrors((prev) => ({ ...prev, mediaRecipientNumber: undefined }));
                       }}
-                      placeholder="+91 9876543210, +1 5550192834"
-                      className="w-full rounded-md border border-input/80 bg-background p-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none"
+                      placeholder="+91 9876543210, +91 9898989898"
+                      className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                     />
+                    <p className="text-[10px] text-muted-foreground">
+                      Separate multiple numbers with commas (include country code).
+                    </p>
                   </div>
                 </div>
               )}
 
-              {/* 8. File Format */}
-              <div className="space-y-1 pt-1">
-                <label className="block text-[11px] font-semibold text-foreground">
-                  File Format
-                </label>
-                <div className="flex items-center gap-5 h-7.5">
-                  {(["XLS", "PDF", "CSV"] as const).map((fmt) => (
-                    <label
-                      key={fmt}
-                      className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium"
-                    >
-                      <input
-                        type="radio"
-                        name="format"
-                        checked={draft.format === fmt}
-                        onChange={() => setDraft((d) => ({ ...d, format: fmt }))}
-                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-                      />
-                      <span>{fmt}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* 9. Advance Configuration Button */}
+              {/* Advance Configuration Trigger */}
               <div className="pt-1">
                 <button
                   type="button"
                   onClick={() => setAdvanceModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/60 transition-all cursor-pointer shadow-2xs active:scale-98"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] cursor-pointer transition-colors"
                 >
-                  <Settings2 className="h-3.5 w-3.5 text-[#0089FF]" />
+                  <Settings2 className="h-3.5 w-3.5" />
                   <span>Advance Configuration</span>
                 </button>
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Standardized 56px Drawer Footer */}
-        {view === "form" ? (
-          <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
-            <div className="flex items-center gap-2">
+            {/* Standardized 56px Footer */}
+            <footer className="flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex items-center gap-1.5 px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98"
               >
-                <span>Close</span>
+                Close
               </button>
-
-              {editingId && (
-                <RowDeletePopover
-                  itemName={draft.name || "this report"}
-                  onDelete={() => {
-                    handleDelete(editingId);
-                    setView("list");
-                  }}
-                />
-              )}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
-                {vehicleFilterMode === "current"
-                  ? `${currentLoadedVehicles.length} Vehicles`
-                  : `${draft.selectedVehicles.length > 0 ? draft.selectedVehicles.length : customFilteredVehicleIds.length} Vehicles`}
-              </span>
-
               <button
                 type="button"
                 onClick={handleSave}
-                className="rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
+                className="h-8 rounded-md bg-[#0089FF] px-6 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98"
               >
-                {editingId ? "Update Schedule" : "Schedule"}
+                Schedule
               </button>
-            </div>
-          </footer>
-        ) : (
-          <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
-            >
-              Close
-            </button>
-
-            <button
-              type="button"
-              onClick={startCreate}
-              className="inline-flex items-center gap-1.5 rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Create Schedule</span>
-            </button>
-          </footer>
+            </footer>
+          </div>
         )}
-      </aside>
 
-      {/* OVERLAY: Custom Vehicle Selection Overlay matching Reference Image */}
-      {vehicleOverlayOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in-0 duration-200">
-          <div className="w-full max-w-[440px] rounded-xl border border-border bg-background text-foreground shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Header (56px) */}
-            <div className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
-              <div>
-                <h3 className="text-[15px] font-semibold text-foreground tracking-tight">
-                  Select Vehicles
-                </h3>
-                <p className="text-[10px] text-muted-foreground font-medium">
-                  Choose specific vehicles for this schedule
-                </p>
+        {/* Filter Options Overlay directly inside the Side Panel matching Image 2 */}
+        {vehicleOverlayOpen && (
+          <div className="absolute inset-0 z-30 flex flex-col bg-background animate-in slide-in-from-right-10 duration-200">
+            {/* Header (56px) matching Image 2 */}
+            <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setVehicleOverlayOpen(false)}
+                  className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer mr-1"
+                  title="Back to schedule settings"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
+                  Filter Options
+                </h2>
               </div>
               <button
                 type="button"
+                aria-label="Close filter options"
                 onClick={() => setVehicleOverlayOpen(false)}
-                className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
-            </div>
+            </header>
 
-            {/* Overlay Body */}
-            <div className="p-4 space-y-3 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
-              {/* Top Search Bar & Filter button */}
+            {/* Main Body: Scrollable with top filter bar, chips, vehicle list box, and form dropdowns below */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar">
+              {/* 1. Top Search Bar with Embedded Filter/Edit Button */}
               <div className="relative shrink-0">
                 <div className="flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all">
                   <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -2284,7 +2190,8 @@ export function ScheduleModal({
                     value={customVehicleSearch}
                     onChange={(e) => setCustomVehicleSearch(e.target.value)}
                     placeholder="Select vehicle"
-                    className="h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
+                    aria-label="Search vehicles"
+                    className="h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
                   />
 
                   {customVehicleSearch && (
@@ -2297,6 +2204,7 @@ export function ScheduleModal({
                     </button>
                   )}
 
+                  {/* Filter Button */}
                   <button
                     type="button"
                     onClick={() => setCustomFilterOverlayOpen(!customFilterOverlayOpen)}
@@ -2313,7 +2221,7 @@ export function ScheduleModal({
                   </button>
                 </div>
 
-                {/* Company & Branch Filter Popover inside Vehicle Selection Overlay */}
+                {/* Company & Branch Filter Popover */}
                 {customFilterOverlayOpen && (
                   <>
                     <div
@@ -2349,7 +2257,7 @@ export function ScheduleModal({
                         />
                       </div>
 
-                      {/* Overlay Footer */}
+                      {/* Overlay Popover Footer */}
                       <div className="flex items-center justify-between pt-2 border-t border-border/60">
                         <button
                           type="button"
@@ -2383,7 +2291,7 @@ export function ScheduleModal({
                 )}
               </div>
 
-              {/* Resizable Vehicle Checklist Tree */}
+              {/* 2. Resizable Vehicle Checklist Tree */}
               <div className="rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs">
                 {/* Master Select All Toolbar */}
                 <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none">
@@ -2443,7 +2351,6 @@ export function ScheduleModal({
                     const isExpanded =
                       openBranchGroups.includes(branch) ||
                       customVehicleSearch.trim() !== "";
-                    const branchIds = vehicles.map((v) => v.id);
                     const selectedBranchCount = vehicles.filter((v) =>
                       draftCustomVehicles.includes(v.id),
                     ).length;
@@ -2554,245 +2461,314 @@ export function ScheduleModal({
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Overlay Footer (56px) */}
-            <div className="flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0">
-              <button
-                type="button"
-                onClick={() => setDraftCustomVehicles([])}
-                className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
-              >
-                Clear All
-              </button>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setVehicleOverlayOpen(false)}
-                  className="px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const chosen =
-                      draftCustomVehicles.length > 0
-                        ? draftCustomVehicles
-                        : customFilteredVehicleIds;
-                    setDraft((d) => ({ ...d, selectedVehicles: chosen }));
-                    setVehicleFilterMode("custom");
-                    setVehicleOverlayOpen(false);
-                    toast.success(`${chosen.length} vehicles selected for report schedule`);
-                  }}
-                  className="px-4 h-8 text-xs rounded-md bg-[#0089FF] text-white font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98"
-                >
-                  Apply Vehicles
-                </button>
+              {/* 3. Filter Form Fields matching Image 2 (Group, Type, Brand, Model, Duration Threshold, Distance Threshold) */}
+              <div className="space-y-3 pt-1">
+                {/* Group */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Group
+                  </label>
+                  <UniversalMultiSelectDropdown
+                    label="Group"
+                    selected={customGroups}
+                    options={customGroupOptions}
+                    onChange={setCustomGroups}
+                    placeholder="Select Group"
+                  />
+                </div>
+
+                {/* Type */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Type
+                  </label>
+                  <UniversalMultiSelectDropdown
+                    label="Type"
+                    selected={customTypes}
+                    options={VEHICLE_TYPES.filter((t) => t !== "All")}
+                    onChange={setCustomTypes}
+                    placeholder="Select Type"
+                  />
+                </div>
+
+                {/* Brand */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Brand
+                  </label>
+                  <SelectDropdown
+                    value={customBrands[0] || ""}
+                    options={VEHICLE_BRANDS}
+                    onChange={(b) => setCustomBrands(b && b !== "All" ? [b] : [])}
+                    placeholder="Select Brand"
+                  />
+                </div>
+
+                {/* Model */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Model
+                  </label>
+                  <SelectDropdown
+                    value={customModels[0] || ""}
+                    options={VEHICLE_MODELS}
+                    onChange={(m) => setCustomModels(m && m !== "All" ? [m] : [])}
+                    placeholder="Select Model"
+                  />
+                </div>
+
+                {/* Duration Threshold */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Duration Threshold
+                  </label>
+                  <div className="grid grid-cols-12 gap-1.5">
+                    <div className="col-span-5">
+                      <SelectDropdown
+                        value={customDurationCompare}
+                        options={COMPARATORS}
+                        onChange={setCustomDurationCompare}
+                        placeholder="Comparator"
+                      />
+                    </div>
+                    <div className="col-span-4">
+                      <SelectDropdown
+                        value={customDurationUnit}
+                        options={DURATION_UNITS}
+                        onChange={setCustomDurationUnit}
+                        placeholder="Unit"
+                      />
+                    </div>
+                    <div className="col-span-3">
+                      <input
+                        type="text"
+                        value={customDurationValue}
+                        onChange={(e) => setCustomDurationValue(e.target.value)}
+                        placeholder="e.g. 5"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Distance Threshold (km) */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-foreground">
+                    Distance Threshold (km)
+                  </label>
+                  <div className="grid grid-cols-12 gap-1.5">
+                    <div className="col-span-7">
+                      <SelectDropdown
+                        value={customDistanceCompare}
+                        options={COMPARATORS}
+                        onChange={setCustomDistanceCompare}
+                        placeholder="Comparator"
+                      />
+                    </div>
+                    <div className="col-span-5">
+                      <input
+                        type="text"
+                        value={customDistanceValue}
+                        onChange={(e) => setCustomDistanceValue(e.target.value)}
+                        placeholder="e.g. 5"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* Standardized Drawer Footer matching Image 2 (56px) */}
+            <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
+              <button
+                type="button"
+                onClick={handleResetCustomFilters}
+                className="inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3.5 py-1.5 text-xs font-medium text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98"
+              >
+                <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>Reset</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleApplyCustomFilters}
+                className="h-8 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#0070d6] cursor-pointer active:scale-98"
+              >
+                Apply Filters
+              </button>
+            </footer>
           </div>
-        </div>
-      )}
+        )}
+      </aside>
 
       {/* Advance Configuration Sub-Modal */}
       {advanceModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <button
-            type="button"
-            aria-label="Close Advance Configuration"
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs"
             onClick={() => setAdvanceModalOpen(false)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
           />
-          <div className="relative z-10 w-full max-w-2xl max-h-[85vh] flex flex-col bg-background border border-border text-foreground shadow-2xl rounded-lg overflow-hidden animate-in zoom-in-95">
-            <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+          <div className="relative z-10 flex h-[85vh] max-h-[640px] w-full max-w-2xl flex-col rounded-2xl border border-border/80 bg-background shadow-2xl animate-in fade-in-0 zoom-in-95 overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex h-[56px] items-center justify-between border-b border-border px-6 select-none shrink-0">
               <div className="flex items-center gap-2">
                 <Settings2 className="h-4 w-4 text-[#0089FF]" />
-                <h3 className="text-[16px] font-semibold tracking-tight text-foreground">
-                  Advance Configuration
+                <h3 className="text-sm font-semibold text-foreground">
+                  Advance Configuration — Columns &amp; Sort Priorities
                 </h3>
               </div>
               <button
                 type="button"
-                aria-label="Close Advance Configuration"
                 onClick={() => setAdvanceModalOpen(false)}
-                className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
-            </header>
+            </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4 custom-scrollbar text-xs">
-              <div className="rounded-md border border-border overflow-hidden bg-card shadow-2xs">
-                <table className="w-full text-left">
-                  <thead className="bg-muted/60 text-muted-foreground text-[10px] font-bold uppercase tracking-wider border-b border-border">
+            {/* Modal Body */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  Configure which columns should appear in the scheduled report export and their display properties.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setColumnConfig(INITIAL_COLUMNS)}
+                  className="text-xs font-semibold text-[#0089FF] hover:underline cursor-pointer"
+                >
+                  Reset Defaults
+                </button>
+              </div>
+
+              <div className="rounded-xl border border-border/80 overflow-hidden shadow-2xs">
+                <table className="w-full text-xs">
+                  <thead className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold border-b border-border">
                     <tr>
-                      <th className="py-2 px-2.5 w-6"></th>
-                      <th className="py-2 px-2.5">Column Name</th>
-                      <th className="py-2 px-2 text-center">Show</th>
-                      <th className="py-2 px-2 text-center">Print</th>
-                      <th className="py-2 px-2 text-center">Sort</th>
-                      <th className="py-2 px-2 text-center">Priority</th>
-                      <th className="py-2 px-2.5 text-center">Order</th>
+                      <th className="px-3 py-2 text-left">Column Name</th>
+                      <th className="px-3 py-2 text-center w-20">Show</th>
+                      <th className="px-3 py-2 text-center w-20">Print</th>
+                      <th className="px-3 py-2 text-center w-20">Sortable</th>
+                      <th className="px-3 py-2 text-center w-24">Priority</th>
+                      <th className="px-3 py-2 text-center w-24">Order</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
-                    {columnsConfig.map((col) => (
+                  <tbody className="divide-y divide-border/60">
+                    {columnConfig.map((col, idx) => (
                       <tr
                         key={col.id}
-                        className="hover:bg-muted/40 transition-colors"
+                        className="hover:bg-muted/40 transition-colors font-medium text-foreground"
                       >
-                        <td className="py-1.5 px-2.5 text-muted-foreground cursor-grab">
-                          <GripVertical className="h-3.5 w-3.5" />
-                        </td>
-                        <td className="py-1.5 px-2.5 font-semibold text-foreground text-xs">
+                        <td className="px-3 py-2 font-semibold truncate">
                           {col.label}
                         </td>
-                        <td className="py-1.5 px-2 text-center">
+                        <td className="px-3 py-2 text-center">
                           <input
                             type="checkbox"
                             checked={col.showable}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              setColumnsConfig((prev) =>
-                                prev.map((c) =>
-                                  c.id === col.id ? { ...c, showable: checked } : c,
+                            onChange={(e) =>
+                              setColumnConfig((prev) =>
+                                prev.map((c, i) =>
+                                  i === idx ? { ...c, showable: e.target.checked } : c,
                                 ),
-                              );
-                            }}
-                            className="h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                              )
+                            }
+                            className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
                           />
                         </td>
-                        <td className="py-1.5 px-2 text-center">
+                        <td className="px-3 py-2 text-center">
                           <input
                             type="checkbox"
                             checked={col.printable}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              setColumnsConfig((prev) =>
-                                prev.map((c) =>
-                                  c.id === col.id ? { ...c, printable: checked } : c,
+                            onChange={(e) =>
+                              setColumnConfig((prev) =>
+                                prev.map((c, i) =>
+                                  i === idx ? { ...c, printable: e.target.checked } : c,
                                 ),
-                              );
-                            }}
-                            className="h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                              )
+                            }
+                            className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
                           />
                         </td>
-                        <td className="py-1.5 px-2 text-center">
+                        <td className="px-3 py-2 text-center">
                           <input
                             type="checkbox"
                             checked={col.sortable}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              setColumnsConfig((prev) =>
-                                prev.map((c) =>
-                                  c.id === col.id ? { ...c, sortable: checked } : c,
+                            onChange={(e) =>
+                              setColumnConfig((prev) =>
+                                prev.map((c, i) =>
+                                  i === idx ? { ...c, sortable: e.target.checked } : c,
                                 ),
-                              );
-                            }}
-                            className="h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                              )
+                            }
+                            className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
                           />
                         </td>
-                        <td className="py-1.5 px-2 text-center flex justify-center">
-                          <SelectDropdown
+                        <td className="px-3 py-2 text-center">
+                          <select
                             value={col.sortPriority}
-                            options={["-", "1", "2", "3", "4", "5"]}
-                            onChange={(val) => {
-                              setColumnsConfig((prev) =>
-                                prev.map((c) =>
-                                  c.id === col.id ? { ...c, sortPriority: val } : c,
+                            onChange={(e) =>
+                              setColumnConfig((prev) =>
+                                prev.map((c, i) =>
+                                  i === idx ? { ...c, sortPriority: e.target.value } : c,
                                 ),
-                              );
-                            }}
-                            className="w-14"
-                          />
+                              )
+                            }
+                            className="h-6 rounded border border-input bg-background px-1 text-[11px] font-medium"
+                          >
+                            <option value="-">-</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                          </select>
                         </td>
-                        <td className="py-1.5 px-2.5 text-center">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setColumnsConfig((prev) =>
-                                prev.map((c) =>
-                                  c.id === col.id
-                                    ? {
-                                        ...c,
-                                        sortDirection:
-                                          c.sortDirection === "asc" ? "desc" : "asc",
-                                      }
+                        <td className="px-3 py-2 text-center">
+                          <select
+                            value={col.sortDirection}
+                            onChange={(e) =>
+                              setColumnConfig((prev) =>
+                                prev.map((c, i) =>
+                                  i === idx
+                                    ? { ...c, sortDirection: e.target.value as "asc" | "desc" }
                                     : c,
                                 ),
-                              );
-                            }}
-                            className="px-2 py-0.5 text-[10px] font-semibold rounded-md border border-border bg-background hover:bg-muted cursor-pointer transition-colors shadow-2xs"
+                              )
+                            }
+                            className="h-6 rounded border border-input bg-background px-1 text-[11px] font-medium"
                           >
-                            {col.sortDirection === "asc" ? "↑ Asc" : "↓ Desc"}
-                          </button>
+                            <option value="asc">ASC</option>
+                            <option value="desc">DESC</option>
+                          </select>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-
-              <div className="p-3.5 rounded-md border border-border bg-card space-y-2">
-                <label className="block text-xs font-semibold text-foreground">
-                  Detail Report Download Mode
-                </label>
-                <div className="flex items-center gap-5 text-xs">
-                  <label className="flex items-center gap-1.5 cursor-pointer text-foreground select-none">
-                    <input
-                      type="radio"
-                      name="detailDownloadMode"
-                      checked={detailDownloadMode === "multiple"}
-                      onChange={() => setDetailDownloadMode("multiple")}
-                      className="h-3.5 w-3.5 text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                    />
-                    <span className="font-medium">Multiple Sheet</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer text-foreground select-none">
-                    <input
-                      type="radio"
-                      name="detailDownloadMode"
-                      checked={detailDownloadMode === "single"}
-                      onChange={() => setDetailDownloadMode("single")}
-                      className="h-3.5 w-3.5 text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                    />
-                    <span className="font-medium">Single Sheet</span>
-                  </label>
-                </div>
-              </div>
             </div>
 
-            <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
+            {/* Modal Footer */}
+            <div className="flex h-[56px] items-center justify-end gap-2 border-t border-border px-6 select-none shrink-0">
               <button
                 type="button"
-                onClick={() => setColumnsConfig(INITIAL_COLUMNS)}
-                className="flex items-center gap-1.5 px-3 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                onClick={() => setAdvanceModalOpen(false)}
+                className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98"
               >
-                <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>Reset</span>
+                Cancel
               </button>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setAdvanceModalOpen(false)}
-                  className="px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    toast.success("Advance configurations applied");
-                    setAdvanceModalOpen(false);
-                  }}
-                  className="rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98"
-                >
-                  Save & Apply
-                </button>
-              </div>
-            </footer>
+              <button
+                type="button"
+                onClick={() => {
+                  setAdvanceModalOpen(false);
+                  toast.success("Advance configuration settings saved");
+                }}
+                className="h-8 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -2801,3 +2777,4 @@ export function ScheduleModal({
 }
 
 export const ScheduleDrawer = ScheduleModal;
+export default ScheduleModal;

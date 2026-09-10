@@ -3,7 +3,7 @@ import { t as cn } from "./utils-C_uf36nf.mjs";
 import { C as getVehiclesForBranches, E as temperatureSummaryRows, S as getGroupsForBranches, d as VEHICLE_BRANDS, g as driverJobSummaryRows, l as DURATION_UNITS, m as VEHICLE_TYPES, n as BRANCHES, o as COMPANIES, p as VEHICLE_MODELS, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, v as findReport, x as getBranchesForCompanies$1 } from "./reports-wyEenlZF.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
-import { $ as Minimize2, B as RefreshCw, Bt as CircleX, Ct as FileText, F as Search, Gt as ChevronsUpDown, H as Plus, Jt as ChevronLeft, M as Settings, N as Settings2, O as SlidersHorizontal, Pt as CornerDownLeft, Q as Minus, Rt as Clock, U as Play, Ut as CircleCheck, Vt as CircleQuestionMark, W as Pin, Xt as Check, Yt as ChevronDown, an as CalendarClock, dn as ArrowUp, en as ChartColumn, gt as GripVertical, h as Truck, in as Calendar, it as Mail, jt as Download, m as Underline, mn as ArrowDown, n as X, nt as Map$1, p as Undo2, pn as ArrowLeft, pt as Italic, q as Pencil, qt as ChevronRight, sn as Bold, st as LoaderCircle, tt as Maximize2, wt as FileSpreadsheet, x as Thermometer, xt as Fuel, y as Trash2, z as RotateCcw } from "../_libs/lucide-react.mjs";
+import { $ as Minimize2, B as RefreshCw, Bt as CircleX, Ct as FileText, F as Search, Gt as ChevronsUpDown, H as Plus, Jt as ChevronLeft, M as Settings, N as Settings2, O as SlidersHorizontal, Pt as CornerDownLeft, Q as Minus, Rt as Clock, U as Play, Ut as CircleCheck, Vt as CircleQuestionMark, W as Pin, Xt as Check, Yt as ChevronDown, an as CalendarClock, dn as ArrowUp, en as ChartColumn, gt as GripVertical, h as Truck, in as Calendar, jt as Download, m as Underline, mn as ArrowDown, n as X, nt as Map$1, p as Undo2, pn as ArrowLeft, pt as Italic, q as Pencil, qt as ChevronRight, sn as Bold, st as LoaderCircle, tt as Maximize2, wt as FileSpreadsheet, x as Thermometer, xt as Fuel, y as Trash2, z as RotateCcw } from "../_libs/lucide-react.mjs";
 import { a as DropdownMenuLabel, i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSeparator, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-BFqXdjhf.mjs";
 import { y as useSearch } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-CzedZ6pD.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-C71xLSPW.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -2431,29 +2431,20 @@ var INITIAL_COLUMNS = [
 		sortDirection: "asc"
 	},
 	{
-		id: "company",
-		label: "Company",
-		showable: true,
-		printable: true,
-		sortable: false,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
 		id: "branch",
 		label: "Branch",
 		showable: true,
 		printable: true,
-		sortable: false,
-		sortPriority: "-",
+		sortable: true,
+		sortPriority: "3",
 		sortDirection: "asc"
 	},
 	{
-		id: "startLocation",
-		label: "Start Location",
+		id: "vehicleType",
+		label: "Vehicle Type",
 		showable: true,
 		printable: true,
-		sortable: false,
+		sortable: true,
 		sortPriority: "-",
 		sortDirection: "asc"
 	},
@@ -2471,7 +2462,7 @@ var INITIAL_COLUMNS = [
 		label: "Running Duration",
 		showable: true,
 		printable: true,
-		sortable: false,
+		sortable: true,
 		sortPriority: "-",
 		sortDirection: "asc"
 	},
@@ -2494,8 +2485,17 @@ var INITIAL_COLUMNS = [
 		sortDirection: "asc"
 	},
 	{
-		id: "startOdometer",
-		label: "Start Odometer",
+		id: "maxSpeed",
+		label: "Max Speed (km/h)",
+		showable: true,
+		printable: true,
+		sortable: true,
+		sortPriority: "-",
+		sortDirection: "asc"
+	},
+	{
+		id: "avgSpeed",
+		label: "Average Speed",
 		showable: true,
 		printable: true,
 		sortable: false,
@@ -2560,23 +2560,27 @@ var INITIAL_SCHEDULES = [{
 	id: "sched-2",
 	name: "Daily Fuel & Activity Audit",
 	status: "ACTIVE",
-	nextRun: "03 Sep 2026, 06:00 AM",
-	relativeType: "Yesterday",
+	nextRun: "18 Aug 2026, 08:30 PM",
+	relativeType: "Today",
 	timezone: "Asia/Kolkata (UTC+05:30)",
 	scheduleType: "Daily",
 	hasTimeRange: true,
-	timeRangeStart: "00:00",
-	timeRangeEnd: "23:59",
-	generationTime: "06:00",
+	timeRangeStart: "08:00 AM",
+	timeRangeEnd: "08:00 PM",
+	generationTime: "21:00",
 	reportType: "Daily",
 	format: "PDF",
 	actionType: "Email",
 	toAddress: "audit@company.com",
 	emailRetryWindow: "30",
-	subject: "Daily Fuel & Activity Audit",
-	message: "Attached is the automated daily audit log.",
+	subject: "Daily Fuel and Activity Audit",
+	message: "Automated daily fleet report containing fuel and activity details.",
 	vehicleScope: "current",
-	selectedVehicles: ["KA01AB9988", "MH03DE4242"]
+	selectedVehicles: [
+		"DL01XY5544",
+		"GJ01EF3344",
+		"MH03DE4242"
+	]
 }];
 var RELATIVE_TYPES = [
 	"Today",
@@ -2594,36 +2598,6 @@ var TIMEZONES = [
 	"Europe/London (UTC+00:00)",
 	"Asia/Dubai (UTC+04:00)",
 	"Asia/Singapore (UTC+08:00)"
-];
-var WEEK_DAYS = [
-	{
-		id: "Su",
-		label: "Su"
-	},
-	{
-		id: "Mo",
-		label: "Mo"
-	},
-	{
-		id: "Tu",
-		label: "Tu"
-	},
-	{
-		id: "We",
-		label: "We"
-	},
-	{
-		id: "Th",
-		label: "Th"
-	},
-	{
-		id: "Fr",
-		label: "Fr"
-	},
-	{
-		id: "Sa",
-		label: "Sa"
-	}
 ];
 var GENERATION_TIMES = [
 	"00:00",
@@ -2643,18 +2617,25 @@ var SFTP_PLATFORMS = [
 ];
 var MEDIA_GATEWAYS = [
 	"WhatsApp",
-	"Telegram",
-	"SMS Gateway",
+	"Telegram API",
+	"SMS Gateway Provider",
 	"Slack Webhook"
 ];
 var DEFAULT_DRAFT = {
-	name: "",
+	id: "",
+	name: "Travel Summary Schedule",
 	status: "ACTIVE",
-	nextRun: "03/09/2026 09:00 AM",
+	nextRun: "Tomorrow, 09:00 AM",
 	relativeType: "Today",
 	timezone: "Asia/Kolkata (UTC+05:30)",
 	scheduleType: "Daily",
-	selectedDays: ["Mo"],
+	selectedDays: [
+		"Mo",
+		"Tu",
+		"We",
+		"Th",
+		"Fr"
+	],
 	selectedDates: [1],
 	hasTimeRange: true,
 	timeRangeStart: "12:00 AM",
@@ -2663,13 +2644,13 @@ var DEFAULT_DRAFT = {
 	reportType: "Summary",
 	format: "XLS",
 	actionType: "Email",
-	toAddress: "",
+	toAddress: "manager@company.com",
 	emailRetryWindow: "15",
 	subject: "Scheduled Travel Report",
-	message: "Please find attached the scheduled report.",
+	message: "Please find attached the scheduled travel report for your review.",
 	vehicleScope: "current",
 	selectedVehicles: [],
-	ftpHost: "",
+	ftpHost: "ftp.fleetplatform.net",
 	ftpPort: "21",
 	ftpUsername: "",
 	ftpPassword: "",
@@ -2700,26 +2681,23 @@ function SelectDropdown({ value, options, onChange, className, placeholder }) {
 			onClick: () => setOpen(!open),
 			className: cn("flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-medium shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-				className: cn("truncate", value ? "text-foreground font-medium" : "text-muted-foreground/60 font-normal italic"),
+				className: cn("truncate", value ? "text-foreground font-medium" : "text-muted-foreground/60 font-medium italic"),
 				children: value || placeholder || "Select"
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: cn("h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1", open && "rotate-180") })]
 		}), open && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			className: "absolute top-full left-0 right-0 z-[100] mt-1 max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-lg animate-in fade-in-80 select-none custom-scrollbar",
-			children: options.map((opt) => {
-				const isSelected = value === opt;
-				return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-					type: "button",
-					onClick: () => {
-						onChange(opt);
-						setOpen(false);
-					},
-					className: cn("flex w-full items-center justify-between rounded px-2 py-1.5 text-xs text-left cursor-pointer transition-colors", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "truncate",
-						children: opt
-					}), isSelected && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF] shrink-0" })]
-				}, opt);
-			})
+			className: "absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar",
+			children: options.map((opt) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+				type: "button",
+				onClick: () => {
+					onChange(opt);
+					setOpen(false);
+				},
+				className: cn("flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none", value === opt ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "truncate",
+					children: opt
+				}), value === opt && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF] shrink-0" })]
+			}, opt))
 		})]
 	});
 }
@@ -2780,48 +2758,55 @@ function UniversalMultiSelectDropdown({ label, selected, options, onChange, clas
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "p-2.5 pb-2 border-b border-border/60 bg-muted/20 space-y-2",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center justify-between",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-							className: "text-xs font-semibold text-foreground",
-							children: ["Select ", label]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-							className: "text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full",
-							children: [draft.length, " selected"]
-						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex h-7 items-center gap-1.5 rounded-md border border-input bg-background px-2 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3 w-3 text-muted-foreground shrink-0" }),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-								value: search,
-								onChange: (e) => setSearch(e.target.value),
-								placeholder: `Search ${label.toLowerCase()}...`,
-								className: "h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
-							}),
-							search && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => setSearch(""),
-								className: "rounded-md p-0.5 text-muted-foreground hover:text-foreground cursor-pointer",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-2.5 w-2.5" })
-							})
-						]
-					})]
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: "px-3 py-1.5 border-b border-border/60 flex items-center justify-between bg-muted/10",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-						className: "flex items-center gap-2 cursor-pointer select-none w-full text-xs font-semibold text-foreground",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-							type: "checkbox",
-							checked: isAllDraftSelected,
-							onChange: toggleAllDraft,
-							className: "h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select All" })]
-					})
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center justify-between",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+								className: "text-xs font-semibold text-foreground",
+								children: ["Select ", label]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+								className: "text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full",
+								children: [draft.length, " selected"]
+							})]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex h-7 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2 focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3 w-3 text-muted-foreground" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+									type: "text",
+									value: search,
+									onChange: (e) => setSearch(e.target.value),
+									placeholder: `Search ${label.toLowerCase()}…`,
+									className: "h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
+								}),
+								search && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									onClick: () => setSearch(""),
+									className: "text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3 w-3" })
+								})
+							]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center justify-between pt-0.5",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+								className: "flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground select-none",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+									type: "checkbox",
+									checked: isAllDraftSelected,
+									onChange: toggleAllDraft,
+									className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select all" })]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+								className: "text-[11px] text-muted-foreground",
+								children: [filteredOptions.length, " available"]
+							})]
+						})
+					]
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "max-h-48 overflow-y-auto p-1 space-y-0.5 custom-scrollbar",
+					className: "max-h-48 overflow-y-auto p-1.5 space-y-0.5 custom-scrollbar",
 					children: [filteredOptions.map((opt) => {
 						const isChecked = draft.includes(opt);
 						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
@@ -2997,45 +2982,59 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 	const [searchQuery, setSearchQuery] = (0, import_react.useState)("");
 	const [editingId, setEditingId] = (0, import_react.useState)(null);
 	const currentLoadedVehicles = (0, import_react.useMemo)(() => {
-		const selectedBranches = currentFilters?.branches && currentFilters.branches.length > 0 && !currentFilters.branches.includes("All") ? currentFilters.branches : getBranchesForCompanies$1(currentFilters?.companies || []);
-		const branchVehicles = getVehiclesForBranches(selectedBranches);
-		if (currentFilters?.objects && currentFilters.objects.length > 0) return branchVehicles.filter((v) => currentFilters.objects.includes(v.id));
-		return branchVehicles;
+		const selectedBranches = currentFilters?.branches && currentFilters.branches.length > 0 && !currentFilters.branches.includes("All") ? currentFilters.branches : currentFilters?.companies && currentFilters.companies.length > 0 && !currentFilters.companies.includes("All") ? getBranchesForCompanies$1(currentFilters.companies) : BRANCHES;
+		return getVehiclesForBranches(selectedBranches);
 	}, [currentFilters]);
 	const currentLoadedVehicleIds = (0, import_react.useMemo)(() => {
+		if (currentFilters?.objects && currentFilters.objects.length > 0) return currentFilters.objects;
 		return currentLoadedVehicles.map((v) => v.id);
-	}, [currentLoadedVehicles]);
+	}, [currentFilters, currentLoadedVehicles]);
 	const [draft, setDraft] = (0, import_react.useState)(() => ({
 		...DEFAULT_DRAFT,
 		name: `${reportTitle} Schedule`,
 		vehicleScope: "current",
 		selectedVehicles: currentLoadedVehicleIds
 	}));
+	const [vehicleFilterMode, setVehicleFilterMode] = (0, import_react.useState)("current");
+	const [advanceModalOpen, setAdvanceModalOpen] = (0, import_react.useState)(false);
+	const [columnConfig, setColumnConfig] = (0, import_react.useState)(INITIAL_COLUMNS);
+	const [emailVerificationStatus, setEmailVerificationStatus] = (0, import_react.useState)("idle");
+	const [errors, setErrors] = (0, import_react.useState)({});
 	(0, import_react.useEffect)(() => {
 		if (open && !editingId) {
-			setView("form");
-			setDraft((d) => ({
+			setDraft({
 				...DEFAULT_DRAFT,
 				name: `${reportTitle} Schedule`,
 				vehicleScope: "current",
 				selectedVehicles: currentLoadedVehicleIds
-			}));
+			});
 			setVehicleFilterMode("current");
+			setEmailVerificationStatus("idle");
+			setErrors({});
+			setView("form");
 		}
 	}, [
 		open,
+		editingId,
 		reportTitle,
-		currentLoadedVehicleIds,
-		editingId
+		currentLoadedVehicleIds
 	]);
-	const [vehicleFilterMode, setVehicleFilterMode] = (0, import_react.useState)("current");
 	const [vehicleOverlayOpen, setVehicleOverlayOpen] = (0, import_react.useState)(false);
+	const [customVehicleSearch, setCustomVehicleSearch] = (0, import_react.useState)("");
 	const [customFilterOverlayOpen, setCustomFilterOverlayOpen] = (0, import_react.useState)(false);
 	const [customCompanies, setCustomCompanies] = (0, import_react.useState)([]);
 	const [customBranches, setCustomBranches] = (0, import_react.useState)([]);
-	const [customVehicleSearch, setCustomVehicleSearch] = (0, import_react.useState)("");
+	const [customGroups, setCustomGroups] = (0, import_react.useState)([]);
+	const [customTypes, setCustomTypes] = (0, import_react.useState)([]);
+	const [customBrands, setCustomBrands] = (0, import_react.useState)([]);
+	const [customModels, setCustomModels] = (0, import_react.useState)([]);
+	const [customDurationCompare, setCustomDurationCompare] = (0, import_react.useState)("Greater Than");
+	const [customDurationUnit, setCustomDurationUnit] = (0, import_react.useState)("Hour");
+	const [customDurationValue, setCustomDurationValue] = (0, import_react.useState)("");
+	const [customDistanceCompare, setCustomDistanceCompare] = (0, import_react.useState)("Greater Than");
+	const [customDistanceValue, setCustomDistanceValue] = (0, import_react.useState)("");
 	const [draftCustomVehicles, setDraftCustomVehicles] = (0, import_react.useState)([]);
-	const [vehicleBoxHeight, setVehicleBoxHeight] = (0, import_react.useState)(200);
+	const [vehicleBoxHeight, setVehicleBoxHeight] = (0, import_react.useState)(190);
 	const [openBranchGroups, setOpenBranchGroups] = (0, import_react.useState)(() => [
 		"Indonesia",
 		"Thailand",
@@ -3049,64 +3048,88 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		"Planet Eco Abu Dhabi",
 		"Planet Eco Ajman"
 	]);
-	const [advanceModalOpen, setAdvanceModalOpen] = (0, import_react.useState)(false);
-	const [columnsConfig, setColumnsConfig] = (0, import_react.useState)(INITIAL_COLUMNS);
-	const [detailDownloadMode, setDetailDownloadMode] = (0, import_react.useState)("multiple");
-	const [copyFrom, setCopyFrom] = (0, import_react.useState)("None");
-	const [errors, setErrors] = (0, import_react.useState)({});
-	const [emailVerificationStatus, setEmailVerificationStatus] = (0, import_react.useState)("idle");
 	const customAvailableBranches = (0, import_react.useMemo)(() => {
 		return getBranchesForCompanies$1(customCompanies);
 	}, [customCompanies]);
 	const customActiveBranches = (0, import_react.useMemo)(() => {
-		if (!customBranches || customBranches.length === 0 || customBranches.includes("All")) return customAvailableBranches;
-		const valid = customBranches.filter((b) => customAvailableBranches.includes(b));
-		return valid.length > 0 ? valid : customAvailableBranches;
-	}, [customBranches, customAvailableBranches]);
-	const customFilteredVehicles = (0, import_react.useMemo)(() => {
-		return getVehiclesForBranches(customActiveBranches);
+		if (customBranches.length > 0 && !customBranches.includes("All")) return customBranches;
+		if (customCompanies.length > 0 && !customCompanies.includes("All")) return customAvailableBranches;
+		return BRANCHES;
+	}, [
+		customBranches,
+		customCompanies,
+		customAvailableBranches
+	]);
+	const customGroupOptions = (0, import_react.useMemo)(() => {
+		return getGroupsForBranches(customActiveBranches);
 	}, [customActiveBranches]);
-	const customFilteredVehicleIds = (0, import_react.useMemo)(() => {
-		return customFilteredVehicles.map((v) => v.id);
-	}, [customFilteredVehicles]);
 	const customActiveFilterCount = (0, import_react.useMemo)(() => {
 		let count = 0;
 		if (customCompanies.length > 0 && !customCompanies.includes("All")) count++;
 		if (customBranches.length > 0 && !customBranches.includes("All")) count++;
 		return count;
 	}, [customCompanies, customBranches]);
-	const handleCustomCompanyChange = (companies) => {
-		const newAvail = getBranchesForCompanies$1(companies);
-		const nextB = customBranches.filter((b) => newAvail.includes(b));
-		setCustomCompanies(companies);
-		setCustomBranches(nextB);
-	};
-	const handleCustomBranchChange = (branches) => {
-		setCustomBranches(branches);
-	};
-	const groupedCustomVehicles = (0, import_react.useMemo)(() => {
+	const allAvailableCustomVehicles = (0, import_react.useMemo)(() => {
+		return getVehiclesForBranches(customActiveBranches);
+	}, [customActiveBranches]);
+	const filteredCustomVehicles = (0, import_react.useMemo)(() => {
 		const q = customVehicleSearch.trim().toLowerCase();
-		const map = /* @__PURE__ */ new Map();
-		for (const branch of customActiveBranches) {
-			const matched = customFilteredVehicles.filter((v) => v.branch === branch).filter((v) => {
-				if (!q) return true;
+		return allAvailableCustomVehicles.filter((v) => {
+			if (customGroups.length > 0 && !customGroups.includes("All")) {
+				const vFleet = fleetObjects.find((fo) => fo.id === v.id);
+				if (vFleet?.group && !customGroups.includes(vFleet.group)) return false;
+			}
+			if (customTypes.length > 0 && !customTypes.includes("All")) {
+				const vFleet = fleetObjects.find((fo) => fo.id === v.id);
+				if (vFleet?.type && !customTypes.includes(vFleet.type)) return false;
+			}
+			if (customBrands.length > 0 && !customBrands.includes("All") && customBrands[0] !== "") {
+				const vFleet = fleetObjects.find((fo) => fo.id === v.id);
+				if (vFleet?.brand && vFleet.brand !== customBrands[0]) return false;
+			}
+			if (customModels.length > 0 && !customModels.includes("All") && customModels[0] !== "") {
+				const vFleet = fleetObjects.find((fo) => fo.id === v.id);
+				if (vFleet?.model && vFleet.model !== customModels[0]) return false;
+			}
+			if (q) {
 				const matchName = v.name.toLowerCase().includes(q);
 				const matchImei = v.imei.toLowerCase().includes(q);
 				const matchBranch = v.branch.toLowerCase().includes(q);
 				const matchDriver = (v.driver || "").toLowerCase().includes(q);
-				return matchName || matchImei || matchBranch || matchDriver;
-			});
-			if (matched.length > 0) map.set(branch, matched);
+				if (!matchName && !matchImei && !matchBranch && !matchDriver) return false;
+			}
+			return true;
+		});
+	}, [
+		allAvailableCustomVehicles,
+		customGroups,
+		customTypes,
+		customBrands,
+		customModels,
+		customVehicleSearch
+	]);
+	const customFilteredVehicleIds = (0, import_react.useMemo)(() => {
+		return filteredCustomVehicles.map((v) => v.id);
+	}, [filteredCustomVehicles]);
+	const groupedCustomVehicles = (0, import_react.useMemo)(() => {
+		const map = /* @__PURE__ */ new Map();
+		for (const branch of customActiveBranches) {
+			const vList = filteredCustomVehicles.filter((v) => v.branch === branch);
+			if (vList.length > 0) map.set(branch, vList);
 		}
 		return Array.from(map.entries()).map(([branch, vehicles]) => ({
 			branch,
 			vehicles
 		}));
-	}, [
-		customActiveBranches,
-		customFilteredVehicles,
-		customVehicleSearch
-	]);
+	}, [customActiveBranches, filteredCustomVehicles]);
+	const handleCustomCompanyChange = (companies) => {
+		setCustomCompanies(companies);
+		const newAvail = getBranchesForCompanies$1(companies);
+		setCustomBranches((prev) => prev.filter((b) => newAvail.includes(b)));
+	};
+	const handleCustomBranchChange = (branches) => {
+		setCustomBranches(branches);
+	};
 	const isCustomAllVehiclesSelected = customFilteredVehicleIds.length > 0 && customFilteredVehicleIds.every((id) => draftCustomVehicles.includes(id));
 	const isCustomSomeVehiclesSelected = draftCustomVehicles.length > 0 && !isCustomAllVehiclesSelected;
 	const toggleSelectAllCustomVehicles = () => {
@@ -3114,9 +3137,9 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		else setDraftCustomVehicles(customFilteredVehicleIds);
 	};
 	const toggleCustomBranchVehicles = (branchVehicles) => {
-		const bIds = branchVehicles.map((v) => v.id);
-		if (bIds.every((id) => draftCustomVehicles.includes(id))) setDraftCustomVehicles(draftCustomVehicles.filter((id) => !bIds.includes(id)));
-		else setDraftCustomVehicles(Array.from(/* @__PURE__ */ new Set([...draftCustomVehicles, ...bIds])));
+		const branchIds = branchVehicles.map((v) => v.id);
+		if (branchIds.every((id) => draftCustomVehicles.includes(id))) setDraftCustomVehicles(draftCustomVehicles.filter((id) => !branchIds.includes(id)));
+		else setDraftCustomVehicles(Array.from(/* @__PURE__ */ new Set([...draftCustomVehicles, ...branchIds])));
 	};
 	const toggleCustomSingleVehicle = (id) => {
 		if (draftCustomVehicles.includes(id)) setDraftCustomVehicles(draftCustomVehicles.filter((vId) => vId !== id));
@@ -3131,7 +3154,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 	};
 	const isResizingVehicleBox = (0, import_react.useRef)(false);
 	const resizeStartY = (0, import_react.useRef)(0);
-	const resizeStartHeight = (0, import_react.useRef)(200);
+	const resizeStartHeight = (0, import_react.useRef)(190);
 	const startResizeVehicleBox = (0, import_react.useCallback)((e) => {
 		e.preventDefault();
 		isResizingVehicleBox.current = true;
@@ -3140,7 +3163,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		const handleMouseMove = (event) => {
 			if (!isResizingVehicleBox.current) return;
 			const delta = event.clientY - resizeStartY.current;
-			const newH = Math.min(Math.max(resizeStartHeight.current + delta, 120), 480);
+			const newH = Math.min(Math.max(resizeStartHeight.current + delta, 100), 520);
 			setVehicleBoxHeight(newH);
 		};
 		const handleMouseUp = () => {
@@ -3159,6 +3182,32 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		setDraftCustomVehicles(draft.selectedVehicles.length > 0 ? draft.selectedVehicles : customFilteredVehicleIds);
 		setCustomVehicleSearch("");
 		setVehicleOverlayOpen(true);
+	};
+	const handleResetCustomFilters = () => {
+		setCustomCompanies([]);
+		setCustomBranches([]);
+		setCustomGroups([]);
+		setCustomTypes([]);
+		setCustomBrands([]);
+		setCustomModels([]);
+		setCustomDurationCompare("Greater Than");
+		setCustomDurationUnit("Hour");
+		setCustomDurationValue("");
+		setCustomDistanceCompare("Greater Than");
+		setCustomDistanceValue("");
+		setCustomVehicleSearch("");
+		setDraftCustomVehicles(allAvailableCustomVehicles.map((v) => v.id));
+		toast.info("Filter options reset to default");
+	};
+	const handleApplyCustomFilters = () => {
+		const chosen = draftCustomVehicles.length > 0 ? draftCustomVehicles : customFilteredVehicleIds;
+		setDraft((d) => ({
+			...d,
+			selectedVehicles: chosen
+		}));
+		setVehicleFilterMode("custom");
+		setVehicleOverlayOpen(false);
+		toast.success(`${chosen.length} vehicles selected for report schedule`);
 	};
 	const handleVerifyEmail = () => {
 		const email = (draft.toAddress || "").trim();
@@ -3192,40 +3241,12 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 			}
 		}, 450);
 	};
-	const handleRelativeTypeChange = (newType) => {
-		let schedType = "Daily";
-		if (newType.includes("Week") || newType.includes("7 Days")) schedType = "Weekly";
-		else if (newType.includes("Month")) schedType = "Monthly";
-		setDraft((d) => ({
-			...d,
-			relativeType: newType,
-			scheduleType: schedType
-		}));
-	};
-	const toggleDay = (dayId) => {
-		setDraft((d) => {
-			const current = d.selectedDays || [];
-			const next = current.includes(dayId) ? current.filter((x) => x !== dayId) : [...current, dayId];
-			return {
-				...d,
-				selectedDays: next.length > 0 ? next : [dayId]
-			};
-		});
-	};
-	const toggleDate = (dateNum) => {
-		setDraft((d) => {
-			const current = d.selectedDates || [];
-			const next = current.includes(dateNum) ? current.filter((x) => x !== dateNum) : [...current, dateNum];
-			return {
-				...d,
-				selectedDates: next.length > 0 ? next : [dateNum]
-			};
-		});
-	};
-	const handleCopySettings = (schedName) => {
-		setCopyFrom(schedName);
-		if (schedName === "None") return;
-		const found = schedules.find((s) => s.name === schedName);
+	const copyOptions = (0, import_react.useMemo)(() => {
+		return ["None", ...schedules.map((s) => s.name)];
+	}, [schedules]);
+	const handleCopyFrom = (selectedName) => {
+		if (!selectedName || selectedName === "None") return;
+		const found = schedules.find((s) => s.name === selectedName);
 		if (found) {
 			setDraft({
 				...found,
@@ -3316,7 +3337,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", {
 			"aria-hidden": !open,
 			"aria-label": "Scheduled Reports",
-			className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
+			className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden relative", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
 					className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
@@ -3353,118 +3374,139 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 						})]
 					})]
 				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: "flex-1 min-h-0 flex flex-col overflow-hidden",
-					children: view === "list" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex-1 min-h-0 flex flex-col overflow-hidden",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex items-center justify-between gap-2 px-4 pt-3.5 pb-2 shrink-0",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "relative flex-1",
+				view === "list" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "flex flex-1 min-h-0 flex-col bg-background",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							className: "p-3 border-b border-border bg-muted/20 shrink-0",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all",
 								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 										type: "text",
 										value: searchQuery,
 										onChange: (e) => setSearchQuery(e.target.value),
-										placeholder: "Search scheduled reports...",
-										className: "h-7.5 w-full rounded-md border border-input/80 bg-background pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs font-medium"
+										placeholder: "Search schedules by name, format, email...",
+										className: "h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
 									}),
 									searchQuery && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 										type: "button",
 										onClick: () => setSearchQuery(""),
-										className: "absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-md cursor-pointer",
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3.5 w-3.5" })
+										className: "text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3 w-3" })
 									})
 								]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: startCreate,
-								title: "Create New Schedule",
-								"aria-label": "Create New Schedule",
-								className: "inline-flex items-center justify-center rounded-md bg-[#0089FF] h-7.5 w-7.5 text-white shadow-2xs hover:bg-[#0070d6] active:scale-95 cursor-pointer transition-all shrink-0",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-4 w-4" })
-							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex-1 min-h-0 overflow-y-auto px-4 pb-4 divide-y divide-border/60 custom-scrollbar",
+							})
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-3 custom-scrollbar",
 							children: [filteredSchedules.map((item) => {
 								const iconScheme = getScheduleIconScheme(item);
-								const recurrenceText = formatRecurrence(item);
-								return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "py-3 px-1 flex items-center justify-between gap-3 transition-colors group",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-center gap-3 min-w-0 flex-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											className: cn("h-8.5 w-8.5 rounded-md flex items-center justify-center shrink-0 transition-transform group-hover:scale-105", iconScheme.badgeBg, iconScheme.iconColor),
-											children: iconScheme.icon
+								return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "group relative rounded-xl border border-border/80 bg-card p-3.5 shadow-2xs hover:border-[#0089FF]/50 hover:shadow-md transition-all duration-200",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-start justify-between gap-3",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-start gap-3 min-w-0 flex-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+												className: cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border", iconScheme.badgeBg, iconScheme.borderColor, iconScheme.iconColor),
+												children: iconScheme.icon
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "min-w-0 flex-1",
+												children: [
+													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+														className: "flex items-center gap-2",
+														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", {
+															className: "text-xs font-semibold text-foreground truncate",
+															children: item.name
+														}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+															className: cn("px-1.5 py-0.2 rounded-full text-[9px] font-bold tracking-wide uppercase shrink-0", item.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" : "bg-muted text-muted-foreground"),
+															children: item.status
+														})]
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+														className: "mt-0.5 text-[11px] text-muted-foreground truncate",
+														children: [
+															formatRecurrence(item),
+															" · ",
+															item.relativeType,
+															" · ",
+															item.generationTime
+														]
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+														className: "mt-2 flex flex-wrap items-center gap-1.5 text-[10px]",
+														children: [
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																className: "px-1.5 py-0.5 rounded bg-muted font-medium text-foreground",
+																children: item.format
+															}),
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																className: "px-1.5 py-0.5 rounded bg-blue-500/10 text-[#0089FF] font-medium border border-blue-500/20",
+																children: item.actionType
+															}),
+															item.toAddress && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																className: "px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground truncate max-w-[150px]",
+																children: item.toAddress
+															}),
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																className: "px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground",
+																children: item.vehicleScope === "custom" ? `${item.selectedVehicles.length} custom vehicles` : "Report active vehicles"
+															})
+														]
+													})
+												]
+											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "min-w-0 flex-1 space-y-0.5",
-											children: [
-												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-													className: "text-xs font-bold text-foreground truncate",
-													children: item.name
-												}),
-												/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-															className: "inline-flex items-center gap-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { className: "h-3 w-3 text-muted-foreground/70 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: item.nextRun })]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-															className: "text-muted-foreground/40",
-															children: "•"
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-															className: "inline-flex items-center gap-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { className: "h-3 w-3 text-muted-foreground/70 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: recurrenceText })]
-														})
-													]
-												}),
-												/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-															className: "inline-flex items-center gap-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Mail, { className: "h-3 w-3 text-muted-foreground/70 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: item.actionType })]
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-															className: "text-muted-foreground/40",
-															children: "•"
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-															className: "inline-flex items-center gap-1 font-medium",
-															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FileSpreadsheet, { className: "h-3 w-3 text-muted-foreground/70 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: item.format })]
-														})
-													]
-												})
-											]
+											className: "flex items-center gap-1 shrink-0",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+												type: "button",
+												onClick: () => startEdit(item),
+												className: "h-[30px] w-[30px] rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-[#0089FF] hover:border-[#0089FF]/60 hover:bg-muted/40 transition-all cursor-pointer shadow-2xs active:scale-95",
+												title: "Edit schedule",
+												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pencil, { className: "h-3.5 w-3.5" })
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RowDeletePopover, {
+												itemName: item.name,
+												onDelete: () => handleDelete(item.id)
+											})]
 										})]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-center gap-1.5 shrink-0",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-											type: "button",
-											onClick: () => startEdit(item),
-											className: "inline-flex items-center justify-center rounded-md border border-border/80 bg-background h-7.5 w-7.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-95",
-											title: "Edit schedule",
-											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pencil, { className: "h-3.5 w-3.5 text-muted-foreground" })
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RowDeletePopover, {
-											itemName: item.name,
-											onDelete: () => handleDelete(item.id)
-										})]
-									})]
+									})
 								}, item.id);
-							}), filteredSchedules.length === 0 && schedules.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "py-10 text-center text-xs text-muted-foreground",
+							}), filteredSchedules.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex flex-col items-center justify-center py-12 text-center text-muted-foreground",
 								children: [
-									"No scheduled reports found matching \"",
-									searchQuery,
-									"\"."
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FileSpreadsheet, { className: "h-10 w-10 text-muted-foreground/40 mb-2" }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "text-xs font-semibold text-foreground",
+										children: "No scheduled reports found"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "text-[11px] text-muted-foreground mt-0.5",
+										children: "Create a new schedule to automate delivery"
+									})
 								]
 							})]
-						})]
-					}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar select-none",
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
+							className: "flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: onClose,
+								className: "h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98",
+								children: "Close"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								type: "button",
+								onClick: startCreate,
+								className: "h-8 rounded-md bg-[#0089FF] px-4 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98 flex items-center gap-1.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Create New Schedule" })]
+							})]
+						})
+					]
+				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "flex flex-1 min-h-0 flex-col bg-background",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "space-y-1",
@@ -3489,94 +3531,80 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												name: void 0
 											}));
 										},
-										placeholder: "e.g. Weekly Operations Summary",
+										placeholder: "e.g. Travel Summary Schedule",
 										className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.name ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 									}),
-									errors.name && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.name })]
+									errors.name && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "text-[10px] text-red-500 font-medium",
+										children: errors.name
 									})
 								]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-2 p-3 rounded-lg border border-border/80 bg-muted/20",
+								className: "space-y-1.5 rounded-xl border border-border/80 bg-muted/20 p-3 shadow-2xs",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "flex items-center justify-between",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-[11px] font-semibold text-foreground",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+										className: "block text-[11px] font-semibold text-foreground",
 										children: "Vehicles to Include"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 										className: "text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full",
-										children: vehicleFilterMode === "current" ? `${currentLoadedVehicles.length} Loaded Vehicles` : `${draft.selectedVehicles.length > 0 ? draft.selectedVehicles.length : customFilteredVehicleIds.length} Custom Selected`
+										children: vehicleFilterMode === "current" ? `${currentLoadedVehicleIds.length} Loaded Vehicles` : `${draft.selectedVehicles.length || customFilteredVehicleIds.length} Custom Selected`
 									})]
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "grid grid-cols-2 gap-2",
+									className: "grid grid-cols-2 gap-2 pt-1",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: cn("flex flex-col gap-1 p-2.5 rounded-md border text-xs cursor-pointer transition-all select-none", vehicleFilterMode === "current" ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30" : "border-border/70 bg-background hover:bg-muted/40"),
+										onClick: () => setVehicleFilterMode("current"),
+										className: cn("flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left", vehicleFilterMode === "current" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30" : "border-border/80 bg-background hover:bg-muted/40 hover:border-border"),
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center gap-1.5",
+											className: "flex items-center gap-2",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 												type: "radio",
-												name: "vehicleFilterMode",
+												name: "vehicleScope",
 												checked: vehicleFilterMode === "current",
-												onChange: () => {
-													setVehicleFilterMode("current");
-													setDraft((d) => ({
-														...d,
-														selectedVehicles: currentLoadedVehicleIds
-													}));
-												},
-												className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+												onChange: () => setVehicleFilterMode("current"),
+												className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "font-semibold text-foreground",
+												className: "text-xs font-semibold text-foreground leading-tight",
 												children: "Current Filter"
 											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 											className: "text-[10px] text-muted-foreground pl-5 leading-tight",
 											children: [
 												"Use currently loaded vehicles (",
-												currentLoadedVehicles.length,
+												currentLoadedVehicleIds.length,
 												")"
 											]
 										})]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										onClick: () => {
-											if (vehicleFilterMode !== "custom") setVehicleFilterMode("custom");
-										},
-										className: cn("flex flex-col gap-1 p-2.5 rounded-md border text-xs cursor-pointer transition-all select-none", vehicleFilterMode === "custom" ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30" : "border-border/70 bg-background hover:bg-muted/40"),
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										onClick: () => setVehicleFilterMode("custom"),
+										className: cn("flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left relative", vehicleFilterMode === "custom" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30" : "border-border/80 bg-background hover:bg-muted/40 hover:border-border"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "flex items-center justify-between",
-											children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-1.5",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-2",
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 													type: "radio",
-													name: "vehicleFilterMode",
+													name: "vehicleScope",
 													checked: vehicleFilterMode === "custom",
-													onChange: () => {
-														setVehicleFilterMode("custom");
-														handleOpenCustomVehicleOverlay();
-													},
-													className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+													onChange: () => setVehicleFilterMode("custom"),
+													className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
 												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-													className: "font-semibold text-foreground",
+													className: "text-xs font-semibold text-foreground leading-tight",
 													children: "Custom Filter"
 												})]
-											})
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center justify-between pl-5 mt-0.5",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "text-[10px] text-muted-foreground leading-tight",
-												children: vehicleFilterMode === "custom" && draft.selectedVehicles.length > 0 ? `${draft.selectedVehicles.length} vehicles` : "Pick vehicles"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 												type: "button",
 												onClick: (e) => {
 													e.stopPropagation();
-													setVehicleFilterMode("custom");
 													handleOpenCustomVehicleOverlay();
 												},
-												className: "text-[10px] font-semibold text-[#0089FF] hover:underline cursor-pointer",
-												children: vehicleFilterMode === "custom" && draft.selectedVehicles.length > 0 ? "Change" : "Select"
+												className: "text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors",
+												children: "Change"
 											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-[10px] text-muted-foreground pl-5 leading-tight",
+											children: draft.selectedVehicles.length > 0 ? `${draft.selectedVehicles.length} vehicles` : `${customFilteredVehicleIds.length} vehicles`
 										})]
 									})]
 								})]
@@ -3589,19 +3617,26 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 										className: "block text-[11px] font-semibold text-foreground",
 										children: "Copy From"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-										value: copyFrom,
-										options: ["None", ...schedules.map((s) => s.name)],
-										onChange: handleCopySettings
+										value: "None",
+										options: copyOptions,
+										onChange: handleCopyFrom,
+										placeholder: "None"
 									})]
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "space-y-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 										className: "block text-[11px] font-semibold text-foreground",
-										children: "Relative Type"
+										children: ["Relative Type ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-red-500 font-bold ml-0.5",
+											children: "*"
+										})]
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
 										value: draft.relativeType,
 										options: RELATIVE_TYPES,
-										onChange: handleRelativeTypeChange
+										onChange: (relativeType) => setDraft((d) => ({
+											...d,
+											relativeType
+										}))
 									})]
 								})]
 							}),
@@ -3609,9 +3644,12 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								className: "grid grid-cols-2 gap-3",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "space-y-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 										className: "block text-[11px] font-semibold text-foreground",
-										children: "Timezone"
+										children: ["Timezone ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-red-500 font-bold ml-0.5",
+											children: "*"
+										})]
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
 										value: draft.timezone,
 										options: TIMEZONES,
@@ -3622,9 +3660,12 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 									})]
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "space-y-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 										className: "block text-[11px] font-semibold text-foreground",
-										children: "Generation Time"
+										children: ["Generation Time ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-red-500 font-bold ml-0.5",
+											children: "*"
+										})]
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
 										value: draft.generationTime,
 										options: GENERATION_TIMES,
@@ -3635,48 +3676,10 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 									})]
 								})]
 							}),
-							(draft.scheduleType === "Weekly" || draft.scheduleType === "Monthly") && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-1 space-y-2 border-t border-border/60",
-								children: [draft.scheduleType === "Weekly" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "space-y-1.5",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: "Select execution days:"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										className: "flex items-center gap-1.5 flex-wrap",
-										children: WEEK_DAYS.map(({ id, label }) => {
-											const isSelected = (draft.selectedDays || []).includes(id);
-											return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-												type: "button",
-												onClick: () => toggleDay(id),
-												className: cn("h-7 w-7 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95", isSelected ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]" : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60"),
-												children: label
-											}, id);
-										})
-									})]
-								}), draft.scheduleType === "Monthly" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "space-y-1.5",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: "Select execution day of month:"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										className: "grid grid-cols-7 gap-1",
-										children: Array.from({ length: 31 }, (_, i) => i + 1).map((dateNum) => {
-											const isSelected = (draft.selectedDates || []).includes(dateNum);
-											return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-												type: "button",
-												onClick: () => toggleDate(dateNum),
-												className: cn("h-6.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center justify-center shadow-2xs active:scale-95", isSelected ? "bg-[#0089FF] text-white shadow-xs border border-[#0089FF]" : "bg-background border border-input/80 text-foreground hover:bg-muted/60 hover:border-[#0089FF]/60"),
-												children: dateNum
-											}, dateNum);
-										})
-									})]
-								})]
-							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-1 space-y-2 border-t border-border/60",
+								className: "space-y-2 pt-0.5",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-foreground",
+									className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground select-none",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 										type: "checkbox",
 										checked: draft.hasTimeRange,
@@ -3684,98 +3687,88 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 											...d,
 											hasTimeRange: e.target.checked
 										})),
-										className: "h-3.5 w-3.5 rounded border-border text-[#0089FF] focus:ring-[#0089FF] accent-[#0089FF] cursor-pointer"
+										className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Time Range" })]
 								}), draft.hasTimeRange && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "grid grid-cols-2 gap-3 pt-0.5",
+									className: "grid grid-cols-2 gap-3 pl-5.5 animate-in fade-in-50 duration-150",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "space-y-1",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
+											className: "block text-[10px] font-medium text-muted-foreground",
 											children: "Start Time"
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "relative flex items-center",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-												type: "text",
-												value: draft.timeRangeStart,
-												onChange: (e) => setDraft((d) => ({
-													...d,
-													timeRangeStart: e.target.value
-												})),
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, { className: "absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" })]
+											className: "flex h-7.5 items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "font-medium text-foreground",
+												children: draft.timeRangeStart || "12:00 AM"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, { className: "h-3.5 w-3.5 text-muted-foreground/60" })]
 										})]
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "space-y-1",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
+											className: "block text-[10px] font-medium text-muted-foreground",
 											children: "End Time"
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "relative flex items-center",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-												type: "text",
-												value: draft.timeRangeEnd,
-												onChange: (e) => setDraft((d) => ({
-													...d,
-													timeRangeEnd: e.target.value
-												})),
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 pr-8 text-xs font-medium text-foreground transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, { className: "absolute right-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" })]
+											className: "flex h-7.5 items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "font-medium text-foreground",
+												children: draft.timeRangeEnd || "11:59 PM"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, { className: "h-3.5 w-3.5 text-muted-foreground/60" })]
 										})]
 									})]
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-1 space-y-1 border-t border-border/60",
+								className: "space-y-1.5",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
 									children: "Report Type"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "flex items-center gap-5 h-7.5",
+									className: "flex items-center gap-4 text-xs font-medium text-foreground",
 									children: [
 										"Summary",
 										"Daily",
 										"Detail"
-									].map((level) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium",
+									].map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 											type: "radio",
 											name: "reportType",
-											checked: draft.reportType === level,
+											checked: draft.reportType === t,
 											onChange: () => setDraft((d) => ({
 												...d,
-												reportType: level
+												reportType: t
 											})),
-											className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: level })]
-									}, level))
+											className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: t })]
+									}, t))
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
+								className: "space-y-1.5",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
 									children: "Delivery Method"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "flex items-center gap-4 h-7.5 flex-wrap",
+									className: "flex items-center gap-4 text-xs font-medium text-foreground",
 									children: [
 										"Email",
 										"FTP",
 										"SFTP",
 										"Media API"
-									].map((method) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium",
+									].map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 											type: "radio",
 											name: "actionType",
-											checked: draft.actionType === method,
+											checked: draft.actionType === m,
 											onChange: () => setDraft((d) => ({
 												...d,
-												actionType: method
+												actionType: m
 											})),
-											className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: method })]
-									}, method))
+											className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: m })]
+									}, m))
 								})]
 							}),
 							draft.actionType === "Email" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -3792,43 +3785,43 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												})]
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-2",
+												className: "relative flex items-center",
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 													type: "email",
 													value: draft.toAddress,
 													onChange: (e) => {
-														setEmailVerificationStatus("idle");
 														setDraft((d) => ({
 															...d,
 															toAddress: e.target.value
 														}));
+														setEmailVerificationStatus("idle");
 														if (e.target.value.trim()) setErrors((prev) => ({
 															...prev,
 															toAddress: void 0
 														}));
 													},
 													placeholder: "manager@company.com",
-													className: cn("h-7.5 flex-1 rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", emailVerificationStatus === "success" ? "border-emerald-500/80 bg-emerald-500/[0.04] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" : emailVerificationStatus === "failed" || errors.toAddress ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+													className: cn("h-7.5 w-full rounded-md border bg-background pl-2.5 pr-20 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.toAddress ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 													type: "button",
-													disabled: emailVerificationStatus === "verifying",
 													onClick: handleVerifyEmail,
-													className: cn("px-3 h-7.5 text-xs rounded-md border font-semibold cursor-pointer transition-all shadow-2xs active:scale-98 inline-flex items-center gap-1.5 shrink-0", emailVerificationStatus === "verifying" && "opacity-75 cursor-wait border-input/80 bg-muted/40 text-muted-foreground", emailVerificationStatus === "success" && "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20", emailVerificationStatus === "failed" && "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20", emailVerificationStatus === "idle" && "border-input/80 bg-background hover:bg-muted/40 hover:border-[#0089FF]/60 text-foreground"),
-													children: [
-														emailVerificationStatus === "verifying" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "h-3.5 w-3.5 animate-spin text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Verifying..." })] }),
-														emailVerificationStatus === "success" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { className: "h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Verified" })] }),
-														emailVerificationStatus === "failed" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleX, { className: "h-3.5 w-3.5 text-red-600 dark:text-red-400" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Failed" })] }),
-														emailVerificationStatus === "idle" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Verify" })
-													]
+													disabled: emailVerificationStatus === "verifying",
+													className: cn("absolute right-1 px-2.5 py-0.5 text-[11px] font-semibold rounded transition-all cursor-pointer active:scale-95 select-none", emailVerificationStatus === "success" ? "text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20" : emailVerificationStatus === "failed" ? "text-rose-600 bg-rose-500/10 hover:bg-rose-500/20" : "text-foreground hover:text-[#0089FF] hover:bg-muted/80"),
+													children: emailVerificationStatus === "verifying" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+														className: "flex items-center gap-1 text-muted-foreground",
+														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "h-3 w-3 animate-spin" }), " Verifying…"]
+													}) : emailVerificationStatus === "success" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+														className: "flex items-center gap-1",
+														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { className: "h-3 w-3" }), " Verified"]
+													}) : emailVerificationStatus === "failed" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+														className: "flex items-center gap-1",
+														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleX, { className: "h-3 w-3" }), " Failed"]
+													}) : "Verify"
 												})]
 											}),
-											emailVerificationStatus === "success" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium animate-in fade-in duration-150",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { className: "h-3 w-3 shrink-0 text-emerald-600" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Recipient email verified & active." })]
-											}),
-											(emailVerificationStatus === "failed" || errors.toAddress) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-1.5 text-[11px] text-red-500 mt-1 font-medium animate-in fade-in duration-150",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleQuestionMark, { className: "h-3 w-3 shrink-0 text-red-500" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: errors.toAddress || "Verification failed: Invalid email Id" })]
+											errors.toAddress && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+												className: "text-[10px] text-red-500 font-medium",
+												children: errors.toAddress
 											})
 										]
 									}),
@@ -3840,14 +3833,16 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												className: "block text-[11px] font-semibold text-foreground",
 												children: "Retry Window (Mins)"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-												type: "text",
+												type: "number",
+												min: "1",
+												max: "120",
 												value: draft.emailRetryWindow,
 												onChange: (e) => setDraft((d) => ({
 													...d,
 													emailRetryWindow: e.target.value
 												})),
 												placeholder: "15",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "space-y-1",
@@ -3861,8 +3856,8 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													...d,
 													subject: e.target.value
 												})),
-												placeholder: "Weekly Report",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+												placeholder: "Scheduled Travel Report",
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
 											})]
 										})]
 									}),
@@ -3874,7 +3869,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												className: "block text-[11px] font-semibold text-foreground",
 												children: "Message"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-0.5 border border-border rounded-md bg-muted/30 px-1 py-0.5",
+												className: "flex items-center gap-1 border border-border/80 rounded-md px-1 py-0.5 bg-background shadow-2xs",
 												children: [
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 														type: "button",
@@ -4107,7 +4102,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 														sftpSecretKey: void 0
 													}));
 												},
-												placeholder: "••••••••••••••••••••",
+												placeholder: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
 												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										})]
@@ -4124,7 +4119,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												})]
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 												type: "text",
-												value: draft.sftpRegion || "",
+												value: draft.sftpRegion || "ap-south-1",
 												onChange: (e) => {
 													setDraft((d) => ({
 														...d,
@@ -4159,7 +4154,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 														sftpBucketName: void 0
 													}));
 												},
-												placeholder: "fleet-reports",
+												placeholder: "my-fleet-reports",
 												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										})]
@@ -4172,7 +4167,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 									className: "space-y-1",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 										className: "block text-[11px] font-semibold text-foreground",
-										children: ["Gateway ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										children: ["Media Gateway ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 											className: "text-red-500 font-bold ml-0.5",
 											children: "*"
 										})]
@@ -4186,60 +4181,35 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 									})]
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "space-y-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-center justify-between",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 											className: "block text-[11px] font-semibold text-foreground",
-											children: ["Recipient Number ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											children: ["Recipient Mobile Number(s) ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 												className: "text-red-500 font-bold ml-0.5",
 												children: "*"
 											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-[10px] text-muted-foreground font-medium",
-											children: "Comma (,) for multiple"
-										})]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
-										rows: 2,
-										value: draft.mediaRecipientNumber || "",
-										onChange: (e) => {
-											setDraft((d) => ({
-												...d,
-												mediaRecipientNumber: e.target.value
-											}));
-											if (e.target.value.trim()) setErrors((prev) => ({
-												...prev,
-												mediaRecipientNumber: void 0
-											}));
-										},
-										placeholder: "+91 9876543210, +1 5550192834",
-										className: "w-full rounded-md border border-input/80 bg-background p-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs custom-scrollbar focus:outline-none"
-									})]
-								})]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1 pt-1",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-									className: "block text-[11px] font-semibold text-foreground",
-									children: "File Format"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "flex items-center gap-5 h-7.5",
-									children: [
-										"XLS",
-										"PDF",
-										"CSV"
-									].map((fmt) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "flex items-center gap-1.5 cursor-pointer text-xs text-foreground select-none font-medium",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-											type: "radio",
-											name: "format",
-											checked: draft.format === fmt,
-											onChange: () => setDraft((d) => ({
-												...d,
-												format: fmt
-											})),
-											className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: fmt })]
-									}, fmt))
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "text",
+											value: draft.mediaRecipientNumber || "",
+											onChange: (e) => {
+												setDraft((d) => ({
+													...d,
+													mediaRecipientNumber: e.target.value
+												}));
+												if (e.target.value.trim()) setErrors((prev) => ({
+													...prev,
+													mediaRecipientNumber: void 0
+												}));
+											},
+											placeholder: "+91 9876543210, +91 9898989898",
+											className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+											className: "text-[10px] text-muted-foreground",
+											children: "Separate multiple numbers with commas (include country code)."
+										})
+									]
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
@@ -4247,598 +4217,645 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 									type: "button",
 									onClick: () => setAdvanceModalOpen(true),
-									className: "inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-[#0089FF]/60 transition-all cursor-pointer shadow-2xs active:scale-98",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, { className: "h-3.5 w-3.5 text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Advance Configuration" })]
+									className: "flex items-center gap-1.5 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] cursor-pointer transition-colors",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Advance Configuration" })]
 								})
 							})
 						]
-					})
-				}),
-				view === "form" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-					className: "flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center gap-2",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: onClose,
-							className: "flex items-center gap-1.5 px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Close" })
-						}), editingId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RowDeletePopover, {
-							itemName: draft.name || "this report",
-							onDelete: () => {
-								handleDelete(editingId);
-								setView("list");
-							}
-						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center gap-3",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							className: "text-[11px] font-medium text-muted-foreground tabular-nums",
-							children: vehicleFilterMode === "current" ? `${currentLoadedVehicles.length} Vehicles` : `${draft.selectedVehicles.length > 0 ? draft.selectedVehicles.length : customFilteredVehicleIds.length} Vehicles`
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: handleSave,
-							className: "rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98",
-							children: editingId ? "Update Schedule" : "Schedule"
-						})]
-					})]
-				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-					className: "flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-						type: "button",
-						onClick: onClose,
-						className: "px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98",
-						children: "Close"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-						type: "button",
-						onClick: startCreate,
-						className: "inline-flex items-center gap-1.5 rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Create Schedule" })]
-					})]
-				})
-			]
-		}),
-		vehicleOverlayOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			className: "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in-0 duration-200",
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "w-full max-w-[440px] rounded-xl border border-border bg-background text-foreground shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-in zoom-in-95 duration-200",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							className: "text-[15px] font-semibold text-foreground tracking-tight",
-							children: "Select Vehicles"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							className: "text-[10px] text-muted-foreground font-medium",
-							children: "Choose specific vehicles for this schedule"
-						})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: () => setVehicleOverlayOpen(false),
-							className: "p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
-						})]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "p-4 space-y-3 flex-1 min-h-0 overflow-y-auto custom-scrollbar",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "relative shrink-0",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3.5 w-3.5 shrink-0 text-muted-foreground" }),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-										type: "text",
-										value: customVehicleSearch,
-										onChange: (e) => setCustomVehicleSearch(e.target.value),
-										placeholder: "Select vehicle",
-										className: "h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
-									}),
-									customVehicleSearch && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-										type: "button",
-										onClick: () => setCustomVehicleSearch(""),
-										className: "text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded mr-0.5",
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3 w-3" })
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-										type: "button",
-										onClick: () => setCustomFilterOverlayOpen(!customFilterOverlayOpen),
-										className: "flex items-center gap-1 px-1 py-0.5 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] transition-colors cursor-pointer select-none shrink-0 active:scale-95",
-										title: "Filter by Company and Branch",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { className: "h-3.5 w-3.5 text-[#0089FF]" }),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Filter" }),
-											customActiveFilterCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white",
-												children: customActiveFilterCount
-											})
-										]
-									})
-								]
-							}), customFilterOverlayOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								className: "fixed inset-0 z-40 bg-black/10",
-								onClick: () => setCustomFilterOverlayOpen(false)
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "absolute top-full left-0 right-0 z-50 mt-1.5 rounded-xl border border-border/80 bg-card p-4 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 space-y-3 custom-scrollbar",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Company"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
-											label: "Company",
-											selected: customCompanies,
-											options: COMPANIES.filter((c) => c !== "All"),
-											onChange: handleCustomCompanyChange,
-											placeholder: "Select Company"
-										})]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
-											children: "Branch"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
-											label: "Branch",
-											selected: customBranches,
-											options: customAvailableBranches,
-											onChange: handleCustomBranchChange,
-											placeholder: "Select Branch"
-										})]
-									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-center justify-between pt-2 border-t border-border/60",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-											type: "button",
-											onClick: () => {
-												setCustomCompanies([]);
-												setCustomBranches([]);
-											},
-											className: "text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors",
-											children: "Reset"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center gap-1.5",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-												type: "button",
-												onClick: () => setCustomFilterOverlayOpen(false),
-												className: "px-2.5 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs",
-												children: "Close"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-												type: "button",
-												onClick: () => setCustomFilterOverlayOpen(false),
-												className: "px-3.5 py-1 rounded-md bg-[#0089FF] text-white text-xs font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98",
-												children: "Done"
-											})]
-										})]
-									})
-								]
-							})] })]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-											type: "checkbox",
-											checked: isCustomAllVehiclesSelected,
-											ref: (el) => {
-												if (el) el.indeterminate = isCustomSomeVehiclesSelected;
-											},
-											onChange: toggleSelectAllCustomVehicles,
-											className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select all" })]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-center gap-2",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "text-[11px] font-medium text-muted-foreground",
-												children: draftCustomVehicles.length === 0 ? `All (${customFilteredVehicleIds.length})` : `${draftCustomVehicles.length} / ${customFilteredVehicleIds.length} selected`
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-												type: "button",
-												onClick: toggleAllBranchAccordions,
-												className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted",
-												title: "Expand/Collapse All Branches",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronsUpDown, { className: "h-3 w-3" })
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-												type: "button",
-												onClick: () => setVehicleBoxHeight((prev) => prev > 220 ? 190 : 340),
-												className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted ml-0.5",
-												title: vehicleBoxHeight > 220 ? "Compact height" : "Expand height",
-												children: vehicleBoxHeight > 220 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Minimize2, { className: "h-3 w-3" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Maximize2, { className: "h-3 w-3" })
-											})
-										]
-									})]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									style: {
-										height: `${vehicleBoxHeight}px`,
-										maxHeight: `${vehicleBoxHeight}px`
-									},
-									className: "overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar transition-[height] duration-75 ease-out",
-									children: [groupedCustomVehicles.map(({ branch, vehicles }) => {
-										const isExpanded = openBranchGroups.includes(branch) || customVehicleSearch.trim() !== "";
-										vehicles.map((v) => v.id);
-										const selectedBranchCount = vehicles.filter((v) => draftCustomVehicles.includes(v.id)).length;
-										const isBranchAllSelected = selectedBranchCount === vehicles.length && vehicles.length > 0;
-										const isBranchSomeSelected = selectedBranchCount > 0 && !isBranchAllSelected;
-										return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "py-1",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors select-none",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-													className: "flex items-center gap-2 min-w-0",
-													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-														type: "checkbox",
-														"aria-label": `Select all vehicles in ${branch}`,
-														checked: isBranchAllSelected,
-														ref: (el) => {
-															if (el) el.indeterminate = isBranchSomeSelected;
-														},
-														onChange: () => toggleCustomBranchVehicles(vehicles),
-														className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-													}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-														type: "button",
-														onClick: () => toggleBranchAccordion(branch),
-														className: "flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate",
-														children: [
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-150", isExpanded && "rotate-90") }),
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "truncate",
-																children: branch
-															}),
-															/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-																className: "text-[10px] tabular-nums text-muted-foreground font-normal",
-																children: [
-																	"[",
-																	vehicles.length,
-																	"]"
-																]
-															})
-														]
-													})]
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-													className: "text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full",
-													children: [
-														selectedBranchCount,
-														"/",
-														vehicles.length
-													]
-												})]
-											}), isExpanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-												className: "mt-1 pl-6 pr-2 space-y-0.5",
-												children: vehicles.map((v) => {
-													const isChecked = draftCustomVehicles.includes(v.id);
-													return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-														className: "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium",
-														children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-															className: "flex items-center gap-2 min-w-0",
-															children: [
-																/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-																	type: "checkbox",
-																	checked: isChecked,
-																	onChange: () => toggleCustomSingleVehicle(v.id),
-																	className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-																}),
-																/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Truck, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
-																/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-																	className: "min-w-0 truncate",
-																	children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																		className: "block truncate leading-tight text-xs font-semibold",
-																		children: v.name
-																	}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-																		className: "block text-[10px] text-muted-foreground truncate leading-tight font-normal",
-																		children: [
-																			v.imei,
-																			" · ",
-																			v.driver
-																		]
-																	})]
-																})
-															]
-														})
-													}, v.id);
-												})
-											})]
-										}, branch);
-									}), groupedCustomVehicles.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "p-6 text-center text-xs text-muted-foreground italic",
-										children: [
-											"No vehicles found matching “",
-											customVehicleSearch,
-											"”"
-										]
-									})]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									onMouseDown: startResizeVehicleBox,
-									onDoubleClick: () => setVehicleBoxHeight((prev) => prev > 220 ? 190 : 340),
-									className: "relative flex h-3.5 w-full cursor-ns-resize items-center justify-center border-t border-border/60 bg-muted/20 hover:bg-muted/60 transition-colors select-none group",
-									title: "Drag to resize height (Double-click to expand/collapse)",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-1 w-8 rounded-full bg-muted-foreground/30 group-hover:bg-[#0089FF] transition-colors" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										className: "absolute right-1 bottom-0.5 text-muted-foreground/40 group-hover:text-[#0089FF] transition-colors pointer-events-none",
-										title: "Resize handle",
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", {
-											width: "6",
-											height: "6",
-											viewBox: "0 0 6 6",
-											fill: "currentColor",
-											children: [
-												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
-													cx: "5",
-													cy: "5",
-													r: "1"
-												}),
-												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
-													cx: "5",
-													cy: "1",
-													r: "1"
-												}),
-												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
-													cx: "1",
-													cy: "5",
-													r: "1"
-												})
-											]
-										})
-									})]
-								})
-							]
-						})]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
 						className: "flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
-							onClick: () => setDraftCustomVehicles([]),
-							className: "text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer",
-							children: "Clear All"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex items-center gap-2",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => setVehicleOverlayOpen(false),
-								className: "px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98",
-								children: "Cancel"
+							onClick: onClose,
+							className: "h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98",
+							children: "Close"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							onClick: handleSave,
+							className: "h-8 rounded-md bg-[#0089FF] px-6 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98",
+							children: "Schedule"
+						})]
+					})]
+				}),
+				vehicleOverlayOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "absolute inset-0 z-30 flex flex-col bg-background animate-in slide-in-from-right-10 duration-200",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
+							className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex items-center gap-2",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									onClick: () => setVehicleOverlayOpen(false),
+									className: "rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer mr-1",
+									title: "Back to schedule settings",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, { className: "h-4 w-4" })
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+									className: "text-[16px] font-semibold tracking-tight text-foreground",
+									children: "Filter Options"
+								})]
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 								type: "button",
-								onClick: () => {
-									const chosen = draftCustomVehicles.length > 0 ? draftCustomVehicles : customFilteredVehicleIds;
-									setDraft((d) => ({
-										...d,
-										selectedVehicles: chosen
-									}));
-									setVehicleFilterMode("custom");
-									setVehicleOverlayOpen(false);
-									toast.success(`${chosen.length} vehicles selected for report schedule`);
-								},
-								className: "px-4 h-8 text-xs rounded-md bg-[#0089FF] text-white font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98",
-								children: "Apply Vehicles"
+								"aria-label": "Close filter options",
+								onClick: () => setVehicleOverlayOpen(false),
+								className: "rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
 							})]
-						})]
-					})
-				]
-			})
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "relative shrink-0",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all",
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3.5 w-3.5 shrink-0 text-muted-foreground" }),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: customVehicleSearch,
+												onChange: (e) => setCustomVehicleSearch(e.target.value),
+												placeholder: "Select vehicle",
+												"aria-label": "Search vehicles",
+												className: "h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
+											}),
+											customVehicleSearch && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+												type: "button",
+												onClick: () => setCustomVehicleSearch(""),
+												className: "text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded mr-0.5",
+												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3 w-3" })
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+												type: "button",
+												onClick: () => setCustomFilterOverlayOpen(!customFilterOverlayOpen),
+												className: "flex items-center gap-1 px-1 py-0.5 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] transition-colors cursor-pointer select-none shrink-0 active:scale-95",
+												title: "Filter by Company and Branch",
+												children: [
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { className: "h-3.5 w-3.5 text-[#0089FF]" }),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Filter" }),
+													customActiveFilterCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+														className: "px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white",
+														children: customActiveFilterCount
+													})
+												]
+											})
+										]
+									}), customFilterOverlayOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "fixed inset-0 z-40 bg-black/10",
+										onClick: () => setCustomFilterOverlayOpen(false)
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "absolute top-full left-0 right-0 z-50 mt-1.5 rounded-xl border border-border/80 bg-card p-4 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 space-y-3 custom-scrollbar",
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "space-y-1",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+													className: "block text-[11px] font-semibold text-foreground",
+													children: "Company"
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+													label: "Company",
+													selected: customCompanies,
+													options: COMPANIES.filter((c) => c !== "All"),
+													onChange: handleCustomCompanyChange,
+													placeholder: "Select Company"
+												})]
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "space-y-1",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+													className: "block text-[11px] font-semibold text-foreground",
+													children: "Branch"
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+													label: "Branch",
+													selected: customBranches,
+													options: customAvailableBranches,
+													onChange: handleCustomBranchChange,
+													placeholder: "Select Branch"
+												})]
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center justify-between pt-2 border-t border-border/60",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+													type: "button",
+													onClick: () => {
+														setCustomCompanies([]);
+														setCustomBranches([]);
+													},
+													className: "text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors",
+													children: "Reset"
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+													className: "flex items-center gap-1.5",
+													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+														type: "button",
+														onClick: () => setCustomFilterOverlayOpen(false),
+														className: "px-2.5 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs",
+														children: "Close"
+													}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+														type: "button",
+														onClick: () => setCustomFilterOverlayOpen(false),
+														className: "px-3.5 py-1 rounded-md bg-[#0089FF] text-white text-xs font-semibold hover:bg-[#0070d6] cursor-pointer shadow-xs transition-all active:scale-98",
+														children: "Done"
+													})]
+												})]
+											})
+										]
+									})] })]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+													type: "checkbox",
+													checked: isCustomAllVehiclesSelected,
+													ref: (el) => {
+														if (el) el.indeterminate = isCustomSomeVehiclesSelected;
+													},
+													onChange: toggleSelectAllCustomVehicles,
+													className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select all" })]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-2",
+												children: [
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+														className: "text-[11px] font-medium text-muted-foreground",
+														children: draftCustomVehicles.length === 0 ? `All (${customFilteredVehicleIds.length})` : `${draftCustomVehicles.length} / ${customFilteredVehicleIds.length} selected`
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+														type: "button",
+														onClick: toggleAllBranchAccordions,
+														className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted",
+														title: "Expand/Collapse All Branches",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronsUpDown, { className: "h-3 w-3" })
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+														type: "button",
+														onClick: () => setVehicleBoxHeight((prev) => prev > 220 ? 190 : 340),
+														className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted ml-0.5",
+														title: vehicleBoxHeight > 220 ? "Compact height" : "Expand height",
+														children: vehicleBoxHeight > 220 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Minimize2, { className: "h-3 w-3" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Maximize2, { className: "h-3 w-3" })
+													})
+												]
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											style: {
+												height: `${vehicleBoxHeight}px`,
+												maxHeight: `${vehicleBoxHeight}px`
+											},
+											className: "overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar transition-[height] duration-75 ease-out",
+											children: [groupedCustomVehicles.map(({ branch, vehicles }) => {
+												const isExpanded = openBranchGroups.includes(branch) || customVehicleSearch.trim() !== "";
+												const selectedBranchCount = vehicles.filter((v) => draftCustomVehicles.includes(v.id)).length;
+												const isBranchAllSelected = selectedBranchCount === vehicles.length && vehicles.length > 0;
+												const isBranchSomeSelected = selectedBranchCount > 0 && !isBranchAllSelected;
+												return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+													className: "py-1",
+													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+														className: "flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors select-none",
+														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+															className: "flex items-center gap-2 min-w-0",
+															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+																type: "checkbox",
+																"aria-label": `Select all vehicles in ${branch}`,
+																checked: isBranchAllSelected,
+																ref: (el) => {
+																	if (el) el.indeterminate = isBranchSomeSelected;
+																},
+																onChange: () => toggleCustomBranchVehicles(vehicles),
+																className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+															}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+																type: "button",
+																onClick: () => toggleBranchAccordion(branch),
+																className: "flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate",
+																children: [
+																	/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-150", isExpanded && "rotate-90") }),
+																	/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																		className: "truncate",
+																		children: branch
+																	}),
+																	/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+																		className: "text-[10px] tabular-nums text-muted-foreground font-normal",
+																		children: [
+																			"[",
+																			vehicles.length,
+																			"]"
+																		]
+																	})
+																]
+															})]
+														}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+															className: "text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full",
+															children: [
+																selectedBranchCount,
+																"/",
+																vehicles.length
+															]
+														})]
+													}), isExpanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+														className: "mt-1 pl-6 pr-2 space-y-0.5",
+														children: vehicles.map((v) => {
+															const isChecked = draftCustomVehicles.includes(v.id);
+															return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+																className: "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium",
+																children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+																	className: "flex items-center gap-2 min-w-0",
+																	children: [
+																		/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+																			type: "checkbox",
+																			checked: isChecked,
+																			onChange: () => toggleCustomSingleVehicle(v.id),
+																			className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+																		}),
+																		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Truck, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
+																		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+																			className: "min-w-0 truncate",
+																			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																				className: "block truncate leading-tight text-xs font-semibold",
+																				children: v.name
+																			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+																				className: "block text-[10px] text-muted-foreground truncate leading-tight font-normal",
+																				children: [
+																					v.imei,
+																					" · ",
+																					v.driver
+																				]
+																			})]
+																		})
+																	]
+																})
+															}, v.id);
+														})
+													})]
+												}, branch);
+											}), groupedCustomVehicles.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "p-6 text-center text-xs text-muted-foreground italic",
+												children: [
+													"No vehicles found matching “",
+													customVehicleSearch,
+													"”"
+												]
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											onMouseDown: startResizeVehicleBox,
+											onDoubleClick: () => setVehicleBoxHeight((prev) => prev > 220 ? 190 : 340),
+											className: "relative flex h-3.5 w-full cursor-ns-resize items-center justify-center border-t border-border/60 bg-muted/20 hover:bg-muted/60 transition-colors select-none group",
+											title: "Drag to resize height (Double-click to expand/collapse)",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-1 w-8 rounded-full bg-muted-foreground/30 group-hover:bg-[#0089FF] transition-colors" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+												className: "absolute right-1 bottom-0.5 text-muted-foreground/40 group-hover:text-[#0089FF] transition-colors pointer-events-none",
+												title: "Resize handle",
+												children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", {
+													width: "6",
+													height: "6",
+													viewBox: "0 0 6 6",
+													fill: "currentColor",
+													children: [
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
+															cx: "5",
+															cy: "5",
+															r: "1"
+														}),
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
+															cx: "5",
+															cy: "1",
+															r: "1"
+														}),
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", {
+															cx: "1",
+															cy: "5",
+															r: "1"
+														})
+													]
+												})
+											})]
+										})
+									]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "space-y-3 pt-1",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: "Group"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+												label: "Group",
+												selected: customGroups,
+												options: customGroupOptions,
+												onChange: setCustomGroups,
+												placeholder: "Select Group"
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: "Type"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UniversalMultiSelectDropdown, {
+												label: "Type",
+												selected: customTypes,
+												options: VEHICLE_TYPES.filter((t) => t !== "All"),
+												onChange: setCustomTypes,
+												placeholder: "Select Type"
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: "Brand"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+												value: customBrands[0] || "",
+												options: VEHICLE_BRANDS,
+												onChange: (b) => setCustomBrands(b && b !== "All" ? [b] : []),
+												placeholder: "Select Brand"
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: "Model"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+												value: customModels[0] || "",
+												options: VEHICLE_MODELS,
+												onChange: (m) => setCustomModels(m && m !== "All" ? [m] : []),
+												placeholder: "Select Model"
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: "Duration Threshold"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "grid grid-cols-12 gap-1.5",
+												children: [
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+														className: "col-span-5",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+															value: customDurationCompare,
+															options: COMPARATORS,
+															onChange: setCustomDurationCompare,
+															placeholder: "Comparator"
+														})
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+														className: "col-span-4",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+															value: customDurationUnit,
+															options: DURATION_UNITS,
+															onChange: setCustomDurationUnit,
+															placeholder: "Unit"
+														})
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+														className: "col-span-3",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+															type: "text",
+															value: customDurationValue,
+															onChange: (e) => setCustomDurationValue(e.target.value),
+															placeholder: "e.g. 5",
+															className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+														})
+													})
+												]
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-[11px] font-semibold text-foreground",
+												children: "Distance Threshold (km)"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "grid grid-cols-12 gap-1.5",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+													className: "col-span-7",
+													children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+														value: customDistanceCompare,
+														options: COMPARATORS,
+														onChange: setCustomDistanceCompare,
+														placeholder: "Comparator"
+													})
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+													className: "col-span-5",
+													children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+														type: "text",
+														value: customDistanceValue,
+														onChange: (e) => setCustomDistanceValue(e.target.value),
+														placeholder: "e.g. 5",
+														className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+													})
+												})]
+											})]
+										})
+									]
+								})
+							]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
+							className: "flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								type: "button",
+								onClick: handleResetCustomFilters,
+								className: "inline-flex items-center gap-1.5 rounded-md border border-input/80 bg-background px-3.5 py-1.5 text-xs font-medium text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Reset" })]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: handleApplyCustomFilters,
+								className: "h-8 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#0070d6] cursor-pointer active:scale-98",
+								children: "Apply Filters"
+							})]
+						})
+					]
+				})
+			]
 		}),
 		advanceModalOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "fixed inset-0 z-[100] flex items-center justify-center p-4",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-				type: "button",
-				"aria-label": "Close Advance Configuration",
-				onClick: () => setAdvanceModalOpen(false),
-				className: "fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				className: "fixed inset-0 bg-black/50 backdrop-blur-xs",
+				onClick: () => setAdvanceModalOpen(false)
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "relative z-10 w-full max-w-2xl max-h-[85vh] flex flex-col bg-background border border-border text-foreground shadow-2xl rounded-lg overflow-hidden animate-in zoom-in-95",
+				className: "relative z-10 flex h-[85vh] max-h-[640px] w-full max-w-2xl flex-col rounded-2xl border border-border/80 bg-background shadow-2xl animate-in fade-in-0 zoom-in-95 overflow-hidden",
 				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-						className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex h-[56px] items-center justify-between border-b border-border px-6 select-none shrink-0",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "flex items-center gap-2",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, { className: "h-4 w-4 text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								className: "text-[16px] font-semibold tracking-tight text-foreground",
-								children: "Advance Configuration"
+								className: "text-sm font-semibold text-foreground",
+								children: "Advance Configuration — Columns & Sort Priorities"
 							})]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
-							"aria-label": "Close Advance Configuration",
 							onClick: () => setAdvanceModalOpen(false),
-							className: "rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer",
+							className: "rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
 						})]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex-1 min-h-0 overflow-y-auto p-5 space-y-4 custom-scrollbar text-xs",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "rounded-md border border-border overflow-hidden bg-card shadow-2xs",
+						className: "flex-1 min-h-0 overflow-y-auto p-6 space-y-4 custom-scrollbar",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center justify-between",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								className: "text-xs text-muted-foreground",
+								children: "Configure which columns should appear in the scheduled report export and their display properties."
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: () => setColumnConfig(INITIAL_COLUMNS),
+								className: "text-xs font-semibold text-[#0089FF] hover:underline cursor-pointer",
+								children: "Reset Defaults"
+							})]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							className: "rounded-xl border border-border/80 overflow-hidden shadow-2xs",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", {
-								className: "w-full text-left",
+								className: "w-full text-xs",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", {
-									className: "bg-muted/60 text-muted-foreground text-[10px] font-bold uppercase tracking-wider border-b border-border",
+									className: "bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold border-b border-border",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "py-2 px-2.5 w-6" }),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "py-2 px-2.5",
+											className: "px-3 py-2 text-left",
 											children: "Column Name"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "py-2 px-2 text-center",
+											className: "px-3 py-2 text-center w-20",
 											children: "Show"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "py-2 px-2 text-center",
+											className: "px-3 py-2 text-center w-20",
 											children: "Print"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "py-2 px-2 text-center",
-											children: "Sort"
+											className: "px-3 py-2 text-center w-20",
+											children: "Sortable"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "py-2 px-2 text-center",
+											className: "px-3 py-2 text-center w-24",
 											children: "Priority"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "py-2 px-2.5 text-center",
+											className: "px-3 py-2 text-center w-24",
 											children: "Order"
 										})
 									] })
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", {
-									className: "divide-y divide-border",
-									children: columnsConfig.map((col) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", {
-										className: "hover:bg-muted/40 transition-colors",
+									className: "divide-y divide-border/60",
+									children: columnConfig.map((col, idx) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", {
+										className: "hover:bg-muted/40 transition-colors font-medium text-foreground",
 										children: [
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "py-1.5 px-2.5 text-muted-foreground cursor-grab",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GripVertical, { className: "h-3.5 w-3.5" })
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "py-1.5 px-2.5 font-semibold text-foreground text-xs",
+												className: "px-3 py-2 font-semibold truncate",
 												children: col.label
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "py-1.5 px-2 text-center",
+												className: "px-3 py-2 text-center",
 												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 													type: "checkbox",
 													checked: col.showable,
-													onChange: (e) => {
-														const checked = e.target.checked;
-														setColumnsConfig((prev) => prev.map((c) => c.id === col.id ? {
-															...c,
-															showable: checked
-														} : c));
-													},
-													className: "h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
+														...c,
+														showable: e.target.checked
+													} : c)),
+													className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
 												})
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "py-1.5 px-2 text-center",
+												className: "px-3 py-2 text-center",
 												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 													type: "checkbox",
 													checked: col.printable,
-													onChange: (e) => {
-														const checked = e.target.checked;
-														setColumnsConfig((prev) => prev.map((c) => c.id === col.id ? {
-															...c,
-															printable: checked
-														} : c));
-													},
-													className: "h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
+														...c,
+														printable: e.target.checked
+													} : c)),
+													className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
 												})
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "py-1.5 px-2 text-center",
+												className: "px-3 py-2 text-center",
 												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 													type: "checkbox",
 													checked: col.sortable,
-													onChange: (e) => {
-														const checked = e.target.checked;
-														setColumnsConfig((prev) => prev.map((c) => c.id === col.id ? {
-															...c,
-															sortable: checked
-														} : c));
-													},
-													className: "h-3.5 w-3.5 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
+														...c,
+														sortable: e.target.checked
+													} : c)),
+													className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
 												})
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "py-1.5 px-2 text-center flex justify-center",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+												className: "px-3 py-2 text-center",
+												children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
 													value: col.sortPriority,
-													options: [
-														"-",
-														"1",
-														"2",
-														"3",
-														"4",
-														"5"
-													],
-													onChange: (val) => {
-														setColumnsConfig((prev) => prev.map((c) => c.id === col.id ? {
-															...c,
-															sortPriority: val
-														} : c));
-													},
-													className: "w-14"
+													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
+														...c,
+														sortPriority: e.target.value
+													} : c)),
+													className: "h-6 rounded border border-input bg-background px-1 text-[11px] font-medium",
+													children: [
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+															value: "-",
+															children: "-"
+														}),
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+															value: "1",
+															children: "1"
+														}),
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+															value: "2",
+															children: "2"
+														}),
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+															value: "3",
+															children: "3"
+														})
+													]
 												})
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "py-1.5 px-2.5 text-center",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-													type: "button",
-													onClick: () => {
-														setColumnsConfig((prev) => prev.map((c) => c.id === col.id ? {
-															...c,
-															sortDirection: c.sortDirection === "asc" ? "desc" : "asc"
-														} : c));
-													},
-													className: "px-2 py-0.5 text-[10px] font-semibold rounded-md border border-border bg-background hover:bg-muted cursor-pointer transition-colors shadow-2xs",
-													children: col.sortDirection === "asc" ? "↑ Asc" : "↓ Desc"
+												className: "px-3 py-2 text-center",
+												children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
+													value: col.sortDirection,
+													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
+														...c,
+														sortDirection: e.target.value
+													} : c)),
+													className: "h-6 rounded border border-input bg-background px-1 text-[11px] font-medium",
+													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+														value: "asc",
+														children: "ASC"
+													}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+														value: "desc",
+														children: "DESC"
+													})]
 												})
 											})
 										]
 									}, col.id))
 								})]
 							})
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "p-3.5 rounded-md border border-border bg-card space-y-2",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-								className: "block text-xs font-semibold text-foreground",
-								children: "Detail Report Download Mode"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex items-center gap-5 text-xs",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "flex items-center gap-1.5 cursor-pointer text-foreground select-none",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-										type: "radio",
-										name: "detailDownloadMode",
-										checked: detailDownloadMode === "multiple",
-										onChange: () => setDetailDownloadMode("multiple"),
-										className: "h-3.5 w-3.5 text-[#0089FF] accent-[#0089FF] cursor-pointer"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "font-medium",
-										children: "Multiple Sheet"
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "flex items-center gap-1.5 cursor-pointer text-foreground select-none",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-										type: "radio",
-										name: "detailDownloadMode",
-										checked: detailDownloadMode === "single",
-										onChange: () => setDetailDownloadMode("single"),
-										className: "h-3.5 w-3.5 text-[#0089FF] accent-[#0089FF] cursor-pointer"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "font-medium",
-										children: "Single Sheet"
-									})]
-								})]
-							})]
 						})]
 					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-						className: "flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex h-[56px] items-center justify-end gap-2 border-t border-border px-6 select-none shrink-0",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
-							onClick: () => setColumnsConfig(INITIAL_COLUMNS),
-							className: "flex items-center gap-1.5 px-3 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { className: "h-3.5 w-3.5 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Reset" })]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex items-center gap-2",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => setAdvanceModalOpen(false),
-								className: "px-3.5 h-8 text-xs rounded-md border border-input/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98",
-								children: "Cancel"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => {
-									toast.success("Advance configurations applied");
-									setAdvanceModalOpen(false);
-								},
-								className: "rounded-md bg-[#0089FF] px-4.5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] cursor-pointer transition-all active:scale-98",
-								children: "Save & Apply"
-							})]
+							onClick: () => setAdvanceModalOpen(false),
+							className: "h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98",
+							children: "Cancel"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							onClick: () => {
+								setAdvanceModalOpen(false);
+								toast.success("Advance configuration settings saved");
+							},
+							className: "h-8 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98",
+							children: "Done"
 						})]
 					})
 				]
@@ -4846,7 +4863,6 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		})
 	] });
 }
-var ScheduleDrawer = ScheduleModal;
 function IconButton$2({ label, children, onClick, disabled }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Tooltip, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TooltipTrigger, {
 		asChild: true,
@@ -5433,7 +5449,7 @@ function DriverJobSummaryReport() {
 				},
 				onExport: (format, scope) => handleExport(`${format} (${scope})`)
 			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScheduleDrawer, {
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScheduleModal, {
 				open: scheduleOpen,
 				onClose: () => setScheduleOpen(false)
 			}),
@@ -7467,7 +7483,7 @@ function TemperatureSummaryReport() {
 				},
 				onExport: (format, scope) => handleExport(`${format} (${scope})`)
 			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScheduleDrawer, {
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScheduleModal, {
 				open: scheduleOpen,
 				onClose: () => setScheduleOpen(false)
 			}),
