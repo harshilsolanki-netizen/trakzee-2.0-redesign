@@ -88,7 +88,7 @@
   --popover-foreground: oklch(0.18 0.025 260);
   --primary: oklch(0.24 0.065 265);
   --primary-foreground: oklch(0.99 0.002 250);
-  --secondary: #155dfc;
+  --secondary: #0089FF;
   --secondary-foreground: #ffffff;
   --muted: oklch(0.96 0.005 250);
   --muted-foreground: oklch(0.48 0.02 257);
@@ -98,16 +98,16 @@
   --destructive-foreground: oklch(0.99 0.002 250);
   --border: oklch(0.91 0.007 255);
   --input: oklch(0.91 0.007 255);
-  --ring: #155dfc;
+  --ring: #0089FF;
 
   /* Product Chrome & Modern Nav */
   --nav: oklch(0.16 0.035 265);
   --nav-foreground: oklch(0.98 0.005 250);
-  --nav-active: oklch(0.48 0.18 260);
+  --nav-active: #0089FF;
   --nav-muted: oklch(0.72 0.025 258);
   --surface: oklch(1 0 0);
   --surface-muted: oklch(0.97 0.004 250);
-  --brand: #155dfc;
+  --brand: #0089FF;
   --brand-foreground: #ffffff;
   --success: oklch(0.62 0.17 148);
   --success-foreground: oklch(0.99 0.002 250);
@@ -115,7 +115,7 @@
   --warning-foreground: oklch(0.28 0.05 60);
   --danger: oklch(0.6 0.23 26);
   --danger-foreground: oklch(0.99 0.002 250);
-  --info: #155dfc;
+  --info: #0089FF;
 
   --status-running: oklch(0.62 0.17 148);
   --status-idle: oklch(0.82 0.16 84);
@@ -123,7 +123,7 @@
   --status-inactive: oklch(0.55 0.12 275);
   --status-nodata: oklch(0.6 0.02 258);
 
-  --chart-1: #155dfc;
+  --chart-1: #0089FF;
   --chart-2: oklch(0.62 0.17 148);
   --chart-3: oklch(0.62 0.13 235);
   --chart-4: oklch(0.82 0.16 84);

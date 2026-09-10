@@ -196,7 +196,7 @@ export function VehicleAttributeFilterOverlay({
               onApply();
               onClose();
             }}
-            className="rounded-md bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white shadow-xs transition-opacity hover:bg-blue-700 cursor-pointer"
+            className="rounded-md bg-[#0089FF] px-4 py-1.5 text-xs font-semibold text-white shadow-xs transition-opacity hover:bg-[#0070d6] cursor-pointer"
           >
             Apply
           </button>

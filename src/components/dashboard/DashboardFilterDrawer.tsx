@@ -760,7 +760,7 @@ export function DashboardFilterDrawer({
           <button
             type="button"
             onClick={handleApply}
-            className="h-9 rounded-md bg-[#155dfc] px-6 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
+            className="h-9 rounded-md bg-[#0089FF] px-6 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#0070d6] cursor-pointer active:scale-98"
           >
             Apply Filters
           </button>

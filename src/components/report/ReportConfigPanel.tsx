@@ -397,7 +397,7 @@ function UniversalMultiSelectDropdown({
               <button
                 type="button"
                 onClick={handleApply}
-                className="px-3.5 py-1 text-xs rounded-md font-semibold text-white bg-[#155dfc] hover:bg-[#124ecf] shadow-xs transition-all active:scale-98 cursor-pointer"
+                className="px-3.5 py-1 text-xs rounded-md font-semibold text-white bg-[#0089FF] hover:bg-[#0070d6] shadow-xs transition-all active:scale-98 cursor-pointer"
               >
                 Apply
               </button>
@@ -647,7 +647,7 @@ export function ReportConfigPanel({
           <button
             type="button"
             onClick={handleDrawerApply}
-            className="h-8 rounded-md bg-[#155dfc] px-5 text-xs font-medium text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
+            className="h-8 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#0070d6] cursor-pointer active:scale-98"
           >
             Apply Filters
           </button>

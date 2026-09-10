@@ -334,7 +334,7 @@ export function ChartFilterDrawer({
             <button
               type="button"
               onClick={onApply}
-              className="h-8 rounded-md bg-[#155dfc] px-4 text-xs font-medium text-white shadow-xs transition-colors hover:bg-[#124ecf] cursor-pointer active:scale-98"
+              className="h-8 rounded-md bg-[#0089FF] px-4 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-[#0070d6] cursor-pointer active:scale-98"
             >
               Apply Filter
             </button>

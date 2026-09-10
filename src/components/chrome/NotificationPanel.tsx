@@ -164,7 +164,7 @@ export function NotificationPanel({
                 >
                   <span>{t}</span>
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#155dfc] rounded-t-full shadow-xs" />
+                    <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#0089FF] rounded-t-full shadow-xs" />
                   )}
                 </button>
               );
