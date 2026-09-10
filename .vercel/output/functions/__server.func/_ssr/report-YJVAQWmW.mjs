@@ -3,7 +3,7 @@ import { t as cn } from "./utils-C_uf36nf.mjs";
 import { C as getGroupsForBranches, D as temperatureSummaryRows, S as getBranchesForCompanies, _ as driverJobSummaryRows, f as VEHICLE_BRANDS, l as DURATION_STATUS, m as VEHICLE_MODELS, o as COMPANIES, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, u as DURATION_UNITS, w as getVehiclesForBranches, y as findReport } from "./reports-D0j_491Z.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
-import { At as EllipsisVertical, B as RefreshCw, F as Search, Ft as CornerDownLeft, H as Plus, Ht as CircleQuestionMark, It as Copy, Jt as ChevronLeft, M as Settings, Mt as Download, N as Settings2, O as SlidersHorizontal, Q as Minus, St as Fuel, Tt as FileSpreadsheet, U as Play, Vt as CircleX, W as Pin, Wt as CircleCheck, Xt as Check, Yt as ChevronDown, _t as GripVertical, an as CalendarClock, ct as List, dn as ArrowUp, en as ChartColumn, fn as ArrowRight, in as Calendar, it as Mail, m as Underline, mn as ArrowDown, mt as Italic, n as X, nn as Car, nt as Map$1, p as Undo2, pn as ArrowLeft, q as Pencil, qt as ChevronRight, sn as Bold, st as LoaderCircle, wt as FileText, x as Thermometer, y as Trash2, z as RotateCcw, zt as Clock } from "../_libs/lucide-react.mjs";
+import { At as EllipsisVertical, B as RefreshCw, F as Search, Ft as CornerDownLeft, H as Plus, Ht as CircleQuestionMark, It as Copy, Jt as ChevronLeft, M as Settings, Mt as Download, N as Settings2, O as SlidersHorizontal, Q as Minus, St as Fuel, Tt as FileSpreadsheet, U as Play, Vt as CircleX, W as Pin, Wt as CircleCheck, Xt as Check, Yt as ChevronDown, _t as GripVertical, an as CalendarClock, ct as List, dn as ArrowUp, en as ChartColumn, fn as ArrowRight, in as Calendar, it as Mail, m as Underline, mn as ArrowDown, mt as Italic, n as X, nt as Map$1, p as Undo2, pn as ArrowLeft, q as Pencil, qt as ChevronRight, sn as Bold, st as LoaderCircle, wt as FileText, x as Thermometer, y as Trash2, z as RotateCcw, zt as Clock } from "../_libs/lucide-react.mjs";
 import { a as DropdownMenuLabel, i as DropdownMenuItem, n as DropdownMenuContent, o as DropdownMenuSeparator, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-U4x0DS5F.mjs";
 import { y as useSearch } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast } from "../_libs/sonner.mjs";
@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-LVQlPua9.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-HgudenNA.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-QaqkaSbl.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-YJVAQWmW.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -8056,12 +8056,9 @@ function ReportRow({ row, rowIndex, open, onToggle, onDrill, columns, colSpan, f
 		switch (col.id) {
 			case "vehicleNo": return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
 				style: cellStyle,
-				className: cn("px-2.5 py-1.5 truncate", frozenClass),
+				className: cn("px-2.5 py-1.5 font-mono text-xs font-semibold text-foreground truncate", frozenClass),
 				title: row.vehicleNo,
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[11px] font-bold tracking-wider text-foreground shadow-2xs",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Car, { className: "h-3 w-3 text-blue-500 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: row.vehicleNo })]
-				})
+				children: row.vehicleNo
 			}, col.id);
 			case "employeeNo": return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
 				style: cellStyle,

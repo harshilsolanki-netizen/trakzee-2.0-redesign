@@ -4,7 +4,6 @@ import {
   ArrowUp,
   BarChart3,
   CalendarClock,
-  Car,
   Check,
   ChevronDown,
   ChevronLeft,
@@ -1603,13 +1602,13 @@ function ReportRow({
           <td
             key={col.id}
             style={cellStyle}
-            className={cn("px-2.5 py-1.5 truncate", frozenClass)}
+            className={cn(
+              "px-2.5 py-1.5 font-mono text-xs font-semibold text-foreground truncate",
+              frozenClass,
+            )}
             title={row.vehicleNo}
           >
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[11px] font-bold tracking-wider text-foreground shadow-2xs">
-              <Car className="h-3 w-3 text-blue-500 shrink-0" />
-              <span>{row.vehicleNo}</span>
-            </div>
+            {row.vehicleNo}
           </td>
         );
       case "employeeNo":
