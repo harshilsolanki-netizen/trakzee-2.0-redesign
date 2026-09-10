@@ -3,7 +3,7 @@ import { t as cn } from "./utils-C_uf36nf.mjs";
 import { d as REPORT_CATEGORIES, i as CHART_CATEGORIES, t as ALL_REPORTS, y as findReport } from "./reports-D0j_491Z.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
-import { A as Shield, C as Star, D as SlidersVertical, Dt as FileCode, E as Sparkles, F as Search, G as PinOff, L as Route, M as Settings, Mt as Download, Nt as CreditCard, Ot as Eye, Pt as Cpu, R as RotateCw, Rt as Cloud, St as Fuel, Ut as CircleGauge, V as Receipt, W as Pin, X as Palette, Xt as Check, Yt as ChevronDown, _ as TrendingUp, a as Waves, an as CalendarClock, at as LogOut, bt as Globe, cn as Bell, d as UserPlus, dt as LayoutDashboard, en as ChartColumn, f as UserCheck, fn as ArrowRight, g as TriangleAlert, hn as Activity, i as Weight, it as Mail, jt as Droplet, k as ShoppingCart, kt as EyeOff, l as Users, lt as LifeBuoy, n as X, nn as Car, o as Wallet, on as Briefcase, ot as Lock, pt as KeyRound, qt as ChevronRight, r as Wrench, rt as MapPin, t as Zap, u as User, un as Award, ut as LayoutGrid, wt as FileText, x as Thermometer, xt as Gauge, y as Trash2, yt as Grid2x2 } from "../_libs/lucide-react.mjs";
+import { A as Shield, C as Star, D as SlidersVertical, Dt as FileCode, E as Sparkles, F as Search, G as PinOff, Jt as ChevronRight, L as Route, M as Settings, Mt as Download, Nt as CreditCard, Ot as Eye, Pt as Cpu, R as RotateCw, Rt as Cloud, St as Fuel, Ut as CircleGauge, V as Receipt, W as Pin, X as Palette, Xt as ChevronDown, Zt as Check, _ as TrendingUp, a as Waves, at as LogOut, bt as Globe, d as UserPlus, dn as Award, dt as LayoutDashboard, f as UserCheck, g as TriangleAlert, gn as Activity, i as Weight, it as Mail, jt as Droplet, k as ShoppingCart, kt as EyeOff, l as Users, ln as Bell, lt as LifeBuoy, n as X, o as Wallet, on as CalendarClock, ot as Lock, pn as ArrowRight, pt as KeyRound, r as Wrench, rn as Car, rt as MapPin, sn as Briefcase, t as Zap, tn as ChartColumn, u as User, ut as LayoutGrid, wt as FileText, x as Thermometer, xt as Gauge, y as Trash2, yt as Grid2x2 } from "../_libs/lucide-react.mjs";
 import { c as DropdownMenuSubContent, i as DropdownMenuItem, l as DropdownMenuSubTrigger, n as DropdownMenuContent, r as DropdownMenuGroup, s as DropdownMenuSub, t as DropdownMenu, u as DropdownMenuTrigger } from "./dropdown-menu-BFqXdjhf.mjs";
 import { _ as Link, b as useRouter, c as HeadContent, f as createRouter, g as createRootRouteWithContext, h as createFileRoute, l as useLocation, m as lazyRouteComponent, p as Outlet, s as Scripts, u as useRouterState, v as useNavigate, y as useSearch } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
@@ -15,7 +15,7 @@ import { n as useZio, t as ZioProvider } from "./ZioContext-Cw_R09Nu.mjs";
 import { t as ZioPanel } from "./ZioPanel-DDl6QQ_U.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-DMlEMXD3.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-CxUJfQ60.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -2413,7 +2413,7 @@ var Toaster$1 = ({ ...props }) => {
 		...props
 	});
 };
-var styles_default = "/assets/styles-ZLXqm4sz.css";
+var styles_default = "/assets/styles-BYeTE5jf.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -2700,7 +2700,7 @@ objectType({
 	role: stringType().min(1, "Please select a developer role"),
 	marketingUpdates: booleanType().default(false)
 });
-var $$splitComponentImporter$3 = () => import("./report-wqUQOBE-.mjs");
+var $$splitComponentImporter$3 = () => import("./report-Bc0SI2tK.mjs");
 var Route$4 = createFileRoute("/report")({
 	validateSearch: (search) => {
 		const t = search["type"];

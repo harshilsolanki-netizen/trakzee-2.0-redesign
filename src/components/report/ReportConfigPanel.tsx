@@ -1,21 +1,28 @@
 import {
   Check,
   ChevronDown,
+  ChevronRight,
+  ChevronsUpDown,
   RotateCcw,
   Search,
   SlidersHorizontal,
+  Truck,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
+  BRANCHES,
+  COMPANIES,
   COMPARATORS,
   DURATION_UNITS,
   VEHICLE_BRANDS,
   VEHICLE_MODELS,
   VEHICLE_TYPES,
+  getBranchesForCompanies,
   getGroupsForBranches,
 } from "@/data/reports";
+import { fleetObjects } from "@/data/fleet";
 import { cn } from "@/lib/utils";
 
 export type ReportFilters = {
@@ -423,10 +430,26 @@ export function ReportConfigPanel({
   onApply: () => void;
   onExport?: (format: ExportFormat, scope: ExportScope) => void;
 }) {
-  // Dynamically derive available groups from selected branches
+  const selectedCompanies = filters.companies || [];
+  const selectedBranches = filters.branches || [];
+  const selectedGroups = filters.groups || [];
+  const selectedTypes = filters.types || [];
+  const selectedVehicleIds = filters.objects || [];
+
+  // 1. Company Options
+  const companyOptions = useMemo(() => {
+    return COMPANIES.filter((c) => c !== "All");
+  }, []);
+
+  // 2. Branch Options dynamically filtered by selected companies
+  const branchOptions = useMemo(() => {
+    return getBranchesForCompanies(selectedCompanies);
+  }, [selectedCompanies]);
+
+  // 3. Group Options dynamically filtered by selected branches
   const availableGroups = useMemo(() => {
-    return getGroupsForBranches(filters.branches || []);
-  }, [filters.branches]);
+    return getGroupsForBranches(selectedBranches);
+  }, [selectedBranches]);
 
   const groupOptions = useMemo(() => {
     return availableGroups.length > 0
@@ -434,10 +457,12 @@ export function ReportConfigPanel({
       : ["HP Group", "Trucks", "Buses", "Cars", "Cold Chain"];
   }, [availableGroups]);
 
+  // 4. Type Options
   const typeOptions = useMemo(() => {
-    return ["Dumper", "Truck", "Bus", "SUV", "Taxi", "Trailer"];
+    return VEHICLE_TYPES.filter((t) => t !== "All");
   }, []);
 
+  // 5. Brand Options
   const brandOptions = useMemo(() => {
     return [
       "Ashok Leyland",
@@ -445,6 +470,7 @@ export function ReportConfigPanel({
     ];
   }, []);
 
+  // 6. Model Options
   const modelOptions = useMemo(() => {
     return [
       "10 Wheel",
@@ -452,8 +478,155 @@ export function ReportConfigPanel({
     ];
   }, []);
 
+  // 7. Base Vehicle List enriched with metadata from fleetObjects
+  const allVehiclesList = useMemo(() => {
+    return fleetObjects.map((f) => ({
+      id: f.id,
+      name: f.name,
+      imei: f.imei,
+      branch: f.branch || "Head Office",
+      driver: f.driver || "Unassigned",
+      type: f.type,
+      company: f.company || "HP Company",
+    }));
+  }, []);
+
+  // 8. Dynamically filter vehicles based on selected Company, Branch, Type
+  const allFilteredVehicles = useMemo(() => {
+    return allVehiclesList.filter((v) => {
+      if (
+        selectedCompanies.length > 0 &&
+        !selectedCompanies.includes("All") &&
+        !selectedCompanies.includes(v.company)
+      ) {
+        return false;
+      }
+      if (
+        selectedBranches.length > 0 &&
+        !selectedBranches.includes("All") &&
+        !selectedBranches.includes(v.branch)
+      ) {
+        return false;
+      }
+      if (
+        selectedTypes.length > 0 &&
+        !selectedTypes.includes("All") &&
+        v.type &&
+        !selectedTypes.includes(v.type)
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [allVehiclesList, selectedCompanies, selectedBranches, selectedTypes]);
+
+  const allFilteredVehicleIds = useMemo(() => {
+    return allFilteredVehicles.map((v) => v.id);
+  }, [allFilteredVehicles]);
+
+  // Vehicle Search State
+  const [vehicleSearch, setVehicleSearch] = useState("");
+
+  // Branch Accordion Open/Collapsed State
+  const [openBranchGroups, setOpenBranchGroups] = useState<string[]>(() => [
+    "Indonesia",
+    "Thailand",
+    "Valsad",
+    "Pune",
+    "Itriangle",
+    "Ruptela",
+    "Bangalore",
+    "Delhi",
+    "Hyderabad",
+    "Chennai",
+  ]);
+
+  // Group vehicles by Branch for the tree view
+  const groupedVehicles = useMemo(() => {
+    const q = vehicleSearch.trim().toLowerCase();
+    const filtered = allFilteredVehicles.filter((v) => {
+      if (!q) return true;
+      const matchName = v.name.toLowerCase().includes(q);
+      const matchImei = v.imei.toLowerCase().includes(q);
+      const matchBranch = v.branch.toLowerCase().includes(q);
+      const matchDriver = v.driver.toLowerCase().includes(q);
+      return matchName || matchImei || matchBranch || matchDriver;
+    });
+
+    const groupsMap: Record<string, typeof filtered> = {};
+    filtered.forEach((v) => {
+      if (!groupsMap[v.branch]) {
+        groupsMap[v.branch] = [];
+      }
+      groupsMap[v.branch].push(v);
+    });
+
+    return Object.entries(groupsMap).map(([branch, vehicles]) => ({
+      branch,
+      vehicles,
+    }));
+  }, [allFilteredVehicles, vehicleSearch]);
+
+  const allVehiclesSelected =
+    allFilteredVehicleIds.length > 0 &&
+    allFilteredVehicleIds.every((id) => selectedVehicleIds.includes(id));
+
+  const someVehiclesSelected =
+    selectedVehicleIds.length > 0 && !allVehiclesSelected;
+
+  const toggleSelectAllVehicles = () => {
+    if (allVehiclesSelected) {
+      onChange({ objects: [] });
+    } else {
+      onChange({ objects: allFilteredVehicleIds });
+    }
+  };
+
+  const toggleBranchVehicles = (branchVehicles: { id: string }[]) => {
+    const branchIds = branchVehicles.map((v) => v.id);
+    const allInBranchSelected = branchIds.every((id) =>
+      selectedVehicleIds.includes(id),
+    );
+
+    if (allInBranchSelected) {
+      onChange({
+        objects: selectedVehicleIds.filter((id) => !branchIds.includes(id)),
+      });
+    } else {
+      onChange({
+        objects: Array.from(new Set([...selectedVehicleIds, ...branchIds])),
+      });
+    }
+  };
+
+  const toggleVehicle = (id: string) => {
+    if (selectedVehicleIds.includes(id)) {
+      onChange({ objects: selectedVehicleIds.filter((vId) => vId !== id) });
+    } else {
+      onChange({ objects: [...selectedVehicleIds, id] });
+    }
+  };
+
+  const toggleBranchAccordion = (branch: string) => {
+    setOpenBranchGroups((prev) =>
+      prev.includes(branch)
+        ? prev.filter((b) => b !== branch)
+        : [...prev, branch],
+    );
+  };
+
+  const toggleAllBranchAccordions = () => {
+    if (openBranchGroups.length === groupedVehicles.length) {
+      setOpenBranchGroups([]);
+    } else {
+      setOpenBranchGroups(groupedVehicles.map((g) => g.branch));
+    }
+  };
+
   const handleReset = () => {
     onChange({
+      companies: [],
+      branches: [],
       groups: ["HP Group", "Trucks", "Buses", "Cars"],
       types: ["Dumper", "Truck", "Bus"],
       brands: ["Ashok Leyland"],
@@ -463,7 +636,9 @@ export function ReportConfigPanel({
       durationValue: "",
       distanceCompare: "Greater Than",
       distanceValue: "",
+      objects: [],
     });
+    setVehicleSearch("");
     toast.info("Report filter options reset to default");
   };
 
@@ -517,114 +692,326 @@ export function ReportConfigPanel({
         </header>
 
         {/* Main Body with visually matched sleeker field controls */}
-        <div className="min-h-0 flex-1 flex flex-col p-5 space-y-4 overflow-y-auto custom-scrollbar">
-          {/* Field 1: Group */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Group
-            </label>
-            <UniversalMultiSelectDropdown
-              label="Group"
-              selected={filters.groups || []}
-              options={groupOptions}
-              onChange={(groups) => onChange({ groups })}
-              placeholder="Select Group"
-            />
-          </div>
+        <div className="min-h-0 flex-1 flex flex-col p-5 space-y-3.5 overflow-y-auto custom-scrollbar">
+          {/* Top Dropdowns Container */}
+          <div className="space-y-3 shrink-0">
+            {/* Field 1: Company */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Company
+              </label>
+              <UniversalMultiSelectDropdown
+                label="Company"
+                selected={selectedCompanies}
+                options={companyOptions}
+                onChange={(companies) => onChange({ companies })}
+                placeholder="Select Company"
+              />
+            </div>
 
-          {/* Field 2: Type */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Type
-            </label>
-            <UniversalMultiSelectDropdown
-              label="Type"
-              selected={filters.types || ["Dumper", "Truck", "Bus"]}
-              options={typeOptions}
-              onChange={(types) => onChange({ types })}
-              placeholder="Select Type"
-            />
-          </div>
+            {/* Field 2: Branch */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Branch
+              </label>
+              <UniversalMultiSelectDropdown
+                label="Branch"
+                selected={selectedBranches}
+                options={branchOptions}
+                onChange={(branches) => onChange({ branches })}
+                placeholder="Select Branch"
+              />
+            </div>
 
-          {/* Field 3: Brand */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Brand
-            </label>
-            <SelectDropdown
-              value={filters.brands?.[0] || "Ashok Leyland"}
-              options={brandOptions}
-              onChange={(b) => onChange({ brands: [b] })}
-              placeholder="Select Brand"
-            />
-          </div>
+            {/* Field 3: Group */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Group
+              </label>
+              <UniversalMultiSelectDropdown
+                label="Group"
+                selected={selectedGroups}
+                options={groupOptions}
+                onChange={(groups) => onChange({ groups })}
+                placeholder="Select Group"
+              />
+            </div>
 
-          {/* Field 4: Model */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Model
-            </label>
-            <SelectDropdown
-              value={filters.models?.[0] || "10 Wheel"}
-              options={modelOptions}
-              onChange={(m) => onChange({ models: [m] })}
-              placeholder="Select Model"
-            />
-          </div>
+            {/* Field 4: Type */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Type
+              </label>
+              <UniversalMultiSelectDropdown
+                label="Type"
+                selected={selectedTypes}
+                options={typeOptions}
+                onChange={(types) => onChange({ types })}
+                placeholder="Select Type"
+              />
+            </div>
 
-          {/* Field 5: Duration Threshold */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Duration Threshold
-            </label>
-            <div className="grid grid-cols-12 gap-2">
-              <div className="col-span-5">
-                <SelectDropdown
-                  value={filters.durationCompare}
-                  options={COMPARATORS}
-                  onChange={(durationCompare) => onChange({ durationCompare })}
-                />
+            {/* Field 5: Brand */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Brand
+              </label>
+              <SelectDropdown
+                value={filters.brands?.[0] || "Ashok Leyland"}
+                options={brandOptions}
+                onChange={(b) => onChange({ brands: [b] })}
+                placeholder="Select Brand"
+              />
+            </div>
+
+            {/* Field 6: Model */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Model
+              </label>
+              <SelectDropdown
+                value={filters.models?.[0] || "10 Wheel"}
+                options={modelOptions}
+                onChange={(m) => onChange({ models: [m] })}
+                placeholder="Select Model"
+              />
+            </div>
+
+            {/* Field 7: Duration Threshold */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Duration Threshold
+              </label>
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-5">
+                  <SelectDropdown
+                    value={filters.durationCompare}
+                    options={COMPARATORS}
+                    onChange={(durationCompare) =>
+                      onChange({ durationCompare })
+                    }
+                  />
+                </div>
+                <div className="col-span-4">
+                  <SelectDropdown
+                    value={filters.durationUnit}
+                    options={DURATION_UNITS}
+                    onChange={(durationUnit) => onChange({ durationUnit })}
+                  />
+                </div>
+                <div className="col-span-3">
+                  <input
+                    type="text"
+                    value={filters.durationValue}
+                    onChange={(e) =>
+                      onChange({ durationValue: e.target.value })
+                    }
+                    placeholder="e.g. 5"
+                    className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  />
+                </div>
               </div>
-              <div className="col-span-4">
-                <SelectDropdown
-                  value={filters.durationUnit}
-                  options={DURATION_UNITS}
-                  onChange={(durationUnit) => onChange({ durationUnit })}
-                />
-              </div>
-              <div className="col-span-3">
-                <input
-                  type="text"
-                  value={filters.durationValue}
-                  onChange={(e) => onChange({ durationValue: e.target.value })}
-                  placeholder="e.g. 5"
-                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
-                />
+            </div>
+
+            {/* Field 8: Distance Threshold */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Distance Threshold (km)
+              </label>
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-7">
+                  <SelectDropdown
+                    value={filters.distanceCompare}
+                    options={COMPARATORS}
+                    onChange={(distanceCompare) =>
+                      onChange({ distanceCompare })
+                    }
+                  />
+                </div>
+                <div className="col-span-5">
+                  <input
+                    type="text"
+                    value={filters.distanceValue}
+                    onChange={(e) =>
+                      onChange({ distanceValue: e.target.value })
+                    }
+                    placeholder="e.g. 5"
+                    className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Field 6: Distance Threshold */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Distance Threshold (km)
-            </label>
-            <div className="grid grid-cols-12 gap-2">
-              <div className="col-span-7">
-                <SelectDropdown
-                  value={filters.distanceCompare}
-                  options={COMPARATORS}
-                  onChange={(distanceCompare) => onChange({ distanceCompare })}
-                />
-              </div>
-              <div className="col-span-5">
+          {/* Field 9: Expandable / Collapsible Vehicle List Section */}
+          <div className="space-y-2 pt-2 border-t border-border/60 flex-1 min-h-[300px] flex flex-col">
+            <div className="flex items-center justify-between shrink-0">
+              <label className="block text-xs font-semibold text-foreground">
+                Vehicle List
+              </label>
+              <span className="text-[11px] font-semibold text-muted-foreground">
+                {selectedVehicleIds.length} of {allFilteredVehicleIds.length}{" "}
+                selected
+              </span>
+            </div>
+
+            {/* Vehicle Search Box */}
+            <div className="relative shrink-0">
+              <div className="flex h-8 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+                <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 <input
                   type="text"
-                  value={filters.distanceValue}
-                  onChange={(e) => onChange({ distanceValue: e.target.value })}
-                  placeholder="e.g. 5"
-                  className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs"
+                  value={vehicleSearch}
+                  onChange={(e) => setVehicleSearch(e.target.value)}
+                  placeholder="Search vehicles, drivers, branch..."
+                  aria-label="Search vehicles"
+                  className="h-full flex-1 bg-transparent text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none"
                 />
+                {vehicleSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setVehicleSearch("")}
+                    className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Tree / Grouped Vehicle Checkbox Container */}
+            <div className="flex-1 min-h-[220px] flex flex-col rounded-lg border border-border/80 bg-card overflow-hidden shadow-2xs">
+              {/* Select all header toolbar */}
+              <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={allVehiclesSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someVehiclesSelected;
+                    }}
+                    onChange={toggleSelectAllVehicles}
+                    className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                  />
+                  <span>Select all</span>
+                </label>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-medium text-muted-foreground">
+                    {selectedVehicleIds.length} selected
+                  </span>
+                  <button
+                    type="button"
+                    onClick={toggleAllBranchAccordions}
+                    className="text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer"
+                    title="Expand/Collapse All"
+                  >
+                    <ChevronsUpDown className="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Reference Warning Message when 0 vehicles selected */}
+              {selectedVehicleIds.length === 0 && (
+                <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug shrink-0">
+                  Select at least one vehicle, or all vehicles will be included.
+                </div>
+              )}
+
+              {/* Scrollable Grouped Vehicle List with Expand / Collapse */}
+              <div className="flex-1 min-h-0 overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar">
+                {groupedVehicles.map(({ branch, vehicles }) => {
+                  const isExpanded =
+                    openBranchGroups.includes(branch) ||
+                    vehicleSearch.trim() !== "";
+                  const branchIds = vehicles.map((v) => v.id);
+                  const selectedBranchCount = vehicles.filter((v) =>
+                    selectedVehicleIds.includes(v.id),
+                  ).length;
+                  const isBranchAllSelected =
+                    selectedBranchCount === vehicles.length &&
+                    vehicles.length > 0;
+                  const isBranchSomeSelected =
+                    selectedBranchCount > 0 && !isBranchAllSelected;
+
+                  return (
+                    <div key={branch} className="py-1">
+                      {/* Branch Accordion Header */}
+                      <div className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors select-none">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <input
+                            type="checkbox"
+                            aria-label={`Select all vehicles in ${branch}`}
+                            checked={isBranchAllSelected}
+                            ref={(el) => {
+                              if (el) el.indeterminate = isBranchSomeSelected;
+                            }}
+                            onChange={() => toggleBranchVehicles(vehicles)}
+                            className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => toggleBranchAccordion(branch)}
+                            className="flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate"
+                          >
+                            <ChevronRight
+                              className={cn(
+                                "h-3.5 w-3.5 text-muted-foreground transition-transform duration-150",
+                                isExpanded && "rotate-90",
+                              )}
+                            />
+                            <span className="truncate">{branch}</span>
+                            <span className="text-[10px] tabular-nums text-muted-foreground font-normal">
+                              [{vehicles.length}]
+                            </span>
+                          </button>
+                        </div>
+                        <span className="text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full">
+                          {selectedBranchCount}/{vehicles.length}
+                        </span>
+                      </div>
+
+                      {/* Branch Vehicles Sub-List */}
+                      {isExpanded && (
+                        <div className="mt-1 pl-6 pr-2 space-y-0.5">
+                          {vehicles.map((v) => {
+                            const isChecked = selectedVehicleIds.includes(v.id);
+                            return (
+                              <label
+                                key={v.id}
+                                className="flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => toggleVehicle(v.id)}
+                                    className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                                  />
+                                  <Truck className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                  <div className="min-w-0 truncate">
+                                    <span className="block truncate leading-tight text-xs font-semibold">
+                                      {v.name}
+                                    </span>
+                                    <span className="block text-[10px] text-muted-foreground truncate leading-tight font-normal">
+                                      {v.imei} · {v.driver}
+                                    </span>
+                                  </div>
+                                </div>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {groupedVehicles.length === 0 && (
+                  <div className="p-6 text-center text-xs text-muted-foreground italic">
+                    No vehicles found matching &ldquo;{vehicleSearch}&rdquo;
+                  </div>
+                )}
               </div>
             </div>
           </div>

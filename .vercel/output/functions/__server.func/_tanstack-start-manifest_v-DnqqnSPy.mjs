@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-TQbw0pUm.js
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-DnqqnSPy.js
 var tsrStartManifest = () => ({ routes: {
 	__root__: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/__root.tsx",
@@ -12,17 +12,17 @@ var tsrStartManifest = () => ({ routes: {
 			"/zio"
 		],
 		preloads: [
-			"/assets/index-DEmi9ECu.js",
+			"/assets/index-DKFHmbJD.js",
 			"/assets/utils-BDRr8poQ.js",
 			"/assets/download-B5T2ibo3.js",
 			"/assets/x-B4JrkUkn.js",
-			"/assets/FavoritesMenu-CrLGNsZ6.js",
+			"/assets/FavoritesMenu-bXj5vOlW.js",
 			"/assets/bell-C6i9-8z2.js",
 			"/assets/dist-BMaSEWCn.js",
 			"/assets/chevron-down-Dha4uT77.js",
 			"/assets/search-DDWeLJ_y.js",
 			"/assets/dropdown-menu-DUoHHQSP.js",
-			"/assets/ZioPanel-C3hebblU.js",
+			"/assets/ZioPanel-1i5mrmkD.js",
 			"/assets/eye-D_8Go47a.js",
 			"/assets/file-text-GtX3tr5j.js",
 			"/assets/types-BsvVURBu.js",
@@ -32,7 +32,7 @@ var tsrStartManifest = () => ({ routes: {
 			"/assets/reports-CoKrrIz6.js",
 			"/assets/shield-B6Iy1sFt.js",
 			"/assets/settings-CnYrwVwO.js",
-			"/assets/trash-2-CInxCb_F.js",
+			"/assets/truck-KC9exOvJ.js",
 			"/assets/user-CzQxYe2t.js",
 			"/assets/dist-DfMmrg6Y.js",
 			"/assets/store-BVkq8JhO.js",
@@ -41,19 +41,18 @@ var tsrStartManifest = () => ({ routes: {
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-DEmi9ECu.js"
+			src: "/assets/index-DKFHmbJD.js"
 		} }]
 	},
 	"/": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/index.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/routes--TpAmtXc.js",
+			"/assets/routes-BBKbJz-4.js",
 			"/assets/video-CiTIpoFR.js",
 			"/assets/fleet-DYGVpYjf.js",
 			"/assets/rotate-ccw-BknbzzFT.js",
 			"/assets/sliders-horizontal-Dw4fhHu4.js",
-			"/assets/truck-iBOT5k6W.js",
 			"/assets/PieChart-BTtKvk8n.js",
 			"/assets/dialog-BDL0MVmo.js"
 		]
@@ -83,7 +82,7 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/report.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/report-w7i56YrI.js",
+			"/assets/report-c-vjBR9K.js",
 			"/assets/play-CULVwW4v.js",
 			"/assets/clock-D7xLHN8c.js",
 			"/assets/minus-y5WOeQdi.js",
@@ -115,7 +114,7 @@ var tsrStartManifest = () => ({ routes: {
 	"/zio": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/zio.tsx",
 		children: void 0,
-		preloads: ["/assets/zio-CzFkJVNs.js"]
+		preloads: ["/assets/zio-KUs-0szo.js"]
 	}
 } });
 //#endregion
