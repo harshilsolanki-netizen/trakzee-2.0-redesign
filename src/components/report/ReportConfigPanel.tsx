@@ -3,13 +3,15 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronsUpDown,
+  Maximize2,
+  Minimize2,
   RotateCcw,
   Search,
   SlidersHorizontal,
   Truck,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   BRANCHES,
@@ -542,6 +544,45 @@ export function ReportConfigPanel({
   // Vehicle Search State
   const [vehicleSearch, setVehicleSearch] = useState("");
 
+  // Vehicle list height resizer state (allows user to drag or toggle size bigger/smaller)
+  const [vehicleListHeight, setVehicleListHeight] = useState<number>(190);
+  const isResizingVehicleList = useRef(false);
+  const resizeStartY = useRef(0);
+  const resizeStartHeight = useRef(190);
+
+  const startResizeVehicleList = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      isResizingVehicleList.current = true;
+      resizeStartY.current = e.clientY;
+      resizeStartHeight.current = vehicleListHeight;
+
+      const handleMouseMove = (event: MouseEvent) => {
+        if (!isResizingVehicleList.current) return;
+        const delta = event.clientY - resizeStartY.current;
+        const newHeight = Math.min(
+          Math.max(resizeStartHeight.current + delta, 100),
+          550,
+        );
+        setVehicleListHeight(newHeight);
+      };
+
+      const handleMouseUp = () => {
+        isResizingVehicleList.current = false;
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "ns-resize";
+      document.body.style.userSelect = "none";
+    },
+    [vehicleListHeight],
+  );
+
   // Branch Accordion Open/Collapsed State
   const [openBranchGroups, setOpenBranchGroups] = useState<string[]>(() => [
     "Indonesia",
@@ -820,7 +861,7 @@ export function ReportConfigPanel({
             )}
           </div>
 
-          {/* 2. Vehicle Checklist Section */}
+          {/* 2. Vehicle Checklist Section (Resizable) */}
           <div className="rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs">
             {/* Master Select all toolbar */}
             <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none">
@@ -851,11 +892,35 @@ export function ReportConfigPanel({
                 >
                   <ChevronsUpDown className="h-3 w-3" />
                 </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setVehicleListHeight((prev) => (prev > 220 ? 190 : 340))
+                  }
+                  className="text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted ml-0.5"
+                  title={
+                    vehicleListHeight > 220
+                      ? "Compact height"
+                      : "Expand height"
+                  }
+                >
+                  {vehicleListHeight > 220 ? (
+                    <Minimize2 className="h-3 w-3" />
+                  ) : (
+                    <Maximize2 className="h-3 w-3" />
+                  )}
+                </button>
               </div>
             </div>
 
             {/* Scrollable Bounded Branch List with Chevrons and Badges */}
-            <div className="max-h-[190px] overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar">
+            <div
+              style={{
+                height: `${vehicleListHeight}px`,
+                maxHeight: `${vehicleListHeight}px`,
+              }}
+              className="overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar transition-[height] duration-75 ease-out"
+            >
               {groupedVehicles.map(({ branch, vehicles }) => {
                 const isExpanded =
                   openBranchGroups.includes(branch) ||
@@ -948,6 +1013,28 @@ export function ReportConfigPanel({
                   No vehicles found matching &ldquo;{vehicleSearch}&rdquo;
                 </div>
               )}
+            </div>
+
+            {/* Interactive Resizer Bar at the bottom with grab indicator & bottom-right resize corner */}
+            <div
+              onMouseDown={startResizeVehicleList}
+              onDoubleClick={() =>
+                setVehicleListHeight((prev) => (prev > 220 ? 190 : 340))
+              }
+              className="relative flex h-3.5 w-full cursor-ns-resize items-center justify-center border-t border-border/60 bg-muted/20 hover:bg-muted/60 transition-colors select-none group"
+              title="Drag to resize length (Double-click to expand/collapse)"
+            >
+              <div className="h-1 w-8 rounded-full bg-muted-foreground/30 group-hover:bg-[#0089FF] transition-colors" />
+              <div
+                className="absolute right-1 bottom-0.5 text-muted-foreground/40 group-hover:text-[#0089FF] transition-colors pointer-events-none"
+                title="Resize handle"
+              >
+                <svg width="6" height="6" viewBox="0 0 6 6" fill="currentColor">
+                  <circle cx="5" cy="5" r="1" />
+                  <circle cx="5" cy="1" r="1" />
+                  <circle cx="1" cy="5" r="1" />
+                </svg>
+              </div>
             </div>
           </div>
 
