@@ -1261,15 +1261,6 @@ export function ScheduleModal({
                     Create a schedule to receive reports automatically at your
                     preferred time and frequency.
                   </p>
-
-                  <button
-                    type="button"
-                    onClick={startCreate}
-                    className="mt-6 inline-flex items-center gap-2 rounded-md bg-[#0089FF] px-4.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] active:scale-98 cursor-pointer transition-all"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span>Create New Schedule</span>
-                  </button>
                 </div>
               ) : (
                 /* VIEW 1B: Scheduled Reports List View */
