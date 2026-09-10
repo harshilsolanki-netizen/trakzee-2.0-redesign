@@ -1555,7 +1555,25 @@ export function ScheduleModal({
                 <SelectDropdown
                   value={draft.relativeType}
                   options={RELATIVE_TYPES}
-                  onChange={(relativeType) => setDraft((d) => ({ ...d, relativeType }))}
+                  onChange={(relativeType) => {
+                    let nextScheduleType = draft.scheduleType;
+                    if (relativeType === "This Week" || relativeType === "Last Week") {
+                      nextScheduleType = "Weekly";
+                    } else if (relativeType === "This Month" || relativeType === "Last Month") {
+                      nextScheduleType = "Monthly";
+                    } else if (
+                      relativeType === "Today" ||
+                      relativeType === "Yesterday" ||
+                      relativeType === "Last 7 Days"
+                    ) {
+                      nextScheduleType = "Daily";
+                    }
+                    setDraft((d) => ({
+                      ...d,
+                      relativeType,
+                      scheduleType: nextScheduleType,
+                    }));
+                  }}
                   placeholder="Select Relative Type"
                 />
               </div>
@@ -1596,7 +1614,7 @@ export function ScheduleModal({
                     <label className="block text-[10px] font-medium text-muted-foreground mb-1">
                       Repeat on days
                     </label>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {WEEK_DAYS.map((day) => {
                         const isSelected = (draft.selectedDays || []).includes(day.id);
                         return (
@@ -1616,6 +1634,36 @@ export function ScheduleModal({
                         );
                       })}
                     </div>
+                  </div>
+                )}
+
+                {/* Monthly Date Selector */}
+                {draft.scheduleType === "Monthly" && (
+                  <div className="pt-1.5 space-y-1 animate-in fade-in-50 duration-150">
+                    <label className="block text-[10px] font-medium text-muted-foreground mb-1">
+                      Select Month Date
+                    </label>
+                    <SelectDropdown
+                      value={
+                        draft.selectedDates?.[0]
+                          ? draft.selectedDates[0] === 31
+                            ? "Last Day of Month"
+                            : `Day ${draft.selectedDates[0]}`
+                          : "Day 1"
+                      }
+                      options={[
+                        ...Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
+                        "Last Day of Month",
+                      ]}
+                      onChange={(val) => {
+                        const num =
+                          val === "Last Day of Month"
+                            ? 31
+                            : parseInt(val.replace("Day ", ""), 10) || 1;
+                        setDraft((d) => ({ ...d, selectedDates: [num] }));
+                      }}
+                      placeholder="Select Month Date"
+                    />
                   </div>
                 )}
               </div>
