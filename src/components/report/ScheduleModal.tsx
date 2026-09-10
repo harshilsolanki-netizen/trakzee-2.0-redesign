@@ -184,6 +184,34 @@ const GENERATION_TIMES = [
   "21:00",
 ];
 
+const TIME_OPTIONS = [
+  "12:00 AM",
+  "01:00 AM",
+  "02:00 AM",
+  "03:00 AM",
+  "04:00 AM",
+  "05:00 AM",
+  "06:00 AM",
+  "07:00 AM",
+  "08:00 AM",
+  "09:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "01:00 PM",
+  "02:00 PM",
+  "03:00 PM",
+  "04:00 PM",
+  "05:00 PM",
+  "06:00 PM",
+  "07:00 PM",
+  "08:00 PM",
+  "09:00 PM",
+  "10:00 PM",
+  "11:00 PM",
+  "11:59 PM",
+];
+
 const SFTP_PLATFORMS = [
   "Amazon S3",
   "Google Cloud Storage",
@@ -1392,7 +1420,7 @@ export function ScheduleModal({
             </footer>
           </div>
         ) : (
-          /* View 2: Form View (Direct Create / Edit Schedule Configuration) */
+          /* View 2: Form View (Direct Create / Edit Schedule Configuration matching Design System) */
           <div className="flex flex-1 min-h-0 flex-col bg-background">
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar">
               {/* Report Name */}
@@ -1422,88 +1450,42 @@ export function ScheduleModal({
                 )}
               </div>
 
-              {/* Vehicles Selection Scope matching Image 1 */}
-              <div className="space-y-1.5 rounded-xl border border-border/80 bg-card p-3 shadow-2xs">
+              {/* Vehicle Scope Selection */}
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <label className="block text-[11px] font-semibold text-foreground">
-                    Vehicles to Include
+                    Vehicles to Include <span className="text-red-500 font-bold ml-0.5">*</span>
                   </label>
-                  <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
-                    {vehicleFilterMode === "current"
-                      ? `${currentLoadedVehicleIds.length} Loaded Vehicles`
-                      : `${draft.selectedVehicles.length || customFilteredVehicleIds.length} Custom Selected`}
-                  </span>
+                  {vehicleFilterMode === "custom" && (
+                    <button
+                      type="button"
+                      onClick={handleOpenCustomVehicleOverlay}
+                      className="text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors"
+                    >
+                      Filter Options
+                    </button>
+                  )}
                 </div>
-
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  {/* Option 1: Current Filter */}
-                  <label
-                    onClick={() => setVehicleFilterMode("current")}
-                    className={cn(
-                      "flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left",
-                      vehicleFilterMode === "current"
-                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30"
-                        : "border-border/80 bg-background hover:bg-muted/40 hover:border-border",
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="vehicleScope"
-                        checked={vehicleFilterMode === "current"}
-                        onChange={() => setVehicleFilterMode("current")}
-                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-                      />
-                      <span className="text-xs font-semibold text-foreground leading-tight">
-                        Current Filter
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground pl-5 leading-tight font-normal">
-                      Use loaded vehicles ({currentLoadedVehicleIds.length})
-                    </span>
-                  </label>
-
-                  {/* Option 2: Custom Filter */}
-                  <div
-                    onClick={() => setVehicleFilterMode("custom")}
-                    className={cn(
-                      "flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left relative",
-                      vehicleFilterMode === "custom"
-                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30"
-                        : "border-border/80 bg-background hover:bg-muted/40 hover:border-border",
-                    )}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name="vehicleScope"
-                          checked={vehicleFilterMode === "custom"}
-                          onChange={() => setVehicleFilterMode("custom")}
-                          className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-                        />
-                        <span className="text-xs font-semibold text-foreground leading-tight">
-                          Custom Filter
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenCustomVehicleOverlay();
-                        }}
-                        className="text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors"
-                      >
-                        Change
-                      </button>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground pl-5 leading-tight font-normal">
-                      {draft.selectedVehicles.length > 0
-                        ? `${draft.selectedVehicles.length} vehicles`
-                        : `${customFilteredVehicleIds.length} vehicles`}
-                    </span>
-                  </div>
-                </div>
+                <SelectDropdown
+                  value={
+                    vehicleFilterMode === "current"
+                      ? `Current Filter (${currentLoadedVehicleIds.length} Loaded Vehicles)`
+                      : `Custom Filter (${draft.selectedVehicles.length || customFilteredVehicleIds.length} Selected Vehicles)`
+                  }
+                  options={[
+                    `Current Filter (${currentLoadedVehicleIds.length} Loaded Vehicles)`,
+                    `Custom Filter (${draft.selectedVehicles.length || customFilteredVehicleIds.length} Selected Vehicles)`,
+                  ]}
+                  onChange={(v) => {
+                    if (v.startsWith("Current Filter")) {
+                      setVehicleFilterMode("current");
+                    } else {
+                      setVehicleFilterMode("custom");
+                      handleOpenCustomVehicleOverlay();
+                    }
+                  }}
+                  placeholder="Select Vehicle Scope"
+                />
               </div>
 
               {/* Copy From */}
@@ -1528,6 +1510,7 @@ export function ScheduleModal({
                   value={draft.relativeType}
                   options={RELATIVE_TYPES}
                   onChange={(relativeType) => setDraft((d) => ({ ...d, relativeType }))}
+                  placeholder="Select Relative Type"
                 />
               </div>
 
@@ -1540,31 +1523,26 @@ export function ScheduleModal({
                   value={draft.timezone}
                   options={TIMEZONES}
                   onChange={(timezone) => setDraft((d) => ({ ...d, timezone }))}
+                  placeholder="Select Timezone"
                 />
               </div>
 
-              {/* Frequency / Recurrence Type */}
-              <div className="space-y-1.5">
+              {/* Frequency */}
+              <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-foreground">
                   Frequency <span className="text-red-500 font-bold ml-0.5">*</span>
                 </label>
-                <div className="flex items-center gap-4 text-xs font-medium text-foreground">
-                  {(["Daily", "Weekly", "Monthly"] as const).map((freq) => (
-                    <label
-                      key={freq}
-                      className="flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors"
-                    >
-                      <input
-                        type="radio"
-                        name="scheduleType"
-                        checked={draft.scheduleType === freq}
-                        onChange={() => setDraft((d) => ({ ...d, scheduleType: freq }))}
-                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-                      />
-                      <span>{freq}</span>
-                    </label>
-                  ))}
-                </div>
+                <SelectDropdown
+                  value={draft.scheduleType}
+                  options={["Daily", "Weekly", "Monthly"]}
+                  onChange={(val) =>
+                    setDraft((d) => ({
+                      ...d,
+                      scheduleType: val as "Daily" | "Weekly" | "Monthly",
+                    }))
+                  }
+                  placeholder="Select Frequency"
+                />
 
                 {/* Weekly Day Selector Pills */}
                 {draft.scheduleType === "Weekly" && (
@@ -1605,6 +1583,7 @@ export function ScheduleModal({
                   value={draft.generationTime}
                   options={GENERATION_TIMES}
                   onChange={(generationTime) => setDraft((d) => ({ ...d, generationTime }))}
+                  placeholder="Select Generation Time"
                 />
               </div>
 
@@ -1625,102 +1604,88 @@ export function ScheduleModal({
                 {draft.hasTimeRange && (
                   <div className="grid grid-cols-2 gap-3 pt-0.5 animate-in fade-in-50 duration-150">
                     <div className="space-y-1">
-                      <label className="block text-[10px] font-medium text-muted-foreground">
+                      <label className="block text-[11px] font-semibold text-foreground">
                         Start Time
                       </label>
-                      <div className="flex h-7.5 items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs">
-                        <span className="font-medium text-foreground">
-                          {draft.timeRangeStart || "12:00 AM"}
-                        </span>
-                        <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
-                      </div>
+                      <SelectDropdown
+                        value={draft.timeRangeStart || "12:00 AM"}
+                        options={TIME_OPTIONS}
+                        onChange={(timeRangeStart) =>
+                          setDraft((d) => ({ ...d, timeRangeStart }))
+                        }
+                        placeholder="Start Time"
+                      />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="block text-[10px] font-medium text-muted-foreground">
+                      <label className="block text-[11px] font-semibold text-foreground">
                         End Time
                       </label>
-                      <div className="flex h-7.5 items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs">
-                        <span className="font-medium text-foreground">
-                          {draft.timeRangeEnd || "11:59 PM"}
-                        </span>
-                        <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
-                      </div>
+                      <SelectDropdown
+                        value={draft.timeRangeEnd || "11:59 PM"}
+                        options={TIME_OPTIONS}
+                        onChange={(timeRangeEnd) =>
+                          setDraft((d) => ({ ...d, timeRangeEnd }))
+                        }
+                        placeholder="End Time"
+                      />
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Report Type Radios */}
-              <div className="space-y-1.5">
+              {/* Report Type */}
+              <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-foreground">
-                  Report Type
+                  Report Type <span className="text-red-500 font-bold ml-0.5">*</span>
                 </label>
-                <div className="flex items-center gap-4 text-xs font-medium text-foreground">
-                  {(["Summary", "Daily", "Detail"] as const).map((t) => (
-                    <label
-                      key={t}
-                      className="flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors"
-                    >
-                      <input
-                        type="radio"
-                        name="reportType"
-                        checked={draft.reportType === t}
-                        onChange={() => setDraft((d) => ({ ...d, reportType: t }))}
-                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-                      />
-                      <span>{t}</span>
-                    </label>
-                  ))}
-                </div>
+                <SelectDropdown
+                  value={draft.reportType}
+                  options={["Summary", "Daily", "Detail"]}
+                  onChange={(val) =>
+                    setDraft((d) => ({
+                      ...d,
+                      reportType: val as "Summary" | "Daily" | "Detail",
+                    }))
+                  }
+                  placeholder="Select Report Type"
+                />
               </div>
 
-              {/* File Format Radios */}
-              <div className="space-y-1.5">
+              {/* File Format */}
+              <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-foreground">
-                  File Format
+                  File Format <span className="text-red-500 font-bold ml-0.5">*</span>
                 </label>
-                <div className="flex items-center gap-4 text-xs font-medium text-foreground">
-                  {(["XLS", "PDF", "CSV"] as const).map((f) => (
-                    <label
-                      key={f}
-                      className="flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors"
-                    >
-                      <input
-                        type="radio"
-                        name="format"
-                        checked={draft.format === f}
-                        onChange={() => setDraft((d) => ({ ...d, format: f }))}
-                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-                      />
-                      <span>{f}</span>
-                    </label>
-                  ))}
-                </div>
+                <SelectDropdown
+                  value={draft.format}
+                  options={["XLS", "PDF", "CSV"]}
+                  onChange={(val) =>
+                    setDraft((d) => ({
+                      ...d,
+                      format: val as "XLS" | "PDF" | "CSV",
+                    }))
+                  }
+                  placeholder="Select File Format"
+                />
               </div>
 
-              {/* Delivery Method Radios */}
-              <div className="space-y-1.5">
+              {/* Delivery Method */}
+              <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-foreground">
-                  Delivery Method
+                  Delivery Method <span className="text-red-500 font-bold ml-0.5">*</span>
                 </label>
-                <div className="flex items-center gap-4 text-xs font-medium text-foreground">
-                  {(["Email", "FTP", "SFTP", "Media API"] as const).map((m) => (
-                    <label
-                      key={m}
-                      className="flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors"
-                    >
-                      <input
-                        type="radio"
-                        name="actionType"
-                        checked={draft.actionType === m}
-                        onChange={() => setDraft((d) => ({ ...d, actionType: m }))}
-                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-                      />
-                      <span>{m}</span>
-                    </label>
-                  ))}
-                </div>
+                <SelectDropdown
+                  value={draft.actionType}
+                  options={["Email", "FTP", "SFTP", "Media API"]}
+                  onChange={(val) =>
+                    setDraft((d) => ({
+                      ...d,
+                      actionType: val as "Email" | "FTP" | "SFTP" | "Media API",
+                    }))
+                  }
+                  placeholder="Select Delivery Method"
+                />
               </div>
 
               {/* Delivery Configuration Details: Email */}
@@ -1971,6 +1936,7 @@ export function ScheduleModal({
                       value={draft.sftpPlatform || "Amazon S3"}
                       options={SFTP_PLATFORMS}
                       onChange={(sftpPlatform) => setDraft((d) => ({ ...d, sftpPlatform }))}
+                      placeholder="Select Platform"
                     />
                   </div>
 
@@ -2059,6 +2025,7 @@ export function ScheduleModal({
                       value={draft.mediaGateway || "WhatsApp"}
                       options={MEDIA_GATEWAYS}
                       onChange={(mediaGateway) => setDraft((d) => ({ ...d, mediaGateway }))}
+                      placeholder="Select Media Gateway"
                     />
                   </div>
 
@@ -2512,7 +2479,7 @@ export function ScheduleModal({
                         value={customDurationValue}
                         onChange={(e) => setCustomDurationValue(e.target.value)}
                         placeholder="e.g. 5"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
                       />
                     </div>
                   </div>
@@ -2538,7 +2505,7 @@ export function ScheduleModal({
                         value={customDistanceValue}
                         onChange={(e) => setCustomDistanceValue(e.target.value)}
                         placeholder="e.g. 5"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
                       />
                     </div>
                   </div>

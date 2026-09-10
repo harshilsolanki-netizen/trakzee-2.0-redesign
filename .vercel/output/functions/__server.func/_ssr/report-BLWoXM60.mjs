@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-CRug-Wdl.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-BLWoXM60.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -2520,6 +2520,33 @@ var GENERATION_TIMES = [
 	"18:00",
 	"21:00"
 ];
+var TIME_OPTIONS = [
+	"12:00 AM",
+	"01:00 AM",
+	"02:00 AM",
+	"03:00 AM",
+	"04:00 AM",
+	"05:00 AM",
+	"06:00 AM",
+	"07:00 AM",
+	"08:00 AM",
+	"09:00 AM",
+	"10:00 AM",
+	"11:00 AM",
+	"12:00 PM",
+	"01:00 PM",
+	"02:00 PM",
+	"03:00 PM",
+	"04:00 PM",
+	"05:00 PM",
+	"06:00 PM",
+	"07:00 PM",
+	"08:00 PM",
+	"09:00 PM",
+	"10:00 PM",
+	"11:00 PM",
+	"11:59 PM"
+];
 var SFTP_PLATFORMS = [
 	"Amazon S3",
 	"Google Cloud Storage",
@@ -3473,72 +3500,32 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5 rounded-xl border border-border/80 bg-card p-3 shadow-2xs",
+								className: "space-y-1",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "flex items-center justify-between",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: "Vehicles to Include"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full",
-										children: vehicleFilterMode === "current" ? `${currentLoadedVehicleIds.length} Loaded Vehicles` : `${draft.selectedVehicles.length || customFilteredVehicleIds.length} Custom Selected`
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "grid grid-cols-2 gap-2 pt-1",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										onClick: () => setVehicleFilterMode("current"),
-										className: cn("flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left", vehicleFilterMode === "current" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30" : "border-border/80 bg-background hover:bg-muted/40 hover:border-border"),
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center gap-2",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-												type: "radio",
-												name: "vehicleScope",
-												checked: vehicleFilterMode === "current",
-												onChange: () => setVehicleFilterMode("current"),
-												className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "text-xs font-semibold text-foreground leading-tight",
-												children: "Current Filter"
-											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-											className: "text-[10px] text-muted-foreground pl-5 leading-tight font-normal",
-											children: [
-												"Use loaded vehicles (",
-												currentLoadedVehicleIds.length,
-												")"
-											]
+										className: "block text-[11px] font-semibold text-foreground",
+										children: ["Vehicles to Include ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-red-500 font-bold ml-0.5",
+											children: "*"
 										})]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										onClick: () => setVehicleFilterMode("custom"),
-										className: cn("flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left relative", vehicleFilterMode === "custom" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30" : "border-border/80 bg-background hover:bg-muted/40 hover:border-border"),
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center justify-between",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-2",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "radio",
-													name: "vehicleScope",
-													checked: vehicleFilterMode === "custom",
-													onChange: () => setVehicleFilterMode("custom"),
-													className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-													className: "text-xs font-semibold text-foreground leading-tight",
-													children: "Custom Filter"
-												})]
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-												type: "button",
-												onClick: (e) => {
-													e.stopPropagation();
-													handleOpenCustomVehicleOverlay();
-												},
-												className: "text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors",
-												children: "Change"
-											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-[10px] text-muted-foreground pl-5 leading-tight font-normal",
-											children: draft.selectedVehicles.length > 0 ? `${draft.selectedVehicles.length} vehicles` : `${customFilteredVehicleIds.length} vehicles`
-										})]
+									}), vehicleFilterMode === "custom" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: handleOpenCustomVehicleOverlay,
+										className: "text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors",
+										children: "Filter Options"
 									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+									value: vehicleFilterMode === "current" ? `Current Filter (${currentLoadedVehicleIds.length} Loaded Vehicles)` : `Custom Filter (${draft.selectedVehicles.length || customFilteredVehicleIds.length} Selected Vehicles)`,
+									options: [`Current Filter (${currentLoadedVehicleIds.length} Loaded Vehicles)`, `Custom Filter (${draft.selectedVehicles.length || customFilteredVehicleIds.length} Selected Vehicles)`],
+									onChange: (v) => {
+										if (v.startsWith("Current Filter")) setVehicleFilterMode("current");
+										else {
+											setVehicleFilterMode("custom");
+											handleOpenCustomVehicleOverlay();
+										}
+									},
+									placeholder: "Select Vehicle Scope"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -3567,7 +3554,8 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 									onChange: (relativeType) => setDraft((d) => ({
 										...d,
 										relativeType
-									}))
+									})),
+									placeholder: "Select Relative Type"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -3584,11 +3572,12 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 									onChange: (timezone) => setDraft((d) => ({
 										...d,
 										timezone
-									}))
+									})),
+									placeholder: "Select Timezone"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5",
+								className: "space-y-1",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 										className: "block text-[11px] font-semibold text-foreground",
@@ -3597,25 +3586,18 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 											children: "*"
 										})]
 									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										className: "flex items-center gap-4 text-xs font-medium text-foreground",
-										children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+										value: draft.scheduleType,
+										options: [
 											"Daily",
 											"Weekly",
 											"Monthly"
-										].map((freq) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-											className: "flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-												type: "radio",
-												name: "scheduleType",
-												checked: draft.scheduleType === freq,
-												onChange: () => setDraft((d) => ({
-													...d,
-													scheduleType: freq
-												})),
-												className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: freq })]
-										}, freq))
+										],
+										onChange: (val) => setDraft((d) => ({
+											...d,
+											scheduleType: val
+										})),
+										placeholder: "Select Frequency"
 									}),
 									draft.scheduleType === "Weekly" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "pt-1.5 animate-in fade-in-50 duration-150",
@@ -3651,7 +3633,8 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 									onChange: (generationTime) => setDraft((d) => ({
 										...d,
 										generationTime
-									}))
+									})),
+									placeholder: "Select Generation Time"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -3672,107 +3655,99 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "space-y-1",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[10px] font-medium text-muted-foreground",
+											className: "block text-[11px] font-semibold text-foreground",
 											children: "Start Time"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex h-7.5 items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "font-medium text-foreground",
-												children: draft.timeRangeStart || "12:00 AM"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, { className: "h-3.5 w-3.5 text-muted-foreground/60" })]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+											value: draft.timeRangeStart || "12:00 AM",
+											options: TIME_OPTIONS,
+											onChange: (timeRangeStart) => setDraft((d) => ({
+												...d,
+												timeRangeStart
+											})),
+											placeholder: "Start Time"
 										})]
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "space-y-1",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[10px] font-medium text-muted-foreground",
+											className: "block text-[11px] font-semibold text-foreground",
 											children: "End Time"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex h-7.5 items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "font-medium text-foreground",
-												children: draft.timeRangeEnd || "11:59 PM"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, { className: "h-3.5 w-3.5 text-muted-foreground/60" })]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+											value: draft.timeRangeEnd || "11:59 PM",
+											options: TIME_OPTIONS,
+											onChange: (timeRangeEnd) => setDraft((d) => ({
+												...d,
+												timeRangeEnd
+											})),
+											placeholder: "End Time"
 										})]
 									})]
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
-									children: "Report Type"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "flex items-center gap-4 text-xs font-medium text-foreground",
-									children: [
+									children: ["Report Type ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-red-500 font-bold ml-0.5",
+										children: "*"
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+									value: draft.reportType,
+									options: [
 										"Summary",
 										"Daily",
 										"Detail"
-									].map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-											type: "radio",
-											name: "reportType",
-											checked: draft.reportType === t,
-											onChange: () => setDraft((d) => ({
-												...d,
-												reportType: t
-											})),
-											className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: t })]
-									}, t))
+									],
+									onChange: (val) => setDraft((d) => ({
+										...d,
+										reportType: val
+									})),
+									placeholder: "Select Report Type"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
-									children: "File Format"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "flex items-center gap-4 text-xs font-medium text-foreground",
-									children: [
+									children: ["File Format ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-red-500 font-bold ml-0.5",
+										children: "*"
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+									value: draft.format,
+									options: [
 										"XLS",
 										"PDF",
 										"CSV"
-									].map((f) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-											type: "radio",
-											name: "format",
-											checked: draft.format === f,
-											onChange: () => setDraft((d) => ({
-												...d,
-												format: f
-											})),
-											className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: f })]
-									}, f))
+									],
+									onChange: (val) => setDraft((d) => ({
+										...d,
+										format: val
+									})),
+									placeholder: "Select File Format"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+								className: "space-y-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
-									children: "Delivery Method"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "flex items-center gap-4 text-xs font-medium text-foreground",
-									children: [
+									children: ["Delivery Method ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-red-500 font-bold ml-0.5",
+										children: "*"
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+									value: draft.actionType,
+									options: [
 										"Email",
 										"FTP",
 										"SFTP",
 										"Media API"
-									].map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-											type: "radio",
-											name: "actionType",
-											checked: draft.actionType === m,
-											onChange: () => setDraft((d) => ({
-												...d,
-												actionType: m
-											})),
-											className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: m })]
-									}, m))
+									],
+									onChange: (val) => setDraft((d) => ({
+										...d,
+										actionType: val
+									})),
+									placeholder: "Select Delivery Method"
 								})]
 							}),
 							draft.actionType === "Email" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -4056,7 +4031,8 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 											onChange: (sftpPlatform) => setDraft((d) => ({
 												...d,
 												sftpPlatform
-											}))
+											})),
+											placeholder: "Select Platform"
 										})]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -4181,7 +4157,8 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 										onChange: (mediaGateway) => setDraft((d) => ({
 											...d,
 											mediaGateway
-										}))
+										})),
+										placeholder: "Select Media Gateway"
 									})]
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "space-y-1",
@@ -4624,7 +4601,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 															value: customDurationValue,
 															onChange: (e) => setCustomDurationValue(e.target.value),
 															placeholder: "e.g. 5",
-															className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+															className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
 														})
 													})
 												]
@@ -4652,7 +4629,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 														value: customDistanceValue,
 														onChange: (e) => setCustomDistanceValue(e.target.value),
 														placeholder: "e.g. 5",
-														className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
+														className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all"
 													})
 												})]
 											})]
