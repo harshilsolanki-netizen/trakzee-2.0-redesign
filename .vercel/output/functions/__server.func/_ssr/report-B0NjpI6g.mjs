@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-BLWoXM60.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-B0NjpI6g.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -3500,32 +3500,72 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
+								className: "space-y-1.5 rounded-xl border border-border/80 bg-card p-3 shadow-2xs",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "flex items-center justify-between",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 										className: "block text-[11px] font-semibold text-foreground",
-										children: ["Vehicles to Include ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-red-500 font-bold ml-0.5",
-											children: "*"
-										})]
-									}), vehicleFilterMode === "custom" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-										type: "button",
-										onClick: handleOpenCustomVehicleOverlay,
-										className: "text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors",
-										children: "Filter Options"
+										children: "Vehicles to Include"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full",
+										children: vehicleFilterMode === "current" ? `${currentLoadedVehicleIds.length} Loaded Vehicles` : `${draft.selectedVehicles.length || customFilteredVehicleIds.length} Custom Selected`
 									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-									value: vehicleFilterMode === "current" ? `Current Filter (${currentLoadedVehicleIds.length} Loaded Vehicles)` : `Custom Filter (${draft.selectedVehicles.length || customFilteredVehicleIds.length} Selected Vehicles)`,
-									options: [`Current Filter (${currentLoadedVehicleIds.length} Loaded Vehicles)`, `Custom Filter (${draft.selectedVehicles.length || customFilteredVehicleIds.length} Selected Vehicles)`],
-									onChange: (v) => {
-										if (v.startsWith("Current Filter")) setVehicleFilterMode("current");
-										else {
-											setVehicleFilterMode("custom");
-											handleOpenCustomVehicleOverlay();
-										}
-									},
-									placeholder: "Select Vehicle Scope"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "grid grid-cols-2 gap-2 pt-1",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										onClick: () => setVehicleFilterMode("current"),
+										className: cn("flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left", vehicleFilterMode === "current" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30" : "border-border/80 bg-background hover:bg-muted/40 hover:border-border"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-center gap-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "radio",
+												name: "vehicleScope",
+												checked: vehicleFilterMode === "current",
+												onChange: () => setVehicleFilterMode("current"),
+												className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "text-xs font-semibold text-foreground leading-tight",
+												children: "Current Filter"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+											className: "text-[10px] text-muted-foreground pl-5 leading-tight font-normal",
+											children: [
+												"Use loaded vehicles (",
+												currentLoadedVehicleIds.length,
+												")"
+											]
+										})]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										onClick: () => setVehicleFilterMode("custom"),
+										className: cn("flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left relative", vehicleFilterMode === "custom" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30" : "border-border/80 bg-background hover:bg-muted/40 hover:border-border"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-center justify-between",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-2",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+													type: "radio",
+													name: "vehicleScope",
+													checked: vehicleFilterMode === "custom",
+													onChange: () => setVehicleFilterMode("custom"),
+													className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-xs font-semibold text-foreground leading-tight",
+													children: "Custom Filter"
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+												type: "button",
+												onClick: (e) => {
+													e.stopPropagation();
+													handleOpenCustomVehicleOverlay();
+												},
+												className: "text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors",
+												children: "Change"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-[10px] text-muted-foreground pl-5 leading-tight font-normal",
+											children: draft.selectedVehicles.length > 0 ? `${draft.selectedVehicles.length} vehicles` : `${customFilteredVehicleIds.length} vehicles`
+										})]
+									})]
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {

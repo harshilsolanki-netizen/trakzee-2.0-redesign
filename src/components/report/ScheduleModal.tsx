@@ -1450,42 +1450,88 @@ export function ScheduleModal({
                 )}
               </div>
 
-              {/* Vehicle Scope Selection */}
-              <div className="space-y-1">
+              {/* Vehicles Selection Scope matching Radio Button format */}
+              <div className="space-y-1.5 rounded-xl border border-border/80 bg-card p-3 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <label className="block text-[11px] font-semibold text-foreground">
-                    Vehicles to Include <span className="text-red-500 font-bold ml-0.5">*</span>
+                    Vehicles to Include
                   </label>
-                  {vehicleFilterMode === "custom" && (
-                    <button
-                      type="button"
-                      onClick={handleOpenCustomVehicleOverlay}
-                      className="text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors"
-                    >
-                      Filter Options
-                    </button>
-                  )}
+                  <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+                    {vehicleFilterMode === "current"
+                      ? `${currentLoadedVehicleIds.length} Loaded Vehicles`
+                      : `${draft.selectedVehicles.length || customFilteredVehicleIds.length} Custom Selected`}
+                  </span>
                 </div>
-                <SelectDropdown
-                  value={
-                    vehicleFilterMode === "current"
-                      ? `Current Filter (${currentLoadedVehicleIds.length} Loaded Vehicles)`
-                      : `Custom Filter (${draft.selectedVehicles.length || customFilteredVehicleIds.length} Selected Vehicles)`
-                  }
-                  options={[
-                    `Current Filter (${currentLoadedVehicleIds.length} Loaded Vehicles)`,
-                    `Custom Filter (${draft.selectedVehicles.length || customFilteredVehicleIds.length} Selected Vehicles)`,
-                  ]}
-                  onChange={(v) => {
-                    if (v.startsWith("Current Filter")) {
-                      setVehicleFilterMode("current");
-                    } else {
-                      setVehicleFilterMode("custom");
-                      handleOpenCustomVehicleOverlay();
-                    }
-                  }}
-                  placeholder="Select Vehicle Scope"
-                />
+
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  {/* Option 1: Current Filter */}
+                  <label
+                    onClick={() => setVehicleFilterMode("current")}
+                    className={cn(
+                      "flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left",
+                      vehicleFilterMode === "current"
+                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30"
+                        : "border-border/80 bg-background hover:bg-muted/40 hover:border-border",
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="vehicleScope"
+                        checked={vehicleFilterMode === "current"}
+                        onChange={() => setVehicleFilterMode("current")}
+                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
+                      />
+                      <span className="text-xs font-semibold text-foreground leading-tight">
+                        Current Filter
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground pl-5 leading-tight font-normal">
+                      Use loaded vehicles ({currentLoadedVehicleIds.length})
+                    </span>
+                  </label>
+
+                  {/* Option 2: Custom Filter */}
+                  <div
+                    onClick={() => setVehicleFilterMode("custom")}
+                    className={cn(
+                      "flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left relative",
+                      vehicleFilterMode === "custom"
+                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30"
+                        : "border-border/80 bg-background hover:bg-muted/40 hover:border-border",
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="vehicleScope"
+                          checked={vehicleFilterMode === "custom"}
+                          onChange={() => setVehicleFilterMode("custom")}
+                          className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
+                        />
+                        <span className="text-xs font-semibold text-foreground leading-tight">
+                          Custom Filter
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenCustomVehicleOverlay();
+                        }}
+                        className="text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors"
+                      >
+                        Change
+                      </button>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground pl-5 leading-tight font-normal">
+                      {draft.selectedVehicles.length > 0
+                        ? `${draft.selectedVehicles.length} vehicles`
+                        : `${customFilteredVehicleIds.length} vehicles`}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Copy From */}
