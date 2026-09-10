@@ -803,7 +803,31 @@ export function ScheduleModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [schedules, setSchedules] = useState<ScheduleItem[]>(INITIAL_SCHEDULES);
+  const [schedules, setSchedules] = useState<ScheduleItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("trakzee_scheduled_reports");
+        if (saved !== null) {
+          return JSON.parse(saved);
+        }
+      } catch (e) {
+        console.error("Failed to load schedules", e);
+      }
+    }
+    return [];
+  });
+  const [scheduleToDelete, setScheduleToDelete] = useState<ScheduleItem | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("trakzee_scheduled_reports", JSON.stringify(schedules));
+      } catch (e) {
+        console.error("Failed to save schedules", e);
+      }
+    }
+  }, [schedules]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<"list" | "form">("list");
   const [step, setStep] = useState<1 | 2>(1);
@@ -1350,7 +1374,7 @@ export function ScheduleModal({
 
                             <ScheduleItemActionsMenu
                               onDuplicate={() => handleDuplicate(item)}
-                              onDelete={() => handleDelete(item.id)}
+                              onDelete={() => setScheduleToDelete(item)}
                             />
                           </div>
                         </div>
@@ -2678,6 +2702,67 @@ export function ScheduleModal({
                   Save & Apply
                 </button>
               </div>
+            </footer>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {scheduleToDelete && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setScheduleToDelete(null);
+          }}
+        >
+          <div className="w-full max-w-md flex flex-col bg-background border border-border/80 shadow-2xl rounded-2xl overflow-hidden animate-in zoom-in-95 text-foreground select-none">
+            {/* 56px Modern Header */}
+            <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
+                  <Trash2 className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                </div>
+                <h3 className="text-[16px] font-semibold tracking-tight text-foreground">
+                  Delete Scheduled Report?
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setScheduleToDelete(null)}
+                className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </header>
+
+            <div className="p-6 text-xs text-muted-foreground space-y-2.5">
+              <p className="leading-relaxed text-foreground">
+                Are you sure you want to delete <strong className="font-semibold text-rose-600 dark:text-rose-400">&quot;{scheduleToDelete.name}&quot;</strong>?
+              </p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                This scheduled report will be permanently removed and configured recipients will no longer receive automated email or media reports.
+              </p>
+            </div>
+
+            <footer className="flex items-center justify-end gap-2.5 border-t border-border bg-muted/20 px-6 py-3.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setScheduleToDelete(null)}
+                className="h-9 rounded-xl border border-border bg-background px-4 text-xs font-semibold text-foreground shadow-2xs hover:bg-muted cursor-pointer transition-all active:scale-98"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleDelete(scheduleToDelete.id);
+                  setScheduleToDelete(null);
+                }}
+                className="h-9 rounded-xl bg-rose-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 active:scale-98 cursor-pointer transition-all inline-flex items-center gap-1.5"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Delete Schedule</span>
+              </button>
             </footer>
           </div>
         </div>
