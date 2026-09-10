@@ -759,7 +759,9 @@ function ScheduleItemActionsMenu({
       <DropdownMenuContent
         align="end"
         sideOffset={4}
-        className="w-36 rounded-md border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-lg z-[90] text-xs select-none"
+        avoidCollisions={true}
+        collisionPadding={8}
+        className="w-36 rounded-md border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-lg z-[90] text-xs select-none animate-in fade-in-80 zoom-in-95"
       >
         <DropdownMenuItem
           onClick={onDuplicate}
@@ -1139,14 +1141,14 @@ export function ScheduleModal({
           className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
         />
 
-        {/* Main Modal Window - Enterprise SaaS styling */}
+        {/* Main Modal Window - Enterprise SaaS styling with content-fit */}
         <div
           className={cn(
             "relative z-10 flex flex-col rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150",
             view === "list"
               ? schedules.length === 0
-                ? "w-[540px] max-w-[94vw] min-h-[360px]"
-                : "w-[720px] max-w-[94vw] min-h-[380px] max-h-[85vh]"
+                ? "w-[500px] max-w-[94vw]"
+                : "w-[680px] max-w-[94vw] max-h-[85vh]"
               : "w-[820px] max-w-[94vw] h-[640px] max-h-[88vh]",
           )}
         >
