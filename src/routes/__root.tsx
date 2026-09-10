@@ -182,7 +182,7 @@ function AppLayout() {
 
           {/* Dedicated Sidebar Mode: matching top, bottom, right margin with the rest of the workspace */}
           {isSidebar && (
-            <aside className="w-[390px] xl:w-[420px] p-3 bg-slate-100/60 dark:bg-slate-900/50 flex flex-col shrink-0 min-h-0 transition-all duration-300 ease-out animate-in slide-in-from-right z-30">
+            <aside className="w-[390px] xl:w-[420px] p-3 bg-[#F0F0F0] dark:bg-slate-900/50 flex flex-col shrink-0 min-h-0 transition-all duration-300 ease-out animate-in slide-in-from-right z-30">
               <ZioPanel mode="sidebar" className="h-full w-full flex-1" />
             </aside>
           )}

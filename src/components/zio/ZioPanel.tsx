@@ -397,38 +397,33 @@ export function ZioPanel({
 
   return (
     <div
-      style={{
-        border: "1.5px solid transparent",
-        background:
-          "linear-gradient(to bottom, #ffffff 0%, #faf7ff 45%, #f4ebff 100%) padding-box, linear-gradient(to bottom, #7c3aed 0%, #a855f7 30%, #ec4899 70%, #f43f5e 100%) border-box",
-        borderRadius: "0.75rem",
-      }}
       className={cn(
-        "flex flex-col text-foreground transition-all duration-300 ease-out overflow-hidden shadow-[0_16px_50px_-10px_rgba(139,92,246,0.18)] relative",
+        "relative rounded-xl p-[1.5px] bg-gradient-to-b from-[#7c3aed] via-[#a855f7] via-[#ec4899] to-[#f43f5e] shadow-[0_16px_50px_-10px_rgba(139,92,246,0.18)] transition-all duration-300 ease-out flex flex-col",
         isFullscreen && "w-full h-full flex-1",
         mode === "floating" && "w-[380px] sm:w-[410px] h-[580px] max-h-[85vh]",
         mode === "sidebar" && "w-full h-full flex-1",
         className,
       )}
     >
-      {/* Ambient gradient glow in Fullscreen mode */}
-      {isFullscreen && (
-        <div
-          className="pointer-events-none absolute inset-0 z-0 opacity-60 transition-opacity duration-500"
-          style={{
-            background:
-              "radial-gradient(circle at 12% 75%, rgba(254, 205, 211, 0.45) 0%, transparent 45%), radial-gradient(circle at 88% 75%, rgba(219, 234, 254, 0.55) 0%, transparent 45%), radial-gradient(circle at 50% 90%, rgba(237, 233, 254, 0.45) 0%, transparent 50%)",
-          }}
-        />
-      )}
-
-      {/* Header */}
-      <header
-        className={cn(
-          "flex items-center justify-between border-b border-violet-100/70 bg-white/80 px-4 py-2.5 backdrop-blur-xs transition-all duration-300 ease-out shrink-0 select-none z-10",
-          isFullscreen && "px-6 py-3",
+      <div className="flex flex-col w-full h-full text-foreground bg-gradient-to-b from-white via-[#faf7ff] to-[#f4ebff] rounded-[10.5px] overflow-hidden relative">
+        {/* Ambient gradient glow in Fullscreen mode */}
+        {isFullscreen && (
+          <div
+            className="pointer-events-none absolute inset-0 z-0 opacity-60 transition-opacity duration-500"
+            style={{
+              background:
+                "radial-gradient(circle at 12% 75%, rgba(254, 205, 211, 0.45) 0%, transparent 45%), radial-gradient(circle at 88% 75%, rgba(219, 234, 254, 0.55) 0%, transparent 45%), radial-gradient(circle at 50% 90%, rgba(237, 233, 254, 0.45) 0%, transparent 50%)",
+            }}
+          />
         )}
-      >
+
+        {/* Header */}
+        <header
+          className={cn(
+            "flex items-center justify-between border-b border-violet-100/70 bg-white/90 px-4 py-2.5 transition-all duration-300 ease-out shrink-0 select-none z-10",
+            isFullscreen && "px-6 py-3",
+          )}
+        >
         {/* Left header area: Show Title when in History view, clean empty space when in Chat view */}
         <div className="flex items-center gap-2 min-w-0">
           {isHistoryOpen && (
@@ -825,6 +820,7 @@ export function ZioPanel({
           </div>
         </footer>
       )}
+      </div>
     </div>
   );
 }
