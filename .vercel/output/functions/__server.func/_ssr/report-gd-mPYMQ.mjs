@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-LVQlPua9.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-HgudenNA.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-YJVAQWmW.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-gd-mPYMQ.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -7740,7 +7740,7 @@ function ReportPage() {
 											if (c.sortable) toggleSort(c.id);
 										},
 										title: c.label,
-										className: cn("group relative border-r border-[#DFE3EB] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none bg-[#EAF0F6] dark:bg-slate-800", c.numeric ? "text-right" : "text-left", c.sortable && "cursor-pointer hover:bg-[#DFE7F0] dark:hover:bg-slate-700/60", sort.key === c.id && "bg-[#D5E0EC] dark:bg-slate-700 font-bold text-slate-950 dark:text-white", isFrozen && cn("sticky z-30 bg-[#EAF0F6] dark:bg-slate-800", colIdx === frozenCount - 1 && "shadow-[2px_0_4px_rgba(0,0,0,0.12)]")),
+										className: cn("group relative border-r border-[#DFE3EB] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none bg-[#EAF0F6] dark:bg-slate-800", c.numeric ? "text-right" : "text-left", c.sortable && "cursor-pointer hover:bg-[#DFE7F0] dark:hover:bg-slate-700/60", isFrozen && cn("sticky z-30 bg-[#EAF0F6] dark:bg-slate-800", colIdx === frozenCount - 1 && "shadow-[2px_0_4px_rgba(0,0,0,0.12)]")),
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: cn("flex items-center gap-1 overflow-hidden", c.numeric ? "justify-end flex-row-reverse" : "justify-start"),
 											children: [

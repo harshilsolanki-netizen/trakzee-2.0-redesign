@@ -1012,8 +1012,6 @@ export function ReportPage() {
                           "group relative border-r border-[#DFE3EB] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none bg-[#EAF0F6] dark:bg-slate-800",
                           c.numeric ? "text-right" : "text-left",
                           c.sortable && "cursor-pointer hover:bg-[#DFE7F0] dark:hover:bg-slate-700/60",
-                          sort.key === c.id &&
-                            "bg-[#D5E0EC] dark:bg-slate-700 font-bold text-slate-950 dark:text-white",
                           isFrozen &&
                             cn(
                               "sticky z-30 bg-[#EAF0F6] dark:bg-slate-800",
