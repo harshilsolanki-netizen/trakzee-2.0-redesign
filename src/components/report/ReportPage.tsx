@@ -396,7 +396,13 @@ export function ReportPage() {
         filters.companies.length > 0 &&
         !filters.companies.includes("All")
       ) {
-        if (!filters.companies.includes(r.company)) {
+        const companyBranches = getBranchesForCompanies(filters.companies);
+        const companyVehicles = getVehiclesForBranches(companyBranches).map(
+          (v) => v.name,
+        );
+        const matchDirect = filters.companies.includes(r.company);
+        const matchVehicles = companyVehicles.includes(r.vehicleNo);
+        if (!matchDirect && !matchVehicles) {
           return false;
         }
       }

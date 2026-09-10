@@ -1,6 +1,6 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { t as cn } from "./utils-C_uf36nf.mjs";
-import { C as getGroupsForBranches, D as temperatureSummaryRows, S as getBranchesForCompanies, _ as driverJobSummaryRows, f as VEHICLE_BRANDS, h as VEHICLE_TYPES, l as DURATION_STATUS, m as VEHICLE_MODELS, o as COMPANIES, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, u as DURATION_UNITS, w as getVehiclesForBranches, y as findReport } from "./reports-D0j_491Z.mjs";
+import { C as getGroupsForBranches, D as temperatureSummaryRows, S as getBranchesForCompanies$1, _ as driverJobSummaryRows, f as VEHICLE_BRANDS, h as VEHICLE_TYPES, l as DURATION_STATUS, m as VEHICLE_MODELS, o as COMPANIES, r as BRANCH_VEHICLES_MAP, s as COMPARATORS, u as DURATION_UNITS, w as getVehiclesForBranches$1, y as findReport } from "./reports-D0j_491Z.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { B as RefreshCw, Bt as CircleX, Ct as FileText, F as Search, Gt as ChevronsUpDown, H as Plus, Jt as ChevronLeft, M as Settings, N as Settings2, O as SlidersHorizontal, Pt as CornerDownLeft, Q as Minus, Rt as Clock, U as Play, Ut as CircleCheck, Vt as CircleQuestionMark, W as Pin, Xt as Check, Yt as ChevronDown, an as CalendarClock, dn as ArrowUp, en as ChartColumn, fn as ArrowRight, gt as GripVertical, h as Truck, in as Calendar, it as Mail, jt as Download, m as Underline, mn as ArrowDown, n as X, nt as Map$1, p as Undo2, pn as ArrowLeft, pt as Italic, q as Pencil, qt as ChevronRight, sn as Bold, st as LoaderCircle, wt as FileSpreadsheet, x as Thermometer, xt as Fuel, y as Trash2, z as RotateCcw } from "../_libs/lucide-react.mjs";
@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-5aAnLDi6.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-iGPZYCf4.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-fhUNPnFe.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -290,10 +290,6 @@ function UniversalMultiSelectDropdown({ label, selected, options, onChange, clas
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select All" })]
 					})
 				}),
-				draft.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: "mx-2.5 my-1.5 px-2 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug",
-					children: "Select at least one item, or all items will be selected by default."
-				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "max-h-48 overflow-y-auto p-1 space-y-0.5 custom-scrollbar",
 					children: [filteredOptions.map((opt) => {
@@ -355,9 +351,10 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 	const companyOptions = (0, import_react.useMemo)(() => {
 		return COMPANIES.filter((c) => c !== "All");
 	}, []);
-	const branchOptions = (0, import_react.useMemo)(() => {
-		return getBranchesForCompanies(selectedCompanies);
+	const availableBranches = (0, import_react.useMemo)(() => {
+		return getBranchesForCompanies$1(selectedCompanies);
 	}, [selectedCompanies]);
+	const branchOptions = availableBranches;
 	const availableGroups = (0, import_react.useMemo)(() => {
 		return getGroupsForBranches(selectedBranches);
 	}, [selectedBranches]);
@@ -379,28 +376,14 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 	const modelOptions = (0, import_react.useMemo)(() => {
 		return ["10 Wheel", ...VEHICLE_MODELS.filter((m) => m !== "All" && m !== "10 Wheel")];
 	}, []);
-	const allVehiclesList = (0, import_react.useMemo)(() => {
-		return fleetObjects.map((f) => ({
-			id: f.id,
-			name: f.name,
-			imei: f.imei,
-			branch: f.branch || "Head Office",
-			driver: f.driver || "Unassigned",
-			type: f.type,
-			company: f.company || "HP Company"
-		}));
-	}, []);
+	const activeBranches = (0, import_react.useMemo)(() => {
+		if (!selectedBranches || selectedBranches.length === 0 || selectedBranches.includes("All")) return availableBranches;
+		const valid = selectedBranches.filter((b) => availableBranches.includes(b));
+		return valid.length > 0 ? valid : availableBranches;
+	}, [selectedBranches, availableBranches]);
 	const allFilteredVehicles = (0, import_react.useMemo)(() => {
-		return allVehiclesList.filter((v) => {
-			if (selectedCompanies.length > 0 && !selectedCompanies.includes("All") && !selectedCompanies.includes(v.company)) return false;
-			if (selectedBranches.length > 0 && !selectedBranches.includes("All") && !selectedBranches.includes(v.branch)) return false;
-			return true;
-		});
-	}, [
-		allVehiclesList,
-		selectedCompanies,
-		selectedBranches
-	]);
+		return getVehiclesForBranches(activeBranches);
+	}, [activeBranches]);
 	const allFilteredVehicleIds = (0, import_react.useMemo)(() => {
 		return allFilteredVehicles.map((v) => v.id);
 	}, [allFilteredVehicles]);
@@ -410,16 +393,23 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 		if (selectedBranches.length > 0 && !selectedBranches.includes("All")) count++;
 		return count;
 	}, [selectedCompanies, selectedBranches]);
-	const companyChipText = (0, import_react.useMemo)(() => {
-		if (!selectedCompanies || selectedCompanies.length === 0 || selectedCompanies.includes("All")) return "All";
-		if (selectedCompanies.length === 1) return selectedCompanies[0];
-		return `${selectedCompanies[0]} +${selectedCompanies.length - 1}`;
-	}, [selectedCompanies]);
-	const branchChipText = (0, import_react.useMemo)(() => {
-		if (!selectedBranches || selectedBranches.length === 0 || selectedBranches.includes("All")) return "All";
-		if (selectedBranches.length === 1) return selectedBranches[0];
-		return `${selectedBranches[0]} +${selectedBranches.length - 1}`;
-	}, [selectedBranches]);
+	const handleCompanyChange = (companies) => {
+		const newAvailBranches = getBranchesForCompanies$1(companies);
+		const nextBranches = (filters.branches || []).filter((b) => newAvailBranches.includes(b));
+		const newAvailVehicleIds = getVehiclesForBranches(nextBranches.length > 0 ? nextBranches : newAvailBranches).map((v) => v.id);
+		onChange({
+			companies,
+			branches: nextBranches,
+			objects: (filters.objects || []).filter((id) => newAvailVehicleIds.includes(id))
+		});
+	};
+	const handleBranchChange = (branches) => {
+		const newAvailVehicleIds = getVehiclesForBranches(branches.length > 0 ? branches : availableBranches).map((v) => v.id);
+		onChange({
+			branches,
+			objects: (filters.objects || []).filter((id) => newAvailVehicleIds.includes(id))
+		});
+	};
 	const [vehicleSearch, setVehicleSearch] = (0, import_react.useState)("");
 	const [openBranchGroups, setOpenBranchGroups] = (0, import_react.useState)(() => [
 		"Indonesia",
@@ -427,29 +417,36 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 		"Valsad",
 		"Planet Eco AL Khabaisi",
 		"Planet Eco AL Nakheel",
-		"Pune",
-		"Itriangle"
+		"HP Branch 1",
+		"HP Branch 2",
+		"Delhi Branch",
+		"Mumbai Branch",
+		"Planet Eco Abu Dhabi",
+		"Planet Eco Ajman"
 	]);
 	const groupedVehicles = (0, import_react.useMemo)(() => {
 		const q = vehicleSearch.trim().toLowerCase();
-		const filtered = allFilteredVehicles.filter((v) => {
-			if (!q) return true;
-			const matchName = v.name.toLowerCase().includes(q);
-			const matchImei = v.imei.toLowerCase().includes(q);
-			const matchBranch = v.branch.toLowerCase().includes(q);
-			const matchDriver = v.driver.toLowerCase().includes(q);
-			return matchName || matchImei || matchBranch || matchDriver;
-		});
-		const groupsMap = {};
-		filtered.forEach((v) => {
-			if (!groupsMap[v.branch]) groupsMap[v.branch] = [];
-			groupsMap[v.branch].push(v);
-		});
-		return Object.entries(groupsMap).map(([branch, vehicles]) => ({
+		const map = /* @__PURE__ */ new Map();
+		for (const branch of activeBranches) {
+			const matched = allFilteredVehicles.filter((v) => v.branch === branch).filter((v) => {
+				if (!q) return true;
+				const matchName = v.name.toLowerCase().includes(q);
+				const matchImei = v.imei.toLowerCase().includes(q);
+				const matchBranch = v.branch.toLowerCase().includes(q);
+				const matchDriver = (v.driver || "").toLowerCase().includes(q);
+				return matchName || matchImei || matchBranch || matchDriver;
+			});
+			if (matched.length > 0) map.set(branch, matched);
+		}
+		return Array.from(map.entries()).map(([branch, vehicles]) => ({
 			branch,
 			vehicles
 		}));
-	}, [allFilteredVehicles, vehicleSearch]);
+	}, [
+		activeBranches,
+		allFilteredVehicles,
+		vehicleSearch
+	]);
 	const allVehiclesSelected = allFilteredVehicleIds.length > 0 && allFilteredVehicleIds.every((id) => selectedVehicleIds.includes(id));
 	const someVehiclesSelected = selectedVehicleIds.length > 0 && !allVehiclesSelected;
 	const toggleSelectAllVehicles = () => {
@@ -582,7 +579,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 										label: "Company",
 										selected: selectedCompanies,
 										options: companyOptions,
-										onChange: (companies) => onChange({ companies }),
+										onChange: handleCompanyChange,
 										placeholder: "Select Company"
 									})]
 								}),
@@ -595,7 +592,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 										label: "Branch",
 										selected: selectedBranches,
 										options: branchOptions,
-										onChange: (branches) => onChange({ branches }),
+										onChange: handleBranchChange,
 										placeholder: "Select Branch"
 									})]
 								}),
@@ -604,10 +601,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 										type: "button",
 										onClick: () => {
-											onChange({
-												companies: [],
-												branches: []
-											});
+											handleCompanyChange([]);
 										},
 										className: "text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer",
 										children: "Reset"
@@ -622,156 +616,129 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 						})] })]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex flex-wrap items-center gap-1.5 shrink-0 select-none",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-							type: "button",
-							onClick: () => setFilterOverlayOpen(true),
-							className: "inline-flex items-center gap-1 rounded-md bg-muted/50 hover:bg-muted border border-border/70 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors cursor-pointer shadow-2xs",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Company:" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "font-semibold text-foreground",
-								children: companyChipText
-							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-							type: "button",
-							onClick: () => setFilterOverlayOpen(true),
-							className: "inline-flex items-center gap-1 rounded-md bg-muted/50 hover:bg-muted border border-border/70 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors cursor-pointer shadow-2xs",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Branch:" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "font-semibold text-foreground",
-								children: branchChipText
-							})]
-						})]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-										type: "checkbox",
-										checked: allVehiclesSelected,
-										ref: (el) => {
-											if (el) el.indeterminate = someVehiclesSelected;
-										},
-										onChange: toggleSelectAllVehicles,
-										className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select all" })]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "flex items-center gap-2",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-										className: "text-[11px] font-medium text-muted-foreground",
-										children: [selectedVehicleIds.length, " selected"]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-										type: "button",
-										onClick: toggleAllBranchAccordions,
-										className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted",
-										title: "Expand/Collapse All Branches",
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronsUpDown, { className: "h-3 w-3" })
-									})]
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+								className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+									type: "checkbox",
+									checked: allVehiclesSelected,
+									ref: (el) => {
+										if (el) el.indeterminate = someVehiclesSelected;
+									},
+									onChange: toggleSelectAllVehicles,
+									className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select all" })]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex items-center gap-2",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									className: "text-[11px] font-medium text-muted-foreground",
+									children: selectedVehicleIds.length === 0 ? `All (${allFilteredVehicleIds.length})` : `${selectedVehicleIds.length} / ${allFilteredVehicleIds.length} selected`
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									onClick: toggleAllBranchAccordions,
+									className: "text-[10px] text-muted-foreground hover:text-[#0089FF] font-semibold flex items-center gap-0.5 cursor-pointer p-0.5 rounded hover:bg-muted",
+									title: "Expand/Collapse All Branches",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronsUpDown, { className: "h-3 w-3" })
 								})]
-							}),
-							selectedVehicleIds.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								className: "mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug shrink-0",
-								children: "Select at least one vehicle, or all vehicles will be included."
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "max-h-[190px] overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar",
-								children: [groupedVehicles.map(({ branch, vehicles }) => {
-									const isExpanded = openBranchGroups.includes(branch) || vehicleSearch.trim() !== "";
-									vehicles.map((v) => v.id);
-									const selectedBranchCount = vehicles.filter((v) => selectedVehicleIds.includes(v.id)).length;
-									const isBranchAllSelected = selectedBranchCount === vehicles.length && vehicles.length > 0;
-									const isBranchSomeSelected = selectedBranchCount > 0 && !isBranchAllSelected;
-									return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "py-1",
+							})]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "max-h-[190px] overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar",
+							children: [groupedVehicles.map(({ branch, vehicles }) => {
+								const isExpanded = openBranchGroups.includes(branch) || vehicleSearch.trim() !== "";
+								vehicles.map((v) => v.id);
+								const selectedBranchCount = vehicles.filter((v) => selectedVehicleIds.includes(v.id)).length;
+								const isBranchAllSelected = selectedBranchCount === vehicles.length && vehicles.length > 0;
+								const isBranchSomeSelected = selectedBranchCount > 0 && !isBranchAllSelected;
+								return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "py-1",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors select-none",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors select-none",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-2 min-w-0",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "checkbox",
-													"aria-label": `Select all vehicles in ${branch}`,
-													checked: isBranchAllSelected,
-													ref: (el) => {
-														if (el) el.indeterminate = isBranchSomeSelected;
-													},
-													onChange: () => toggleBranchVehicles(vehicles),
-													className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-													type: "button",
-													onClick: () => toggleBranchAccordion(branch),
-													className: "flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-150", isExpanded && "rotate-90") }),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-															className: "truncate",
-															children: branch
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-															className: "text-[10px] tabular-nums text-muted-foreground font-normal",
-															children: [
-																"[",
-																vehicles.length,
-																"]"
-															]
-														})
-													]
-												})]
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-												className: "text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full",
+											className: "flex items-center gap-2 min-w-0",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "checkbox",
+												"aria-label": `Select all vehicles in ${branch}`,
+												checked: isBranchAllSelected,
+												ref: (el) => {
+													if (el) el.indeterminate = isBranchSomeSelected;
+												},
+												onChange: () => toggleBranchVehicles(vehicles),
+												className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+												type: "button",
+												onClick: () => toggleBranchAccordion(branch),
+												className: "flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-[#0089FF] transition-colors cursor-pointer text-left truncate",
 												children: [
-													selectedBranchCount,
-													"/",
-													vehicles.length
-												]
-											})]
-										}), isExpanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											className: "mt-1 pl-6 pr-2 space-y-0.5",
-											children: vehicles.map((v) => {
-												const isChecked = selectedVehicleIds.includes(v.id);
-												return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-													className: "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium",
-													children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-														className: "flex items-center gap-2 min-w-0",
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: cn("h-3.5 w-3.5 text-muted-foreground transition-transform duration-150", isExpanded && "rotate-90") }),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+														className: "truncate",
+														children: branch
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+														className: "text-[10px] tabular-nums text-muted-foreground font-normal",
 														children: [
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-																type: "checkbox",
-																checked: isChecked,
-																onChange: () => toggleVehicle(v.id),
-																className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-															}),
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Truck, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
-															/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-																className: "min-w-0 truncate",
-																children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																	className: "block truncate leading-tight text-xs font-semibold",
-																	children: v.name
-																}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-																	className: "block text-[10px] text-muted-foreground truncate leading-tight font-normal",
-																	children: [
-																		v.imei,
-																		" · ",
-																		v.driver
-																	]
-																})]
-															})
+															"[",
+															vehicles.length,
+															"]"
 														]
 													})
-												}, v.id);
-											})
+												]
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+											className: "text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full",
+											children: [
+												selectedBranchCount,
+												"/",
+												vehicles.length
+											]
 										})]
-									}, branch);
-								}), groupedVehicles.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "p-6 text-center text-xs text-muted-foreground italic",
-									children: [
-										"No vehicles found matching “",
-										vehicleSearch,
-										"”"
-									]
-								})]
-							})
-						]
+									}), isExpanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "mt-1 pl-6 pr-2 space-y-0.5",
+										children: vehicles.map((v) => {
+											const isChecked = selectedVehicleIds.includes(v.id);
+											return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/60 text-foreground font-medium",
+												children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+													className: "flex items-center gap-2 min-w-0",
+													children: [
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+															type: "checkbox",
+															checked: isChecked,
+															onChange: () => toggleVehicle(v.id),
+															className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+														}),
+														/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Truck, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
+														/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+															className: "min-w-0 truncate",
+															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+																className: "block truncate leading-tight text-xs font-semibold",
+																children: v.name
+															}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+																className: "block text-[10px] text-muted-foreground truncate leading-tight font-normal",
+																children: [
+																	v.imei,
+																	" · ",
+																	v.driver
+																]
+															})]
+														})
+													]
+												})
+											}, v.id);
+										})
+									})]
+								}, branch);
+							}), groupedVehicles.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "p-6 text-center text-xs text-muted-foreground italic",
+								children: [
+									"No vehicles found matching “",
+									vehicleSearch,
+									"”"
+								]
+							})]
+						})]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "space-y-3 pt-1",
@@ -869,7 +836,7 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 								className: "space-y-1",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
-									children: "Group"
+									children: "Distance Threshold (km)"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "grid grid-cols-12 gap-1.5",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
@@ -3394,7 +3361,7 @@ function ScheduleModal({ open, onClose }) {
 											children: "Branch"
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
 											value: criteriaBranch,
-											options: ["All", ...getBranchesForCompanies(criteriaCompany === "All" ? ["ABC Logistic"] : [criteriaCompany])],
+											options: ["All", ...getBranchesForCompanies$1(criteriaCompany === "All" ? ["ABC Logistic"] : [criteriaCompany])],
 											onChange: setCriteriaBranch
 										})]
 									}),
@@ -5853,7 +5820,7 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 	};
 	const availableBranches = (0, import_react.useMemo)(() => {
 		const currentCompanies = filters.companies && filters.companies.length > 0 && !filters.companies.includes("All") ? filters.companies : allCompanies;
-		return getBranchesForCompanies(currentCompanies);
+		return getBranchesForCompanies$1(currentCompanies);
 	}, [filters.companies, allCompanies]);
 	const [draftBranches, setDraftBranches] = (0, import_react.useState)([]);
 	(0, import_react.useEffect)(() => {
@@ -5881,7 +5848,7 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 		return valid.length > 0 ? valid : availableBranches;
 	}, [filters.branches, availableBranches]);
 	const availableVehicles = (0, import_react.useMemo)(() => {
-		return getVehiclesForBranches(activeSelectedBranches);
+		return getVehiclesForBranches$1(activeSelectedBranches);
 	}, [activeSelectedBranches]);
 	const availableVehicleIds = (0, import_react.useMemo)(() => {
 		return availableVehicles.map((v) => v.id);
@@ -5954,13 +5921,12 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 		return `${selected[0]} +${selected.length - 1}`;
 	}, [filters.objects, availableVehicleIds]);
 	const handleApplyCompanies = () => {
-		if (draftCompanies.length === 0) return;
-		const isAll = draftCompanies.length === allCompanies.length;
+		const isAll = draftCompanies.length === 0 || draftCompanies.length === allCompanies.length;
 		const appliedCompanies = isAll ? [] : draftCompanies;
-		const newAvailBranches = getBranchesForCompanies(isAll ? allCompanies : draftCompanies);
+		const newAvailBranches = getBranchesForCompanies$1(isAll ? allCompanies : draftCompanies);
 		const validBranches = (filters.branches || []).filter((b) => newAvailBranches.includes(b));
 		const nextBranches = validBranches.length > 0 && validBranches.length < newAvailBranches.length ? validBranches : [];
-		const newAvailVehicleIds = getVehiclesForBranches(nextBranches.length > 0 ? nextBranches : newAvailBranches).map((v) => v.id);
+		const newAvailVehicleIds = getVehiclesForBranches$1(nextBranches.length > 0 ? nextBranches : newAvailBranches).map((v) => v.id);
 		const validVehicles = (filters.objects || []).filter((id) => newAvailVehicleIds.includes(id));
 		onChange({
 			companies: appliedCompanies,
@@ -5970,10 +5936,9 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 		setCompanyOpen(false);
 	};
 	const handleApplyBranches = () => {
-		if (draftBranches.length === 0) return;
-		const isAll = draftBranches.length === availableBranches.length;
+		const isAll = draftBranches.length === 0 || draftBranches.length === availableBranches.length;
 		const appliedBranches = isAll ? [] : draftBranches;
-		const newAvailVehicleIds = getVehiclesForBranches(isAll ? availableBranches : draftBranches).map((v) => v.id);
+		const newAvailVehicleIds = getVehiclesForBranches$1(isAll ? availableBranches : draftBranches).map((v) => v.id);
 		const validVehicles = (filters.objects || []).filter((id) => newAvailVehicleIds.includes(id));
 		onChange({
 			branches: appliedBranches,
@@ -5982,10 +5947,19 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 		setBranchOpen(false);
 	};
 	const handleApplyVehicles = () => {
-		if (draftObjects.length === 0) return;
-		onChange({ objects: draftObjects.length === availableVehicleIds.length ? [] : draftObjects });
+		onChange({ objects: draftObjects.length === 0 || draftObjects.length === availableVehicleIds.length ? [] : draftObjects });
 		setVehicleOpen(false);
 	};
+	const activeSideFilterCount = (0, import_react.useMemo)(() => {
+		let count = 0;
+		if (filters.groups && filters.groups.length > 0 && !filters.groups.includes("All")) count++;
+		if (filters.types && filters.types.length > 0 && !filters.types.includes("All")) count++;
+		if (filters.brands && filters.brands.length > 0 && !filters.brands.includes("All") && filters.brands[0] !== "") count++;
+		if (filters.models && filters.models.length > 0 && !filters.models.includes("All") && filters.models[0] !== "") count++;
+		if (filters.durationValue && filters.durationValue.trim() !== "") count++;
+		if (filters.distanceValue && filters.distanceValue.trim() !== "") count++;
+		return count;
+	}, [filters]);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 		className: cn("flex flex-wrap items-center gap-2 text-xs text-muted-foreground", className),
 		children: [
@@ -6171,10 +6145,6 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select All" })]
 							})
 						}),
-						draftCompanies.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug",
-							children: "Select at least one item, or all items will be selected by default."
-						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "max-h-52 overflow-y-auto p-1 space-y-0.5 custom-scrollbar",
 							children: [filteredCompanyList.map((comp) => {
@@ -6212,9 +6182,8 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 									children: "Cancel"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
-									disabled: draftCompanies.length === 0,
 									onClick: handleApplyCompanies,
-									className: cn("px-4 py-1.5 text-xs rounded-md font-semibold shadow-xs transition-all active:scale-98", draftCompanies.length === 0 ? "bg-[#0089FF]/40 text-white/70 cursor-not-allowed" : "bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer"),
+									className: "px-4 py-1.5 text-xs rounded-md bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer font-semibold shadow-xs transition-all active:scale-98",
 									children: "Apply"
 								})]
 							})]
@@ -6286,10 +6255,6 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select All" })]
 							})
 						}),
-						draftBranches.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug",
-							children: "Select at least one item, or all items will be selected by default."
-						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "max-h-52 overflow-y-auto p-1 space-y-0.5 custom-scrollbar",
 							children: [filteredBranchList.map((b) => {
@@ -6327,9 +6292,8 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 									children: "Cancel"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
-									disabled: draftBranches.length === 0,
 									onClick: handleApplyBranches,
-									className: cn("px-4 py-1.5 text-xs rounded-md font-semibold shadow-xs transition-all active:scale-98", draftBranches.length === 0 ? "bg-[#0089FF]/40 text-white/70 cursor-not-allowed" : "bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer"),
+									className: "px-4 py-1.5 text-xs rounded-md bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer font-semibold shadow-xs transition-all active:scale-98",
 									children: "Apply"
 								})]
 							})]
@@ -6405,10 +6369,6 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 									className: "h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand accent-[#0089FF] cursor-pointer"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Select All Vehicles" })]
 							})
-						}),
-						draftObjects.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug",
-							children: "Select at least one item, or all items will be selected by default."
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "max-h-64 overflow-y-auto p-1.5 space-y-1.5 custom-scrollbar",
@@ -6495,9 +6455,8 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 									children: "Cancel"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
-									disabled: draftObjects.length === 0,
 									onClick: handleApplyVehicles,
-									className: cn("px-4 py-1.5 text-xs rounded-md font-semibold shadow-xs transition-all active:scale-98", draftObjects.length === 0 ? "bg-[#0089FF]/40 text-white/70 cursor-not-allowed" : "bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer"),
+									className: "px-4 py-1.5 text-xs rounded-md bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer font-semibold shadow-xs transition-all active:scale-98",
 									children: "Apply"
 								})]
 							})]
@@ -6510,7 +6469,14 @@ function ReportQuickFilterBar({ filters, onChange, onOpenFilterDrawer, className
 				onClick: onOpenFilterDrawer,
 				"aria-label": "Open Filter Drawer",
 				className: "inline-flex items-center gap-1.5 rounded-md bg-[#0089FF]/10 border border-[#0089FF]/30 px-2.5 py-1 text-xs font-semibold text-[#0089FF] hover:bg-[#0089FF]/20 transition-all cursor-pointer select-none shadow-2xs active:scale-98",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { className: "h-3 w-3 text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Filter" })]
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { className: "h-3 w-3 text-[#0089FF]" }),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Filter" }),
+					activeSideFilterCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+						className: "px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white",
+						children: activeSideFilterCount
+					})
+				]
 			})
 		]
 	});
@@ -7695,10 +7661,14 @@ function ReportPage() {
 		const q = query.trim().toLowerCase();
 		return [...travelRows.filter((r) => {
 			if (filters.companies && filters.companies.length > 0 && !filters.companies.includes("All")) {
-				if (!filters.companies.includes(r.company)) return false;
+				const companyBranches = getBranchesForCompanies(filters.companies);
+				const companyVehicles = getVehiclesForBranches$1(companyBranches).map((v) => v.name);
+				const matchDirect = filters.companies.includes(r.company);
+				const matchVehicles = companyVehicles.includes(r.vehicleNo);
+				if (!matchDirect && !matchVehicles) return false;
 			}
 			if (filters.branches && filters.branches.length > 0 && !filters.branches.includes("All")) {
-				if (!getVehiclesForBranches(filters.branches).map((v) => v.name).includes(r.vehicleNo)) return false;
+				if (!getVehiclesForBranches$1(filters.branches).map((v) => v.name).includes(r.vehicleNo)) return false;
 			}
 			if (filters.objects && filters.objects.length > 0 && !filters.objects.includes("All")) {
 				if (!filters.objects.includes(r.vehicleNo)) return false;

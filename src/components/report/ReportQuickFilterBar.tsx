@@ -923,8 +923,9 @@ export function ReportQuickFilterBar({
   // Apply Handlers with Automatic Child Pruning & Cascading
   // -------------------------------------------------------------
   const handleApplyCompanies = () => {
-    if (draftCompanies.length === 0) return;
-    const isAll = draftCompanies.length === allCompanies.length;
+    const isAll =
+      draftCompanies.length === 0 ||
+      draftCompanies.length === allCompanies.length;
     const appliedCompanies = isAll ? [] : draftCompanies;
 
     const newAvailBranches = getBranchesForCompanies(
@@ -960,8 +961,9 @@ export function ReportQuickFilterBar({
   };
 
   const handleApplyBranches = () => {
-    if (draftBranches.length === 0) return;
-    const isAll = draftBranches.length === availableBranches.length;
+    const isAll =
+      draftBranches.length === 0 ||
+      draftBranches.length === availableBranches.length;
     const appliedBranches = isAll ? [] : draftBranches;
 
     const newAvailVehicles = getVehiclesForBranches(
@@ -985,11 +987,45 @@ export function ReportQuickFilterBar({
   };
 
   const handleApplyVehicles = () => {
-    if (draftObjects.length === 0) return;
-    const isAll = draftObjects.length === availableVehicleIds.length;
+    const isAll =
+      draftObjects.length === 0 ||
+      draftObjects.length === availableVehicleIds.length;
     onChange({ objects: isAll ? [] : draftObjects });
     setVehicleOpen(false);
   };
+
+  const activeSideFilterCount = useMemo(() => {
+    let count = 0;
+    if (
+      filters.groups &&
+      filters.groups.length > 0 &&
+      !filters.groups.includes("All")
+    )
+      count++;
+    if (
+      filters.types &&
+      filters.types.length > 0 &&
+      !filters.types.includes("All")
+    )
+      count++;
+    if (
+      filters.brands &&
+      filters.brands.length > 0 &&
+      !filters.brands.includes("All") &&
+      filters.brands[0] !== ""
+    )
+      count++;
+    if (
+      filters.models &&
+      filters.models.length > 0 &&
+      !filters.models.includes("All") &&
+      filters.models[0] !== ""
+    )
+      count++;
+    if (filters.durationValue && filters.durationValue.trim() !== "") count++;
+    if (filters.distanceValue && filters.distanceValue.trim() !== "") count++;
+    return count;
+  }, [filters]);
 
   return (
     <div
@@ -1237,14 +1273,6 @@ export function ReportQuickFilterBar({
             </label>
           </div>
 
-          {/* Helper message when 0 items selected */}
-          {draftCompanies.length === 0 && (
-            <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug">
-              Select at least one item, or all items will be selected by
-              default.
-            </div>
-          )}
-
           <div className="max-h-52 overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
             {filteredCompanyList.map((comp) => {
               const checked = draftCompanies.includes(comp);
@@ -1298,14 +1326,8 @@ export function ReportQuickFilterBar({
               </button>
               <button
                 type="button"
-                disabled={draftCompanies.length === 0}
                 onClick={handleApplyCompanies}
-                className={cn(
-                  "px-4 py-1.5 text-xs rounded-md font-semibold shadow-xs transition-all active:scale-98",
-                  draftCompanies.length === 0
-                    ? "bg-[#0089FF]/40 text-white/70 cursor-not-allowed"
-                    : "bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer",
-                )}
+                className="px-4 py-1.5 text-xs rounded-md bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer font-semibold shadow-xs transition-all active:scale-98"
               >
                 Apply
               </button>
@@ -1373,14 +1395,6 @@ export function ReportQuickFilterBar({
             </label>
           </div>
 
-          {/* Helper message when 0 items selected */}
-          {draftBranches.length === 0 && (
-            <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug">
-              Select at least one item, or all items will be selected by
-              default.
-            </div>
-          )}
-
           <div className="max-h-52 overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
             {filteredBranchList.map((b) => {
               const checked = draftBranches.includes(b);
@@ -1434,14 +1448,8 @@ export function ReportQuickFilterBar({
               </button>
               <button
                 type="button"
-                disabled={draftBranches.length === 0}
                 onClick={handleApplyBranches}
-                className={cn(
-                  "px-4 py-1.5 text-xs rounded-md font-semibold shadow-xs transition-all active:scale-98",
-                  draftBranches.length === 0
-                    ? "bg-[#0089FF]/40 text-white/70 cursor-not-allowed"
-                    : "bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer",
-                )}
+                className="px-4 py-1.5 text-xs rounded-md bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer font-semibold shadow-xs transition-all active:scale-98"
               >
                 Apply
               </button>
@@ -1510,14 +1518,6 @@ export function ReportQuickFilterBar({
               <span>Select All Vehicles</span>
             </label>
           </div>
-
-          {/* Helper message when 0 items selected */}
-          {draftObjects.length === 0 && (
-            <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug">
-              Select at least one item, or all items will be selected by
-              default.
-            </div>
-          )}
 
           {/* Grouped Tree List by Branch */}
           <div className="max-h-64 overflow-y-auto p-1.5 space-y-1.5 custom-scrollbar">
@@ -1637,14 +1637,8 @@ export function ReportQuickFilterBar({
               </button>
               <button
                 type="button"
-                disabled={draftObjects.length === 0}
                 onClick={handleApplyVehicles}
-                className={cn(
-                  "px-4 py-1.5 text-xs rounded-md font-semibold shadow-xs transition-all active:scale-98",
-                  draftObjects.length === 0
-                    ? "bg-[#0089FF]/40 text-white/70 cursor-not-allowed"
-                    : "bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer",
-                )}
+                className="px-4 py-1.5 text-xs rounded-md bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer font-semibold shadow-xs transition-all active:scale-98"
               >
                 Apply
               </button>
@@ -1662,6 +1656,11 @@ export function ReportQuickFilterBar({
       >
         <SlidersHorizontal className="h-3 w-3 text-[#0089FF]" />
         <span>Filter</span>
+        {activeSideFilterCount > 0 && (
+          <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white">
+            {activeSideFilterCount}
+          </span>
+        )}
       </button>
     </div>
   );

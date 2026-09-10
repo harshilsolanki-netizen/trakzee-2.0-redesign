@@ -15,7 +15,7 @@ import { n as useZio, t as ZioProvider } from "./ZioContext-Cw_R09Nu.mjs";
 import { t as ZioPanel } from "./ZioPanel-DDl6QQ_U.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-CVV0jR76.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-MyL1BYTT.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -2413,7 +2413,7 @@ var Toaster$1 = ({ ...props }) => {
 		...props
 	});
 };
-var styles_default = "/assets/styles-Cp3uqYfD.css";
+var styles_default = "/assets/styles-BfkUXymi.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -2700,7 +2700,7 @@ objectType({
 	role: stringType().min(1, "Please select a developer role"),
 	marketingUpdates: booleanType().default(false)
 });
-var $$splitComponentImporter$3 = () => import("./report-iGPZYCf4.mjs");
+var $$splitComponentImporter$3 = () => import("./report-fhUNPnFe.mjs");
 var Route$4 = createFileRoute("/report")({
 	validateSearch: (search) => {
 		const t = search["type"];

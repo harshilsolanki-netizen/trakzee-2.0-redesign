@@ -341,13 +341,6 @@ function UniversalMultiSelectDropdown({
             </label>
           </div>
 
-          {/* Warning Message when 0 items selected */}
-          {draft.length === 0 && (
-            <div className="mx-2.5 my-1.5 px-2 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug">
-              Select at least one item, or all items will be selected by default.
-            </div>
-          )}
-
           {/* Options List */}
           <div className="max-h-48 overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
             {filteredOptions.map((opt) => {
@@ -440,10 +433,12 @@ export function ReportConfigPanel({
     return COMPANIES.filter((c) => c !== "All");
   }, []);
 
-  // 2. Branch Options dynamically filtered by selected companies
-  const branchOptions = useMemo(() => {
+  // 2. Available Branches dynamically filtered by selected companies
+  const availableBranches = useMemo(() => {
     return getBranchesForCompanies(selectedCompanies);
   }, [selectedCompanies]);
+
+  const branchOptions = availableBranches;
 
   // 3. Group Options dynamically filtered by selected branches
   const availableGroups = useMemo(() => {
@@ -477,39 +472,23 @@ export function ReportConfigPanel({
     ];
   }, []);
 
-  // 7. Base Vehicle List enriched with metadata from fleetObjects
-  const allVehiclesList = useMemo(() => {
-    return fleetObjects.map((f) => ({
-      id: f.id,
-      name: f.name,
-      imei: f.imei,
-      branch: f.branch || "Head Office",
-      driver: f.driver || "Unassigned",
-      type: f.type,
-      company: f.company || "HP Company",
-    }));
-  }, []);
+  // 7. Active Branches taking selection and available branches into account
+  const activeBranches = useMemo(() => {
+    if (
+      !selectedBranches ||
+      selectedBranches.length === 0 ||
+      selectedBranches.includes("All")
+    ) {
+      return availableBranches;
+    }
+    const valid = selectedBranches.filter((b) => availableBranches.includes(b));
+    return valid.length > 0 ? valid : availableBranches;
+  }, [selectedBranches, availableBranches]);
 
-  // 8. Dynamically filter vehicles based on selected Company and Branch
+  // 8. Dynamically filter vehicles based on active branches
   const allFilteredVehicles = useMemo(() => {
-    return allVehiclesList.filter((v) => {
-      if (
-        selectedCompanies.length > 0 &&
-        !selectedCompanies.includes("All") &&
-        !selectedCompanies.includes(v.company)
-      ) {
-        return false;
-      }
-      if (
-        selectedBranches.length > 0 &&
-        !selectedBranches.includes("All") &&
-        !selectedBranches.includes(v.branch)
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }, [allVehiclesList, selectedCompanies, selectedBranches]);
+    return getVehiclesForBranches(activeBranches);
+  }, [activeBranches]);
 
   const allFilteredVehicleIds = useMemo(() => {
     return allFilteredVehicles.map((v) => v.id);
@@ -525,28 +504,39 @@ export function ReportConfigPanel({
     return count;
   }, [selectedCompanies, selectedBranches]);
 
-  // Chips Text Formatting
-  const companyChipText = useMemo(() => {
-    if (
-      !selectedCompanies ||
-      selectedCompanies.length === 0 ||
-      selectedCompanies.includes("All")
-    )
-      return "All";
-    if (selectedCompanies.length === 1) return selectedCompanies[0];
-    return `${selectedCompanies[0]} +${selectedCompanies.length - 1}`;
-  }, [selectedCompanies]);
+  // Cascading Company and Branch change handlers
+  const handleCompanyChange = (companies: string[]) => {
+    const newAvailBranches = getBranchesForCompanies(companies);
+    const nextBranches = (filters.branches || []).filter((b) =>
+      newAvailBranches.includes(b),
+    );
+    const newAvailVehicles = getVehiclesForBranches(
+      nextBranches.length > 0 ? nextBranches : newAvailBranches,
+    );
+    const newAvailVehicleIds = newAvailVehicles.map((v) => v.id);
+    const nextObjects = (filters.objects || []).filter((id) =>
+      newAvailVehicleIds.includes(id),
+    );
+    onChange({
+      companies,
+      branches: nextBranches,
+      objects: nextObjects,
+    });
+  };
 
-  const branchChipText = useMemo(() => {
-    if (
-      !selectedBranches ||
-      selectedBranches.length === 0 ||
-      selectedBranches.includes("All")
-    )
-      return "All";
-    if (selectedBranches.length === 1) return selectedBranches[0];
-    return `${selectedBranches[0]} +${selectedBranches.length - 1}`;
-  }, [selectedBranches]);
+  const handleBranchChange = (branches: string[]) => {
+    const newAvailVehicles = getVehiclesForBranches(
+      branches.length > 0 ? branches : availableBranches,
+    );
+    const newAvailVehicleIds = newAvailVehicles.map((v) => v.id);
+    const nextObjects = (filters.objects || []).filter((id) =>
+      newAvailVehicleIds.includes(id),
+    );
+    onChange({
+      branches,
+      objects: nextObjects,
+    });
+  };
 
   // Vehicle Search State
   const [vehicleSearch, setVehicleSearch] = useState("");
@@ -558,35 +548,42 @@ export function ReportConfigPanel({
     "Valsad",
     "Planet Eco AL Khabaisi",
     "Planet Eco AL Nakheel",
-    "Pune",
-    "Itriangle",
+    "HP Branch 1",
+    "HP Branch 2",
+    "Delhi Branch",
+    "Mumbai Branch",
+    "Planet Eco Abu Dhabi",
+    "Planet Eco Ajman",
   ]);
 
   // Group vehicles by Branch for the tree view
   const groupedVehicles = useMemo(() => {
     const q = vehicleSearch.trim().toLowerCase();
-    const filtered = allFilteredVehicles.filter((v) => {
-      if (!q) return true;
-      const matchName = v.name.toLowerCase().includes(q);
-      const matchImei = v.imei.toLowerCase().includes(q);
-      const matchBranch = v.branch.toLowerCase().includes(q);
-      const matchDriver = v.driver.toLowerCase().includes(q);
-      return matchName || matchImei || matchBranch || matchDriver;
-    });
+    const map = new Map<
+      string,
+      { id: string; name: string; imei: string; branch: string; driver?: string }[]
+    >();
 
-    const groupsMap: Record<string, typeof filtered> = {};
-    filtered.forEach((v) => {
-      if (!groupsMap[v.branch]) {
-        groupsMap[v.branch] = [];
+    for (const branch of activeBranches) {
+      const vList = allFilteredVehicles.filter((v) => v.branch === branch);
+      const matched = vList.filter((v) => {
+        if (!q) return true;
+        const matchName = v.name.toLowerCase().includes(q);
+        const matchImei = v.imei.toLowerCase().includes(q);
+        const matchBranch = v.branch.toLowerCase().includes(q);
+        const matchDriver = (v.driver || "").toLowerCase().includes(q);
+        return matchName || matchImei || matchBranch || matchDriver;
+      });
+      if (matched.length > 0) {
+        map.set(branch, matched);
       }
-      groupsMap[v.branch].push(v);
-    });
+    }
 
-    return Object.entries(groupsMap).map(([branch, vehicles]) => ({
+    return Array.from(map.entries()).map(([branch, vehicles]) => ({
       branch,
       vehicles,
     }));
-  }, [allFilteredVehicles, vehicleSearch]);
+  }, [activeBranches, allFilteredVehicles, vehicleSearch]);
 
   const allVehiclesSelected =
     allFilteredVehicleIds.length > 0 &&
@@ -774,7 +771,7 @@ export function ReportConfigPanel({
                       label="Company"
                       selected={selectedCompanies}
                       options={companyOptions}
-                      onChange={(companies) => onChange({ companies })}
+                      onChange={handleCompanyChange}
                       placeholder="Select Company"
                     />
                   </div>
@@ -788,7 +785,7 @@ export function ReportConfigPanel({
                       label="Branch"
                       selected={selectedBranches}
                       options={branchOptions}
-                      onChange={(branches) => onChange({ branches })}
+                      onChange={handleBranchChange}
                       placeholder="Select Branch"
                     />
                   </div>
@@ -798,10 +795,7 @@ export function ReportConfigPanel({
                     <button
                       type="button"
                       onClick={() => {
-                        onChange({
-                          companies: [],
-                          branches: [],
-                        });
+                        handleCompanyChange([]);
                       }}
                       className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
                     >
@@ -820,34 +814,7 @@ export function ReportConfigPanel({
             )}
           </div>
 
-          {/* 2. Applied Filter Tags / Chips */}
-          <div className="flex flex-wrap items-center gap-1.5 shrink-0 select-none">
-            {/* Company Tag */}
-            <button
-              type="button"
-              onClick={() => setFilterOverlayOpen(true)}
-              className="inline-flex items-center gap-1 rounded-md bg-muted/50 hover:bg-muted border border-border/70 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors cursor-pointer shadow-2xs"
-            >
-              <span>Company:</span>
-              <span className="font-semibold text-foreground">
-                {companyChipText}
-              </span>
-            </button>
-
-            {/* Branch Tag */}
-            <button
-              type="button"
-              onClick={() => setFilterOverlayOpen(true)}
-              className="inline-flex items-center gap-1 rounded-md bg-muted/50 hover:bg-muted border border-border/70 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors cursor-pointer shadow-2xs"
-            >
-              <span>Branch:</span>
-              <span className="font-semibold text-foreground">
-                {branchChipText}
-              </span>
-            </button>
-          </div>
-
-          {/* 3. Vehicle Checklist Section */}
+          {/* 2. Vehicle Checklist Section */}
           <div className="rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs">
             {/* Master Select all toolbar */}
             <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-3 py-2 shrink-0 select-none">
@@ -866,7 +833,9 @@ export function ReportConfigPanel({
 
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-medium text-muted-foreground">
-                  {selectedVehicleIds.length} selected
+                  {selectedVehicleIds.length === 0
+                    ? `All (${allFilteredVehicleIds.length})`
+                    : `${selectedVehicleIds.length} / ${allFilteredVehicleIds.length} selected`}
                 </span>
                 <button
                   type="button"
@@ -878,13 +847,6 @@ export function ReportConfigPanel({
                 </button>
               </div>
             </div>
-
-            {/* Red Warning Message when 0 vehicles selected */}
-            {selectedVehicleIds.length === 0 && (
-              <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug shrink-0">
-                Select at least one vehicle, or all vehicles will be included.
-              </div>
-            )}
 
             {/* Scrollable Bounded Branch List with Chevrons and Badges */}
             <div className="max-h-[190px] overflow-y-auto p-1 divide-y divide-border/40 custom-scrollbar">
@@ -1080,7 +1042,7 @@ export function ReportConfigPanel({
             {/* Distance Threshold (km) */}
             <div className="space-y-1">
               <label className="block text-[11px] font-semibold text-foreground">
-                Group
+                Distance Threshold (km)
               </label>
               <div className="grid grid-cols-12 gap-1.5">
                 <div className="col-span-7">
