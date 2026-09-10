@@ -1503,7 +1503,7 @@ export function ScheduleModal({
         ) : (
           /* View 2: Form View (Direct Create / Edit Schedule Configuration) */
           <div className="flex flex-1 min-h-0 flex-col bg-background">
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+            <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4.5 custom-scrollbar">
               {/* Report Name */}
               <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-foreground">
@@ -1615,59 +1615,57 @@ export function ScheduleModal({
                 </div>
               </div>
 
-              {/* Copy From & Relative Type Row */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-foreground">
-                    Copy From
-                  </label>
-                  <SelectDropdown
-                    value="None"
-                    options={copyOptions}
-                    onChange={handleCopyFrom}
-                    placeholder="None"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-foreground">
-                    Relative Type <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <SelectDropdown
-                    value={draft.relativeType}
-                    options={RELATIVE_TYPES}
-                    onChange={(relativeType) => setDraft((d) => ({ ...d, relativeType }))}
-                  />
-                </div>
+              {/* Copy From */}
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-semibold text-foreground">
+                  Copy From
+                </label>
+                <SelectDropdown
+                  value="None"
+                  options={copyOptions}
+                  onChange={handleCopyFrom}
+                  placeholder="None"
+                />
               </div>
 
-              {/* Timezone & Generation Time Row */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-foreground">
-                    Timezone <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <SelectDropdown
-                    value={draft.timezone}
-                    options={TIMEZONES}
-                    onChange={(timezone) => setDraft((d) => ({ ...d, timezone }))}
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-foreground">
-                    Generation Time <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <SelectDropdown
-                    value={draft.generationTime}
-                    options={GENERATION_TIMES}
-                    onChange={(generationTime) => setDraft((d) => ({ ...d, generationTime }))}
-                  />
-                </div>
+              {/* Relative Type */}
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-semibold text-foreground">
+                  Relative Type <span className="text-red-500 font-bold ml-0.5">*</span>
+                </label>
+                <SelectDropdown
+                  value={draft.relativeType}
+                  options={RELATIVE_TYPES}
+                  onChange={(relativeType) => setDraft((d) => ({ ...d, relativeType }))}
+                />
               </div>
 
-              {/* Time Range Checkbox & Pickers */}
-              <div className="space-y-2 pt-0.5">
+              {/* Timezone */}
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-semibold text-foreground">
+                  Timezone <span className="text-red-500 font-bold ml-0.5">*</span>
+                </label>
+                <SelectDropdown
+                  value={draft.timezone}
+                  options={TIMEZONES}
+                  onChange={(timezone) => setDraft((d) => ({ ...d, timezone }))}
+                />
+              </div>
+
+              {/* Generation Time */}
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-semibold text-foreground">
+                  Generation Time <span className="text-red-500 font-bold ml-0.5">*</span>
+                </label>
+                <SelectDropdown
+                  value={draft.generationTime}
+                  options={GENERATION_TIMES}
+                  onChange={(generationTime) => setDraft((d) => ({ ...d, generationTime }))}
+                />
+              </div>
+
+              {/* Time Range Checkbox & Pickers with Clean Alignment and Breathing Room */}
+              <div className="space-y-2.5 pt-1 pb-1">
                 <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground select-none">
                   <input
                     type="checkbox"
@@ -1681,7 +1679,7 @@ export function ScheduleModal({
                 </label>
 
                 {draft.hasTimeRange && (
-                  <div className="grid grid-cols-2 gap-3 pl-5.5 animate-in fade-in-50 duration-150">
+                  <div className="grid grid-cols-2 gap-3 pt-0.5 animate-in fade-in-50 duration-150">
                     <div className="space-y-1">
                       <label className="block text-[10px] font-medium text-muted-foreground">
                         Start Time

@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-DJ0PoqH8.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-DeHZ8LZL.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -3506,7 +3506,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "flex flex-1 min-h-0 flex-col bg-background",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar",
+						className: "flex-1 min-h-0 overflow-y-auto p-5 space-y-4.5 custom-scrollbar",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "space-y-1",
@@ -3610,74 +3610,70 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "grid grid-cols-2 gap-3",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "space-y-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: "Copy From"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-										value: "None",
-										options: copyOptions,
-										onChange: handleCopyFrom,
-										placeholder: "None"
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "space-y-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: ["Relative Type ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-red-500 font-bold ml-0.5",
-											children: "*"
-										})]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-										value: draft.relativeType,
-										options: RELATIVE_TYPES,
-										onChange: (relativeType) => setDraft((d) => ({
-											...d,
-											relativeType
-										}))
-									})]
+								className: "space-y-1.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: "Copy From"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+									value: "None",
+									options: copyOptions,
+									onChange: handleCopyFrom,
+									placeholder: "None"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "grid grid-cols-2 gap-3",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "space-y-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: ["Timezone ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-red-500 font-bold ml-0.5",
-											children: "*"
-										})]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-										value: draft.timezone,
-										options: TIMEZONES,
-										onChange: (timezone) => setDraft((d) => ({
-											...d,
-											timezone
-										}))
+								className: "space-y-1.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: ["Relative Type ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-red-500 font-bold ml-0.5",
+										children: "*"
 									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "space-y-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: ["Generation Time ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-red-500 font-bold ml-0.5",
-											children: "*"
-										})]
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-										value: draft.generationTime,
-										options: GENERATION_TIMES,
-										onChange: (generationTime) => setDraft((d) => ({
-											...d,
-											generationTime
-										}))
-									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+									value: draft.relativeType,
+									options: RELATIVE_TYPES,
+									onChange: (relativeType) => setDraft((d) => ({
+										...d,
+										relativeType
+									}))
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-2 pt-0.5",
+								className: "space-y-1.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: ["Timezone ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-red-500 font-bold ml-0.5",
+										children: "*"
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+									value: draft.timezone,
+									options: TIMEZONES,
+									onChange: (timezone) => setDraft((d) => ({
+										...d,
+										timezone
+									}))
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
+									children: ["Generation Time ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-red-500 font-bold ml-0.5",
+										children: "*"
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+									value: draft.generationTime,
+									options: GENERATION_TIMES,
+									onChange: (generationTime) => setDraft((d) => ({
+										...d,
+										generationTime
+									}))
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-2.5 pt-1 pb-1",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground select-none",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
@@ -3690,7 +3686,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 										className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Time Range" })]
 								}), draft.hasTimeRange && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "grid grid-cols-2 gap-3 pl-5.5 animate-in fade-in-50 duration-150",
+									className: "grid grid-cols-2 gap-3 pt-0.5 animate-in fade-in-50 duration-150",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "space-y-1",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
