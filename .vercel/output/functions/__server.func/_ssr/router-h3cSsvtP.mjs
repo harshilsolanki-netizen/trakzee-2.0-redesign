@@ -17,7 +17,7 @@ import { n as useZio, t as ZioProvider } from "./ZioContext-Cw_R09Nu.mjs";
 import { t as ZioPanel } from "./ZioPanel-lLJH_t-F.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-BC25FjtW.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-h3cSsvtP.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -2408,11 +2408,11 @@ function ZioLogo({ className, size = "md" }) {
 		src: "/zio-logo.png",
 		alt: "Zio Logo",
 		className: cn({
-			xs: "h-3.5 w-3.5",
-			sm: "h-4 w-4",
-			md: "h-4.5 w-4.5",
-			lg: "h-6 w-6",
-			xl: "h-8 w-8"
+			xs: "h-4 w-4",
+			sm: "h-5 w-5",
+			md: "h-5.5 w-5.5",
+			lg: "h-7 w-7",
+			xl: "h-9 w-9"
 		}[size], "shrink-0 object-contain inline-block", className)
 	});
 }
@@ -2433,7 +2433,7 @@ function AskZioTopBarButton({ className }) {
 		className: cn("group relative hidden h-[30px] items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-nav-foreground/90 transition-colors duration-150 sm:flex cursor-pointer select-none hover:bg-white/10 hover:text-white", isOpen && "bg-white/10 text-white", className),
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 			className: cn("shrink-0 transform-gpu transition-transform duration-200", isHovered && "scale-110"),
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ZioLogo, { size: "sm" })
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ZioLogo, { className: "h-[21px] w-[21px]" })
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 			className: "font-semibold text-nav-foreground/90 group-hover:text-white tracking-tight text-xs whitespace-nowrap",
 			children: "Zio"
@@ -2452,7 +2452,7 @@ var Toaster$1 = ({ ...props }) => {
 		...props
 	});
 };
-var styles_default = "/assets/styles-C58OdGrF.css";
+var styles_default = "/assets/styles-BQPS0sQ8.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {

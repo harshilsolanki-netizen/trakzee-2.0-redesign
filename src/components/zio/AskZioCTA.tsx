@@ -31,7 +31,7 @@ export function AskZioTopBarButton({ className }: { className?: string }) {
           isHovered && "scale-110",
         )}
       >
-        <ZioLogo size="sm" />
+        <ZioLogo className="h-[21px] w-[21px]" />
       </div>
 
       <span className="font-semibold text-nav-foreground/90 group-hover:text-white tracking-tight text-xs whitespace-nowrap">
@@ -69,7 +69,7 @@ export function AskZioCTA({ className }: { className?: string }) {
               isHovered && "scale-110",
             )}
           >
-            <ZioLogo size="sm" />
+            <ZioLogo className="h-5 w-5" />
           </div>
           <span className="font-semibold text-white text-xs">Zio</span>
         </button>
