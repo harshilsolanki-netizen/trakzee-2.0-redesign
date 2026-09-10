@@ -1548,7 +1548,7 @@ export function ScheduleModal({
               </div>
 
               {/* Relative Type */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <label className="block text-[11px] font-semibold text-foreground">
                   Relative Type <span className="text-red-500 font-bold ml-0.5">*</span>
                 </label>
@@ -1576,43 +1576,14 @@ export function ScheduleModal({
                   }}
                   placeholder="Select Relative Type"
                 />
-              </div>
 
-              {/* Timezone */}
-              <div className="space-y-1">
-                <label className="block text-[11px] font-semibold text-foreground">
-                  Timezone <span className="text-red-500 font-bold ml-0.5">*</span>
-                </label>
-                <SelectDropdown
-                  value={draft.timezone}
-                  options={TIMEZONES}
-                  onChange={(timezone) => setDraft((d) => ({ ...d, timezone }))}
-                  placeholder="Select Timezone"
-                />
-              </div>
-
-              {/* Frequency */}
-              <div className="space-y-1">
-                <label className="block text-[11px] font-semibold text-foreground">
-                  Frequency <span className="text-red-500 font-bold ml-0.5">*</span>
-                </label>
-                <SelectDropdown
-                  value={draft.scheduleType}
-                  options={["Daily", "Weekly", "Monthly"]}
-                  onChange={(val) =>
-                    setDraft((d) => ({
-                      ...d,
-                      scheduleType: val as "Daily" | "Weekly" | "Monthly",
-                    }))
-                  }
-                  placeholder="Select Frequency"
-                />
-
-                {/* Weekly Day Selector Pills */}
-                {draft.scheduleType === "Weekly" && (
-                  <div className="pt-1.5 animate-in fade-in-50 duration-150">
-                    <label className="block text-[10px] font-medium text-muted-foreground mb-1">
-                      Repeat on days
+                {/* Weekly: Day Selection Pills directly below Relative Type */}
+                {(draft.relativeType === "This Week" ||
+                  draft.relativeType === "Last Week" ||
+                  draft.scheduleType === "Weekly") && (
+                  <div className="pt-1.5 space-y-1.5 animate-in fade-in-50 duration-150">
+                    <label className="block text-[11px] font-semibold text-foreground">
+                      Select Day(s) of Week <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {WEEK_DAYS.map((day) => {
@@ -1637,11 +1608,13 @@ export function ScheduleModal({
                   </div>
                 )}
 
-                {/* Monthly Date Selector */}
-                {draft.scheduleType === "Monthly" && (
-                  <div className="pt-1.5 space-y-1 animate-in fade-in-50 duration-150">
-                    <label className="block text-[10px] font-medium text-muted-foreground mb-1">
-                      Select Month Date
+                {/* Monthly: Particular Day / Date Selection directly below Relative Type */}
+                {(draft.relativeType === "This Month" ||
+                  draft.relativeType === "Last Month" ||
+                  draft.scheduleType === "Monthly") && (
+                  <div className="pt-1.5 space-y-2 animate-in fade-in-50 duration-150">
+                    <label className="block text-[11px] font-semibold text-foreground">
+                      Select Month Date / Day <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <SelectDropdown
                       value={
@@ -1664,8 +1637,44 @@ export function ScheduleModal({
                       }}
                       placeholder="Select Month Date"
                     />
+
+                    {/* Quick Date Presets */}
+                    <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                      {[1, 5, 10, 15, 20, 25, 31].map((dateNum) => {
+                        const label = dateNum === 31 ? "Last Day" : `Day ${dateNum}`;
+                        const isSelected = (draft.selectedDates || [1])[0] === dateNum;
+                        return (
+                          <button
+                            key={dateNum}
+                            type="button"
+                            onClick={() => setDraft((d) => ({ ...d, selectedDates: [dateNum] }))}
+                            className={cn(
+                              "px-2 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer select-none",
+                              isSelected
+                                ? "bg-[#0089FF] text-white shadow-xs"
+                                : "border border-border/80 bg-background text-foreground hover:bg-muted/60 shadow-2xs",
+                            )}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
+              </div>
+
+              {/* Timezone */}
+              <div className="space-y-1">
+                <label className="block text-[11px] font-semibold text-foreground">
+                  Timezone <span className="text-red-500 font-bold ml-0.5">*</span>
+                </label>
+                <SelectDropdown
+                  value={draft.timezone}
+                  options={TIMEZONES}
+                  onChange={(timezone) => setDraft((d) => ({ ...d, timezone }))}
+                  placeholder="Select Timezone"
+                />
               </div>
 
               {/* Generation Time */}
