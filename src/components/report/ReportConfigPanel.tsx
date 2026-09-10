@@ -731,25 +731,13 @@ export function ReportConfigPanel({
               <button
                 type="button"
                 onClick={() => setFilterOverlayOpen(!filterOverlayOpen)}
-                className={cn(
-                  "flex h-[22px] items-center gap-1 px-2 rounded text-[11px] font-semibold transition-all cursor-pointer select-none shrink-0 shadow-2xs active:scale-95",
-                  filterOverlayOpen
-                    ? "bg-[#0089FF] text-white"
-                    : "bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 hover:bg-[#0089FF]/20",
-                )}
+                className="flex items-center gap-1 px-1 py-0.5 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] transition-colors cursor-pointer select-none shrink-0 active:scale-95"
                 title="Filter by Company and Branch"
               >
-                <SlidersHorizontal className="h-3 w-3" />
+                <SlidersHorizontal className="h-3.5 w-3.5 text-[#0089FF]" />
                 <span>Filter</span>
                 {activeFilterCount > 0 && (
-                  <span
-                    className={cn(
-                      "px-1 py-0 rounded-full text-[9px] font-bold leading-tight",
-                      filterOverlayOpen
-                        ? "bg-white text-[#0089FF]"
-                        : "bg-[#0089FF] text-white",
-                    )}
-                  >
+                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white">
                     {activeFilterCount}
                   </span>
                 )}
