@@ -45,83 +45,6 @@ import {
   type DashboardConfigTarget,
 } from "./DashboardConfigDrawer";
 
-/**
- * Chrome-style bottom-left concave flare SVG.
- * Curves smoothly outwards from the horizontal baseline up into the active tab's left vertical border.
- * Perfectly symmetric with ChromeTabFlareRight.
- */
-function ChromeTabFlareLeft() {
-  return (
-    <svg
-      className="absolute -left-[12px] -bottom-[1px] h-[12px] w-[12px] pointer-events-none z-20"
-      viewBox="0 0 12 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Outer corner background fill matching active tab */}
-      <path
-        d="M 12 0 A 12 12 0 0 1 0 12 L 12 12 Z"
-        className="fill-card dark:fill-slate-900"
-      />
-      {/* Curved border stroke */}
-      <path
-        d="M 0 12 A 12 12 0 0 0 12 0"
-        className="stroke-slate-300 dark:stroke-slate-700"
-        strokeWidth="1"
-        vectorEffect="non-scaling-stroke"
-        fill="none"
-      />
-      {/* Baseline mask matching card background */}
-      <line
-        x1="0"
-        y1="12"
-        x2="12"
-        y2="12"
-        className="stroke-card dark:stroke-slate-900"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
-
-/**
- * Chrome-style bottom-right concave flare SVG.
- * Curves smoothly outwards from the active tab's right vertical border down into the horizontal baseline.
- * Perfectly symmetric with ChromeTabFlareLeft.
- */
-function ChromeTabFlareRight() {
-  return (
-    <svg
-      className="absolute -right-[12px] -bottom-[1px] h-[12px] w-[12px] pointer-events-none z-20"
-      viewBox="0 0 12 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Outer corner background fill matching active tab */}
-      <path
-        d="M 0 0 A 12 12 0 0 0 12 12 L 0 12 Z"
-        className="fill-card dark:fill-slate-900"
-      />
-      {/* Curved border stroke */}
-      <path
-        d="M 0 0 A 12 12 0 0 0 12 12"
-        className="stroke-slate-300 dark:stroke-slate-700"
-        strokeWidth="1"
-        vectorEffect="non-scaling-stroke"
-        fill="none"
-      />
-      {/* Baseline mask matching card background */}
-      <line
-        x1="0"
-        y1="12"
-        x2="12"
-        y2="12"
-        className="stroke-card dark:stroke-slate-900"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
 
 export function TabStrip() {
   const {
@@ -232,8 +155,8 @@ export function TabStrip() {
       {/* 0. Continuous Baseline Line underneath tabs (masked out solely by active tab) */}
       <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-slate-300 dark:bg-slate-700 pointer-events-none z-0" />
 
-      {/* 1. Left Tab Bar: pl-3 aligns the 12px left flare precisely with the card's left margin (px-4) */}
-      <div className="relative z-10 flex min-w-0 flex-1 items-end gap-2 pl-3 pr-2 overflow-x-auto overflow-y-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* 1. Left Tab Bar */}
+      <div className="relative z-10 flex min-w-0 flex-1 items-end gap-1.5 px-1 overflow-x-auto overflow-y-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {visibleTabs.map((tab) => {
           const isActive = tab.id === activeTab.id;
           return (
@@ -262,21 +185,17 @@ export function TabStrip() {
                 setOverId(null);
               }}
               className={cn(
-                "group relative flex shrink-0 cursor-pointer items-center gap-2 px-4 py-2 text-xs font-semibold transition-all duration-150",
+                "group relative flex shrink-0 cursor-pointer items-center gap-2 px-4 py-2 text-xs font-semibold transition-all duration-150 rounded-t-lg select-none",
                 isActive
-                  ? "bg-card dark:bg-slate-900 rounded-t-[10px] border-t border-l border-r border-slate-300 dark:border-slate-700 -mb-[1px] z-10 shadow-xs text-[#1e40af] dark:text-blue-400"
-                  : "bg-transparent hover:bg-slate-200/60 dark:hover:bg-slate-800/60 rounded-t-[8px] text-[#1e40af] dark:text-blue-400 mb-0.5",
+                  ? "bg-card dark:bg-slate-900 border-t border-l border-r border-slate-300 dark:border-slate-700 -mb-[1px] z-10 shadow-xs text-[#1e40af] dark:text-blue-400 font-bold"
+                  : "bg-transparent hover:bg-slate-200/60 dark:hover:bg-slate-800/60 text-[#1e40af] dark:text-blue-400 mb-0",
                 dragId === tab.id ? "opacity-40" : "",
                 overId === tab.id ? "ring-2 ring-primary/40" : "",
               )}
             >
-              {/* Chrome-style outward curved flares for active tab */}
-              {isActive && <ChromeTabFlareLeft />}
-              {isActive && <ChromeTabFlareRight />}
-
-              {/* Seamless bottom mask spanning the full tab and flare width to eliminate baseline under selected tab */}
+              {/* Seamless bottom mask strictly within the active tab boundary */}
               {isActive && (
-                <div className="absolute -bottom-[2px] -left-[12px] -right-[12px] h-[4px] bg-card dark:bg-slate-900 z-10 pointer-events-none" />
+                <div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-card dark:bg-slate-900 z-10 pointer-events-none" />
               )}
 
               {renamingId === tab.id ? (
