@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-Dskit-Tz.js
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-CYMEkizE.js
 var tsrStartManifest = () => ({ routes: {
 	__root__: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/__root.tsx",
@@ -12,7 +12,7 @@ var tsrStartManifest = () => ({ routes: {
 			"/zio"
 		],
 		preloads: [
-			"/assets/index-ygWyx1Aa.js",
+			"/assets/index-B1TCmMRn.js",
 			"/assets/utils-BDRr8poQ.js",
 			"/assets/download-B5T2ibo3.js",
 			"/assets/x-B4JrkUkn.js",
@@ -22,11 +22,11 @@ var tsrStartManifest = () => ({ routes: {
 			"/assets/chevron-down-Dha4uT77.js",
 			"/assets/search-DDWeLJ_y.js",
 			"/assets/dropdown-menu-DUoHHQSP.js",
-			"/assets/ZioPanel-1i5mrmkD.js",
+			"/assets/ZioPanel-4x6gFUAh.js",
 			"/assets/eye-D_8Go47a.js",
 			"/assets/file-text-GtX3tr5j.js",
 			"/assets/types-BsvVURBu.js",
-			"/assets/ZioContext-CzaToytR.js",
+			"/assets/ZioContext-4UML7s_M.js",
 			"/assets/triangle-alert-C02s0qPG.js",
 			"/assets/pin-off-p4UtY9Xj.js",
 			"/assets/reports-CoKrrIz6.js",
@@ -41,16 +41,16 @@ var tsrStartManifest = () => ({ routes: {
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-ygWyx1Aa.js"
+			src: "/assets/index-B1TCmMRn.js"
 		} }]
 	},
 	"/": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/index.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/routes-BBKbJz-4.js",
+			"/assets/routes-BeSEs6dJ.js",
 			"/assets/video-CiTIpoFR.js",
-			"/assets/fleet-DYGVpYjf.js",
+			"/assets/fleet-BtsWLabf.js",
 			"/assets/rotate-ccw-BknbzzFT.js",
 			"/assets/sliders-horizontal-Dw4fhHu4.js",
 			"/assets/PieChart-BTtKvk8n.js",
@@ -82,12 +82,12 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/report.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/report-BLIFh9cN.js",
+			"/assets/report-BeNCBYqW.js",
 			"/assets/play-CULVwW4v.js",
 			"/assets/clock-D7xLHN8c.js",
 			"/assets/minus-y5WOeQdi.js",
 			"/assets/pencil-CWlwNF-Y.js",
-			"/assets/fleet-DYGVpYjf.js",
+			"/assets/fleet-BtsWLabf.js",
 			"/assets/rotate-ccw-BknbzzFT.js",
 			"/assets/sliders-horizontal-Dw4fhHu4.js"
 		]
@@ -101,20 +101,20 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/tracking.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/tracking-DtOQhwKS.js",
+			"/assets/tracking-BEGruqsL.js",
 			"/assets/play-CULVwW4v.js",
 			"/assets/clock-D7xLHN8c.js",
 			"/assets/video-CiTIpoFR.js",
 			"/assets/layers-C7u_3DLV.js",
 			"/assets/minus-y5WOeQdi.js",
-			"/assets/fleet-DYGVpYjf.js",
+			"/assets/fleet-BtsWLabf.js",
 			"/assets/rotate-ccw-BknbzzFT.js"
 		]
 	},
 	"/zio": {
 		filePath: "C:/Users/Uffizio_User/.gemini/antigravity/scratch/tanstack_start_ts/src/routes/zio.tsx",
 		children: void 0,
-		preloads: ["/assets/zio-KUs-0szo.js"]
+		preloads: ["/assets/zio-VkQ_6Icd.js"]
 	}
 } });
 //#endregion

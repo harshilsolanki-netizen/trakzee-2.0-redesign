@@ -10,8 +10,8 @@ import { n as toast } from "../_libs/sonner.mjs";
 import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as Tooltip } from "./tooltip-yj1PAv0W.mjs";
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-5aAnLDi6.mjs";
-import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-TLGcnBA-.js
+import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/report-lmsq9OLr.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -7662,16 +7662,47 @@ function ReportPage() {
 		return [...travelRows.filter((r) => {
 			if (filters.companies && filters.companies.length > 0 && !filters.companies.includes("All")) {
 				const companyBranches = getBranchesForCompanies(filters.companies);
-				const companyVehicles = getVehiclesForBranches$1(companyBranches).map((v) => v.name);
 				const matchDirect = filters.companies.includes(r.company);
-				const matchVehicles = companyVehicles.includes(r.vehicleNo);
-				if (!matchDirect && !matchVehicles) return false;
+				const matchBranch = r.branch && companyBranches.includes(r.branch);
+				if (!matchDirect && !matchBranch) return false;
 			}
 			if (filters.branches && filters.branches.length > 0 && !filters.branches.includes("All")) {
-				if (!getVehiclesForBranches$1(filters.branches).map((v) => v.name).includes(r.vehicleNo)) return false;
+				if (!r.branch || !filters.branches.includes(r.branch)) return false;
 			}
 			if (filters.objects && filters.objects.length > 0 && !filters.objects.includes("All")) {
-				if (!filters.objects.includes(r.vehicleNo)) return false;
+				if (!filters.objects.includes(r.vehicleNo) && !filters.objects.includes(r.id)) return false;
+			}
+			if (filters.groups && filters.groups.length > 0 && !filters.groups.includes("All")) {
+				if (!r.group || !filters.groups.includes(r.group)) return false;
+			}
+			if (filters.types && filters.types.length > 0 && !filters.types.includes("All")) {
+				if (!r.vehicleType || !filters.types.includes(r.vehicleType)) return false;
+			}
+			if (filters.brands && filters.brands.length > 0 && !filters.brands.includes("All") && filters.brands[0] !== "") {
+				if (!r.brand || r.brand !== filters.brands[0]) return false;
+			}
+			if (filters.models && filters.models.length > 0 && !filters.models.includes("All") && filters.models[0] !== "") {
+				if (!r.model || r.model !== filters.models[0]) return false;
+			}
+			if (filters.durationValue && filters.durationValue.trim() !== "") {
+				const thresholdVal = parseFloat(filters.durationValue);
+				if (!isNaN(thresholdVal)) {
+					const metricSec = getMetricValue(r, filters.durationStatus || "Running");
+					let metricVal = metricSec / 3600;
+					if (filters.durationUnit === "Minute") metricVal = metricSec / 60;
+					if (filters.durationUnit === "Day") metricVal = metricSec / 86400;
+					if (filters.durationCompare === "Greater Than" && !(metricVal >= thresholdVal)) return false;
+					if (filters.durationCompare === "Less Than" && !(metricVal <= thresholdVal)) return false;
+					if (filters.durationCompare === "Equal To" && Math.abs(metricVal - thresholdVal) > .5) return false;
+				}
+			}
+			if (filters.distanceValue && filters.distanceValue.trim() !== "") {
+				const thresholdDist = parseFloat(filters.distanceValue);
+				if (!isNaN(thresholdDist)) {
+					if (filters.distanceCompare === "Greater Than" && !(r.distance >= thresholdDist)) return false;
+					if (filters.distanceCompare === "Less Than" && !(r.distance <= thresholdDist)) return false;
+					if (filters.distanceCompare === "Equal To" && Math.abs(r.distance - thresholdDist) > 1) return false;
+				}
 			}
 			if (q === "") return true;
 			if (selectedSearchField !== "ALL" && selectedSearchField !== "all") {
@@ -7697,6 +7728,16 @@ function ReportPage() {
 		filters.companies,
 		filters.branches,
 		filters.objects,
+		filters.groups,
+		filters.types,
+		filters.brands,
+		filters.models,
+		filters.durationValue,
+		filters.durationCompare,
+		filters.durationUnit,
+		filters.durationStatus,
+		filters.distanceValue,
+		filters.distanceCompare,
 		visibleColumns
 	]);
 	const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));

@@ -11,11 +11,11 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { n as objectType, r as stringType, t as booleanType } from "../_libs/zod.mjs";
 import { i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, t as DashboardProvider } from "./store-Butx-LES.mjs";
 import { n as FavoritesMenu } from "./FavoritesMenu-5aAnLDi6.mjs";
-import { n as useZio, t as ZioProvider } from "./ZioContext-Cw_R09Nu.mjs";
-import { t as ZioPanel } from "./ZioPanel-DDl6QQ_U.mjs";
+import { n as useZio, t as ZioProvider } from "./ZioContext-DA_d-H39.mjs";
+import { t as ZioPanel } from "./ZioPanel-DlGW47jl.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-D13-9ZiN.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-DTT11V5g.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -2650,7 +2650,7 @@ function TopBar() {
 		]
 	});
 }
-var $$splitComponentImporter$6 = () => import("./routes-DOQ8T_on.mjs");
+var $$splitComponentImporter$6 = () => import("./routes-pR2t29RO.mjs");
 var Route$7 = createFileRoute("/")({
 	head: () => ({ meta: [
 		{ title: "Fleet Safety Dashboard — Fleet Command" },
@@ -2700,7 +2700,7 @@ objectType({
 	role: stringType().min(1, "Please select a developer role"),
 	marketingUpdates: booleanType().default(false)
 });
-var $$splitComponentImporter$3 = () => import("./report-TLGcnBA-.mjs");
+var $$splitComponentImporter$3 = () => import("./report-lmsq9OLr.mjs");
 var Route$4 = createFileRoute("/report")({
 	validateSearch: (search) => {
 		const t = search["type"];
@@ -2742,7 +2742,7 @@ var Route$3 = createFileRoute("/setting")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
-var $$splitComponentImporter$1 = () => import("./tracking-BOoXGPsB.mjs");
+var $$splitComponentImporter$1 = () => import("./tracking-DpTF3XAK.mjs");
 var Route$2 = createFileRoute("/tracking")({
 	head: () => ({ meta: [
 		{ title: "Live Tracking — Fleet Command" },
@@ -2761,7 +2761,7 @@ var Route$2 = createFileRoute("/tracking")({
 	] }),
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-var $$splitComponentImporter = () => import("./zio-C8MvPx-U.mjs");
+var $$splitComponentImporter = () => import("./zio-Bl5qXvqw.mjs");
 var Route$1 = createFileRoute("/zio")({
 	head: () => ({ meta: [{ title: "Zio AI Assistant — Fleet Safety & Telematics" }, {
 		name: "description",

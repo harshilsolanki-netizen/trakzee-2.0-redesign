@@ -11,9 +11,9 @@ import { _ as Tooltip, d as Bar, f as RadialBar, g as ResponsiveContainer, h as 
 import { i as TooltipTrigger, n as TooltipContent, t as Tooltip$1 } from "./tooltip-yj1PAv0W.mjs";
 import { l as buttonVariants, n as Dialog, o as DialogHeader, r as DialogContent, s as DialogTitle } from "./dialog-Bdeot34j.mjs";
 import { a as WIDGET_CATALOG, i as PopoverTrigger, n as Popover, o as useDashboard, r as PopoverContent, s as widgetMeta } from "./store-Butx-LES.mjs";
-import { a as eventTypes, c as highlightEvents, i as cameraStatus, l as riskyDrivers, o as fleetObjects, r as bucketColor, s as fleetScore, t as RANGE_LABEL, u as scoreDistribution } from "./fleet-DZTK5mNe.mjs";
+import { a as eventTypes, c as highlightEvents, i as cameraStatus, l as riskyDrivers, o as fleetObjects, r as bucketColor, s as fleetScore, t as RANGE_LABEL, u as scoreDistribution } from "./fleet-D1U--QMf.mjs";
 import { a as Viewport, i as ScrollAreaThumb, n as Root, r as ScrollAreaScrollbar, t as Corner } from "../_libs/radix-ui__react-scroll-area.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-DOQ8T_on.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-pR2t29RO.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var RANGES = [

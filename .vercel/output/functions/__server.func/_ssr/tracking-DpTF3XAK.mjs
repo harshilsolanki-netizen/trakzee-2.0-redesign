@@ -4,9 +4,9 @@ import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { y as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { $ as Minimize2, Ct as FileText, F as Search, H as Plus, It as Compass, J as Pause, Jt as ChevronLeft, M as Settings, Q as Minus, Rt as Clock, U as Play, Vt as CircleQuestionMark, Yt as ChevronDown, Z as Navigation, _ as TrendingUp, b as TrafficCone, cn as Bell, dt as Layers, g as TriangleAlert, j as Share2, mt as Info, n as X, qt as ChevronRight, rn as Camera, rt as MapPin, s as Video, tt as Maximize2, u as User, w as Square, z as RotateCcw } from "../_libs/lucide-react.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
-import { n as STATUS_META, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-import { n as useZio } from "./ZioContext-Cw_R09Nu.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tracking-BOoXGPsB.js
+import { n as STATUS_META, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
+import { n as useZio } from "./ZioContext-DA_d-H39.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/tracking-DpTF3XAK.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function FleetExplorerPanel({ vehicles, selectedVehicleId, onSelectVehicle, checkedVehicleIds, onToggleCheckVehicle, onToggleCheckGroup, onToggleCheckAll, onOpenDashcam, onOpenSettings, onOpenTelemetry, onTraceVehicle, className }) {
