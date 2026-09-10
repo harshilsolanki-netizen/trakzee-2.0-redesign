@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-5aAnLDi6.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-BKBXjmKG.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-DT563KN8.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -523,33 +523,33 @@ function ReportConfigPanel({ open, onClose, filters, onChange, objectOptions, on
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "relative shrink-0",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex h-9 items-center gap-1.5 rounded-lg border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all",
+							className: "flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all",
 							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-4 w-4 shrink-0 text-muted-foreground" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3.5 w-3.5 shrink-0 text-muted-foreground" }),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 									type: "text",
 									value: vehicleSearch,
 									onChange: (e) => setVehicleSearch(e.target.value),
 									placeholder: "Select vehicle",
 									"aria-label": "Search vehicles",
-									className: "h-full flex-1 bg-transparent text-xs font-semibold text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
+									className: "h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
 								}),
 								vehicleSearch && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
 									onClick: () => setVehicleSearch(""),
-									className: "text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded mr-1",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3.5 w-3.5" })
+									className: "text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded mr-0.5",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3 w-3" })
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 									type: "button",
 									onClick: () => setFilterOverlayOpen(!filterOverlayOpen),
-									className: cn("flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer select-none shrink-0 shadow-2xs active:scale-95", filterOverlayOpen ? "bg-[#0089FF] text-white" : "bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 hover:bg-[#0089FF]/20"),
+									className: cn("flex h-[22px] items-center gap-1 px-2 rounded text-[11px] font-semibold transition-all cursor-pointer select-none shrink-0 shadow-2xs active:scale-95", filterOverlayOpen ? "bg-[#0089FF] text-white" : "bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 hover:bg-[#0089FF]/20"),
 									title: "Filter by Company and Branch",
 									children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { className: "h-3.5 w-3.5" }),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { className: "h-3 w-3" }),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Filter" }),
 										activeFilterCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: cn("px-1.5 py-0.2 rounded-full text-[10px] font-bold leading-tight", filterOverlayOpen ? "bg-white text-[#0089FF]" : "bg-[#0089FF] text-white"),
+											className: cn("px-1 py-0 rounded-full text-[9px] font-bold leading-tight", filterOverlayOpen ? "bg-white text-[#0089FF]" : "bg-[#0089FF] text-white"),
 											children: activeFilterCount
 										})
 									]
