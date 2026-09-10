@@ -17,7 +17,7 @@ import { n as useZio, t as ZioProvider } from "./ZioContext-Cw_R09Nu.mjs";
 import { t as ZioPanel } from "./ZioPanel-BFN_X_IW.mjs";
 import { t as QueryClientProvider } from "../_libs/tanstack__react-query.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-D0MogXDM.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-CrBoEY-H.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var CATEGORY_ICONS = {
@@ -2452,7 +2452,7 @@ var Toaster$1 = ({ ...props }) => {
 		...props
 	});
 };
-var styles_default = "/assets/styles-DPPH2MLz.css";
+var styles_default = "/assets/styles-BYKqXoON.css";
 function reportLovableError(error, context = {}) {
 	if (typeof window === "undefined") return;
 	window.__lovableEvents?.captureException?.(error, {
@@ -2620,21 +2620,21 @@ function AppLayout() {
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				className: "flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-nav",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TopBar, {}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex min-h-0 min-w-0 flex-1 overflow-hidden relative bg-nav",
+					className: "flex min-h-0 min-w-0 flex-1 overflow-hidden relative bg-background rounded-tl-2xl shadow-sm",
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
-							className: "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background rounded-tl-2xl shadow-sm",
+							className: "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {})
 						}),
 						isOpen && mode === "sidebar" && !isZioStandaloneRoute && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("aside", {
-							className: "w-[390px] xl:w-[420px] py-3 pr-3 pl-0 flex flex-col shrink-0 min-h-0 transition-all duration-300 ease-out animate-in slide-in-from-right z-30",
+							className: "w-[390px] xl:w-[420px] p-3 border-l border-border/70 bg-slate-50/60 dark:bg-slate-900/40 flex flex-col shrink-0 min-h-0 transition-all duration-300 ease-out animate-in slide-in-from-right z-30",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ZioPanel, {
 								mode: "sidebar",
 								className: "h-full w-full flex-1"
 							})
 						}),
 						isOpen && mode === "fullscreen" && !isZioStandaloneRoute && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "fixed top-[44px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-black/40 backdrop-blur-xs animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col",
+							className: "fixed top-[45px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-background/80 backdrop-blur-xs animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ZioPanel, {
 								mode: "fullscreen",
 								className: "h-full w-full flex-1"

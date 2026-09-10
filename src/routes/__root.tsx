@@ -174,22 +174,22 @@ function AppLayout() {
       <AppSidebar />
       <div className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-nav">
         <TopBar />
-        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden relative bg-nav">
+        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden relative bg-background rounded-tl-2xl shadow-sm">
           {/* Main Workspace Screen: smoothly resizes when Sidebar mode is open */}
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background rounded-tl-2xl shadow-sm">
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <Outlet />
           </main>
 
           {/* Dedicated Sidebar Mode: matching top, bottom, right margin with the rest of the workspace */}
           {isSidebar && (
-            <aside className="w-[390px] xl:w-[420px] py-3 pr-3 pl-0 flex flex-col shrink-0 min-h-0 transition-all duration-300 ease-out animate-in slide-in-from-right z-30">
+            <aside className="w-[390px] xl:w-[420px] p-3 border-l border-border/70 bg-slate-50/60 dark:bg-slate-900/40 flex flex-col shrink-0 min-h-0 transition-all duration-300 ease-out animate-in slide-in-from-right z-30">
               <ZioPanel mode="sidebar" className="h-full w-full flex-1" />
             </aside>
           )}
 
           {/* Fullscreen Zio Mode: Smoothly covers the main workspace area matching reference screenshot */}
           {isFullscreen && (
-            <div className="fixed top-[44px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-black/40 backdrop-blur-xs animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col">
+            <div className="fixed top-[45px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-background/80 backdrop-blur-xs animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col">
               <ZioPanel mode="fullscreen" className="h-full w-full flex-1" />
             </div>
           )}
