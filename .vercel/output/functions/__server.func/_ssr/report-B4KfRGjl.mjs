@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-LVQlPua9.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-HgudenNA.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-CkuaBBsD.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-B4KfRGjl.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -1395,27 +1395,27 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 										className: "sticky top-0 z-20 bg-[#EAF0F6] dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-b border-[#DFE3EB] dark:border-slate-700 select-none",
 										children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-												className: "w-10 px-2 py-2.5 text-center text-slate-600 dark:text-slate-400 font-bold text-[11px] border-r border-[#DFE3EB] dark:border-slate-700",
+												className: "w-10 px-2 py-2.5 text-center text-slate-600 dark:text-slate-400 font-bold text-[11px]",
 												children: "#"
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-												className: "px-3.5 py-2.5 font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700",
+												className: "px-3.5 py-2.5 font-bold text-slate-900 dark:text-slate-100 text-xs",
 												children: "Column"
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-												className: "w-20 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700",
+												className: "w-20 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs",
 												children: "Showable"
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-												className: "w-20 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700",
+												className: "w-20 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs",
 												children: "Printable"
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-												className: "w-20 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700",
+												className: "w-20 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs",
 												children: "Sortable"
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-												className: "w-24 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700",
+												className: "w-24 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs",
 												children: "Sort Priority"
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
@@ -1434,7 +1434,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 												},
 												className: "bg-slate-100/70 dark:bg-slate-800/70 font-semibold text-slate-900 dark:text-slate-100 border-y border-[#DFE3EB] dark:border-slate-700",
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-													className: "px-3 py-2 text-center text-slate-400 border-r border-[#DFE3EB] dark:border-slate-700",
+													className: "px-3 py-2 text-center text-slate-400",
 													children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GripVertical, { className: "h-3.5 w-3.5 mx-auto opacity-40" })
 												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
 													colSpan: 6,
@@ -1475,7 +1475,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 												className: cn("group transition-colors duration-75 relative border-b border-[#DFE3EB] dark:border-slate-800/80", isDragging && "opacity-30 bg-[#0089FF]/10", isDragOver && "border-t-2 border-[#0089FF] bg-[#0089FF]/5", isPinned ? "bg-[#0089FF]/[0.04] hover:bg-[#0089FF]/[0.08]" : "hover:bg-slate-50 dark:hover:bg-slate-800/40"),
 												children: [
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-														className: "px-3 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800",
+														className: "px-3 py-2 text-center",
 														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 															type: "button",
 															title: "Drag to reorder",
@@ -1484,7 +1484,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 														})
 													}),
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-														className: "px-4 py-2 font-medium text-foreground border-r border-[#DFE3EB] dark:border-slate-800",
+														className: "px-4 py-2 font-medium text-foreground",
 														children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 															className: cn("flex items-center gap-2", col.group && "pl-4"),
 															children: [
@@ -1533,7 +1533,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 														})
 													}),
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-														className: "px-2.5 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800",
+														className: "px-2.5 py-2 text-center",
 														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 															type: "checkbox",
 															checked: col.showable,
@@ -1543,7 +1543,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 														})
 													}),
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-														className: "px-2.5 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800",
+														className: "px-2.5 py-2 text-center",
 														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 															type: "checkbox",
 															checked: col.printable,
@@ -1553,7 +1553,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 														})
 													}),
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-														className: "px-2.5 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800",
+														className: "px-2.5 py-2 text-center",
 														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 															type: "checkbox",
 															checked: col.sortable,
@@ -1569,7 +1569,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 														})
 													}),
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-														className: "px-2.5 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800",
+														className: "px-2.5 py-2 text-center",
 														children: !col.sortable ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 															className: "h-6.5 px-2 text-[11px] font-medium text-slate-300 dark:text-slate-600 inline-flex items-center gap-1 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded cursor-not-allowed select-none",
 															children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "--" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: "h-2.5 w-2.5 opacity-30" })]
