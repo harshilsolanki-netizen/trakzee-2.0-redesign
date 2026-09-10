@@ -50,6 +50,13 @@ import {
   getVehiclesForBranches,
 } from "@/data/reports";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 export type ScheduleItem = {
@@ -738,61 +745,39 @@ function ScheduleItemActionsMenu({
   onDuplicate: () => void;
   onDelete: () => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    if (open) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
-
   return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className={cn(
-          "h-[30px] w-[30px] rounded-lg border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-95",
-          open && "border-[#0089FF] bg-muted/60 text-foreground",
-        )}
-        aria-label="More actions"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="h-[30px] w-[30px] rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-95"
+          aria-label="More actions"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={4}
+        className="w-36 rounded-md border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-lg z-[90] text-xs select-none"
       >
-        <MoreVertical className="h-4 w-4" />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-36 rounded-xl border border-border/80 bg-popover/98 backdrop-blur-xl p-1.5 shadow-xl z-50 animate-in fade-in-80 zoom-in-95 text-xs select-none">
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              onDuplicate();
-            }}
-            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-foreground hover:bg-muted cursor-pointer transition-colors font-medium"
-          >
-            <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-            <span>Duplicate</span>
-          </button>
-          <div className="my-1 h-px bg-border/60" />
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              onDelete();
-            }}
-            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-destructive hover:bg-destructive/10 cursor-pointer transition-colors font-medium"
-          >
-            <Trash2 className="h-3.5 w-3.5 text-destructive" />
-            <span>Delete</span>
-          </button>
-        </div>
-      )}
-    </div>
+        <DropdownMenuItem
+          onClick={onDuplicate}
+          className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 text-left text-foreground hover:bg-muted cursor-pointer transition-colors font-medium text-xs select-none"
+        >
+          <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+          <span>Duplicate</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="my-1 -mx-1" />
+        <DropdownMenuItem
+          onClick={onDelete}
+          className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 text-left text-destructive hover:bg-destructive/10 cursor-pointer transition-colors font-medium text-xs select-none"
+        >
+          <Trash2 className="h-3.5 w-3.5 text-destructive" />
+          <span>Delete</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -1146,26 +1131,28 @@ export function ScheduleModal({
   return (
     <>
       {/* Centered Modal Backdrop */}
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-200"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-      >
-        {/* Main Modal Window - Responsive Sizing matching reference */}
+      <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+        <button
+          type="button"
+          aria-label="Close schedule modal"
+          onClick={onClose}
+          className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
+        />
+
+        {/* Main Modal Window - Enterprise SaaS styling */}
         <div
           className={cn(
-            "relative flex flex-col bg-background border border-border/80 text-foreground shadow-2xl rounded-2xl overflow-hidden transition-all duration-300 ease-out",
+            "relative z-10 flex flex-col rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150",
             view === "list"
               ? schedules.length === 0
-                ? "w-full max-w-lg"
-                : "w-[94vw] max-w-2xl max-h-[85vh]"
-              : "w-[94vw] max-w-3xl max-h-[88vh]",
+                ? "w-[540px] max-w-[94vw] min-h-[360px]"
+                : "w-[720px] max-w-[94vw] min-h-[380px] max-h-[85vh]"
+              : "w-[820px] max-w-[94vw] h-[640px] max-h-[88vh]",
           )}
         >
-          {/* Modern Seamless Modal Header (56px) */}
-          <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
-            <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
+          {/* Header (56px) */}
+          <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 select-none shrink-0">
+            <h2 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
               {view === "list"
                 ? "Scheduled Reports"
                 : editingId
@@ -1176,7 +1163,7 @@ export function ScheduleModal({
               type="button"
               aria-label="Close schedule modal"
               onClick={onClose}
-              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
+              className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -1184,13 +1171,13 @@ export function ScheduleModal({
 
           {/* Stepper (Sticky under Header in Creation Flow) */}
           {view === "form" && (
-            <div className="flex items-center justify-between border-b border-border bg-muted/20 px-6 py-3 text-xs select-none shrink-0">
+            <div className="flex items-center justify-between border-b border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-2.5 text-xs select-none shrink-0">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
                   className={cn(
-                    "flex items-center gap-2 font-bold transition-colors cursor-pointer",
+                    "flex items-center gap-2 font-semibold transition-colors cursor-pointer",
                     step === 1
                       ? "text-[#0089FF]"
                       : "text-muted-foreground hover:text-foreground",
@@ -1198,7 +1185,7 @@ export function ScheduleModal({
                 >
                   <span
                     className={cn(
-                      "flex h-5.5 w-5.5 items-center justify-center rounded-md text-xs font-bold",
+                      "flex h-5 w-5 items-center justify-center rounded-md text-xs font-bold",
                       step === 1
                         ? "bg-[#0089FF] text-white shadow-xs"
                         : "bg-muted text-muted-foreground",
@@ -1215,7 +1202,7 @@ export function ScheduleModal({
                   type="button"
                   onClick={() => setStep(2)}
                   className={cn(
-                    "flex items-center gap-2 font-bold transition-colors cursor-pointer",
+                    "flex items-center gap-2 font-semibold transition-colors cursor-pointer",
                     step === 2
                       ? "text-[#0089FF]"
                       : "text-muted-foreground hover:text-foreground",
@@ -1223,7 +1210,7 @@ export function ScheduleModal({
                 >
                   <span
                     className={cn(
-                      "flex h-5.5 w-5.5 items-center justify-center rounded-md text-xs font-bold",
+                      "flex h-5 w-5 items-center justify-center rounded-md text-xs font-bold",
                       step === 2
                         ? "bg-[#0089FF] text-white shadow-xs"
                         : "bg-muted text-muted-foreground",
@@ -2432,7 +2419,7 @@ export function ScheduleModal({
 
           {/* Global Sticky Footer */}
           {view === "form" && (
-            <footer className="flex items-center justify-between border-t border-border bg-background px-6 py-3 select-none shrink-0">
+            <footer className="flex items-center justify-between border-t border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-3.5 select-none shrink-0">
               <div className="flex items-center gap-2.5">
                 <button
                   type="button"
@@ -2454,7 +2441,7 @@ export function ScheduleModal({
                     type="button"
                     onClick={() => handleDelete(editingId)}
                     title="Delete schedule"
-                    className="p-2 rounded-md text-destructive hover:bg-destructive/10 cursor-pointer transition-colors"
+                    className="p-1.5 rounded-md text-destructive hover:bg-destructive/10 cursor-pointer transition-colors"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -2470,7 +2457,7 @@ export function ScheduleModal({
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="flex items-center gap-2 rounded-md bg-[#155dfc] px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#124ecf] cursor-pointer transition-all active:scale-98"
+                    className="flex items-center gap-2 rounded-md bg-[#0089FF] px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0077e6] cursor-pointer transition-all active:scale-98"
                   >
                     <span>Next</span>
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -2479,7 +2466,7 @@ export function ScheduleModal({
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="rounded-md bg-emerald-600 px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 cursor-pointer transition-all active:scale-98"
+                    className="rounded-md bg-[#0089FF] px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0077e6] cursor-pointer transition-all active:scale-98"
                   >
                     Save Schedule
                   </button>
@@ -2492,25 +2479,27 @@ export function ScheduleModal({
 
       {/* Advance Configuration Sub-Modal */}
       {advanceModalOpen && (
-        <div
-          className="fixed inset-0 z-70 flex items-center justify-center bg-black/65 backdrop-blur-xs p-4 animate-in fade-in duration-150"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setAdvanceModalOpen(false);
-          }}
-        >
-          <div className="w-full max-w-3xl max-h-[85vh] flex flex-col bg-background border border-border/80 shadow-2xl rounded-2xl overflow-hidden animate-in zoom-in-95">
-            {/* Modern Header (56px) */}
-            <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close Advance Configuration"
+            onClick={() => setAdvanceModalOpen(false)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
+          />
+          <div className="relative z-10 w-full max-w-3xl max-h-[85vh] flex flex-col bg-white dark:bg-slate-900 border border-border text-foreground shadow-xl rounded-lg overflow-hidden animate-in zoom-in-95">
+            {/* Header (56px) */}
+            <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 select-none shrink-0">
               <div className="flex items-center gap-2.5">
                 <Settings2 className="h-4 w-4 text-[#0089FF]" />
-                <h3 className="text-[16px] font-semibold tracking-tight text-foreground">
+                <h3 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                   Advance Configuration
                 </h3>
               </div>
               <button
                 type="button"
+                aria-label="Close Advance Configuration"
                 onClick={() => setAdvanceModalOpen(false)}
-                className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer transition-colors"
+                className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -2519,9 +2508,9 @@ export function ScheduleModal({
             {/* Sub-Modal Body */}
             <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-5 custom-scrollbar text-xs">
               {/* Columns Configuration Table */}
-              <div className="rounded-xl border border-border/80 overflow-hidden bg-card shadow-2xs">
+              <div className="rounded-lg border border-border overflow-hidden bg-card shadow-2xs">
                 <table className="w-full text-left">
-                  <thead className="bg-muted/40 text-[11px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
+                  <thead className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 text-[11px] font-bold uppercase tracking-wider border-b border-[#DFE3EB] dark:border-slate-700">
                     <tr>
                       <th className="py-2.5 px-3 w-8"></th>
                       <th className="py-2.5 px-3">Column Name</th>
@@ -2532,8 +2521,8 @@ export function ScheduleModal({
                       <th className="py-2.5 px-3 text-center">Sorting</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/60">
-                    {columnsConfig.map((col, idx) => (
+                  <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800">
+                    {columnsConfig.map((col) => (
                       <tr
                         key={col.id}
                         className="hover:bg-muted/40 transition-colors"
@@ -2558,7 +2547,7 @@ export function ScheduleModal({
                                 ),
                               );
                             }}
-                            className="h-4 w-4 rounded-md border-input text-brand accent-[#155dfc] cursor-pointer"
+                            className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
                           />
                         </td>
                         <td className="py-2 px-2 text-center">
@@ -2575,7 +2564,7 @@ export function ScheduleModal({
                                 ),
                               );
                             }}
-                            className="h-4 w-4 rounded-md border-input text-brand accent-[#155dfc] cursor-pointer"
+                            className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
                           />
                         </td>
                         <td className="py-2 px-2 text-center">
@@ -2592,7 +2581,7 @@ export function ScheduleModal({
                                 ),
                               );
                             }}
-                            className="h-4 w-4 rounded-md border-input text-brand accent-[#155dfc] cursor-pointer"
+                            className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
                           />
                         </td>
                         <td className="py-2 px-2 text-center flex justify-center">
@@ -2641,7 +2630,7 @@ export function ScheduleModal({
               </div>
 
               {/* Detail Report Download Settings */}
-              <div className="p-4 rounded-xl border border-border/80 bg-card space-y-2.5">
+              <div className="p-4 rounded-lg border border-border bg-card space-y-2.5">
                 <label className="block text-xs font-semibold text-foreground">
                   Detail Report Download Mode
                 </label>
@@ -2652,7 +2641,7 @@ export function ScheduleModal({
                       name="detailDownloadMode"
                       checked={detailDownloadMode === "multiple"}
                       onChange={() => setDetailDownloadMode("multiple")}
-                      className="h-4 w-4 text-brand accent-[#155dfc] cursor-pointer"
+                      className="h-4 w-4 text-[#0089FF] accent-[#0089FF] cursor-pointer"
                     />
                     <span className="font-semibold">Multiple Sheet</span>
                   </label>
@@ -2662,7 +2651,7 @@ export function ScheduleModal({
                       name="detailDownloadMode"
                       checked={detailDownloadMode === "single"}
                       onChange={() => setDetailDownloadMode("single")}
-                      className="h-4 w-4 text-brand accent-[#155dfc] cursor-pointer"
+                      className="h-4 w-4 text-[#0089FF] accent-[#0089FF] cursor-pointer"
                     />
                     <span className="font-semibold">Single Sheet</span>
                   </label>
@@ -2671,12 +2660,12 @@ export function ScheduleModal({
             </div>
 
             {/* Sub-Modal Footer */}
-            <footer className="flex items-center justify-between border-t border-border bg-muted/20 px-6 py-4 shrink-0 select-none">
+            <footer className="flex items-center justify-between border-t border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-3.5 shrink-0 select-none">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setColumnsConfig(INITIAL_COLUMNS)}
-                  className="flex items-center gap-1.5 px-3.5 h-9 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-semibold text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                  className="flex items-center gap-1.5 px-3.5 h-8 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-semibold text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
                 >
                   <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>Reset</span>
@@ -2687,7 +2676,7 @@ export function ScheduleModal({
                 <button
                   type="button"
                   onClick={() => setAdvanceModalOpen(false)}
-                  className="px-4.5 h-9 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
+                  className="px-4.5 h-8 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all shadow-2xs active:scale-98"
                 >
                   Cancel
                 </button>
@@ -2697,7 +2686,7 @@ export function ScheduleModal({
                     toast.success("Advance configurations applied");
                     setAdvanceModalOpen(false);
                   }}
-                  className="rounded-md bg-[#155dfc] px-5 h-9 text-xs font-semibold text-white shadow-xs hover:bg-[#124ecf] cursor-pointer transition-all active:scale-98"
+                  className="rounded-md bg-[#0089FF] px-5 h-8 text-xs font-semibold text-white shadow-xs hover:bg-[#0077e6] cursor-pointer transition-all active:scale-98"
                 >
                   Save & Apply
                 </button>
@@ -2709,27 +2698,29 @@ export function ScheduleModal({
 
       {/* Delete Confirmation Modal */}
       {scheduleToDelete && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setScheduleToDelete(null);
-          }}
-        >
-          <div className="w-full max-w-md flex flex-col bg-background border border-border/80 shadow-2xl rounded-2xl overflow-hidden animate-in zoom-in-95 text-foreground select-none">
-            {/* 56px Modern Header */}
-            <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 shrink-0">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close delete confirmation"
+            onClick={() => setScheduleToDelete(null)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
+          />
+          <div className="relative z-10 w-full max-w-md flex flex-col bg-white dark:bg-slate-900 border border-border shadow-xl rounded-lg overflow-hidden animate-in zoom-in-95 text-foreground select-none">
+            {/* Header (56px) */}
+            <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="h-8 w-8 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
                   <Trash2 className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                 </div>
-                <h3 className="text-[16px] font-semibold tracking-tight text-foreground">
+                <h3 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                   Delete Scheduled Report?
                 </h3>
               </div>
               <button
                 type="button"
+                aria-label="Close delete confirmation"
                 onClick={() => setScheduleToDelete(null)}
-                className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer transition-colors"
+                className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -2744,11 +2735,11 @@ export function ScheduleModal({
               </p>
             </div>
 
-            <footer className="flex items-center justify-end gap-2.5 border-t border-border bg-muted/20 px-6 py-3.5 shrink-0">
+            <footer className="flex items-center justify-end gap-2.5 border-t border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-3.5 shrink-0">
               <button
                 type="button"
                 onClick={() => setScheduleToDelete(null)}
-                className="h-9 rounded-xl border border-border bg-background px-4 text-xs font-semibold text-foreground shadow-2xs hover:bg-muted cursor-pointer transition-all active:scale-98"
+                className="h-8 rounded-md border border-border bg-background px-4 text-xs font-semibold text-foreground shadow-2xs hover:bg-muted cursor-pointer transition-all active:scale-98"
               >
                 Cancel
               </button>
@@ -2758,7 +2749,7 @@ export function ScheduleModal({
                   handleDelete(scheduleToDelete.id);
                   setScheduleToDelete(null);
                 }}
-                className="h-9 rounded-xl bg-rose-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 active:scale-98 cursor-pointer transition-all inline-flex items-center gap-1.5"
+                className="h-8 rounded-md bg-rose-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 active:scale-98 cursor-pointer transition-all inline-flex items-center gap-1.5"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 <span>Delete Schedule</span>
