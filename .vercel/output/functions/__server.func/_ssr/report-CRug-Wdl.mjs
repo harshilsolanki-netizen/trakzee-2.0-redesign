@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-CiiY_QaS.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-CRug-Wdl.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -2480,6 +2480,36 @@ var TIMEZONES = [
 	"Asia/Dubai (UTC+04:00)",
 	"Asia/Singapore (UTC+08:00)"
 ];
+var WEEK_DAYS = [
+	{
+		id: "Su",
+		label: "Su"
+	},
+	{
+		id: "Mo",
+		label: "Mo"
+	},
+	{
+		id: "Tu",
+		label: "Tu"
+	},
+	{
+		id: "We",
+		label: "We"
+	},
+	{
+		id: "Th",
+		label: "Th"
+	},
+	{
+		id: "Fr",
+		label: "Fr"
+	},
+	{
+		id: "Sa",
+		label: "Sa"
+	}
+];
 var GENERATION_TIMES = [
 	"00:00",
 	"03:00",
@@ -2560,7 +2590,7 @@ function SelectDropdown({ value, options, onChange, className, placeholder }) {
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 			type: "button",
 			onClick: () => setOpen(!open),
-			className: cn("flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground font-medium shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
+			className: cn("flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 				className: cn("truncate", value ? "text-foreground font-medium" : "text-muted-foreground/60 font-medium italic"),
 				children: value || placeholder || "Select"
@@ -3212,6 +3242,18 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		setSchedules((prev) => prev.filter((s) => s.id !== id));
 		toast.success("Schedule removed");
 	};
+	const toggleDayOfWeek = (dayId) => {
+		const current = draft.selectedDays || [];
+		if (current.includes(dayId)) {
+			if (current.length > 1) setDraft((d) => ({
+				...d,
+				selectedDays: current.filter((x) => x !== dayId)
+			}));
+		} else setDraft((d) => ({
+			...d,
+			selectedDays: [...current, dayId]
+		}));
+	};
 	const filteredSchedules = (0, import_react.useMemo)(() => {
 		const q = searchQuery.trim().toLowerCase();
 		if (!q) return schedules;
@@ -3227,19 +3269,19 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", {
 			"aria-hidden": !open,
 			"aria-label": "Scheduled Reports",
-			className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[440px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
+			className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
 					className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center gap-2",
+						className: "flex items-center gap-2 min-w-0",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-							className: "text-[16px] font-semibold tracking-tight text-foreground",
-							children: view === "list" ? "Scheduled Reports" : editingId ? "Edit Schedule Report" : "Create Schedule Report"
+							className: "text-[16px] font-semibold tracking-tight text-foreground truncate",
+							children: view === "list" ? "Scheduled Reports" : editingId ? "Edit Schedule Report" : "Schedule Report"
 						}), schedules.length > 0 && view === "form" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 							type: "button",
 							onClick: () => setView("list"),
-							className: "px-2 py-0.5 text-[11px] font-semibold text-[#0089FF] bg-[#0089FF]/10 hover:bg-[#0089FF]/20 rounded-md transition-colors cursor-pointer",
+							className: "px-2 py-0.5 text-[11px] font-semibold text-[#0089FF] bg-[#0089FF]/10 hover:bg-[#0089FF]/20 rounded-md transition-colors cursor-pointer shrink-0",
 							title: "View saved scheduled reports",
 							children: [
 								"Saved (",
@@ -3248,7 +3290,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 							]
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center gap-1",
+						className: "flex items-center gap-1 shrink-0",
 						children: [view === "list" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 							type: "button",
 							onClick: startCreate,
@@ -3270,14 +3312,14 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 							className: "p-3 border-b border-border bg-muted/20 shrink-0",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all",
+								className: "flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 										type: "text",
 										value: searchQuery,
 										onChange: (e) => setSearchQuery(e.target.value),
-										placeholder: "Search schedules by name, format, email...",
+										placeholder: "Search schedules...",
 										className: "h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
 									}),
 									searchQuery && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
@@ -3337,7 +3379,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 																children: item.actionType
 															}),
 															item.toAddress && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground truncate max-w-[150px]",
+																className: "px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground truncate max-w-[130px]",
 																children: item.toAddress
 															}),
 															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
@@ -3389,14 +3431,14 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								type: "button",
 								onClick: startCreate,
 								className: "h-8 rounded-md bg-[#0089FF] px-4 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98 flex items-center gap-1.5",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Create New Schedule" })]
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "New Schedule" })]
 							})]
 						})
 					]
 				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "flex flex-1 min-h-0 flex-col bg-background",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex-1 min-h-0 overflow-y-auto p-5 space-y-4.5 custom-scrollbar",
+						className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "space-y-1",
@@ -3422,7 +3464,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 											}));
 										},
 										placeholder: "e.g. Travel Summary Schedule",
-										className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.name ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+										className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.name ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 									}),
 									errors.name && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 										className: "text-[10px] text-red-500 font-medium",
@@ -3431,7 +3473,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5 rounded-xl border border-border/80 bg-muted/20 p-3 shadow-2xs",
+								className: "space-y-1.5 rounded-xl border border-border/80 bg-card p-3 shadow-2xs",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "flex items-center justify-between",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
@@ -3459,9 +3501,9 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												children: "Current Filter"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-											className: "text-[10px] text-muted-foreground pl-5 leading-tight",
+											className: "text-[10px] text-muted-foreground pl-5 leading-tight font-normal",
 											children: [
-												"Use currently loaded vehicles (",
+												"Use loaded vehicles (",
 												currentLoadedVehicleIds.length,
 												")"
 											]
@@ -3493,14 +3535,14 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												children: "Change"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-[10px] text-muted-foreground pl-5 leading-tight",
+											className: "text-[10px] text-muted-foreground pl-5 leading-tight font-normal",
 											children: draft.selectedVehicles.length > 0 ? `${draft.selectedVehicles.length} vehicles` : `${customFilteredVehicleIds.length} vehicles`
 										})]
 									})]
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5",
+								className: "space-y-1",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
 									children: "Copy From"
@@ -3512,7 +3554,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5",
+								className: "space-y-1",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
 									children: ["Relative Type ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
@@ -3529,7 +3571,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5",
+								className: "space-y-1",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
 									children: ["Timezone ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
@@ -3547,6 +3589,56 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "space-y-1.5",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "block text-[11px] font-semibold text-foreground",
+										children: ["Frequency ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-red-500 font-bold ml-0.5",
+											children: "*"
+										})]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "flex items-center gap-4 text-xs font-medium text-foreground",
+										children: [
+											"Daily",
+											"Weekly",
+											"Monthly"
+										].map((freq) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+											className: "flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "radio",
+												name: "scheduleType",
+												checked: draft.scheduleType === freq,
+												onChange: () => setDraft((d) => ({
+													...d,
+													scheduleType: freq
+												})),
+												className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: freq })]
+										}, freq))
+									}),
+									draft.scheduleType === "Weekly" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "pt-1.5 animate-in fade-in-50 duration-150",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+											className: "block text-[10px] font-medium text-muted-foreground mb-1",
+											children: "Repeat on days"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: "flex items-center gap-1.5",
+											children: WEEK_DAYS.map((day) => {
+												const isSelected = (draft.selectedDays || []).includes(day.id);
+												return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+													type: "button",
+													onClick: () => toggleDayOfWeek(day.id),
+													className: cn("h-7 w-7 rounded-md text-xs font-semibold transition-all cursor-pointer select-none", isSelected ? "bg-[#0089FF] text-white shadow-xs" : "border border-border/80 bg-background text-foreground hover:bg-muted/60 shadow-2xs"),
+													children: day.label
+												}, day.id);
+											})
+										})]
+									})
+								]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
 									children: ["Generation Time ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
@@ -3563,7 +3655,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-2.5 pt-1 pb-1",
+								className: "space-y-2 pt-0.5 pb-0.5",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground select-none",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
@@ -3634,6 +3726,32 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								className: "space-y-1.5",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
 									className: "block text-[11px] font-semibold text-foreground",
+									children: "File Format"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "flex items-center gap-4 text-xs font-medium text-foreground",
+									children: [
+										"XLS",
+										"PDF",
+										"CSV"
+									].map((f) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "flex items-center gap-1.5 cursor-pointer select-none hover:text-[#0089FF] transition-colors",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "format",
+											checked: draft.format === f,
+											onChange: () => setDraft((d) => ({
+												...d,
+												format: f
+											})),
+											className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: f })]
+									}, f))
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+									className: "block text-[11px] font-semibold text-foreground",
 									children: "Delivery Method"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 									className: "flex items-center gap-4 text-xs font-medium text-foreground",
@@ -3658,7 +3776,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								})]
 							}),
 							draft.actionType === "Email" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
+								className: "pt-0.5 space-y-3 animate-in fade-in-50 duration-150",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "space-y-1",
@@ -3687,12 +3805,12 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 														}));
 													},
 													placeholder: "manager@company.com",
-													className: cn("h-7.5 w-full rounded-md border bg-background pl-2.5 pr-20 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.toAddress ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+													className: cn("h-7.5 w-full rounded-md border bg-background pl-2.5 pr-20 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.toAddress ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 													type: "button",
 													onClick: handleVerifyEmail,
 													disabled: emailVerificationStatus === "verifying",
-													className: cn("absolute right-1 px-2.5 py-0.5 text-[11px] font-semibold rounded transition-all cursor-pointer active:scale-95 select-none", emailVerificationStatus === "success" ? "text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20" : emailVerificationStatus === "failed" ? "text-rose-600 bg-rose-500/10 hover:bg-rose-500/20" : "text-foreground hover:text-[#0089FF] hover:bg-muted/80"),
+													className: cn("absolute right-1 px-2 py-0.5 text-[11px] font-semibold rounded transition-all cursor-pointer active:scale-95 select-none", emailVerificationStatus === "success" ? "text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20" : emailVerificationStatus === "failed" ? "text-rose-600 bg-rose-500/10 hover:bg-rose-500/20" : "text-foreground hover:text-[#0089FF] hover:bg-muted/80"),
 													children: emailVerificationStatus === "verifying" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 														className: "flex items-center gap-1 text-muted-foreground",
 														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "h-3 w-3 animate-spin" }), " Verifying…"]
@@ -3728,7 +3846,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													emailRetryWindow: e.target.value
 												})),
 												placeholder: "15",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "space-y-1",
@@ -3743,7 +3861,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													subject: e.target.value
 												})),
 												placeholder: "Scheduled Travel Report",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
 											})]
 										})]
 									}),
@@ -3782,13 +3900,13 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												message: e.target.value
 											})),
 											placeholder: "Write your email body message here...",
-											className: "w-full rounded-md border border-input/80 bg-background p-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
+											className: "w-full rounded-md border border-input/80 bg-background p-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
 										})]
 									})
 								]
 							}),
 							draft.actionType === "FTP" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
+								className: "pt-0.5 space-y-3 animate-in fade-in-50 duration-150",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "grid grid-cols-2 gap-3",
@@ -3814,7 +3932,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "ftp.example.com",
-												className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpHost ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+												className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpHost ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "space-y-1",
@@ -3838,7 +3956,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "21",
-												className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpPort ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+												className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpPort ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 											})]
 										})]
 									}),
@@ -3866,7 +3984,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "ftp_user",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "space-y-1",
@@ -3890,7 +4008,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "••••••••",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										})]
 									}),
@@ -3916,13 +4034,13 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												}));
 											},
 											placeholder: "/reports/daily",
-											className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 										})]
 									})
 								]
 							}),
 							draft.actionType === "SFTP" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
+								className: "pt-0.5 space-y-3 animate-in fade-in-50 duration-150",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										className: "space-y-1",
@@ -3965,7 +4083,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "AKIAIOSFODNN7EXAMPLE",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "space-y-1",
@@ -3989,7 +4107,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										})]
 									}),
@@ -4017,7 +4135,7 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "ap-south-1",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "space-y-1",
@@ -4041,14 +4159,14 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "my-fleet-reports",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										})]
 									})
 								]
 							}),
 							draft.actionType === "Media API" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-1 space-y-3 animate-in fade-in-50 duration-150",
+								className: "pt-0.5 space-y-3 animate-in fade-in-50 duration-150",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "space-y-1",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
@@ -4089,10 +4207,10 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												}));
 											},
 											placeholder: "+91 9876543210, +91 9898989898",
-											className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-											className: "text-[10px] text-muted-foreground",
+											className: "text-[10px] text-muted-foreground font-normal",
 											children: "Separate multiple numbers with commas (include country code)."
 										})
 									]
