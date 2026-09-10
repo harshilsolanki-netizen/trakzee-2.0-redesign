@@ -997,22 +997,17 @@ export function ColumnConfigModal({
                   <label className="text-xs font-semibold text-slate-900 dark:text-slate-100 block">
                     Download Layout
                   </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-6 pt-1">
                     <label
                       onClick={() => setDetailDownloadMode("multiple")}
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-md border transition-all cursor-pointer text-xs",
-                        detailDownloadMode === "multiple"
-                          ? "border-[#0089FF] bg-[#0089FF]/5 text-slate-900 dark:text-slate-100 font-semibold"
-                          : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400",
-                      )}
+                      className="flex items-start gap-2.5 cursor-pointer text-xs select-none"
                     >
                       <input
                         type="radio"
                         name="modal-excel-mode"
                         checked={detailDownloadMode === "multiple"}
                         onChange={() => setDetailDownloadMode("multiple")}
-                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                        className="mt-0.5 h-4 w-4 accent-[#0089FF] text-[#0089FF] cursor-pointer"
                       />
                       <div className="flex flex-col">
                         <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
@@ -1026,19 +1021,14 @@ export function ColumnConfigModal({
 
                     <label
                       onClick={() => setDetailDownloadMode("single")}
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-md border transition-all cursor-pointer text-xs",
-                        detailDownloadMode === "single"
-                          ? "border-[#0089FF] bg-[#0089FF]/5 text-slate-900 dark:text-slate-100 font-semibold"
-                          : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400",
-                      )}
+                      className="flex items-start gap-2.5 cursor-pointer text-xs select-none"
                     >
                       <input
                         type="radio"
                         name="modal-excel-mode"
                         checked={detailDownloadMode === "single"}
                         onChange={() => setDetailDownloadMode("single")}
-                        className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+                        className="mt-0.5 h-4 w-4 accent-[#0089FF] text-[#0089FF] cursor-pointer"
                       />
                       <div className="flex flex-col">
                         <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">

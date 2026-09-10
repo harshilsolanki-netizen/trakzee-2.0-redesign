@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-LVQlPua9.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-HgudenNA.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-DZTK5mNe.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-D-EjqJ8N.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-BUEYPsJ7.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -1342,16 +1342,16 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 										className: "text-xs font-semibold text-slate-900 dark:text-slate-100 block",
 										children: "Download Layout"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "grid grid-cols-1 sm:grid-cols-2 gap-3",
+										className: "flex flex-col sm:flex-row sm:items-center gap-6 pt-1",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 											onClick: () => setDetailDownloadMode("multiple"),
-											className: cn("flex items-center gap-3 p-3 rounded-md border transition-all cursor-pointer text-xs", detailDownloadMode === "multiple" ? "border-[#0089FF] bg-[#0089FF]/5 text-slate-900 dark:text-slate-100 font-semibold" : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400"),
+											className: "flex items-start gap-2.5 cursor-pointer text-xs select-none",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 												type: "radio",
 												name: "modal-excel-mode",
 												checked: detailDownloadMode === "multiple",
 												onChange: () => setDetailDownloadMode("multiple"),
-												className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+												className: "mt-0.5 h-4 w-4 accent-[#0089FF] text-[#0089FF] cursor-pointer"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 												className: "flex flex-col",
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
@@ -1364,13 +1364,13 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 											onClick: () => setDetailDownloadMode("single"),
-											className: cn("flex items-center gap-3 p-3 rounded-md border transition-all cursor-pointer text-xs", detailDownloadMode === "single" ? "border-[#0089FF] bg-[#0089FF]/5 text-slate-900 dark:text-slate-100 font-semibold" : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400"),
+											className: "flex items-start gap-2.5 cursor-pointer text-xs select-none",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 												type: "radio",
 												name: "modal-excel-mode",
 												checked: detailDownloadMode === "single",
 												onChange: () => setDetailDownloadMode("single"),
-												className: "h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
+												className: "mt-0.5 h-4 w-4 accent-[#0089FF] text-[#0089FF] cursor-pointer"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 												className: "flex flex-col",
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
