@@ -50,13 +50,6 @@ import {
   getVehiclesForBranches,
 } from "@/data/reports";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 export type ScheduleItem = {
@@ -738,50 +731,7 @@ function getScheduleIconScheme(item: ScheduleItem) {
   };
 }
 
-function ScheduleItemActionsMenu({
-  onDuplicate,
-  onDelete,
-}: {
-  onDuplicate: () => void;
-  onDelete: () => void;
-}) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="h-[30px] w-[30px] rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-95"
-          aria-label="More actions"
-        >
-          <MoreVertical className="h-4 w-4" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        sideOffset={4}
-        avoidCollisions={true}
-        collisionPadding={8}
-        className="w-36 rounded-md border border-border/80 bg-popover/98 backdrop-blur-xl p-1 shadow-lg z-[90] text-xs select-none animate-in fade-in-80 zoom-in-95"
-      >
-        <DropdownMenuItem
-          onClick={onDuplicate}
-          className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 text-left text-foreground hover:bg-muted cursor-pointer transition-colors font-medium text-xs select-none"
-        >
-          <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-          <span>Duplicate</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="my-1 -mx-1" />
-        <DropdownMenuItem
-          onClick={onDelete}
-          className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 text-left text-destructive hover:bg-destructive/10 cursor-pointer transition-colors font-medium text-xs select-none"
-        >
-          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-          <span>Delete</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+
 
 export function ScheduleModal({
   open,
@@ -1350,21 +1300,26 @@ export function ScheduleModal({
                             </div>
                           </div>
 
-                          {/* Right section: Actions (NO status toggle/dropdown) */}
+                          {/* Right section: Actions */}
                           <div className="flex items-center gap-2 shrink-0">
                             <button
                               type="button"
                               onClick={() => startEdit(item)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background px-3 h-[30px] text-xs font-semibold text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-98"
+                              className="inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-background px-3 h-[30px] text-xs font-semibold text-foreground hover:bg-muted/60 hover:border-[#0089FF]/40 cursor-pointer transition-all shadow-2xs active:scale-98"
                             >
                               <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
                               <span>Edit</span>
                             </button>
 
-                            <ScheduleItemActionsMenu
-                              onDuplicate={() => handleDuplicate(item)}
-                              onDelete={() => setScheduleToDelete(item)}
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setScheduleToDelete(item)}
+                              title="Delete schedule"
+                              aria-label="Delete schedule"
+                              className="h-[30px] w-[30px] rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer shadow-2xs active:scale-95"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
                           </div>
                         </div>
                       );
@@ -2709,15 +2664,10 @@ export function ScheduleModal({
           />
           <div className="relative z-10 w-full max-w-md flex flex-col bg-white dark:bg-slate-900 border border-border shadow-xl rounded-lg overflow-hidden animate-in zoom-in-95 text-foreground select-none">
             {/* Header (56px) */}
-            <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
-                  <Trash2 className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-                </div>
-                <h3 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-                  Delete Scheduled Report?
-                </h3>
-              </div>
+            <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 shrink-0 select-none">
+              <h3 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                Delete Scheduled Report?
+              </h3>
               <button
                 type="button"
                 aria-label="Close delete confirmation"
@@ -2728,20 +2678,20 @@ export function ScheduleModal({
               </button>
             </header>
 
-            <div className="p-6 text-xs text-muted-foreground space-y-2.5">
-              <p className="leading-relaxed text-foreground">
-                Are you sure you want to delete <strong className="font-semibold text-rose-600 dark:text-rose-400">&quot;{scheduleToDelete.name}&quot;</strong>?
+            <div className="p-6 text-xs text-slate-600 dark:text-slate-300 space-y-2 select-none">
+              <p className="leading-relaxed">
+                Are you sure you want to delete <strong className="font-semibold text-slate-900 dark:text-slate-100">&quot;{scheduleToDelete.name}&quot;</strong>?
               </p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                 This scheduled report will be permanently removed and configured recipients will no longer receive automated email or media reports.
               </p>
             </div>
 
-            <footer className="flex items-center justify-end gap-2.5 border-t border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-3.5 shrink-0">
+            <footer className="flex items-center justify-end gap-2.5 border-t border-border bg-slate-50/70 dark:bg-slate-900/70 px-6 py-3.5 shrink-0 select-none">
               <button
                 type="button"
                 onClick={() => setScheduleToDelete(null)}
-                className="h-8 rounded-md border border-border bg-background px-4 text-xs font-semibold text-foreground shadow-2xs hover:bg-muted cursor-pointer transition-all active:scale-98"
+                className="h-8 rounded-md border border-border bg-background px-4 text-xs font-medium text-slate-700 dark:text-slate-300 shadow-2xs hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-all active:scale-98"
               >
                 Cancel
               </button>
@@ -2751,10 +2701,9 @@ export function ScheduleModal({
                   handleDelete(scheduleToDelete.id);
                   setScheduleToDelete(null);
                 }}
-                className="h-8 rounded-md bg-rose-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 active:scale-98 cursor-pointer transition-all inline-flex items-center gap-1.5"
+                className="h-8 rounded-md bg-rose-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 active:scale-98 cursor-pointer transition-all"
               >
-                <Trash2 className="h-3.5 w-3.5" />
-                <span>Delete Schedule</span>
+                Delete
               </button>
             </footer>
           </div>
