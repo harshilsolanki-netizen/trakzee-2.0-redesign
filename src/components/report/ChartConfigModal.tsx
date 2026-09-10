@@ -103,11 +103,11 @@ export function ChartConfigModal({
         type="button"
         aria-label="Close Chart Settings"
         onClick={onClose}
-        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity cursor-pointer"
+        className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
       />
 
       {/* Modal Card */}
-      <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 overflow-hidden rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl duration-150">
+      <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 overflow-hidden rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl duration-150">
         {/* Modern Clean Header (56px) */}
         <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 select-none shrink-0">
           <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
@@ -284,7 +284,7 @@ export function ChartConfigModal({
           <button
             type="button"
             onClick={handleSave}
-            className="h-8 min-w-[75px] rounded-md bg-[#155dfc] px-4 text-xs font-medium text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
+            className="h-8 min-w-[75px] rounded-md bg-[#0089FF] px-4 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#0077E6] cursor-pointer active:scale-98"
           >
             Save
           </button>

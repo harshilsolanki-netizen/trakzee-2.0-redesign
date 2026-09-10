@@ -31,18 +31,18 @@ function Shell({
         type="button"
         aria-label={"Close " + title}
         onClick={onClose}
-        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity cursor-pointer"
+        className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
       />
-      <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 overflow-hidden rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl duration-150">
-        <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-6 bg-card/60 shrink-0 select-none">
-          <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
+      <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 overflow-hidden rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl duration-150">
+        <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 shrink-0 select-none">
+          <h2 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             {title}
           </h2>
           <button
             type="button"
             aria-label={"Close " + title}
             onClick={onClose}
-            className="rounded-xl p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
+            className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -50,11 +50,11 @@ function Shell({
         <div className="max-h-[60vh] overflow-y-auto p-6 text-xs space-y-4">
           {children}
         </div>
-        <footer className="flex justify-end border-t border-border bg-muted/20 px-6 py-3.5">
+        <footer className="flex justify-end border-t border-border bg-slate-50/60 dark:bg-slate-900/60 px-6 py-3.5">
           <button
             type="button"
             onClick={onClose}
-            className="h-9 rounded-xl bg-[#155dfc] px-5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
+            className="h-8 rounded-md bg-[#0089FF] hover:bg-[#0077E6] px-5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
           >
             Done
           </button>

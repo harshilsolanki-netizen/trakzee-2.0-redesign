@@ -906,29 +906,29 @@ export function ColumnConfigModal({
       <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
         <button
           type="button"
-          aria-label="Close Settings"
+          aria-label="Close Column Setting"
           onClick={onClose}
-          className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity cursor-pointer"
+          className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity cursor-pointer"
         />
-        <div className="relative z-10 flex h-[590px] max-h-[88vh] w-[780px] max-w-[92vw] flex-col rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          {/* Header */}
-          <header className="flex h-[56px] items-center justify-between border-b border-border/70 px-5 bg-card/60 select-none shrink-0">
-            <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
-              Settings
+        <div className="relative z-10 flex h-[600px] max-h-[88vh] w-[820px] max-w-[94vw] flex-col rounded-lg border border-border bg-white dark:bg-slate-900 text-foreground shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          {/* Header (56px) */}
+          <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 select-none shrink-0">
+            <h2 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              Column Setting
             </h2>
 
             <button
               type="button"
-              aria-label="Close Settings"
+              aria-label="Close Column Setting"
               onClick={onClose}
-              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
+              className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
           </header>
 
           {/* Dedicated Tab Bar for Summary, Detail and Preference */}
-          <div className="border-b border-border/80 bg-muted/10 px-5 flex items-center justify-between gap-4 text-xs select-none shrink-0 h-11">
+          <div className="border-b border-[#DFE3EB] dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70 px-6 flex items-center justify-between gap-4 text-xs select-none shrink-0 h-11">
             <div className="flex items-center gap-6 h-full">
               <button
                 type="button"
@@ -940,7 +940,7 @@ export function ColumnConfigModal({
                   "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
                   activeTab === "summary"
                     ? "text-[#0089FF] font-bold"
-                    : "text-muted-foreground hover:text-[#0089FF]",
+                    : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
                 )}
               >
                 <span>Summary Report</span>
@@ -959,7 +959,7 @@ export function ColumnConfigModal({
                   "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
                   activeTab === "detail"
                     ? "text-[#0089FF] font-bold"
-                    : "text-muted-foreground hover:text-[#0089FF]",
+                    : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
                 )}
               >
                 <span>Detail Report</span>
@@ -978,7 +978,7 @@ export function ColumnConfigModal({
                   "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
                   activeTab === "preference"
                     ? "text-[#0089FF] font-bold"
-                    : "text-muted-foreground hover:text-[#0089FF]",
+                    : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
                 )}
               >
                 <span>Preference</span>
@@ -990,21 +990,21 @@ export function ColumnConfigModal({
           </div>
 
           {activeTab === "preference" ? (
-            <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 bg-surface select-none">
+            <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 bg-white dark:bg-slate-900 select-none">
               <div className="max-w-xl space-y-6">
                 {/* Download Layout */}
                 <div className="space-y-3">
-                  <label className="text-xs font-semibold text-foreground block">
+                  <label className="text-xs font-semibold text-slate-900 dark:text-slate-100 block">
                     Download Layout
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <label
                       onClick={() => setDetailDownloadMode("multiple")}
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer text-xs",
+                        "flex items-center gap-3 p-3 rounded-md border transition-all cursor-pointer text-xs",
                         detailDownloadMode === "multiple"
-                          ? "border-[#0089FF] bg-[#0089FF]/10 text-foreground font-semibold"
-                          : "border-border/80 bg-background hover:bg-muted/40 text-muted-foreground",
+                          ? "border-[#0089FF] bg-[#0089FF]/5 text-slate-900 dark:text-slate-100 font-semibold"
+                          : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400",
                       )}
                     >
                       <input
@@ -1015,10 +1015,10 @@ export function ColumnConfigModal({
                         className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
                       />
                       <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-foreground">
+                        <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                           Multiple Sheets (By Branch)
                         </span>
-                        <span className="text-[11px] text-muted-foreground font-normal">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">
                           Each branch in a separate Excel worksheet
                         </span>
                       </div>
@@ -1027,10 +1027,10 @@ export function ColumnConfigModal({
                     <label
                       onClick={() => setDetailDownloadMode("single")}
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer text-xs",
+                        "flex items-center gap-3 p-3 rounded-md border transition-all cursor-pointer text-xs",
                         detailDownloadMode === "single"
-                          ? "border-[#0089FF] bg-[#0089FF]/10 text-foreground font-semibold"
-                          : "border-border/80 bg-background hover:bg-muted/40 text-muted-foreground",
+                          ? "border-[#0089FF] bg-[#0089FF]/5 text-slate-900 dark:text-slate-100 font-semibold"
+                          : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400",
                       )}
                     >
                       <input
@@ -1041,10 +1041,10 @@ export function ColumnConfigModal({
                         className="h-3.5 w-3.5 accent-[#0089FF] cursor-pointer"
                       />
                       <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-foreground">
+                        <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                           Single Sheet (Consolidated)
                         </span>
-                        <span className="text-[11px] text-muted-foreground font-normal">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">
                           All branches on a single Excel worksheet
                         </span>
                       </div>
@@ -1054,41 +1054,41 @@ export function ColumnConfigModal({
               </div>
             </div>
           ) : (
-            <div className="flex-1 min-h-0 flex flex-col bg-surface overflow-hidden">
+            <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-slate-900 overflow-hidden">
               <div className="flex-1 min-h-0 overflow-y-auto select-none">
                 <table className="w-full border-collapse text-left text-xs">
-                  <thead className="sticky top-0 z-20 bg-slate-200/90 dark:bg-slate-850 text-slate-800 dark:text-slate-200 border-b border-slate-300 dark:border-slate-700 shadow-2xs select-none">
+                  <thead className="sticky top-0 z-20 bg-[#EAF0F6] dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-b border-[#DFE3EB] dark:border-slate-700 select-none">
                     <tr>
-                      <th className="w-10 px-2 py-2.5 text-center text-slate-500 dark:text-slate-400 font-semibold text-[11px]">
+                      <th className="w-10 px-2 py-2.5 text-center text-slate-600 dark:text-slate-400 font-bold text-[11px] border-r border-[#DFE3EB] dark:border-slate-700">
                         #
                       </th>
-                      <th className="px-3.5 py-2.5 font-bold text-slate-900 dark:text-slate-100 text-xs">
+                      <th className="px-3.5 py-2.5 font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700">
                         Column
                       </th>
 
-                      <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-800 dark:text-slate-200 text-xs">
+                      <th className="w-20 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700">
                         Showable
                       </th>
 
-                      <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-800 dark:text-slate-200 text-xs">
+                      <th className="w-20 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700">
                         Printable
                       </th>
 
-                      <th className="w-20 px-2 py-2.5 text-center font-semibold text-slate-800 dark:text-slate-200 text-xs">
+                      <th className="w-20 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700">
                         Sortable
                       </th>
 
-                      <th className="w-24 px-2 py-2.5 text-center font-semibold text-slate-800 dark:text-slate-200 text-xs">
+                      <th className="w-24 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs border-r border-[#DFE3EB] dark:border-slate-700">
                         Sort Priority
                       </th>
 
-                      <th className="w-24 px-2 py-2.5 text-center font-semibold text-slate-800 dark:text-slate-200 text-xs">
+                      <th className="w-24 px-2 py-2.5 text-center font-bold text-slate-900 dark:text-slate-100 text-xs">
                         Sorting
                       </th>
                     </tr>
                   </thead>
 
-                  <tbody className="divide-y divide-border/40">
+                  <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800">
                     {filteredColumns.map((col, idx) => {
                       const actualIndex = currentColumns.findIndex(
                         (c) => c.id === col.id,
@@ -1102,14 +1102,14 @@ export function ColumnConfigModal({
                               if (el) rowRefs.current.set(col.id, el);
                               else rowRefs.current.delete(col.id);
                             }}
-                            className="bg-surface-muted/60 font-semibold text-foreground border-y border-border/60"
+                            className="bg-slate-100/70 dark:bg-slate-800/70 font-semibold text-slate-900 dark:text-slate-100 border-y border-[#DFE3EB] dark:border-slate-700"
                           >
-                            <td className="px-3 py-2 text-center text-muted-foreground/40">
-                              <GripVertical className="h-3.5 w-3.5 mx-auto opacity-30" />
+                            <td className="px-3 py-2 text-center text-slate-400 border-r border-[#DFE3EB] dark:border-slate-700">
+                              <GripVertical className="h-3.5 w-3.5 mx-auto opacity-40" />
                             </td>
                             <td
                               colSpan={6}
-                              className="px-4 py-2 tracking-wide text-xs font-bold text-foreground"
+                              className="px-4 py-2 tracking-wide text-xs font-bold text-slate-900 dark:text-slate-100"
                             >
                               {col.label}
                             </td>
@@ -1165,32 +1165,28 @@ export function ColumnConfigModal({
                               setDragOverIndex(null);
                             }}
                             className={cn(
-                              "group transition-colors duration-75 relative",
-                              isDragging && "opacity-30 bg-brand/10",
+                              "group transition-colors duration-75 relative border-b border-[#DFE3EB] dark:border-slate-800/80",
+                              isDragging && "opacity-30 bg-[#0089FF]/10",
                               isDragOver &&
-                                "border-t-2 border-[#155dfc] bg-[#155dfc]/5",
+                                "border-t-2 border-[#0089FF] bg-[#0089FF]/5",
                               isPinned
-                                ? "bg-[#155dfc]/[0.05] hover:bg-[#155dfc]/[0.09] border-l-2 border-l-[#155dfc]"
-                                : "hover:bg-muted/40",
-                              col.group &&
-                                (isPinned
-                                  ? "bg-[#155dfc]/[0.03]"
-                                  : "bg-background/40"),
+                                ? "bg-[#0089FF]/[0.04] hover:bg-[#0089FF]/[0.08]"
+                                : "hover:bg-slate-50 dark:hover:bg-slate-800/40",
                             )}
                           >
                             {/* Drag Handle */}
-                            <td className="px-3 py-2 text-center">
+                            <td className="px-3 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800">
                               <button
                                 type="button"
                                 title="Drag to reorder"
-                                className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-foreground p-0.5 rounded transition-colors"
+                                className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-0.5 rounded transition-colors"
                               >
                                 <GripVertical className="h-3.5 w-3.5" />
                               </button>
                             </td>
 
                             {/* Column Name + Pin Action + Pinned Badge */}
-                            <td className="px-4 py-2 font-medium text-foreground">
+                            <td className="px-4 py-2 font-medium text-foreground border-r border-[#DFE3EB] dark:border-slate-800">
                               <div
                                 className={cn(
                                   "flex items-center gap-2",
@@ -1198,7 +1194,7 @@ export function ColumnConfigModal({
                                 )}
                               >
                                 {col.group && (
-                                  <span className="text-[10px] text-muted-foreground/60 select-none">
+                                  <span className="text-[10px] text-slate-400 select-none">
                                     ↳
                                   </span>
                                 )}
@@ -1206,9 +1202,9 @@ export function ColumnConfigModal({
                                 {/* Column Name */}
                                 <span
                                   className={cn(
-                                    "font-semibold text-xs",
-                                    !col.showable && "text-muted-foreground/75",
-                                    isPinned && "text-[#155dfc]",
+                                    "font-semibold text-xs text-slate-900 dark:text-slate-100",
+                                    !col.showable && "text-slate-400 dark:text-slate-500",
+                                    isPinned && "text-[#0089FF] dark:text-blue-400",
                                   )}
                                 >
                                   {col.label}
@@ -1218,7 +1214,7 @@ export function ColumnConfigModal({
                                 {isPinned && (
                                   <span
                                     title="Column is pinned at the top and frozen on table"
-                                    className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold bg-[#155dfc]/10 text-[#155dfc] border border-[#155dfc]/25 dark:bg-[#155dfc]/20 dark:text-blue-300 select-none"
+                                    className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 select-none"
                                   >
                                     Pinned
                                   </span>
@@ -1233,9 +1229,9 @@ export function ColumnConfigModal({
                                           type="button"
                                           aria-label={`Unpin column ${col.label}`}
                                           onClick={() => handleUnpin(col.id)}
-                                          className="p-1 rounded text-[#155dfc] hover:bg-[#155dfc]/15 hover:text-red-500 transition-all cursor-pointer active:scale-90"
+                                          className="p-1 rounded text-[#0089FF] hover:bg-[#0089FF]/15 hover:text-red-500 transition-all cursor-pointer active:scale-90"
                                         >
-                                          <Pin className="h-3.5 w-3.5 fill-[#155dfc]" />
+                                          <Pin className="h-3.5 w-3.5 fill-[#0089FF]" />
                                         </button>
                                       </TooltipTrigger>
                                       <TooltipContent side="top">
@@ -1249,7 +1245,7 @@ export function ColumnConfigModal({
                                           type="button"
                                           aria-label={`Pin column ${col.label}`}
                                           onClick={() => handlePin(col.id)}
-                                          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-all cursor-pointer text-muted-foreground/60 hover:text-[#155dfc] hover:bg-[#155dfc]/10 active:scale-90"
+                                          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-all cursor-pointer text-slate-400 hover:text-[#0089FF] hover:bg-[#0089FF]/10 active:scale-90"
                                         >
                                           <Pin className="h-3.5 w-3.5" />
                                         </button>
@@ -1264,7 +1260,7 @@ export function ColumnConfigModal({
                             </td>
 
                             {/* Showable */}
-                            <td className="px-2.5 py-2 text-center">
+                            <td className="px-2.5 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800">
                               <input
                                 type="checkbox"
                                 checked={col.showable}
@@ -1274,12 +1270,12 @@ export function ColumnConfigModal({
                                   })
                                 }
                                 aria-label={`Toggle showable for ${col.label}`}
-                                className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#155dfc]"
+                                className="h-4 w-4 rounded border-slate-300 dark:border-slate-600 accent-[#0089FF] text-[#0089FF] focus:ring-[#0089FF]/30 cursor-pointer"
                               />
                             </td>
 
                             {/* Printable */}
-                            <td className="px-2.5 py-2 text-center">
+                            <td className="px-2.5 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800">
                               <input
                                 type="checkbox"
                                 checked={col.printable}
@@ -1289,12 +1285,12 @@ export function ColumnConfigModal({
                                   })
                                 }
                                 aria-label={`Toggle printable for ${col.label}`}
-                                className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#155dfc]"
+                                className="h-4 w-4 rounded border-slate-300 dark:border-slate-600 accent-[#0089FF] text-[#0089FF] focus:ring-[#0089FF]/30 cursor-pointer"
                               />
                             </td>
 
                             {/* Sortable */}
-                            <td className="px-2.5 py-2 text-center">
+                            <td className="px-2.5 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800">
                               <input
                                 type="checkbox"
                                 checked={col.sortable}
@@ -1308,14 +1304,14 @@ export function ColumnConfigModal({
                                   });
                                 }}
                                 aria-label={`Toggle sortable for ${col.label}`}
-                                className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand cursor-pointer accent-[#155dfc]"
+                                className="h-4 w-4 rounded border-slate-300 dark:border-slate-600 accent-[#0089FF] text-[#0089FF] focus:ring-[#0089FF]/30 cursor-pointer"
                               />
                             </td>
 
                             {/* Sort Priority */}
-                            <td className="px-2.5 py-2 text-center">
+                            <td className="px-2.5 py-2 text-center border-r border-[#DFE3EB] dark:border-slate-800">
                               {!col.sortable ? (
-                                <div className="h-6.5 px-2 text-[11px] font-semibold text-muted-foreground/30 inline-flex items-center gap-1 border border-input/40 bg-muted/40 rounded-md cursor-not-allowed select-none">
+                                <div className="h-6.5 px-2 text-[11px] font-medium text-slate-300 dark:text-slate-600 inline-flex items-center gap-1 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded cursor-not-allowed select-none">
                                   <span>--</span>
                                   <ChevronDown className="h-2.5 w-2.5 opacity-30" />
                                 </div>
@@ -1325,16 +1321,16 @@ export function ColumnConfigModal({
                                     <button
                                       type="button"
                                       aria-label={`Sort priority for ${col.label}`}
-                                      className="h-6.5 rounded-md border border-input/80 bg-background px-2 text-[11px] font-semibold text-foreground hover:border-[#155dfc]/60 hover:bg-muted/40 focus:border-[#155dfc] focus:ring-2 focus:ring-[#155dfc]/20 focus:outline-none cursor-pointer shadow-2xs inline-flex items-center gap-1 select-none transition-all active:scale-98"
+                                      className="h-6.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 text-[11px] font-medium text-slate-800 dark:text-slate-200 hover:border-[#0089FF] focus:border-[#0089FF] focus:ring-1 focus:ring-[#0089FF] focus:outline-none cursor-pointer shadow-2xs inline-flex items-center gap-1 select-none transition-all active:scale-98"
                                     >
                                       <span>{col.sortPriority ?? "--"}</span>
-                                      <ChevronDown className="h-2.5 w-2.5 text-muted-foreground opacity-70" />
+                                      <ChevronDown className="h-2.5 w-2.5 text-slate-500 opacity-70" />
                                     </button>
                                   </PopoverTrigger>
                                   <PopoverContent
                                     align="center"
                                     sideOffset={4}
-                                    className="w-20 p-1 rounded-lg border border-border/80 bg-popover/98 backdrop-blur-xl shadow-lg z-[95] select-none animate-in fade-in-0 zoom-in-95"
+                                    className="w-20 p-1 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-md z-[95] select-none"
                                   >
                                     {[null, 1, 2, 3].map((pVal) => {
                                       const isSelected =
@@ -1349,15 +1345,15 @@ export function ColumnConfigModal({
                                             })
                                           }
                                           className={cn(
-                                            "flex w-full items-center justify-between px-2 py-1 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
+                                            "flex w-full items-center justify-between px-2 py-1 text-xs rounded cursor-pointer transition-colors text-left select-none",
                                             isSelected
-                                              ? "bg-[#155dfc]/10 text-[#155dfc] font-bold hover:bg-[#155dfc]/15"
-                                              : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                                              ? "bg-[#0089FF]/10 text-[#0089FF] font-semibold"
+                                              : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium",
                                           )}
                                         >
                                           <span>{pVal ?? "--"}</span>
                                           {isSelected && (
-                                            <Check className="h-3 w-3 text-[#155dfc]" />
+                                            <Check className="h-3 w-3 text-[#0089FF]" />
                                           )}
                                         </button>
                                       );
@@ -1369,7 +1365,7 @@ export function ColumnConfigModal({
 
                             {/* Sorting Asc / Des */}
                             <td className="px-2.5 py-2 text-center">
-                              <div className="inline-flex rounded-md border border-input/80 overflow-hidden shadow-2xs">
+                              <div className="inline-flex rounded border border-slate-300 dark:border-slate-700 overflow-hidden shadow-2xs">
                                 <button
                                   type="button"
                                   disabled={!col.sortable}
@@ -1377,12 +1373,12 @@ export function ColumnConfigModal({
                                     updateColumn(col.id, { sortDir: "asc" })
                                   }
                                   className={cn(
-                                    "px-2 py-1 text-[10px] font-bold transition-all cursor-pointer",
+                                    "px-2 py-0.5 text-[10px] font-semibold transition-all cursor-pointer",
                                     col.sortable && col.sortDir === "asc"
-                                      ? "bg-[#155dfc] text-white shadow-2xs"
-                                      : "bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground",
+                                      ? "bg-[#0089FF] text-white shadow-2xs"
+                                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50",
                                     !col.sortable &&
-                                      "opacity-30 cursor-not-allowed",
+                                      "opacity-40 cursor-not-allowed",
                                   )}
                                 >
                                   Asc
@@ -1394,12 +1390,12 @@ export function ColumnConfigModal({
                                     updateColumn(col.id, { sortDir: "desc" })
                                   }
                                   className={cn(
-                                    "px-2 py-1 text-[10px] font-bold transition-all border-l border-input cursor-pointer",
+                                    "px-2 py-0.5 text-[10px] font-semibold transition-all border-l border-slate-300 dark:border-slate-700 cursor-pointer",
                                     col.sortable && col.sortDir === "desc"
-                                      ? "bg-[#155dfc] text-white shadow-2xs"
-                                      : "bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground",
+                                      ? "bg-[#0089FF] text-white shadow-2xs"
+                                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50",
                                     !col.sortable &&
-                                      "opacity-30 cursor-not-allowed",
+                                      "opacity-40 cursor-not-allowed",
                                   )}
                                 >
                                   Des
@@ -1412,18 +1408,18 @@ export function ColumnConfigModal({
                           {isLastPinned && pinnedCount > 0 && (
                             <tr
                               key="__pinned_separator__"
-                              className="bg-slate-50/80 dark:bg-slate-900/50 select-none border-y border-border/60"
+                              className="bg-slate-50/80 dark:bg-slate-900/50 select-none border-y border-[#DFE3EB] dark:border-slate-700"
                             >
                               <td colSpan={7} className="px-4 py-1.5 text-center">
                                 <div className="flex items-center justify-center gap-3">
-                                  <span className="h-px flex-1 bg-border/70" />
-                                  <span className="inline-flex items-center gap-1.5 font-bold text-[11px] text-[#155dfc] tracking-wide">
-                                    <Pin className="h-3 w-3 fill-[#155dfc] text-[#155dfc]" />
+                                  <span className="h-px flex-1 bg-[#DFE3EB] dark:bg-slate-700" />
+                                  <span className="inline-flex items-center gap-1.5 font-semibold text-[11px] text-[#0089FF] tracking-wide">
+                                    <Pin className="h-3 w-3 fill-[#0089FF] text-[#0089FF]" />
                                     {pinnedCount}{" "}
                                     {pinnedCount === 1 ? "column" : "columns"}{" "}
                                     pinned
                                   </span>
-                                  <span className="h-px flex-1 bg-border/70" />
+                                  <span className="h-px flex-1 bg-[#DFE3EB] dark:bg-slate-700" />
                                 </div>
                               </td>
                             </tr>
@@ -1449,15 +1445,15 @@ export function ColumnConfigModal({
           )}
 
           {/* Footer Actions */}
-          <footer className="flex h-14 items-center justify-between border-t border-border bg-muted/20 px-6 shrink-0 select-none">
-            <div className="flex items-center gap-2.5">
+          <footer className="flex h-14 items-center justify-between border-t border-border bg-slate-50/60 dark:bg-slate-900/60 px-6 shrink-0 select-none">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 title="Undo all unsaved changes and return to the last saved configuration"
                 onClick={handleReset}
-                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border/80 bg-background px-3.5 text-xs font-semibold text-foreground shadow-2xs transition-all hover:bg-muted active:scale-98 cursor-pointer"
+                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-xs font-medium text-slate-700 dark:text-slate-200 shadow-2xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-98 cursor-pointer"
               >
-                <Undo2 className="h-3.5 w-3.5 text-muted-foreground" />
+                <Undo2 className="h-3.5 w-3.5 text-slate-500" />
                 <span>Reset</span>
               </button>
 
@@ -1465,27 +1461,27 @@ export function ColumnConfigModal({
                 type="button"
                 title="Restore original system defaults"
                 onClick={() => setShowRestoreConfirm(true)}
-                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border/80 bg-background px-3.5 text-xs font-semibold text-foreground shadow-2xs transition-all hover:bg-muted active:scale-98 cursor-pointer"
+                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-xs font-medium text-slate-700 dark:text-slate-200 shadow-2xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-98 cursor-pointer"
               >
-                <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
+                <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
                 <span>Restore Default</span>
               </button>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="h-9 rounded-md border border-border/80 bg-background px-4.5 text-xs font-medium text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98"
+                className="h-8 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 text-xs font-medium text-slate-700 dark:text-slate-200 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer shadow-2xs active:scale-98"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSave}
-                className="h-9 rounded-md bg-[#155dfc] px-5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
+                className="h-8 rounded-md bg-[#0089FF] hover:bg-[#0077E6] px-5 text-xs font-semibold text-white shadow-xs transition-colors cursor-pointer active:scale-98"
               >
-                Save Configuration
+                Save
               </button>
             </div>
           </footer>
@@ -1494,11 +1490,11 @@ export function ColumnConfigModal({
         {showRestoreConfirm && (
           <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
             <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
+              className="fixed inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity"
               onClick={() => setShowRestoreConfirm(false)}
             />
-            <div className="relative z-10 w-full max-w-sm rounded-2xl border border-border/80 bg-background p-6 text-foreground shadow-2xl animate-in fade-in zoom-in-95 duration-150">
-              <h3 className="text-sm font-bold text-foreground">
+            <div className="relative z-10 w-full max-w-sm rounded-lg border border-border bg-white dark:bg-slate-900 p-6 text-foreground shadow-xl animate-in fade-in zoom-in-95 duration-150">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                 Restore Default Configuration?
               </h3>
               <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
@@ -1510,14 +1506,14 @@ export function ColumnConfigModal({
                 <button
                   type="button"
                   onClick={() => setShowRestoreConfirm(false)}
-                  className="h-9 rounded-md border border-border/80 bg-background px-4 text-xs font-medium text-foreground transition-all hover:bg-muted cursor-pointer shadow-2xs active:scale-98"
+                  className="h-8 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 text-xs font-medium text-slate-700 dark:text-slate-200 transition-colors hover:bg-slate-50 cursor-pointer shadow-2xs active:scale-98"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleRestoreDefault}
-                  className="h-9 rounded-md bg-[#155dfc] px-4.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
+                  className="h-8 rounded-md bg-[#0089FF] hover:bg-[#0077E6] px-4.5 text-xs font-semibold text-white shadow-xs transition-colors cursor-pointer active:scale-98"
                 >
                   Restore Default
                 </button>
