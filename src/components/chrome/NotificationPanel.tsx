@@ -145,8 +145,8 @@ export function NotificationPanel({
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
-        {/* Header with tabs & clean close button (no outer selection border glitch) */}
-        <header className="flex h-[52px] items-center justify-between border-b border-border px-4 bg-background select-none shrink-0">
+        {/* Header with tabs & clean close button (56px) */}
+        <header className="flex h-[56px] items-center justify-between border-b border-border px-4 bg-background select-none shrink-0">
           <div className="flex items-center gap-1">
             {(["notification", "announcements"] as const).map((t) => (
               <button

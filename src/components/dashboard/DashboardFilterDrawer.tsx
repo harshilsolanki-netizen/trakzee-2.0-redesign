@@ -746,8 +746,8 @@ export function DashboardFilterDrawer({
           </div>
         </div>
 
-        {/* 3. Sticky Drawer Footer Actions */}
-        <footer className="flex items-center justify-between border-t border-border bg-card/60 px-5 py-3.5 shrink-0 select-none">
+        {/* 3. Sticky Drawer Footer Actions (56px) */}
+        <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
           <button
             type="button"
             onClick={handleReset}

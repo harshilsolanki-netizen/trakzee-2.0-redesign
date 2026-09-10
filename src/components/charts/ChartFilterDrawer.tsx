@@ -305,8 +305,8 @@ export function ChartFilterDrawer({
           </div>
         </div>
 
-        {/* 3. Standardized Drawer Footer matching ADS Side Panel Design System */}
-        <footer className="flex items-center justify-between border-t border-border bg-background px-5 py-3.5 shrink-0 select-none">
+        {/* 3. Standardized Drawer Footer matching ADS Side Panel Design System (56px) */}
+        <footer className="flex h-[56px] items-center justify-between border-t border-border bg-background px-5 shrink-0 select-none">
           <button
             type="button"
             aria-label="Clear filter"
