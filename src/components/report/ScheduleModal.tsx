@@ -55,6 +55,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { type ReportFilters } from "@/components/report/ReportConfigPanel";
+import {
+  ColumnConfigModal,
+  DEFAULT_COLUMN_SETTINGS,
+  type ReportColumnSettings,
+} from "@/components/report/ColumnConfigModal";
 import { cn } from "@/lib/utils";
 
 export type ScheduleItem = {
@@ -96,136 +101,6 @@ export type ScheduleItem = {
   mediaGateway?: string;
   mediaRecipientNumber?: string;
 };
-
-export type ReportColumnConfig = {
-  id: string;
-  label: string;
-  showable: boolean;
-  printable: boolean;
-  sortable: boolean;
-  sortPriority: string;
-  sortDirection: "asc" | "desc";
-};
-
-const INITIAL_COLUMNS: ReportColumnConfig[] = [
-  {
-    id: "vehicleNo",
-    label: "Vehicle Number",
-    showable: true,
-    printable: true,
-    sortable: true,
-    sortPriority: "1",
-    sortDirection: "asc",
-  },
-  {
-    id: "driver",
-    label: "Driver Name",
-    showable: true,
-    printable: true,
-    sortable: true,
-    sortPriority: "2",
-    sortDirection: "asc",
-  },
-  {
-    id: "branch",
-    label: "Branch",
-    showable: true,
-    printable: true,
-    sortable: true,
-    sortPriority: "3",
-    sortDirection: "asc",
-  },
-  {
-    id: "vehicleType",
-    label: "Vehicle Type",
-    showable: true,
-    printable: true,
-    sortable: true,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
-    id: "distance",
-    label: "Distance (km)",
-    showable: true,
-    printable: true,
-    sortable: true,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
-    id: "running",
-    label: "Running Duration",
-    showable: true,
-    printable: true,
-    sortable: true,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
-    id: "idle",
-    label: "Idle Duration",
-    showable: true,
-    printable: true,
-    sortable: false,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
-    id: "stop",
-    label: "Stop Duration",
-    showable: true,
-    printable: true,
-    sortable: false,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
-    id: "maxSpeed",
-    label: "Max Speed (km/h)",
-    showable: true,
-    printable: true,
-    sortable: true,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
-    id: "avgSpeed",
-    label: "Average Speed",
-    showable: true,
-    printable: true,
-    sortable: false,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
-    id: "firstIgnitionOn",
-    label: "First Ignition",
-    showable: true,
-    printable: true,
-    sortable: false,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
-    id: "lastIgnitionOff",
-    label: "Last Ignition",
-    showable: true,
-    printable: true,
-    sortable: false,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-  {
-    id: "endOdometer",
-    label: "End Odometer",
-    showable: true,
-    printable: true,
-    sortable: true,
-    sortPriority: "-",
-    sortDirection: "asc",
-  },
-];
 
 const INITIAL_SCHEDULES: ScheduleItem[] = [
   {
@@ -851,9 +726,20 @@ export function ScheduleModal({
   // Vehicle Selection Scope State: 'current' (Applied Filter) vs 'custom' (New Filter)
   const [vehicleFilterMode, setVehicleFilterMode] = useState<"current" | "custom">("current");
 
-  // Advance Configuration Sub-Modal State
+  // Advance Configuration Modal State
   const [advanceModalOpen, setAdvanceModalOpen] = useState(false);
-  const [columnConfig, setColumnConfig] = useState<ReportColumnConfig[]>(INITIAL_COLUMNS);
+  const [columnSettings, setColumnSettings] = useState<ReportColumnSettings>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("fleet-report-columns-v3");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.columns?.length) return parsed;
+        }
+      } catch {}
+    }
+    return DEFAULT_COLUMN_SETTINGS;
+  });
 
   // Email Verification State
   const [emailVerificationStatus, setEmailVerificationStatus] = useState<
@@ -2601,174 +2487,26 @@ export function ScheduleModal({
         )}
       </aside>
 
-      {/* Advance Configuration Sub-Modal */}
+      {/* Column Setting Modal for Advance Configuration */}
       {advanceModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs"
-            onClick={() => setAdvanceModalOpen(false)}
-          />
-          <div className="relative z-10 flex h-[85vh] max-h-[640px] w-full max-w-2xl flex-col rounded-2xl border border-border/80 bg-background shadow-2xl animate-in fade-in-0 zoom-in-95 overflow-hidden">
-            {/* Modal Header */}
-            <div className="flex h-[56px] items-center justify-between border-b border-border px-6 select-none shrink-0">
-              <div className="flex items-center gap-2">
-                <Settings2 className="h-4 w-4 text-[#0089FF]" />
-                <h3 className="text-sm font-semibold text-foreground">
-                  Advance Configuration — Columns &amp; Sort Priorities
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAdvanceModalOpen(false)}
-                className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">
-                  Configure which columns should appear in the scheduled report export and their display properties.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setColumnConfig(INITIAL_COLUMNS)}
-                  className="text-xs font-semibold text-[#0089FF] hover:underline cursor-pointer"
-                >
-                  Reset Defaults
-                </button>
-              </div>
-
-              <div className="rounded-xl border border-border/80 overflow-hidden shadow-2xs">
-                <table className="w-full text-xs">
-                  <thead className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold border-b border-border">
-                    <tr>
-                      <th className="px-3 py-2 text-left">Column Name</th>
-                      <th className="px-3 py-2 text-center w-20">Show</th>
-                      <th className="px-3 py-2 text-center w-20">Print</th>
-                      <th className="px-3 py-2 text-center w-20">Sortable</th>
-                      <th className="px-3 py-2 text-center w-24">Priority</th>
-                      <th className="px-3 py-2 text-center w-24">Order</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/60">
-                    {columnConfig.map((col, idx) => (
-                      <tr
-                        key={col.id}
-                        className="hover:bg-muted/40 transition-colors font-medium text-foreground"
-                      >
-                        <td className="px-3 py-2 font-semibold truncate">
-                          {col.label}
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={col.showable}
-                            onChange={(e) =>
-                              setColumnConfig((prev) =>
-                                prev.map((c, i) =>
-                                  i === idx ? { ...c, showable: e.target.checked } : c,
-                                ),
-                              )
-                            }
-                            className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-                          />
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={col.printable}
-                            onChange={(e) =>
-                              setColumnConfig((prev) =>
-                                prev.map((c, i) =>
-                                  i === idx ? { ...c, printable: e.target.checked } : c,
-                                ),
-                              )
-                            }
-                            className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-                          />
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={col.sortable}
-                            onChange={(e) =>
-                              setColumnConfig((prev) =>
-                                prev.map((c, i) =>
-                                  i === idx ? { ...c, sortable: e.target.checked } : c,
-                                ),
-                              )
-                            }
-                            className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-                          />
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <select
-                            value={col.sortPriority}
-                            onChange={(e) =>
-                              setColumnConfig((prev) =>
-                                prev.map((c, i) =>
-                                  i === idx ? { ...c, sortPriority: e.target.value } : c,
-                                ),
-                              )
-                            }
-                            className="h-6 rounded border border-input bg-background px-1 text-[11px] font-medium"
-                          >
-                            <option value="-">-</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                          </select>
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <select
-                            value={col.sortDirection}
-                            onChange={(e) =>
-                              setColumnConfig((prev) =>
-                                prev.map((c, i) =>
-                                  i === idx
-                                    ? { ...c, sortDirection: e.target.value as "asc" | "desc" }
-                                    : c,
-                                ),
-                              )
-                            }
-                            className="h-6 rounded border border-input bg-background px-1 text-[11px] font-medium"
-                          >
-                            <option value="asc">ASC</option>
-                            <option value="desc">DESC</option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="flex h-[56px] items-center justify-end gap-2 border-t border-border px-6 select-none shrink-0">
-              <button
-                type="button"
-                onClick={() => setAdvanceModalOpen(false)}
-                className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAdvanceModalOpen(false);
-                  toast.success("Advance configuration settings saved");
-                }}
-                className="h-8 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
+        <ColumnConfigModal
+          open={advanceModalOpen}
+          onClose={() => setAdvanceModalOpen(false)}
+          settings={columnSettings}
+          hideDetailTab={true}
+          onSave={(newSettings) => {
+            setColumnSettings(newSettings);
+            if (typeof window !== "undefined") {
+              try {
+                localStorage.setItem(
+                  "fleet-report-columns-v3",
+                  JSON.stringify(newSettings),
+                );
+              } catch {}
+            }
+            setAdvanceModalOpen(false);
+          }}
+        />
       )}
     </>
   );

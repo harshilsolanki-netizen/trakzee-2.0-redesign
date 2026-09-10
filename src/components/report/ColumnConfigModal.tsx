@@ -583,6 +583,7 @@ interface ColumnConfigModalProps {
   onClose: () => void;
   settings: ReportColumnSettings;
   onSave: (settings: ReportColumnSettings) => void;
+  hideDetailTab?: boolean;
 }
 
 export function ColumnConfigModal({
@@ -590,6 +591,7 @@ export function ColumnConfigModal({
   onClose,
   settings,
   onSave,
+  hideDetailTab = false,
 }: ColumnConfigModalProps) {
   const [activeTab, setActiveTab] = useState<
     "summary" | "detail" | "preference"
@@ -949,24 +951,26 @@ export function ColumnConfigModal({
                 )}
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("detail");
-                  setSearchQuery("");
-                }}
-                className={cn(
-                  "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
-                  activeTab === "detail"
-                    ? "text-[#0089FF] font-bold"
-                    : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
-                )}
-              >
-                <span>Detail Report</span>
-                {activeTab === "detail" && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0089FF] rounded-t-full shadow-xs" />
-                )}
-              </button>
+              {!hideDetailTab && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("detail");
+                    setSearchQuery("");
+                  }}
+                  className={cn(
+                    "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
+                    activeTab === "detail"
+                      ? "text-[#0089FF] font-bold"
+                      : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
+                  )}
+                >
+                  <span>Detail Report</span>
+                  {activeTab === "detail" && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0089FF] rounded-t-full shadow-xs" />
+                  )}
+                </button>
+              )}
 
               <button
                 type="button"

@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-DeHZ8LZL.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-CiiY_QaS.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -1475,7 +1475,7 @@ function normalizeColumnList(cols, frozenCount = 2) {
 	const unpinned = initialized.filter((c) => !c.pinned);
 	return [...pinned, ...unpinned];
 }
-function ColumnConfigModal({ open, onClose, settings, onSave }) {
+function ColumnConfigModal({ open, onClose, settings, onSave, hideDetailTab = false }) {
 	const [activeTab, setActiveTab] = (0, import_react.useState)("summary");
 	const [summaryColumns, setSummaryColumns] = (0, import_react.useState)(() => normalizeColumnList(settings.columns || DEFAULT_REPORT_COLUMNS, settings.frozenColumnsCount ?? 2));
 	const [detailColumns, setDetailColumns] = (0, import_react.useState)(() => normalizeColumnList(settings.detailColumns || DEFAULT_DETAIL_COLUMNS, settings.detailFrozenColumnsCount ?? 1));
@@ -1693,7 +1693,7 @@ function ColumnConfigModal({ open, onClose, settings, onSave }) {
 										className: cn("relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs", activeTab === "summary" ? "text-[#0089FF] font-bold" : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]"),
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Summary Report" }), activeTab === "summary" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "absolute bottom-0 left-0 right-0 h-0.5 bg-[#0089FF] rounded-t-full shadow-xs" })]
 									}),
-									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+									!hideDetailTab && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 										type: "button",
 										onClick: () => {
 											setActiveTab("detail");
@@ -2411,125 +2411,6 @@ function ReportModals({ kind, onClose, columns, hidden = [], onToggleColumn, col
 		})
 	});
 }
-var INITIAL_COLUMNS = [
-	{
-		id: "vehicleNo",
-		label: "Vehicle Number",
-		showable: true,
-		printable: true,
-		sortable: true,
-		sortPriority: "1",
-		sortDirection: "asc"
-	},
-	{
-		id: "driver",
-		label: "Driver Name",
-		showable: true,
-		printable: true,
-		sortable: true,
-		sortPriority: "2",
-		sortDirection: "asc"
-	},
-	{
-		id: "branch",
-		label: "Branch",
-		showable: true,
-		printable: true,
-		sortable: true,
-		sortPriority: "3",
-		sortDirection: "asc"
-	},
-	{
-		id: "vehicleType",
-		label: "Vehicle Type",
-		showable: true,
-		printable: true,
-		sortable: true,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
-		id: "distance",
-		label: "Distance (km)",
-		showable: true,
-		printable: true,
-		sortable: true,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
-		id: "running",
-		label: "Running Duration",
-		showable: true,
-		printable: true,
-		sortable: true,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
-		id: "idle",
-		label: "Idle Duration",
-		showable: true,
-		printable: true,
-		sortable: false,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
-		id: "stop",
-		label: "Stop Duration",
-		showable: true,
-		printable: true,
-		sortable: false,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
-		id: "maxSpeed",
-		label: "Max Speed (km/h)",
-		showable: true,
-		printable: true,
-		sortable: true,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
-		id: "avgSpeed",
-		label: "Average Speed",
-		showable: true,
-		printable: true,
-		sortable: false,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
-		id: "firstIgnitionOn",
-		label: "First Ignition",
-		showable: true,
-		printable: true,
-		sortable: false,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
-		id: "lastIgnitionOff",
-		label: "Last Ignition",
-		showable: true,
-		printable: true,
-		sortable: false,
-		sortPriority: "-",
-		sortDirection: "asc"
-	},
-	{
-		id: "endOdometer",
-		label: "End Odometer",
-		showable: true,
-		printable: true,
-		sortable: true,
-		sortPriority: "-",
-		sortDirection: "asc"
-	}
-];
 var INITIAL_SCHEDULES = [{
 	id: "sched-1",
 	name: "Weekly Operations Summary",
@@ -2997,7 +2878,16 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 	}));
 	const [vehicleFilterMode, setVehicleFilterMode] = (0, import_react.useState)("current");
 	const [advanceModalOpen, setAdvanceModalOpen] = (0, import_react.useState)(false);
-	const [columnConfig, setColumnConfig] = (0, import_react.useState)(INITIAL_COLUMNS);
+	const [columnSettings, setColumnSettings] = (0, import_react.useState)(() => {
+		if (typeof window !== "undefined") try {
+			const saved = localStorage.getItem("fleet-report-columns-v3");
+			if (saved) {
+				const parsed = JSON.parse(saved);
+				if (parsed?.columns?.length) return parsed;
+			}
+		} catch {}
+		return DEFAULT_COLUMN_SETTINGS;
+	});
 	const [emailVerificationStatus, setEmailVerificationStatus] = (0, import_react.useState)("idle");
 	const [errors, setErrors] = (0, import_react.useState)({});
 	(0, import_react.useEffect)(() => {
@@ -4671,191 +4561,18 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 				})
 			]
 		}),
-		advanceModalOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "fixed inset-0 z-[100] flex items-center justify-center p-4",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				className: "fixed inset-0 bg-black/50 backdrop-blur-xs",
-				onClick: () => setAdvanceModalOpen(false)
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "relative z-10 flex h-[85vh] max-h-[640px] w-full max-w-2xl flex-col rounded-2xl border border-border/80 bg-background shadow-2xl animate-in fade-in-0 zoom-in-95 overflow-hidden",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex h-[56px] items-center justify-between border-b border-border px-6 select-none shrink-0",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex items-center gap-2",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, { className: "h-4 w-4 text-[#0089FF]" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								className: "text-sm font-semibold text-foreground",
-								children: "Advance Configuration — Columns & Sort Priorities"
-							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: () => setAdvanceModalOpen(false),
-							className: "rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
-						})]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex-1 min-h-0 overflow-y-auto p-6 space-y-4 custom-scrollbar",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex items-center justify-between",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								className: "text-xs text-muted-foreground",
-								children: "Configure which columns should appear in the scheduled report export and their display properties."
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: () => setColumnConfig(INITIAL_COLUMNS),
-								className: "text-xs font-semibold text-[#0089FF] hover:underline cursor-pointer",
-								children: "Reset Defaults"
-							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "rounded-xl border border-border/80 overflow-hidden shadow-2xs",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", {
-								className: "w-full text-xs",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", {
-									className: "bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold border-b border-border",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-3 py-2 text-left",
-											children: "Column Name"
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-3 py-2 text-center w-20",
-											children: "Show"
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-3 py-2 text-center w-20",
-											children: "Print"
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-3 py-2 text-center w-20",
-											children: "Sortable"
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-3 py-2 text-center w-24",
-											children: "Priority"
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
-											className: "px-3 py-2 text-center w-24",
-											children: "Order"
-										})
-									] })
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", {
-									className: "divide-y divide-border/60",
-									children: columnConfig.map((col, idx) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", {
-										className: "hover:bg-muted/40 transition-colors font-medium text-foreground",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "px-3 py-2 font-semibold truncate",
-												children: col.label
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "px-3 py-2 text-center",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "checkbox",
-													checked: col.showable,
-													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
-														...c,
-														showable: e.target.checked
-													} : c)),
-													className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-												})
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "px-3 py-2 text-center",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "checkbox",
-													checked: col.printable,
-													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
-														...c,
-														printable: e.target.checked
-													} : c)),
-													className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-												})
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "px-3 py-2 text-center",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "checkbox",
-													checked: col.sortable,
-													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
-														...c,
-														sortable: e.target.checked
-													} : c)),
-													className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-												})
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "px-3 py-2 text-center",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
-													value: col.sortPriority,
-													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
-														...c,
-														sortPriority: e.target.value
-													} : c)),
-													className: "h-6 rounded border border-input bg-background px-1 text-[11px] font-medium",
-													children: [
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
-															value: "-",
-															children: "-"
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
-															value: "1",
-															children: "1"
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
-															value: "2",
-															children: "2"
-														}),
-														/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
-															value: "3",
-															children: "3"
-														})
-													]
-												})
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
-												className: "px-3 py-2 text-center",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
-													value: col.sortDirection,
-													onChange: (e) => setColumnConfig((prev) => prev.map((c, i) => i === idx ? {
-														...c,
-														sortDirection: e.target.value
-													} : c)),
-													className: "h-6 rounded border border-input bg-background px-1 text-[11px] font-medium",
-													children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
-														value: "asc",
-														children: "ASC"
-													}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
-														value: "desc",
-														children: "DESC"
-													})]
-												})
-											})
-										]
-									}, col.id))
-								})]
-							})
-						})]
-					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex h-[56px] items-center justify-end gap-2 border-t border-border px-6 select-none shrink-0",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: () => setAdvanceModalOpen(false),
-							className: "h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98",
-							children: "Cancel"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							type: "button",
-							onClick: () => {
-								setAdvanceModalOpen(false);
-								toast.success("Advance configuration settings saved");
-							},
-							className: "h-8 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98",
-							children: "Done"
-						})]
-					})
-				]
-			})]
+		advanceModalOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ColumnConfigModal, {
+			open: advanceModalOpen,
+			onClose: () => setAdvanceModalOpen(false),
+			settings: columnSettings,
+			hideDetailTab: true,
+			onSave: (newSettings) => {
+				setColumnSettings(newSettings);
+				if (typeof window !== "undefined") try {
+					localStorage.setItem("fleet-report-columns-v3", JSON.stringify(newSettings));
+				} catch {}
+				setAdvanceModalOpen(false);
+			}
 		})
 	] });
 }
