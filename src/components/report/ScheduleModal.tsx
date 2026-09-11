@@ -1202,6 +1202,23 @@ export function ScheduleModal({
     }
   };
 
+  const toggleMonthDate = (dateNum: number) => {
+    const current = draft.selectedDates || [1];
+    if (current.includes(dateNum)) {
+      if (current.length > 1) {
+        setDraft((d) => ({
+          ...d,
+          selectedDates: current.filter((x) => x !== dateNum),
+        }));
+      }
+    } else {
+      setDraft((d) => ({
+        ...d,
+        selectedDates: [...current, dateNum].sort((a, b) => a - b),
+      }));
+    }
+  };
+
   const filteredSchedules = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return schedules;
@@ -1520,9 +1537,11 @@ export function ScheduleModal({
                           e.stopPropagation();
                           handleOpenCustomVehicleOverlay();
                         }}
-                        className="text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors"
+                        title="Change vehicle filter"
+                        aria-label="Change vehicle filter"
+                        className="p-1 rounded text-[#0089FF] hover:text-[#0070d6] hover:bg-[#0089FF]/10 cursor-pointer transition-all active:scale-90"
                       >
-                        Change
+                        <Pencil className="h-3.5 w-3.5" />
                       </button>
                     </div>
                     <span className="text-[10px] text-muted-foreground pl-5 leading-tight font-normal">
@@ -1608,54 +1627,35 @@ export function ScheduleModal({
                   </div>
                 )}
 
-                {/* Monthly: Particular Day / Date Selection directly below Relative Type */}
+                {/* Monthly: Day/Date Selection Pills (1 to 31) directly below Relative Type */}
                 {(draft.relativeType === "This Month" ||
                   draft.relativeType === "Last Month" ||
                   draft.scheduleType === "Monthly") && (
-                  <div className="pt-1.5 space-y-2 animate-in fade-in-50 duration-150">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      Select Month Date / Day <span className="text-red-500 font-bold ml-0.5">*</span>
-                    </label>
-                    <SelectDropdown
-                      value={
-                        draft.selectedDates?.[0]
-                          ? draft.selectedDates[0] === 31
-                            ? "Last Day of Month"
-                            : `Day ${draft.selectedDates[0]}`
-                          : "Day 1"
-                      }
-                      options={[
-                        ...Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
-                        "Last Day of Month",
-                      ]}
-                      onChange={(val) => {
-                        const num =
-                          val === "Last Day of Month"
-                            ? 31
-                            : parseInt(val.replace("Day ", ""), 10) || 1;
-                        setDraft((d) => ({ ...d, selectedDates: [num] }));
-                      }}
-                      placeholder="Select Month Date"
-                    />
-
-                    {/* Quick Date Presets */}
-                    <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-                      {[1, 5, 10, 15, 20, 25, 31].map((dateNum) => {
-                        const label = dateNum === 31 ? "Last Day" : `Day ${dateNum}`;
-                        const isSelected = (draft.selectedDates || [1])[0] === dateNum;
+                  <div className="pt-1.5 space-y-1.5 animate-in fade-in-50 duration-150">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[11px] font-semibold text-foreground">
+                        Select Month Date(s) <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <span className="text-[10px] font-medium text-muted-foreground">
+                        {(draft.selectedDates || []).length} selected
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-7 gap-1.5">
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map((dateNum) => {
+                        const isSelected = (draft.selectedDates || []).includes(dateNum);
                         return (
                           <button
                             key={dateNum}
                             type="button"
-                            onClick={() => setDraft((d) => ({ ...d, selectedDates: [dateNum] }))}
+                            onClick={() => toggleMonthDate(dateNum)}
                             className={cn(
-                              "px-2 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer select-none",
+                              "h-7 rounded-md text-xs font-semibold transition-all cursor-pointer select-none flex items-center justify-center",
                               isSelected
                                 ? "bg-[#0089FF] text-white shadow-xs"
                                 : "border border-border/80 bg-background text-foreground hover:bg-muted/60 shadow-2xs",
                             )}
                           >
-                            {label}
+                            {dateNum}
                           </button>
                         );
                       })}
