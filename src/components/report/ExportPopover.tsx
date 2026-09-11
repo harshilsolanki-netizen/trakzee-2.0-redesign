@@ -1,10 +1,15 @@
-import { Download, ChevronDown } from "lucide-react";
+import { Download } from "lucide-react";
 import { useState } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type {
   ExportFormat,
   ExportScope,
@@ -17,13 +22,11 @@ interface ExportPopoverProps {
     scope: ExportScope,
     excelMode?: "single" | "multiple",
   ) => void;
-  label?: string;
   className?: string;
 }
 
 export function ExportPopover({
   onSelect,
-  label = "Download",
   className,
 }: ExportPopoverProps) {
   const [open, setOpen] = useState(false);
@@ -36,21 +39,25 @@ export function ExportPopover({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          aria-label="Download options"
-          className={cn(
-            "inline-flex h-7 items-center gap-1.5 rounded-md border border-border/80 bg-background px-2.5 text-xs font-semibold text-foreground transition-all hover:bg-muted cursor-pointer select-none shadow-2xs active:scale-98",
-            open && "bg-muted border-[#0089FF]/50 ring-2 ring-[#0089FF]/20",
-            className,
-          )}
-        >
-          <Download className="h-3.5 w-3.5 text-muted-foreground" />
-          <span>{label}</span>
-          <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
-        </button>
-      </PopoverTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label="Download options"
+              className={cn(
+                "inline-flex h-7 w-7 items-center justify-center rounded-md border border-border/80 bg-background text-muted-foreground transition-all duration-150 hover:bg-muted hover:text-foreground cursor-pointer select-none shadow-2xs active:scale-95",
+                open &&
+                  "bg-muted border-[#0089FF]/50 ring-2 ring-[#0089FF]/20 text-foreground",
+                className,
+              )}
+            >
+              <Download className="h-3.5 w-3.5" />
+            </button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Download options</TooltipContent>
+      </Tooltip>
 
       <PopoverContent
         align="end"

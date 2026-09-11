@@ -75,7 +75,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { fleetObjects, travelRows, type TravelRow } from "@/data/fleet";
-import { findReport, getVehiclesForBranches } from "@/data/reports";
+import {
+  findReport,
+  getBranchesForCompanies,
+  getVehiclesForBranches,
+} from "@/data/reports";
 import { dailyRowsFor, detailRowsFor, type DailyRow } from "@/data/travelDrill";
 import { downloadReport } from "@/lib/export";
 import { cn } from "@/lib/utils";
@@ -209,7 +213,7 @@ export function ReportPage() {
   const [tabs, setTabs] = useState<ReportTab[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = localStorage.getItem("trakzee_report_tabs_v2");
+        const saved = localStorage.getItem("trakzee_report_tabs_v3");
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -220,13 +224,13 @@ export function ReportPage() {
   });
 
   const [activeTabId, setActiveTabId] = useState<string>(() => {
-    return DEFAULT_REPORT_TABS[0]?.id || "tab-travel";
+    return DEFAULT_REPORT_TABS[0]?.id || "tab-temperature-1";
   });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem("trakzee_report_tabs_v2", JSON.stringify(tabs));
+        localStorage.setItem("trakzee_report_tabs_v3", JSON.stringify(tabs));
       } catch {}
     }
   }, [tabs]);
@@ -783,50 +787,35 @@ export function ReportPage() {
   const isFirstTabActive = tabs.length > 0 && activeTabId === tabs[0].id;
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col p-[10px] overflow-hidden bg-background dark:bg-slate-950">
-      {/* 1. Multi-Report Tab Bar with Inverted Fillet Curves */}
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900">
+      {/* 1. Header Frame: Multi-Report Tab Bar & Quick Filter Bar (Fixed & Unchanged) */}
       <ReportTabStrip
         tabs={tabs}
         activeTabId={activeTabId}
+        level={level}
+        onGoBack={goBack}
         onSelectTab={(tabId) => setActiveTabId(tabId)}
         onCloseTab={handleCloseTab}
         onAddTab={handleAddTab}
         onToggleFavorite={handleToggleFavorite}
       />
 
-      {/* 2. Main Continuous Card (Holds Filter Toolbar + Table with ZERO gap & continuous borders) */}
-      <div
-        className={cn(
-          "relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-b-xl rounded-tr-xl border border-[#DFE3EB] dark:border-slate-800 bg-card dark:bg-slate-900 shadow-sm -mt-[1px]",
-          !isFirstTabActive && "rounded-tl-xl",
-        )}
-      >
-        {/* Top Single-Row Filter & Utilities Toolbar (No corner radius, flush with card) */}
-        <div className="flex h-11 items-center justify-between gap-3 border-b border-[#DFE3EB] dark:border-slate-800 bg-card dark:bg-slate-900 px-3.5 py-1.5 shrink-0 select-none">
-          {/* Left: Breadcrumb Back (if drilled) + Quick Filter Bar */}
-          <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2">
-            {level > 0 && (
-              <button
-                type="button"
-                onClick={goBack}
-                className="inline-flex h-7 items-center gap-1 rounded-md border border-input/80 bg-background px-2 text-xs font-semibold text-foreground hover:bg-muted cursor-pointer transition-all shadow-2xs shrink-0"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" />
-                <span>Back</span>
-              </button>
-            )}
-            <ReportQuickFilterBar
-              filters={filters}
-              onChange={(patch) => {
-                setFilters((prev) => ({ ...prev, ...patch }));
-                load("Filters updated");
-              }}
-              onOpenFilterDrawer={() => setConfigOpen(true)}
-            />
-          </div>
+      {/* Top Single-Row Filter & Utilities Toolbar (Fixed & Centered) */}
+      <div className="flex h-10 items-center justify-between gap-3 bg-white dark:bg-slate-900 px-[10px] mt-[5px] shrink-0 select-none">
+        {/* Left: Quick Filter Bar */}
+        <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2">
+          <ReportQuickFilterBar
+            filters={filters}
+            onChange={(patch) => {
+              setFilters((prev) => ({ ...prev, ...patch }));
+              load("Filters updated");
+            }}
+            onOpenFilterDrawer={() => setConfigOpen(true)}
+          />
+        </div>
 
-          {/* Right: Search, Download, Utilities Icons, Page Size, and Pagination Controls */}
-          <div className="flex items-center gap-2 ml-auto shrink-0">
+        {/* Right: Search, Download, Utilities Icons, Page Size, and Pagination Controls */}
+        <div className="flex items-center gap-2 ml-auto shrink-0">
             {/* 1. Integrated Field-Specific Search Control */}
             <div className="relative flex h-7 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
               <DropdownMenu>
@@ -913,11 +902,9 @@ export function ReportPage() {
               )}
             </div>
 
-            {/* 2. Export / Download Menu */}
-            <ExportPopover onSelect={(f, s, m) => handleExport(f, s, m)} />
-
-            {/* 3. Quick Action Utility Icons */}
+            {/* 2. Quick Action Utility Icons: Download, Schedule, Settings */}
             <div className="flex items-center gap-1">
+              <ExportPopover onSelect={(f, s, m) => handleExport(f, s, m)} />
               <IconButton
                 label="Schedule report"
                 onClick={() => setScheduleOpen(true)}
@@ -1019,10 +1006,13 @@ export function ReportPage() {
               </IconButton>
             </div>
           </div>
-        </div>
+      </div>
 
-        {/* Table Area (Directly connected to toolbar with NO gap) */}
-        <div className="min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth">
+      {/* 2. Separated Content Area with 10px Margin (Left, Right, Bottom) and Balanced Top Gap */}
+      <div className="flex-1 min-h-0 min-w-0 flex flex-col px-[10px] pb-[10px] pt-1.5 overflow-hidden bg-white dark:bg-slate-900">
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 rounded-lg shadow-2xs">
+          {/* Table Area */}
+          <div className="min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth">
           {level === 0 ? (
             <table className="w-full min-w-[1000px] text-xs border-collapse">
               <thead className="sticky top-0 z-20 shadow-xs">
@@ -1216,14 +1206,14 @@ export function ReportPage() {
                               className="flex items-center justify-center w-full min-w-[60px] max-w-[120px] mx-auto py-1"
                               title="Summary Overall Proportion"
                             >
-                              <div className="h-1.5 w-full bg-slate-300 dark:bg-slate-600 rounded-full overflow-hidden flex shadow-2xs">
+                              <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex shadow-2xs">
                                 <div
                                   style={{ width: "75%" }}
-                                  className="bg-emerald-500 h-full"
+                                  className="bg-[#0089FF] h-full"
                                 />
                                 <div
                                   style={{ width: "25%" }}
-                                  className="bg-amber-500 h-full"
+                                  className="bg-[#FF7A00] h-full"
                                 />
                               </div>
                             </div>
@@ -1489,6 +1479,7 @@ export function ReportPage() {
             </span>
           </div>
         ) : null}
+        </div>
       </div>
 
       <ReportConfigPanel
@@ -1826,11 +1817,11 @@ function ReportRow({
               <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex shadow-2xs">
                 <div
                   style={{ width: xPct + "%" }}
-                  className="bg-emerald-500 h-full transition-all duration-300"
+                  className="bg-[#0089FF] h-full transition-all duration-300"
                 />
                 <div
                   style={{ width: yPct + "%" }}
-                  className="bg-amber-500 h-full transition-all duration-300"
+                  className="bg-[#FF7A00] h-full transition-all duration-300"
                 />
               </div>
             </div>

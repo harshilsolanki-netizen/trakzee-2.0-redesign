@@ -891,6 +891,41 @@ const trips = (seed: number): Trip[] =>
     }));
 
 export const travelRows: TravelRow[] = [
+  // Primary Reference Data matching reference image
+  ...Array.from({ length: 10 }, (_, i) => ({
+    id: `ref-mh12dp1616-${i + 1}`,
+    company: "ABC Logistic",
+    branch: "HP Branch 1",
+    group: "HP Group",
+    brand: "Tata Motors",
+    model: "10 Wheel",
+    vehicleNo: "MH12DP1616",
+    vehicleType: "Truck",
+    driver: "EMP-1008",
+    distance: 735.25,
+    running: "12:15:30",
+    idle: "03:05:15",
+    stop: "08:39:15",
+    avgSpeed: 58,
+    maxSpeed: 88,
+    tollCost: 350,
+    alerts: 0,
+    startLocation: "Pune",
+    endLocation: "Mumbai",
+    startOdometer: "128,160",
+    firstIgnitionOn: "07:15 AM",
+    endOdometer: "128,895",
+    lastIgnitionOff: "06:54 PM",
+    duration: "24:00:00",
+    workDuration: "08:00:00",
+    workingDays: 1,
+    maxStoppage: "09:16:00",
+    noOfIdle: 358,
+    overspeedTimes: 0,
+    costDistance: 0,
+    costDuration: 0,
+    trips: trips((i % 3) + 1),
+  })),
   // 1. HP Branch 1 (HP Company / ABC Logistic)
   {
     id: "t1",

@@ -1030,7 +1030,7 @@ export function ReportQuickFilterBar({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-2 text-xs text-muted-foreground",
+        "flex items-center gap-2 text-xs text-muted-foreground shrink-0",
         className,
       )}
     >
@@ -1040,7 +1040,7 @@ export function ReportQuickFilterBar({
           <button
             type="button"
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer select-none hover:bg-muted/70",
+              "inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold transition-all cursor-pointer select-none hover:bg-muted/70",
               dateOpen
                 ? "bg-[#0089FF]/10 text-[#0089FF] ring-1 ring-[#0089FF]/30"
                 : "text-[#0089FF] hover:text-[#0089FF]",
@@ -1220,7 +1220,7 @@ export function ReportQuickFilterBar({
           <button
             type="button"
             className={cn(
-              "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+              "inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
               companyOpen && "bg-muted font-semibold",
             )}
           >
@@ -1342,7 +1342,7 @@ export function ReportQuickFilterBar({
           <button
             type="button"
             className={cn(
-              "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+              "inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
               branchOpen && "bg-muted font-semibold",
             )}
           >
@@ -1464,7 +1464,7 @@ export function ReportQuickFilterBar({
           <button
             type="button"
             className={cn(
-              "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+              "inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
               vehicleOpen && "bg-muted font-semibold",
             )}
           >
@@ -1652,7 +1652,7 @@ export function ReportQuickFilterBar({
         type="button"
         onClick={onOpenFilterDrawer}
         aria-label="Open Filter Drawer"
-        className="inline-flex items-center gap-1.5 rounded-md bg-[#0089FF]/10 border border-[#0089FF]/30 px-2.5 py-1 text-xs font-semibold text-[#0089FF] hover:bg-[#0089FF]/20 transition-all cursor-pointer select-none shadow-2xs active:scale-98"
+        className="inline-flex h-7 items-center gap-1.5 rounded-md bg-[#0089FF]/10 border border-[#0089FF]/30 px-2.5 text-xs font-semibold text-[#0089FF] hover:bg-[#0089FF]/20 transition-all cursor-pointer select-none shadow-2xs active:scale-98"
       >
         <SlidersHorizontal className="h-3 w-3 text-[#0089FF]" />
         <span>Filter</span>
