@@ -1257,6 +1257,16 @@ export function ScheduleModal({
         {/* Standardized 56px Header */}
         <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
           <div className="flex items-center gap-2 min-w-0">
+            {view === "form" && (
+              <button
+                type="button"
+                onClick={() => setView("list")}
+                className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer mr-0.5"
+                title="Back to scheduled reports list"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+            )}
             <h2 className="text-[16px] font-semibold tracking-tight text-foreground truncate">
               {view === "list"
                 ? "Scheduled Reports"
@@ -1406,18 +1416,11 @@ export function ScheduleModal({
             </div>
 
             {/* List Footer (56px) */}
-            <footer className="flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0">
-              <button
-                type="button"
-                onClick={onClose}
-                className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98"
-              >
-                Close
-              </button>
+            <footer className="flex h-[56px] items-center justify-end border-t border-border px-5 bg-background select-none shrink-0">
               <button
                 type="button"
                 onClick={startCreate}
-                className="h-8 rounded-md bg-[#0089FF] px-4 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98 flex items-center gap-1.5"
+                className="h-8 rounded-md bg-[#0089FF] px-4.5 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98 flex items-center gap-1.5"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>New Schedule</span>
@@ -2159,17 +2162,18 @@ export function ScheduleModal({
             <footer className="flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0">
               <button
                 type="button"
-                onClick={onClose}
-                className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98"
+                onClick={() => setView("list")}
+                className="h-8 rounded-md border border-input/80 bg-background px-3.5 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98 flex items-center gap-1.5"
               >
-                Close
+                <ArrowLeft className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>Back</span>
               </button>
               <button
                 type="button"
                 onClick={handleSave}
                 className="h-8 rounded-md bg-[#0089FF] px-6 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98"
               >
-                Schedule
+                {editingId ? "Update" : "Schedule"}
               </button>
             </footer>
           </div>
