@@ -1,1 +1,0 @@
-import{r as e}from"./utils-BDRr8poQ.js";import{t}from"./ZioPanel-CiiFmgWq.js";var n=e();function r(){return(0,n.jsx)(`div`,{className:`flex h-full min-h-[calc(100vh-3.5rem)] w-full flex-col bg-background`,children:(0,n.jsx)(t,{mode:`fullscreen`})})}export{r as component};

@@ -18,6 +18,8 @@ dist-ssr
 .wrangler
 .vinxi
 .tanstack
+.vercel
+
 
 # Editor directories and files
 .vscode/*
