@@ -1183,7 +1183,8 @@ export function ScheduleModal({
       toast.success("Schedule report created successfully");
     }
 
-    onClose();
+    setEditingId(null);
+    setView("list");
   };
 
   const handleDelete = (id: string) => {
@@ -1275,17 +1276,6 @@ export function ScheduleModal({
             )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            {view === "list" && (
-              <button
-                type="button"
-                onClick={startCreate}
-                className="px-2 py-1 text-xs font-semibold text-[#0089FF] hover:bg-muted rounded-md transition-colors cursor-pointer flex items-center gap-1"
-                title="Create New Schedule"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span>New</span>
-              </button>
-            )}
             <button
               type="button"
               aria-label="Close scheduled reports panel"
@@ -1297,7 +1287,7 @@ export function ScheduleModal({
           </div>
         </header>
 
-        {/* View 1: Saved Schedule List View */}
+        {/* View 1: Saved Schedule List View matching Application Design System */}
         {view === "list" ? (
           <div className="flex flex-1 min-h-0 flex-col bg-background">
             {/* Search Bar */}
@@ -1323,82 +1313,80 @@ export function ScheduleModal({
               </div>
             </div>
 
-            {/* List Body */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            {/* List Body without heavy cards, clean divided rows matching Design System */}
+            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-border/60 custom-scrollbar">
               {filteredSchedules.map((item) => {
                 const iconScheme = getScheduleIconScheme(item);
                 return (
                   <div
                     key={item.id}
-                    className="group relative rounded-xl border border-border/80 bg-card p-3.5 shadow-2xs hover:border-[#0089FF]/50 hover:shadow-md transition-all duration-200"
+                    className="p-4 hover:bg-muted/30 transition-colors group flex items-start justify-between gap-3"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3 min-w-0 flex-1">
-                        <div
-                          className={cn(
-                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border",
-                            iconScheme.badgeBg,
-                            iconScheme.borderColor,
-                            iconScheme.iconColor,
-                          )}
-                        >
-                          {iconScheme.icon}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-xs font-semibold text-foreground truncate">
-                              {item.name}
-                            </h4>
-                            <span
-                              className={cn(
-                                "px-1.5 py-0.2 rounded-full text-[9px] font-bold tracking-wide uppercase shrink-0",
-                                item.status === "ACTIVE"
-                                  ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
-                                  : "bg-muted text-muted-foreground",
-                              )}
-                            >
-                              {item.status}
-                            </span>
-                          </div>
-                          <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
-                            {formatRecurrence(item)} · {item.relativeType} · {item.generationTime}
-                          </p>
-                          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px]">
-                            <span className="px-1.5 py-0.5 rounded bg-muted font-medium text-foreground">
-                              {item.format}
-                            </span>
-                            <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-[#0089FF] font-medium border border-blue-500/20">
-                              {item.actionType}
-                            </span>
-                            {item.toAddress && (
-                              <span className="px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground truncate max-w-[130px]">
-                                {item.toAddress}
-                              </span>
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                      <div
+                        className={cn(
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border",
+                          iconScheme.badgeBg,
+                          iconScheme.borderColor,
+                          iconScheme.iconColor,
+                        )}
+                      >
+                        {iconScheme.icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xs font-semibold text-foreground truncate">
+                            {item.name}
+                          </h4>
+                          <span
+                            className={cn(
+                              "px-1.5 py-0.2 rounded-full text-[9px] font-bold tracking-wide uppercase shrink-0",
+                              item.status === "ACTIVE"
+                                ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                                : "bg-muted text-muted-foreground",
                             )}
-                            <span className="px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground">
-                              {item.vehicleScope === "custom"
-                                ? `${item.selectedVehicles.length} custom vehicles`
-                                : "Report active vehicles"}
+                          >
+                            {item.status}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground truncate font-normal">
+                          {formatRecurrence(item)} · {item.relativeType} · {item.generationTime}
+                        </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px]">
+                          <span className="px-1.5 py-0.5 rounded bg-muted font-medium text-foreground">
+                            {item.format}
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-[#0089FF]/10 text-[#0089FF] font-medium border border-[#0089FF]/20">
+                            {item.actionType}
+                          </span>
+                          {item.toAddress && (
+                            <span className="px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground truncate max-w-[130px]">
+                              {item.toAddress}
                             </span>
-                          </div>
+                          )}
+                          <span className="px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground">
+                            {item.vehicleScope === "custom"
+                              ? `${item.selectedVehicles.length} custom vehicles`
+                              : "Report active vehicles"}
+                          </span>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => startEdit(item)}
-                          className="h-[30px] w-[30px] rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-[#0089FF] hover:border-[#0089FF]/60 hover:bg-muted/40 transition-all cursor-pointer shadow-2xs active:scale-95"
-                          title="Edit schedule"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        <RowDeletePopover
-                          itemName={item.name}
-                          onDelete={() => handleDelete(item.id)}
-                        />
-                      </div>
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(item)}
+                        className="h-7 w-7 rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-[#0089FF] hover:border-[#0089FF]/60 hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-95"
+                        title="Edit schedule"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <RowDeletePopover
+                        itemName={item.name}
+                        onDelete={() => handleDelete(item.id)}
+                      />
                     </div>
                   </div>
                 );
