@@ -11,7 +11,7 @@ import { i as TooltipTrigger, n as TooltipContent, r as TooltipProvider, t as To
 import { i as PopoverTrigger, n as Popover, r as PopoverContent } from "./store-Butx-LES.mjs";
 import { t as FavoriteToggle } from "./FavoritesMenu-B-DFHG3-.mjs";
 import { d as travelRows, o as fleetObjects } from "./fleet-D1U--QMf.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/report-B0NjpI6g.js
+//#region node_modules/.nitro/vite/services/ssr/assets/report-LxVP8u0A.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ExportPopover({ onSelect, label = "Download", className }) {
@@ -2464,13 +2464,41 @@ var INITIAL_SCHEDULES = [{
 	]
 }];
 var RELATIVE_TYPES = [
-	"Today",
-	"Yesterday",
-	"This Week",
-	"Last Week",
-	"Last 7 Days",
-	"This Month",
-	"Last Month"
+	{
+		label: "Today",
+		value: "Today",
+		description: "Current day from 12:00 AM until now"
+	},
+	{
+		label: "Yesterday",
+		value: "Yesterday",
+		description: "Previous calendar day"
+	},
+	{
+		label: "Last 7 Days",
+		value: "Last 7 Days",
+		description: "Previous 7 days including today"
+	},
+	{
+		label: "This Week",
+		value: "This Week",
+		description: "Current week from Monday until today"
+	},
+	{
+		label: "Last Week",
+		value: "Last Week",
+		description: "Previous complete week (Monday to Sunday)"
+	},
+	{
+		label: "This Month",
+		value: "This Month",
+		description: "Current month from the 1st day until today"
+	},
+	{
+		label: "Last Month",
+		value: "Last Month",
+		description: "Previous complete month"
+	}
 ];
 var TIMEZONES = [
 	"Asia/Kolkata (UTC+05:30)",
@@ -2611,31 +2639,49 @@ function SelectDropdown({ value, options, onChange, className, placeholder }) {
 		if (open) document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, [open]);
+	const selectedOption = options.find((opt) => {
+		if (typeof opt === "object") return (opt.value ?? opt.label) === value || opt.label === value;
+		return opt === value;
+	});
+	const displayLabel = selectedOption ? typeof selectedOption === "object" ? selectedOption.label : selectedOption : value || placeholder || "Select";
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 		ref,
 		className: cn("relative w-full", className),
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 			type: "button",
 			onClick: () => setOpen(!open),
-			className: cn("flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
+			className: cn("flex h-9 w-full items-center justify-between rounded-md border border-input/80 bg-background px-3 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none font-normal", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-				className: cn("truncate", value ? "text-foreground font-medium" : "text-muted-foreground/60 font-medium italic"),
-				children: value || placeholder || "Select"
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: cn("h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1", open && "rotate-180") })]
+				className: cn("truncate", value ? "text-foreground font-medium" : "text-muted-foreground/60 font-normal italic"),
+				children: displayLabel
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: cn("h-4 w-4 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1.5", open && "rotate-180") })]
 		}), open && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			className: "absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar",
-			children: options.map((opt) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-				type: "button",
-				onClick: () => {
-					onChange(opt);
-					setOpen(false);
-				},
-				className: cn("flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none", value === opt ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-medium"),
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "truncate",
-					children: opt
-				}), value === opt && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-3.5 w-3.5 text-[#0089FF] shrink-0" })]
-			}, opt))
+			className: "absolute top-full left-0 right-0 z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar",
+			children: options.map((opt) => {
+				const isObj = typeof opt === "object";
+				const optLabel = isObj ? opt.label : opt;
+				const optVal = isObj ? opt.value ?? opt.label : opt;
+				const optDesc = isObj ? opt.description : void 0;
+				const isSelected = value === optVal || value === optLabel;
+				return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+					type: "button",
+					onClick: () => {
+						onChange(optVal);
+						setOpen(false);
+					},
+					className: cn("flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-colors cursor-pointer select-none", isSelected ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 font-normal"),
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex flex-col min-w-0 pr-2",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							className: cn("text-xs leading-tight truncate", isSelected ? "font-semibold text-foreground" : "font-medium text-foreground"),
+							children: optLabel
+						}), optDesc && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							className: "text-[11px] leading-snug text-muted-foreground mt-0.5 font-normal",
+							children: optDesc
+						})]
+					}), isSelected && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-4 w-4 text-[#0089FF] shrink-0 ml-1" })]
+				}, optVal);
+			})
 		})]
 	});
 }
@@ -2677,25 +2723,25 @@ function UniversalMultiSelectDropdown({ label, selected, options, onChange, clas
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 			type: "button",
 			onClick: () => setOpen(!open),
-			className: cn("flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
+			className: cn("flex h-9 w-full items-center justify-between rounded-md border border-input/80 bg-background px-3 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none font-normal", open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40"),
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 				className: "flex items-center min-w-0 flex-1 overflow-hidden",
 				children: !selected || selected.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "text-muted-foreground/60 font-medium italic truncate",
+					className: "text-muted-foreground/60 font-normal italic truncate",
 					children: placeholder || `Select ${label}`
 				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 					className: "text-foreground font-medium truncate",
 					children: selected[0]
 				}), selected.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-					className: "ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0",
+					className: "ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0",
 					children: ["+", selected.length - 1]
 				})] })
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: cn("h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1", open && "rotate-180") })]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: cn("h-4 w-4 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1.5", open && "rotate-180") })]
 		}), open && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "absolute top-full left-0 right-0 z-50 mt-1 w-full rounded-xl border border-border/80 bg-popover/95 backdrop-blur-md shadow-2xl animate-in fade-in-0 zoom-in-95 select-none overflow-hidden flex flex-col",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "p-2.5 pb-2 border-b border-border/60 bg-muted/20 space-y-2",
+					className: "p-3 pb-2.5 border-b border-border/60 bg-muted/20 space-y-2",
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "flex items-center justify-between",
@@ -3263,7 +3309,8 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 			setSchedules((prev) => [...prev, payload]);
 			toast.success("Schedule report created successfully");
 		}
-		onClose();
+		setEditingId(null);
+		setView("list");
 	};
 	const handleDelete = (id) => {
 		setSchedules((prev) => prev.filter((s) => s.id !== id));
@@ -3281,6 +3328,18 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 			selectedDays: [...current, dayId]
 		}));
 	};
+	const toggleMonthDate = (dateNum) => {
+		const current = draft.selectedDates || [1];
+		if (current.includes(dateNum)) {
+			if (current.length > 1) setDraft((d) => ({
+				...d,
+				selectedDates: current.filter((x) => x !== dateNum)
+			}));
+		} else setDraft((d) => ({
+			...d,
+			selectedDates: [...current, dateNum].sort((a, b) => a - b)
+		}));
+	};
 	const filteredSchedules = (0, import_react.useMemo)(() => {
 		const q = searchQuery.trim().toLowerCase();
 		if (!q) return schedules;
@@ -3296,144 +3355,107 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", {
 			"aria-hidden": !open,
 			"aria-label": "Scheduled Reports",
-			className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
+			className: cn("fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[480px] xl:max-w-[500px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden", open ? "translate-x-0" : "pointer-events-none translate-x-full"),
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-					className: "flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0",
+					className: "flex h-[56px] items-center justify-between border-b border-border px-6 bg-background select-none shrink-0",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "flex items-center gap-2 min-w-0",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-							className: "text-[16px] font-semibold tracking-tight text-foreground truncate",
-							children: view === "list" ? "Scheduled Reports" : editingId ? "Edit Schedule Report" : "Schedule Report"
-						}), schedules.length > 0 && view === "form" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+						children: [view === "form" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
 							onClick: () => setView("list"),
-							className: "px-2 py-0.5 text-[11px] font-semibold text-[#0089FF] bg-[#0089FF]/10 hover:bg-[#0089FF]/20 rounded-md transition-colors cursor-pointer shrink-0",
-							title: "View saved scheduled reports",
-							children: [
-								"Saved (",
-								schedules.length,
-								")"
-							]
+							className: "rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer mr-0.5",
+							title: "Back to scheduled reports list",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, { className: "h-4 w-4" })
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+							className: "text-[16px] font-semibold tracking-tight text-foreground truncate",
+							children: view === "list" ? "Scheduled Reports" : editingId ? "Edit Schedule Report" : "Schedule Report"
 						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 						className: "flex items-center gap-1 shrink-0",
-						children: [view === "list" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-							type: "button",
-							onClick: startCreate,
-							className: "px-2 py-1 text-xs font-semibold text-[#0089FF] hover:bg-muted rounded-md transition-colors cursor-pointer flex items-center gap-1",
-							title: "Create New Schedule",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "New" })]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
 							"aria-label": "Close scheduled reports panel",
 							onClick: onClose,
 							className: "rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" })
-						})]
+						})
 					})]
 				}),
 				view === "list" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "flex flex-1 min-h-0 flex-col bg-background",
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "p-3 border-b border-border bg-muted/20 shrink-0",
+							className: "p-4 border-b border-border bg-muted/20 shrink-0",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all",
+								className: "flex h-9 items-center gap-2 rounded-md border border-input/80 bg-background px-3 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all",
 								children: [
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-3.5 w-3.5 text-muted-foreground shrink-0" }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "h-4 w-4 text-muted-foreground shrink-0" }),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 										type: "text",
 										value: searchQuery,
 										onChange: (e) => setSearchQuery(e.target.value),
 										placeholder: "Search schedules...",
-										className: "h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
+										className: "h-full flex-1 bg-transparent text-xs font-normal text-foreground placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
 									}),
 									searchQuery && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 										type: "button",
 										onClick: () => setSearchQuery(""),
 										className: "text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded",
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3 w-3" })
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-3.5 w-3.5" })
 									})
 								]
 							})
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-3 custom-scrollbar",
+							className: "flex-1 min-h-0 overflow-y-auto divide-y divide-border/60 custom-scrollbar",
 							children: [filteredSchedules.map((item) => {
 								const iconScheme = getScheduleIconScheme(item);
-								return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "group relative rounded-xl border border-border/80 bg-card p-3.5 shadow-2xs hover:border-[#0089FF]/50 hover:shadow-md transition-all duration-200",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "flex items-start justify-between gap-3",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-start gap-3 min-w-0 flex-1",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-												className: cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border", iconScheme.badgeBg, iconScheme.borderColor, iconScheme.iconColor),
-												children: iconScheme.icon
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "min-w-0 flex-1",
+								return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "p-4 hover:bg-muted/30 transition-colors group flex items-start justify-between gap-3",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-start gap-3 min-w-0 flex-1",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border", iconScheme.badgeBg, iconScheme.borderColor, iconScheme.iconColor),
+											children: iconScheme.icon
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "min-w-0 flex-1",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "flex items-center gap-2",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", {
+													className: "text-xs font-semibold text-foreground truncate",
+													children: item.name
+												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: cn("px-1.5 py-0.2 rounded-full text-[9px] font-bold tracking-wide uppercase shrink-0", item.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" : "bg-muted text-muted-foreground"),
+													children: item.status
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+												className: "mt-0.5 text-xs text-muted-foreground truncate font-normal",
 												children: [
-													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-														className: "flex items-center gap-2",
-														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", {
-															className: "text-xs font-semibold text-foreground truncate",
-															children: item.name
-														}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-															className: cn("px-1.5 py-0.2 rounded-full text-[9px] font-bold tracking-wide uppercase shrink-0", item.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" : "bg-muted text-muted-foreground"),
-															children: item.status
-														})]
-													}),
-													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-														className: "mt-0.5 text-[11px] text-muted-foreground truncate",
-														children: [
-															formatRecurrence(item),
-															" · ",
-															item.relativeType,
-															" · ",
-															item.generationTime
-														]
-													}),
-													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-														className: "mt-2 flex flex-wrap items-center gap-1.5 text-[10px]",
-														children: [
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "px-1.5 py-0.5 rounded bg-muted font-medium text-foreground",
-																children: item.format
-															}),
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "px-1.5 py-0.5 rounded bg-blue-500/10 text-[#0089FF] font-medium border border-blue-500/20",
-																children: item.actionType
-															}),
-															item.toAddress && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground truncate max-w-[130px]",
-																children: item.toAddress
-															}),
-															/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-																className: "px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground",
-																children: item.vehicleScope === "custom" ? `${item.selectedVehicles.length} custom vehicles` : "Report active vehicles"
-															})
-														]
-													})
+													formatRecurrence(item),
+													" · ",
+													item.relativeType,
+													" · ",
+													item.generationTime
 												]
 											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center gap-1 shrink-0",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-												type: "button",
-												onClick: () => startEdit(item),
-												className: "h-[30px] w-[30px] rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-[#0089FF] hover:border-[#0089FF]/60 hover:bg-muted/40 transition-all cursor-pointer shadow-2xs active:scale-95",
-												title: "Edit schedule",
-												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pencil, { className: "h-3.5 w-3.5" })
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RowDeletePopover, {
-												itemName: item.name,
-												onDelete: () => handleDelete(item.id)
-											})]
 										})]
-									})
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex items-center gap-1 shrink-0",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											onClick: () => startEdit(item),
+											className: "h-8 w-8 rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-[#0089FF] hover:border-[#0089FF]/60 hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-95",
+											title: "Edit schedule",
+											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pencil, { className: "h-3.5 w-3.5" })
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RowDeletePopover, {
+											itemName: item.name,
+											onDelete: () => handleDelete(item.id)
+										})]
+									})]
 								}, item.id);
 							}), filteredSchedules.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex flex-col items-center justify-center py-12 text-center text-muted-foreground",
+								className: "flex flex-col items-center justify-center py-14 text-center text-muted-foreground",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FileSpreadsheet, { className: "h-10 w-10 text-muted-foreground/40 mb-2" }),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
@@ -3441,37 +3463,32 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 										children: "No scheduled reports found"
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-										className: "text-[11px] text-muted-foreground mt-0.5",
+										className: "text-xs text-muted-foreground mt-0.5",
 										children: "Create a new schedule to automate delivery"
 									})
 								]
 							})]
 						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-							className: "flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: onClose,
-								className: "h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98",
-								children: "Close"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("footer", {
+							className: "flex h-[60px] items-center justify-end border-t border-border px-6 bg-background select-none shrink-0",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 								type: "button",
 								onClick: startCreate,
-								className: "h-8 rounded-md bg-[#0089FF] px-4 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98 flex items-center gap-1.5",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "New Schedule" })]
-							})]
+								className: "h-9 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98 flex items-center gap-1.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "h-4 w-4" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "New Schedule" })]
+							})
 						})
 					]
 				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					className: "flex flex-1 min-h-0 flex-col bg-background",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar",
+						className: "flex-1 min-h-0 overflow-y-auto p-6 space-y-5 custom-scrollbar",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
+								className: "space-y-1.5",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
+										className: "block text-xs font-semibold text-foreground",
 										children: ["Report Name ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 											className: "text-red-500 font-bold ml-0.5",
 											children: "*"
@@ -3491,87 +3508,106 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 											}));
 										},
 										placeholder: "e.g. Travel Summary Schedule",
-										className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.name ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+										className: cn("h-9 w-full rounded-md border bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.name ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 									}),
 									errors.name && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-										className: "text-[10px] text-red-500 font-medium",
+										className: "text-[11px] text-red-500 font-medium",
 										children: errors.name
 									})
 								]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1.5 rounded-xl border border-border/80 bg-card p-3 shadow-2xs",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "flex items-center justify-between",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: "Vehicles to Include"
-									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full",
-										children: vehicleFilterMode === "current" ? `${currentLoadedVehicleIds.length} Loaded Vehicles` : `${draft.selectedVehicles.length || customFilteredVehicleIds.length} Custom Selected`
+								className: "space-y-1.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "block text-xs font-semibold text-foreground",
+									children: ["File Format ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-red-500 font-bold ml-0.5",
+										children: "*"
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "grid grid-cols-3 gap-2.5",
+									children: [
+										"XLS",
+										"PDF",
+										"CSV"
+									].map((fmt) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										onClick: () => setDraft((d) => ({
+											...d,
+											format: fmt
+										})),
+										className: cn("flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9", draft.format === fmt ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold" : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "fileFormat",
+											checked: draft.format === fmt,
+											onChange: () => setDraft((d) => ({
+												...d,
+												format: fmt
+											})),
+											className: "accent-[#0089FF] h-4 w-4 cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-xs leading-tight",
+											children: fmt
+										})]
+									}, fmt))
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "block text-xs font-semibold text-foreground",
+									children: ["Report Content ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-red-500 font-bold ml-0.5",
+										children: "*"
 									})]
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "grid grid-cols-2 gap-2 pt-1",
+									className: "grid grid-cols-2 gap-2.5",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 										onClick: () => setVehicleFilterMode("current"),
-										className: cn("flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left", vehicleFilterMode === "current" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30" : "border-border/80 bg-background hover:bg-muted/40 hover:border-border"),
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center gap-2",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-												type: "radio",
-												name: "vehicleScope",
-												checked: vehicleFilterMode === "current",
-												onChange: () => setVehicleFilterMode("current"),
-												className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "text-xs font-semibold text-foreground leading-tight",
-												children: "Current Filter"
-											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-											className: "text-[10px] text-muted-foreground pl-5 leading-tight font-normal",
-											children: [
-												"Use loaded vehicles (",
-												currentLoadedVehicleIds.length,
-												")"
-											]
+										className: cn("flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9", vehicleFilterMode === "current" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold" : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "vehicleScope",
+											checked: vehicleFilterMode === "current",
+											onChange: () => setVehicleFilterMode("current"),
+											className: "accent-[#0089FF] h-4 w-4 cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-xs leading-tight truncate",
+											children: "Current Filter"
 										})]
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 										onClick: () => setVehicleFilterMode("custom"),
-										className: cn("flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left relative", vehicleFilterMode === "custom" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30" : "border-border/80 bg-background hover:bg-muted/40 hover:border-border"),
+										className: cn("flex items-center justify-between rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9 relative", vehicleFilterMode === "custom" ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold" : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium"),
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "flex items-center justify-between",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-2",
-												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-													type: "radio",
-													name: "vehicleScope",
-													checked: vehicleFilterMode === "custom",
-													onChange: () => setVehicleFilterMode("custom"),
-													className: "accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-													className: "text-xs font-semibold text-foreground leading-tight",
-													children: "Custom Filter"
-												})]
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-												type: "button",
-												onClick: (e) => {
-													e.stopPropagation();
-													handleOpenCustomVehicleOverlay();
-												},
-												className: "text-[11px] font-semibold text-[#0089FF] hover:text-[#0070d6] hover:underline cursor-pointer transition-colors",
-												children: "Change"
+											className: "flex items-center gap-2.5 min-w-0",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "radio",
+												name: "vehicleScope",
+												checked: vehicleFilterMode === "custom",
+												onChange: () => setVehicleFilterMode("custom"),
+												className: "accent-[#0089FF] h-4 w-4 cursor-pointer"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "text-xs leading-tight truncate",
+												children: "Custom Filter"
 											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											className: "text-[10px] text-muted-foreground pl-5 leading-tight font-normal",
-											children: draft.selectedVehicles.length > 0 ? `${draft.selectedVehicles.length} vehicles` : `${customFilteredVehicleIds.length} vehicles`
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											onClick: (e) => {
+												e.stopPropagation();
+												handleOpenCustomVehicleOverlay();
+											},
+											title: "Change vehicle filter",
+											"aria-label": "Change vehicle filter",
+											className: "p-1 rounded text-[#0089FF] hover:text-[#0070d6] hover:bg-[#0089FF]/10 cursor-pointer transition-all active:scale-90 shrink-0",
+											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pencil, { className: "h-3.5 w-3.5" })
 										})]
 									})]
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
+								className: "space-y-1.5",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-									className: "block text-[11px] font-semibold text-foreground",
+									className: "block text-xs font-semibold text-foreground",
 									children: "Copy From"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
 									value: "None",
@@ -3581,106 +3617,85 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "block text-[11px] font-semibold text-foreground",
-									children: ["Relative Type ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-red-500 font-bold ml-0.5",
-										children: "*"
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-									value: draft.relativeType,
-									options: RELATIVE_TYPES,
-									onChange: (relativeType) => setDraft((d) => ({
-										...d,
-										relativeType
-									})),
-									placeholder: "Select Relative Type"
-								})]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "block text-[11px] font-semibold text-foreground",
-									children: ["Timezone ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-red-500 font-bold ml-0.5",
-										children: "*"
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-									value: draft.timezone,
-									options: TIMEZONES,
-									onChange: (timezone) => setDraft((d) => ({
-										...d,
-										timezone
-									})),
-									placeholder: "Select Timezone"
-								})]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
+								className: "space-y-1.5",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
-										children: ["Frequency ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "block text-xs font-semibold text-foreground",
+										children: ["Relative Type ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 											className: "text-red-500 font-bold ml-0.5",
 											children: "*"
 										})]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-										value: draft.scheduleType,
-										options: [
-											"Daily",
-											"Weekly",
-											"Monthly"
-										],
-										onChange: (val) => setDraft((d) => ({
-											...d,
-											scheduleType: val
-										})),
-										placeholder: "Select Frequency"
+										value: draft.relativeType,
+										options: RELATIVE_TYPES,
+										onChange: (relativeType) => {
+											let nextScheduleType = draft.scheduleType;
+											if (relativeType === "This Week" || relativeType === "Last Week") nextScheduleType = "Weekly";
+											else if (relativeType === "This Month" || relativeType === "Last Month") nextScheduleType = "Monthly";
+											else if (relativeType === "Today" || relativeType === "Yesterday" || relativeType === "Last 7 Days") nextScheduleType = "Daily";
+											setDraft((d) => ({
+												...d,
+												relativeType,
+												scheduleType: nextScheduleType
+											}));
+										},
+										placeholder: "Select Relative Type"
 									}),
-									draft.scheduleType === "Weekly" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "pt-1.5 animate-in fade-in-50 duration-150",
-										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[10px] font-medium text-muted-foreground mb-1",
-											children: "Repeat on days"
+									(draft.relativeType === "This Week" || draft.relativeType === "Last Week" || draft.scheduleType === "Weekly") && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "pt-2 space-y-1.5 animate-in fade-in-50 duration-150",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+											className: "block text-xs font-semibold text-foreground",
+											children: ["Select Day(s) of Week ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "text-red-500 font-bold ml-0.5",
+												children: "*"
+											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											className: "flex items-center gap-1.5",
+											className: "flex items-center gap-2 flex-wrap",
 											children: WEEK_DAYS.map((day) => {
 												const isSelected = (draft.selectedDays || []).includes(day.id);
 												return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 													type: "button",
 													onClick: () => toggleDayOfWeek(day.id),
-													className: cn("h-7 w-7 rounded-md text-xs font-semibold transition-all cursor-pointer select-none", isSelected ? "bg-[#0089FF] text-white shadow-xs" : "border border-border/80 bg-background text-foreground hover:bg-muted/60 shadow-2xs"),
+													className: cn("h-8.5 w-8.5 rounded-md text-xs font-semibold transition-all cursor-pointer select-none flex items-center justify-center", isSelected ? "bg-[#0089FF] text-white shadow-xs" : "border border-border/80 bg-background text-foreground hover:bg-muted/60 shadow-2xs"),
 													children: day.label
 												}, day.id);
+											})
+										})]
+									}),
+									(draft.relativeType === "This Month" || draft.relativeType === "Last Month" || draft.scheduleType === "Monthly") && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "pt-2 space-y-1.5 animate-in fade-in-50 duration-150",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "flex items-center justify-between",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+												className: "block text-xs font-semibold text-foreground",
+												children: ["Select Month Date(s) ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "text-red-500 font-bold ml-0.5",
+													children: "*"
+												})]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+												className: "text-xs font-medium text-muted-foreground",
+												children: [(draft.selectedDates || []).length, " selected"]
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: "grid grid-cols-7 gap-1.5",
+											children: Array.from({ length: 31 }, (_, i) => i + 1).map((dateNum) => {
+												const isSelected = (draft.selectedDates || []).includes(dateNum);
+												return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+													type: "button",
+													onClick: () => toggleMonthDate(dateNum),
+													className: cn("h-8.5 rounded-md text-xs font-semibold transition-all cursor-pointer select-none flex items-center justify-center", isSelected ? "bg-[#0089FF] text-white shadow-xs" : "border border-border/80 bg-background text-foreground hover:bg-muted/60 shadow-2xs"),
+													children: dateNum
+												}, dateNum);
 											})
 										})]
 									})
 								]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
+								className: "space-y-2 pt-1 pb-1",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "block text-[11px] font-semibold text-foreground",
-									children: ["Generation Time ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-red-500 font-bold ml-0.5",
-										children: "*"
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-									value: draft.generationTime,
-									options: GENERATION_TIMES,
-									onChange: (generationTime) => setDraft((d) => ({
-										...d,
-										generationTime
-									})),
-									placeholder: "Select Generation Time"
-								})]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-2 pt-0.5 pb-0.5",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground select-none",
+									className: "flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-foreground select-none",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 										type: "checkbox",
 										checked: draft.hasTimeRange,
@@ -3688,14 +3703,14 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 											...d,
 											hasTimeRange: e.target.checked
 										})),
-										className: "rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+										className: "rounded border-input text-[#0089FF] cursor-pointer h-4 w-4 accent-[#0089FF]"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Time Range" })]
 								}), draft.hasTimeRange && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "grid grid-cols-2 gap-3 pt-0.5 animate-in fade-in-50 duration-150",
+									className: "grid grid-cols-2 gap-3.5 pt-1 animate-in fade-in-50 duration-150",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
+										className: "space-y-1.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
+											className: "block text-xs font-semibold text-foreground",
 											children: "Start Time"
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
 											value: draft.timeRangeStart || "12:00 AM",
@@ -3707,9 +3722,9 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 											placeholder: "Start Time"
 										})]
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
+										className: "space-y-1.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
+											className: "block text-xs font-semibold text-foreground",
 											children: "End Time"
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
 											value: draft.timeRangeEnd || "11:59 PM",
@@ -3724,81 +3739,125 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
+								className: "grid grid-cols-2 gap-3.5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "space-y-1.5",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "block text-xs font-semibold text-foreground",
+										children: ["Timezone ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-red-500 font-bold ml-0.5",
+											children: "*"
+										})]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+										value: draft.timezone,
+										options: TIMEZONES,
+										onChange: (timezone) => setDraft((d) => ({
+											...d,
+											timezone
+										})),
+										placeholder: "Select Timezone"
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "space-y-1.5",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "block text-xs font-semibold text-foreground",
+										children: ["Generation Time ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-red-500 font-bold ml-0.5",
+											children: "*"
+										})]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
+										value: draft.generationTime,
+										options: GENERATION_TIMES,
+										onChange: (generationTime) => setDraft((d) => ({
+											...d,
+											generationTime
+										})),
+										placeholder: "Select Generation Time"
+									})]
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "space-y-1.5",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "block text-[11px] font-semibold text-foreground",
+									className: "block text-xs font-semibold text-foreground",
 									children: ["Report Type ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 										className: "text-red-500 font-bold ml-0.5",
 										children: "*"
 									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-									value: draft.reportType,
-									options: [
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "grid grid-cols-3 gap-2.5",
+									children: [
 										"Summary",
 										"Daily",
 										"Detail"
-									],
-									onChange: (val) => setDraft((d) => ({
-										...d,
-										reportType: val
-									})),
-									placeholder: "Select Report Type"
+									].map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										onClick: () => setDraft((d) => ({
+											...d,
+											reportType: t
+										})),
+										className: cn("flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9", draft.reportType === t ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold" : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "reportType",
+											checked: draft.reportType === t,
+											onChange: () => setDraft((d) => ({
+												...d,
+												reportType: t
+											})),
+											className: "accent-[#0089FF] h-4 w-4 cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-xs leading-tight",
+											children: t
+										})]
+									}, t))
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
+								className: "space-y-1.5",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "block text-[11px] font-semibold text-foreground",
-									children: ["File Format ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-red-500 font-bold ml-0.5",
-										children: "*"
-									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-									value: draft.format,
-									options: [
-										"XLS",
-										"PDF",
-										"CSV"
-									],
-									onChange: (val) => setDraft((d) => ({
-										...d,
-										format: val
-									})),
-									placeholder: "Select File Format"
-								})]
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "space-y-1",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "block text-[11px] font-semibold text-foreground",
+									className: "block text-xs font-semibold text-foreground",
 									children: ["Delivery Method ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 										className: "text-red-500 font-bold ml-0.5",
 										children: "*"
 									})]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectDropdown, {
-									value: draft.actionType,
-									options: [
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "grid grid-cols-2 gap-2.5",
+									children: [
 										"Email",
 										"FTP",
 										"SFTP",
 										"Media API"
-									],
-									onChange: (val) => setDraft((d) => ({
-										...d,
-										actionType: val
-									})),
-									placeholder: "Select Delivery Method"
+									].map((method) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										onClick: () => setDraft((d) => ({
+											...d,
+											actionType: method
+										})),
+										className: cn("flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9", draft.actionType === method ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold" : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											type: "radio",
+											name: "actionType",
+											checked: draft.actionType === method,
+											onChange: () => setDraft((d) => ({
+												...d,
+												actionType: method
+											})),
+											className: "accent-[#0089FF] h-4 w-4 cursor-pointer"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-xs leading-tight truncate",
+											children: method
+										})]
+									}, method))
 								})]
 							}),
 							draft.actionType === "Email" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-0.5 space-y-3 animate-in fade-in-50 duration-150",
+								className: "pt-1 space-y-4 animate-in fade-in-50 duration-150",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
+										className: "space-y-1.5",
 										children: [
 											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: ["To Address ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "block text-xs font-semibold text-foreground",
+												children: ["Email Address ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
 												})]
@@ -3820,37 +3879,52 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 														}));
 													},
 													placeholder: "manager@company.com",
-													className: cn("h-7.5 w-full rounded-md border bg-background pl-2.5 pr-20 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.toAddress ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+													className: cn("h-9 w-full rounded-md border bg-background pl-3 pr-24 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.toAddress ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 												}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 													type: "button",
 													onClick: handleVerifyEmail,
 													disabled: emailVerificationStatus === "verifying",
-													className: cn("absolute right-1 px-2 py-0.5 text-[11px] font-semibold rounded transition-all cursor-pointer active:scale-95 select-none", emailVerificationStatus === "success" ? "text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20" : emailVerificationStatus === "failed" ? "text-rose-600 bg-rose-500/10 hover:bg-rose-500/20" : "text-foreground hover:text-[#0089FF] hover:bg-muted/80"),
+													className: cn("absolute right-1.5 px-2.5 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer active:scale-95 select-none", emailVerificationStatus === "success" ? "text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20" : emailVerificationStatus === "failed" ? "text-rose-600 bg-rose-500/10 hover:bg-rose-500/20" : "text-foreground hover:text-[#0089FF] hover:bg-muted/80"),
 													children: emailVerificationStatus === "verifying" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 														className: "flex items-center gap-1 text-muted-foreground",
 														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "h-3 w-3 animate-spin" }), " Verifying…"]
 													}) : emailVerificationStatus === "success" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 														className: "flex items-center gap-1",
-														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { className: "h-3 w-3" }), " Verified"]
+														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { className: "h-3.5 w-3.5" }), " Verified"]
 													}) : emailVerificationStatus === "failed" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 														className: "flex items-center gap-1",
-														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleX, { className: "h-3 w-3" }), " Failed"]
+														children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleX, { className: "h-3.5 w-3.5" }), " Failed"]
 													}) : "Verify"
 												})]
 											}),
 											errors.toAddress && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-												className: "text-[10px] text-red-500 font-medium",
+												className: "text-[11px] text-red-500 font-medium",
 												children: errors.toAddress
 											})
 										]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "grid grid-cols-2 gap-3",
+										className: "grid grid-cols-2 gap-3.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
+											className: "space-y-1.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: "Retry Window (Mins)"
+												className: "block text-xs font-semibold text-foreground",
+												children: "Subject"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+												type: "text",
+												value: draft.subject,
+												onChange: (e) => setDraft((d) => ({
+													...d,
+													subject: e.target.value
+												})),
+												placeholder: "Scheduled Travel Report",
+												className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-1.5",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+												className: "block text-xs font-semibold text-foreground",
+												children: "Email Retry Window (Mins)"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 												type: "number",
 												min: "1",
@@ -3861,74 +3935,59 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													emailRetryWindow: e.target.value
 												})),
 												placeholder: "15",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-											})]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
-											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
-												children: "Subject"
-											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-												type: "text",
-												value: draft.subject,
-												onChange: (e) => setDraft((d) => ({
-													...d,
-													subject: e.target.value
-												})),
-												placeholder: "Scheduled Travel Report",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+												className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
 											})]
 										})]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
+										className: "space-y-1.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 											className: "flex items-center justify-between",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
+												className: "block text-xs font-semibold text-foreground",
 												children: "Message"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-												className: "flex items-center gap-1 border border-border/80 rounded-md px-1 py-0.5 bg-background shadow-2xs",
+												className: "flex items-center gap-1 border border-border/80 rounded-md px-1.5 py-0.5 bg-background shadow-2xs",
 												children: [
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 														type: "button",
-														className: "p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer",
-														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bold, { className: "h-2.5 w-2.5" })
+														className: "p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bold, { className: "h-3 w-3" })
 													}),
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 														type: "button",
-														className: "p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer",
-														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Italic, { className: "h-2.5 w-2.5" })
+														className: "p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Italic, { className: "h-3 w-3" })
 													}),
 													/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 														type: "button",
-														className: "p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer",
-														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Underline, { className: "h-2.5 w-2.5" })
+														className: "p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer",
+														children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Underline, { className: "h-3 w-3" })
 													})
 												]
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
-											rows: 2,
+											rows: 3,
 											value: draft.message,
 											onChange: (e) => setDraft((d) => ({
 												...d,
 												message: e.target.value
 											})),
 											placeholder: "Write your email body message here...",
-											className: "w-full rounded-md border border-input/80 bg-background p-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
+											className: "w-full min-h-[90px] rounded-md border border-input/80 bg-background p-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar leading-relaxed"
 										})]
 									})
 								]
 							}),
 							draft.actionType === "FTP" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-0.5 space-y-3 animate-in fade-in-50 duration-150",
+								className: "pt-1 space-y-4 animate-in fade-in-50 duration-150",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "grid grid-cols-2 gap-3",
+										className: "grid grid-cols-2 gap-3.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
+											className: "space-y-1.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
+												className: "block text-xs font-semibold text-foreground",
 												children: ["Host Address ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
@@ -3947,12 +4006,12 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "ftp.example.com",
-												className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpHost ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+												className: cn("h-9 w-full rounded-md border bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpHost ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
+											className: "space-y-1.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
+												className: "block text-xs font-semibold text-foreground",
 												children: ["Port ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
@@ -3971,16 +4030,16 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "21",
-												className: cn("h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpPort ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
+												className: cn("h-9 w-full rounded-md border bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none", errors.ftpPort ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20" : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20")
 											})]
 										})]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "grid grid-cols-2 gap-3",
+										className: "grid grid-cols-2 gap-3.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
+											className: "space-y-1.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
+												className: "block text-xs font-semibold text-foreground",
 												children: ["Username ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
@@ -3999,12 +4058,12 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "ftp_user",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
+											className: "space-y-1.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
+												className: "block text-xs font-semibold text-foreground",
 												children: ["Password ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
@@ -4023,14 +4082,14 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "••••••••",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										})]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
+										className: "space-y-1.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
+											className: "block text-xs font-semibold text-foreground",
 											children: ["Folder Name ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 												className: "text-red-500 font-bold ml-0.5",
 												children: "*"
@@ -4049,18 +4108,18 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												}));
 											},
 											placeholder: "/reports/daily",
-											className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 										})]
 									})
 								]
 							}),
 							draft.actionType === "SFTP" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-0.5 space-y-3 animate-in fade-in-50 duration-150",
+								className: "pt-1 space-y-4 animate-in fade-in-50 duration-150",
 								children: [
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "space-y-1",
+										className: "space-y-1.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
+											className: "block text-xs font-semibold text-foreground",
 											children: ["Platform ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 												className: "text-red-500 font-bold ml-0.5",
 												children: "*"
@@ -4076,11 +4135,11 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 										})]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "grid grid-cols-2 gap-3",
+										className: "grid grid-cols-2 gap-3.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
+											className: "space-y-1.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
+												className: "block text-xs font-semibold text-foreground",
 												children: ["Access key ID ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
@@ -4099,12 +4158,12 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "AKIAIOSFODNN7EXAMPLE",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
+											className: "space-y-1.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
+												className: "block text-xs font-semibold text-foreground",
 												children: ["Secret Access Key ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
@@ -4123,16 +4182,16 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										})]
 									}),
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										className: "grid grid-cols-2 gap-3",
+										className: "grid grid-cols-2 gap-3.5",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
+											className: "space-y-1.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
+												className: "block text-xs font-semibold text-foreground",
 												children: ["Region ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
@@ -4151,12 +4210,12 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "ap-south-1",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "space-y-1",
+											className: "space-y-1.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-												className: "block text-[11px] font-semibold text-foreground",
+												className: "block text-xs font-semibold text-foreground",
 												children: ["Bucket Name ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 													className: "text-red-500 font-bold ml-0.5",
 													children: "*"
@@ -4175,18 +4234,18 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 													}));
 												},
 												placeholder: "my-fleet-reports",
-												className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+												className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 											})]
 										})]
 									})
 								]
 							}),
 							draft.actionType === "Media API" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "pt-0.5 space-y-3 animate-in fade-in-50 duration-150",
+								className: "pt-1 space-y-4 animate-in fade-in-50 duration-150",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "space-y-1",
+									className: "space-y-1.5",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-										className: "block text-[11px] font-semibold text-foreground",
+										className: "block text-xs font-semibold text-foreground",
 										children: ["Media Gateway ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 											className: "text-red-500 font-bold ml-0.5",
 											children: "*"
@@ -4201,10 +4260,10 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 										placeholder: "Select Media Gateway"
 									})]
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "space-y-1",
+									className: "space-y-1.5",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-											className: "block text-[11px] font-semibold text-foreground",
+											className: "block text-xs font-semibold text-foreground",
 											children: ["Recipient Mobile Number(s) ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 												className: "text-red-500 font-bold ml-0.5",
 												children: "*"
@@ -4224,37 +4283,37 @@ function ScheduleModal({ open, onClose, currentFilters, reportTitle = "Today Act
 												}));
 											},
 											placeholder: "+91 9876543210, +91 9898989898",
-											className: "h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+											className: "h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-											className: "text-[10px] text-muted-foreground font-normal",
+											className: "text-[11px] text-muted-foreground font-normal",
 											children: "Separate multiple numbers with commas (include country code)."
 										})
 									]
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								className: "pt-1",
+								className: "pt-1.5",
 								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 									type: "button",
 									onClick: () => setAdvanceModalOpen(true),
-									className: "flex items-center gap-1.5 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] cursor-pointer transition-colors",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, { className: "h-3.5 w-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Advance Configuration" })]
+									className: "flex items-center gap-2 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] cursor-pointer transition-colors",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, { className: "h-4 w-4" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Advance Configuration" })]
 								})
 							})
 						]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
-						className: "flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						className: "flex h-[60px] items-center justify-between border-t border-border px-6 bg-background select-none shrink-0",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 							type: "button",
-							onClick: onClose,
-							className: "h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98",
-							children: "Close"
+							onClick: () => setView("list"),
+							className: "h-9 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98 flex items-center gap-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, { className: "h-4 w-4 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Back" })]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 							type: "button",
 							onClick: handleSave,
-							className: "h-8 rounded-md bg-[#0089FF] px-6 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98",
-							children: "Schedule"
+							className: "h-9 rounded-md bg-[#0089FF] px-6 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98",
+							children: editingId ? "Update" : "Schedule"
 						})]
 					})]
 				}),

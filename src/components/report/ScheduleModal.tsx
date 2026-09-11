@@ -145,13 +145,41 @@ const INITIAL_SCHEDULES: ScheduleItem[] = [
 ];
 
 const RELATIVE_TYPES = [
-  "Today",
-  "Yesterday",
-  "This Week",
-  "Last Week",
-  "Last 7 Days",
-  "This Month",
-  "Last Month",
+  {
+    label: "Today",
+    value: "Today",
+    description: "Current day from 12:00 AM until now",
+  },
+  {
+    label: "Yesterday",
+    value: "Yesterday",
+    description: "Previous calendar day",
+  },
+  {
+    label: "Last 7 Days",
+    value: "Last 7 Days",
+    description: "Previous 7 days including today",
+  },
+  {
+    label: "This Week",
+    value: "This Week",
+    description: "Current week from Monday until today",
+  },
+  {
+    label: "Last Week",
+    value: "Last Week",
+    description: "Previous complete week (Monday to Sunday)",
+  },
+  {
+    label: "This Month",
+    value: "This Month",
+    description: "Current month from the 1st day until today",
+  },
+  {
+    label: "Last Month",
+    value: "Last Month",
+    description: "Previous complete month",
+  },
 ];
 
 const TIMEZONES = [
@@ -266,6 +294,14 @@ const DEFAULT_DRAFT: ScheduleItem = {
   mediaRecipientNumber: "",
 };
 
+export type DropdownOption =
+  | string
+  | {
+      label: string;
+      value?: string;
+      description?: string;
+    };
+
 function SelectDropdown({
   value,
   options,
@@ -274,7 +310,7 @@ function SelectDropdown({
   placeholder,
 }: {
   value: string;
-  options: string[];
+  options: DropdownOption[];
   onChange: (v: string) => void;
   className?: string;
   placeholder?: string;
@@ -292,13 +328,26 @@ function SelectDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
+  const selectedOption = options.find((opt) => {
+    if (typeof opt === "object") {
+      return (opt.value ?? opt.label) === value || opt.label === value;
+    }
+    return opt === value;
+  });
+
+  const displayLabel = selectedOption
+    ? typeof selectedOption === "object"
+      ? selectedOption.label
+      : selectedOption
+    : value || placeholder || "Select";
+
   return (
     <div ref={ref} className={cn("relative w-full", className)}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          "flex h-9 w-full items-center justify-between rounded-md border border-input/80 bg-background px-3 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none font-normal",
           open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
         )}
       >
@@ -307,42 +356,66 @@ function SelectDropdown({
             "truncate",
             value
               ? "text-foreground font-medium"
-              : "text-muted-foreground/60 font-medium italic",
+              : "text-muted-foreground/60 font-normal italic",
           )}
         >
-          {value || placeholder || "Select"}
+          {displayLabel}
         </span>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1",
+            "h-4 w-4 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1.5",
             open && "rotate-180",
           )}
         />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-52 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
-          {options.map((opt) => (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => {
-                onChange(opt);
-                setOpen(false);
-              }}
-              className={cn(
-                "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors cursor-pointer select-none",
-                value === opt
-                  ? "bg-muted font-semibold text-foreground"
-                  : "text-foreground hover:bg-muted/80 font-medium",
-              )}
-            >
-              <span className="truncate">{opt}</span>
-              {value === opt && (
-                <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-              )}
-            </button>
-          ))}
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
+          {options.map((opt) => {
+            const isObj = typeof opt === "object";
+            const optLabel = isObj ? opt.label : opt;
+            const optVal = isObj ? (opt.value ?? opt.label) : opt;
+            const optDesc = isObj ? opt.description : undefined;
+            const isSelected = value === optVal || value === optLabel;
+
+            return (
+              <button
+                key={optVal}
+                type="button"
+                onClick={() => {
+                  onChange(optVal);
+                  setOpen(false);
+                }}
+                className={cn(
+                  "flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-colors cursor-pointer select-none",
+                  isSelected
+                    ? "bg-muted font-semibold text-foreground"
+                    : "text-foreground hover:bg-muted/80 font-normal",
+                )}
+              >
+                <div className="flex flex-col min-w-0 pr-2">
+                  <span
+                    className={cn(
+                      "text-xs leading-tight truncate",
+                      isSelected
+                        ? "font-semibold text-foreground"
+                        : "font-medium text-foreground",
+                    )}
+                  >
+                    {optLabel}
+                  </span>
+                  {optDesc && (
+                    <span className="text-[11px] leading-snug text-muted-foreground mt-0.5 font-normal">
+                      {optDesc}
+                    </span>
+                  )}
+                </div>
+                {isSelected && (
+                  <Check className="h-4 w-4 text-[#0089FF] shrink-0 ml-1" />
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
@@ -418,13 +491,13 @@ function UniversalMultiSelectDropdown({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex h-7.5 w-full items-center justify-between rounded-md border border-input/80 bg-background px-2.5 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none",
+          "flex h-9 w-full items-center justify-between rounded-md border border-input/80 bg-background px-3 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none font-normal",
           open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
         )}
       >
         <div className="flex items-center min-w-0 flex-1 overflow-hidden">
           {!selected || selected.length === 0 ? (
-            <span className="text-muted-foreground/60 font-medium italic truncate">
+            <span className="text-muted-foreground/60 font-normal italic truncate">
               {placeholder || `Select ${label}`}
             </span>
           ) : (
@@ -433,7 +506,7 @@ function UniversalMultiSelectDropdown({
                 {selected[0]}
               </span>
               {selected.length > 1 && (
-                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
                   +{selected.length - 1}
                 </span>
               )}
@@ -442,7 +515,7 @@ function UniversalMultiSelectDropdown({
         </div>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1",
+            "h-4 w-4 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1.5",
             open && "rotate-180",
           )}
         />
@@ -450,7 +523,7 @@ function UniversalMultiSelectDropdown({
 
       {open && (
         <div className="absolute top-full left-0 right-0 z-50 mt-1 w-full rounded-xl border border-border/80 bg-popover/95 backdrop-blur-md shadow-2xl animate-in fade-in-0 zoom-in-95 select-none overflow-hidden flex flex-col">
-          <div className="p-2.5 pb-2 border-b border-border/60 bg-muted/20 space-y-2">
+          <div className="p-3 pb-2.5 border-b border-border/60 bg-muted/20 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-foreground">
                 Select {label}
@@ -1250,18 +1323,18 @@ export function ScheduleModal({
         aria-hidden={!open}
         aria-label="Scheduled Reports"
         className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden",
+          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[480px] xl:max-w-[500px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
         {/* Standardized 56px Header */}
-        <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
+        <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-background select-none shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             {view === "form" && (
               <button
                 type="button"
                 onClick={() => setView("list")}
-                className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer mr-0.5"
+                className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer mr-0.5"
                 title="Back to scheduled reports list"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -1274,16 +1347,6 @@ export function ScheduleModal({
                   ? "Edit Schedule Report"
                   : "Schedule Report"}
             </h2>
-            {schedules.length > 0 && view === "form" && (
-              <button
-                type="button"
-                onClick={() => setView("list")}
-                className="px-2 py-0.5 text-[11px] font-semibold text-[#0089FF] bg-[#0089FF]/10 hover:bg-[#0089FF]/20 rounded-md transition-colors cursor-pointer shrink-0"
-                title="View saved scheduled reports"
-              >
-                Saved ({schedules.length})
-              </button>
-            )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button
@@ -1301,15 +1364,15 @@ export function ScheduleModal({
         {view === "list" ? (
           <div className="flex flex-1 min-h-0 flex-col bg-background">
             {/* Search Bar */}
-            <div className="p-3 border-b border-border bg-muted/20 shrink-0">
-              <div className="flex h-7.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all">
-                <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <div className="p-4 border-b border-border bg-muted/20 shrink-0">
+              <div className="flex h-9 items-center gap-2 rounded-md border border-input/80 bg-background px-3 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all">
+                <Search className="h-4 w-4 text-muted-foreground shrink-0" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search schedules..."
-                  className="h-full flex-1 bg-transparent text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
+                  className="h-full flex-1 bg-transparent text-xs font-normal text-foreground placeholder:text-muted-foreground/60 focus:outline-none min-w-0"
                 />
                 {searchQuery && (
                   <button
@@ -1317,7 +1380,7 @@ export function ScheduleModal({
                     onClick={() => setSearchQuery("")}
                     className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5 rounded"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
@@ -1335,7 +1398,7 @@ export function ScheduleModal({
                     <div className="flex items-start gap-3 min-w-0 flex-1">
                       <div
                         className={cn(
-                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border",
+                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border",
                           iconScheme.badgeBg,
                           iconScheme.borderColor,
                           iconScheme.iconColor,
@@ -1359,27 +1422,9 @@ export function ScheduleModal({
                             {item.status}
                           </span>
                         </div>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground truncate font-normal">
+                        <p className="mt-0.5 text-xs text-muted-foreground truncate font-normal">
                           {formatRecurrence(item)} · {item.relativeType} · {item.generationTime}
                         </p>
-                        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px]">
-                          <span className="px-1.5 py-0.5 rounded bg-muted font-medium text-foreground">
-                            {item.format}
-                          </span>
-                          <span className="px-1.5 py-0.5 rounded bg-[#0089FF]/10 text-[#0089FF] font-medium border border-[#0089FF]/20">
-                            {item.actionType}
-                          </span>
-                          {item.toAddress && (
-                            <span className="px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground truncate max-w-[130px]">
-                              {item.toAddress}
-                            </span>
-                          )}
-                          <span className="px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground">
-                            {item.vehicleScope === "custom"
-                              ? `${item.selectedVehicles.length} custom vehicles`
-                              : "Report active vehicles"}
-                          </span>
-                        </div>
                       </div>
                     </div>
 
@@ -1388,7 +1433,7 @@ export function ScheduleModal({
                       <button
                         type="button"
                         onClick={() => startEdit(item)}
-                        className="h-7 w-7 rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-[#0089FF] hover:border-[#0089FF]/60 hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-95"
+                        className="h-8 w-8 rounded-md border border-border/80 bg-background flex items-center justify-center text-muted-foreground hover:text-[#0089FF] hover:border-[#0089FF]/60 hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-95"
                         title="Edit schedule"
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -1403,26 +1448,26 @@ export function ScheduleModal({
               })}
 
               {filteredSchedules.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+                <div className="flex flex-col items-center justify-center py-14 text-center text-muted-foreground">
                   <FileSpreadsheet className="h-10 w-10 text-muted-foreground/40 mb-2" />
                   <p className="text-xs font-semibold text-foreground">
                     No scheduled reports found
                   </p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Create a new schedule to automate delivery
                   </p>
                 </div>
               )}
             </div>
 
-            {/* List Footer (56px) */}
-            <footer className="flex h-[56px] items-center justify-end border-t border-border px-5 bg-background select-none shrink-0">
+            {/* List Footer (60px) */}
+            <footer className="flex h-[60px] items-center justify-end border-t border-border px-6 bg-background select-none shrink-0">
               <button
                 type="button"
                 onClick={startCreate}
-                className="h-8 rounded-md bg-[#0089FF] px-4.5 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98 flex items-center gap-1.5"
+                className="h-9 rounded-md bg-[#0089FF] px-5 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98 flex items-center gap-1.5"
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="h-4 w-4" />
                 <span>New Schedule</span>
               </button>
             </footer>
@@ -1430,10 +1475,10 @@ export function ScheduleModal({
         ) : (
           /* View 2: Form View (Direct Create / Edit Schedule Configuration matching Design System) */
           <div className="flex flex-1 min-h-0 flex-col bg-background">
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3.5 custom-scrollbar">
+            <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-5 custom-scrollbar">
               {/* Report Name */}
-              <div className="space-y-1">
-                <label className="block text-[11px] font-semibold text-foreground">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-foreground">
                   Report Name <span className="text-red-500 font-bold ml-0.5">*</span>
                 </label>
                 <input
@@ -1447,55 +1492,74 @@ export function ScheduleModal({
                   }}
                   placeholder="e.g. Travel Summary Schedule"
                   className={cn(
-                    "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                    "h-9 w-full rounded-md border bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                     errors.name
                       ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                       : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
                   )}
                 />
                 {errors.name && (
-                  <p className="text-[10px] text-red-500 font-medium">{errors.name}</p>
+                  <p className="text-[11px] text-red-500 font-medium">{errors.name}</p>
                 )}
               </div>
 
-              {/* Vehicles Selection Scope matching Radio Button format */}
-              <div className="space-y-1.5 rounded-xl border border-border/80 bg-card p-3 shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <label className="block text-[11px] font-semibold text-foreground">
-                    Vehicles to Include
-                  </label>
-                  <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
-                    {vehicleFilterMode === "current"
-                      ? `${currentLoadedVehicleIds.length} Loaded Vehicles`
-                      : `${draft.selectedVehicles.length || customFilteredVehicleIds.length} Custom Selected`}
-                  </span>
+              {/* File Format */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-foreground">
+                  File Format <span className="text-red-500 font-bold ml-0.5">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2.5">
+                  {(["XLS", "PDF", "CSV"] as const).map((fmt) => (
+                    <label
+                      key={fmt}
+                      onClick={() => setDraft((d) => ({ ...d, format: fmt }))}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9",
+                        draft.format === fmt
+                          ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
+                          : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium",
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="fileFormat"
+                        checked={draft.format === fmt}
+                        onChange={() => setDraft((d) => ({ ...d, format: fmt }))}
+                        className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                      />
+                      <span className="text-xs leading-tight">
+                        {fmt}
+                      </span>
+                    </label>
+                  ))}
                 </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-1">
+              {/* Report Content */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-foreground">
+                  Report Content <span className="text-red-500 font-bold ml-0.5">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
                   {/* Option 1: Current Filter */}
                   <label
                     onClick={() => setVehicleFilterMode("current")}
                     className={cn(
-                      "flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left",
+                      "flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9",
                       vehicleFilterMode === "current"
-                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30"
-                        : "border-border/80 bg-background hover:bg-muted/40 hover:border-border",
+                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
+                        : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium",
                     )}
                   >
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="vehicleScope"
-                        checked={vehicleFilterMode === "current"}
-                        onChange={() => setVehicleFilterMode("current")}
-                        className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-                      />
-                      <span className="text-xs font-semibold text-foreground leading-tight">
-                        Current Filter
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground pl-5 leading-tight font-normal">
-                      Use loaded vehicles ({currentLoadedVehicleIds.length})
+                    <input
+                      type="radio"
+                      name="vehicleScope"
+                      checked={vehicleFilterMode === "current"}
+                      onChange={() => setVehicleFilterMode("current")}
+                      className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                    />
+                    <span className="text-xs leading-tight truncate">
+                      Current Filter
                     </span>
                   </label>
 
@@ -1503,50 +1567,43 @@ export function ScheduleModal({
                   <div
                     onClick={() => setVehicleFilterMode("custom")}
                     className={cn(
-                      "flex flex-col gap-1 rounded-lg border p-2.5 transition-all cursor-pointer select-none text-left relative",
+                      "flex items-center justify-between rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9 relative",
                       vehicleFilterMode === "custom"
-                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30"
-                        : "border-border/80 bg-background hover:bg-muted/40 hover:border-border",
+                        ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
+                        : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium",
                     )}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name="vehicleScope"
-                          checked={vehicleFilterMode === "custom"}
-                          onChange={() => setVehicleFilterMode("custom")}
-                          className="accent-[#0089FF] h-3.5 w-3.5 cursor-pointer"
-                        />
-                        <span className="text-xs font-semibold text-foreground leading-tight">
-                          Custom Filter
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenCustomVehicleOverlay();
-                        }}
-                        title="Change vehicle filter"
-                        aria-label="Change vehicle filter"
-                        className="p-1 rounded text-[#0089FF] hover:text-[#0070d6] hover:bg-[#0089FF]/10 cursor-pointer transition-all active:scale-90"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <input
+                        type="radio"
+                        name="vehicleScope"
+                        checked={vehicleFilterMode === "custom"}
+                        onChange={() => setVehicleFilterMode("custom")}
+                        className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                      />
+                      <span className="text-xs leading-tight truncate">
+                        Custom Filter
+                      </span>
                     </div>
-                    <span className="text-[10px] text-muted-foreground pl-5 leading-tight font-normal">
-                      {draft.selectedVehicles.length > 0
-                        ? `${draft.selectedVehicles.length} vehicles`
-                        : `${customFilteredVehicleIds.length} vehicles`}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenCustomVehicleOverlay();
+                      }}
+                      title="Change vehicle filter"
+                      aria-label="Change vehicle filter"
+                      className="p-1 rounded text-[#0089FF] hover:text-[#0070d6] hover:bg-[#0089FF]/10 cursor-pointer transition-all active:scale-90 shrink-0"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </div>
               </div>
 
               {/* Copy From */}
-              <div className="space-y-1">
-                <label className="block text-[11px] font-semibold text-foreground">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-foreground">
                   Copy From
                 </label>
                 <SelectDropdown
@@ -1559,7 +1616,7 @@ export function ScheduleModal({
 
               {/* Relative Type */}
               <div className="space-y-1.5">
-                <label className="block text-[11px] font-semibold text-foreground">
+                <label className="block text-xs font-semibold text-foreground">
                   Relative Type <span className="text-red-500 font-bold ml-0.5">*</span>
                 </label>
                 <SelectDropdown
@@ -1591,11 +1648,11 @@ export function ScheduleModal({
                 {(draft.relativeType === "This Week" ||
                   draft.relativeType === "Last Week" ||
                   draft.scheduleType === "Weekly") && (
-                  <div className="pt-1.5 space-y-1.5 animate-in fade-in-50 duration-150">
-                    <label className="block text-[11px] font-semibold text-foreground">
+                  <div className="pt-2 space-y-1.5 animate-in fade-in-50 duration-150">
+                    <label className="block text-xs font-semibold text-foreground">
                       Select Day(s) of Week <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
-                    <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {WEEK_DAYS.map((day) => {
                         const isSelected = (draft.selectedDays || []).includes(day.id);
                         return (
@@ -1604,7 +1661,7 @@ export function ScheduleModal({
                             type="button"
                             onClick={() => toggleDayOfWeek(day.id)}
                             className={cn(
-                              "h-7 w-7 rounded-md text-xs font-semibold transition-all cursor-pointer select-none",
+                              "h-8.5 w-8.5 rounded-md text-xs font-semibold transition-all cursor-pointer select-none flex items-center justify-center",
                               isSelected
                                 ? "bg-[#0089FF] text-white shadow-xs"
                                 : "border border-border/80 bg-background text-foreground hover:bg-muted/60 shadow-2xs",
@@ -1622,12 +1679,12 @@ export function ScheduleModal({
                 {(draft.relativeType === "This Month" ||
                   draft.relativeType === "Last Month" ||
                   draft.scheduleType === "Monthly") && (
-                  <div className="pt-1.5 space-y-1.5 animate-in fade-in-50 duration-150">
+                  <div className="pt-2 space-y-1.5 animate-in fade-in-50 duration-150">
                     <div className="flex items-center justify-between">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Select Month Date(s) <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
-                      <span className="text-[10px] font-medium text-muted-foreground">
+                      <span className="text-xs font-medium text-muted-foreground">
                         {(draft.selectedDates || []).length} selected
                       </span>
                     </div>
@@ -1640,7 +1697,7 @@ export function ScheduleModal({
                             type="button"
                             onClick={() => toggleMonthDate(dateNum)}
                             className={cn(
-                              "h-7 rounded-md text-xs font-semibold transition-all cursor-pointer select-none flex items-center justify-center",
+                              "h-8.5 rounded-md text-xs font-semibold transition-all cursor-pointer select-none flex items-center justify-center",
                               isSelected
                                 ? "bg-[#0089FF] text-white shadow-xs"
                                 : "border border-border/80 bg-background text-foreground hover:bg-muted/60 shadow-2xs",
@@ -1655,50 +1712,24 @@ export function ScheduleModal({
                 )}
               </div>
 
-              {/* Timezone */}
-              <div className="space-y-1">
-                <label className="block text-[11px] font-semibold text-foreground">
-                  Timezone <span className="text-red-500 font-bold ml-0.5">*</span>
-                </label>
-                <SelectDropdown
-                  value={draft.timezone}
-                  options={TIMEZONES}
-                  onChange={(timezone) => setDraft((d) => ({ ...d, timezone }))}
-                  placeholder="Select Timezone"
-                />
-              </div>
-
-              {/* Generation Time */}
-              <div className="space-y-1">
-                <label className="block text-[11px] font-semibold text-foreground">
-                  Generation Time <span className="text-red-500 font-bold ml-0.5">*</span>
-                </label>
-                <SelectDropdown
-                  value={draft.generationTime}
-                  options={GENERATION_TIMES}
-                  onChange={(generationTime) => setDraft((d) => ({ ...d, generationTime }))}
-                  placeholder="Select Generation Time"
-                />
-              </div>
-
-              {/* Time Range Checkbox & Pickers */}
-              <div className="space-y-2 pt-0.5 pb-0.5">
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground select-none">
+              {/* Time Range Checkbox & Pickers - Placed directly below Relative Type */}
+              <div className="space-y-2 pt-1 pb-1">
+                <label className="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-foreground select-none">
                   <input
                     type="checkbox"
                     checked={draft.hasTimeRange}
                     onChange={(e) =>
                       setDraft((d) => ({ ...d, hasTimeRange: e.target.checked }))
                     }
-                    className="rounded border-input text-[#0089FF] cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                    className="rounded border-input text-[#0089FF] cursor-pointer h-4 w-4 accent-[#0089FF]"
                   />
                   <span>Time Range</span>
                 </label>
 
                 {draft.hasTimeRange && (
-                  <div className="grid grid-cols-2 gap-3 pt-0.5 animate-in fade-in-50 duration-150">
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                  <div className="grid grid-cols-2 gap-3.5 pt-1 animate-in fade-in-50 duration-150">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         Start Time
                       </label>
                       <SelectDropdown
@@ -1711,8 +1742,8 @@ export function ScheduleModal({
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         End Time
                       </label>
                       <SelectDropdown
@@ -1728,67 +1759,103 @@ export function ScheduleModal({
                 )}
               </div>
 
-              {/* Report Type */}
-              <div className="space-y-1">
-                <label className="block text-[11px] font-semibold text-foreground">
-                  Report Type <span className="text-red-500 font-bold ml-0.5">*</span>
-                </label>
-                <SelectDropdown
-                  value={draft.reportType}
-                  options={["Summary", "Daily", "Detail"]}
-                  onChange={(val) =>
-                    setDraft((d) => ({
-                      ...d,
-                      reportType: val as "Summary" | "Daily" | "Detail",
-                    }))
-                  }
-                  placeholder="Select Report Type"
-                />
+              {/* Timezone & Generation Time in a single row */}
+              <div className="grid grid-cols-2 gap-3.5">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-foreground">
+                    Timezone <span className="text-red-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <SelectDropdown
+                    value={draft.timezone}
+                    options={TIMEZONES}
+                    onChange={(timezone) => setDraft((d) => ({ ...d, timezone }))}
+                    placeholder="Select Timezone"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-foreground">
+                    Generation Time <span className="text-red-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <SelectDropdown
+                    value={draft.generationTime}
+                    options={GENERATION_TIMES}
+                    onChange={(generationTime) => setDraft((d) => ({ ...d, generationTime }))}
+                    placeholder="Select Generation Time"
+                  />
+                </div>
               </div>
 
-              {/* File Format */}
-              <div className="space-y-1">
-                <label className="block text-[11px] font-semibold text-foreground">
-                  File Format <span className="text-red-500 font-bold ml-0.5">*</span>
+              {/* Report Type */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-foreground">
+                  Report Type <span className="text-red-500 font-bold ml-0.5">*</span>
                 </label>
-                <SelectDropdown
-                  value={draft.format}
-                  options={["XLS", "PDF", "CSV"]}
-                  onChange={(val) =>
-                    setDraft((d) => ({
-                      ...d,
-                      format: val as "XLS" | "PDF" | "CSV",
-                    }))
-                  }
-                  placeholder="Select File Format"
-                />
+                <div className="grid grid-cols-3 gap-2.5">
+                  {(["Summary", "Daily", "Detail"] as const).map((t) => (
+                    <label
+                      key={t}
+                      onClick={() => setDraft((d) => ({ ...d, reportType: t }))}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9",
+                        draft.reportType === t
+                          ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
+                          : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium",
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="reportType"
+                        checked={draft.reportType === t}
+                        onChange={() => setDraft((d) => ({ ...d, reportType: t }))}
+                        className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                      />
+                      <span className="text-xs leading-tight">
+                        {t}
+                      </span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Delivery Method */}
-              <div className="space-y-1">
-                <label className="block text-[11px] font-semibold text-foreground">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-foreground">
                   Delivery Method <span className="text-red-500 font-bold ml-0.5">*</span>
                 </label>
-                <SelectDropdown
-                  value={draft.actionType}
-                  options={["Email", "FTP", "SFTP", "Media API"]}
-                  onChange={(val) =>
-                    setDraft((d) => ({
-                      ...d,
-                      actionType: val as "Email" | "FTP" | "SFTP" | "Media API",
-                    }))
-                  }
-                  placeholder="Select Delivery Method"
-                />
+                <div className="grid grid-cols-2 gap-2.5">
+                  {(["Email", "FTP", "SFTP", "Media API"] as const).map((method) => (
+                    <label
+                      key={method}
+                      onClick={() => setDraft((d) => ({ ...d, actionType: method }))}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9",
+                        draft.actionType === method
+                          ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
+                          : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium",
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="actionType"
+                        checked={draft.actionType === method}
+                        onChange={() => setDraft((d) => ({ ...d, actionType: method }))}
+                        className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                      />
+                      <span className="text-xs leading-tight truncate">
+                        {method}
+                      </span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Delivery Configuration Details: Email */}
               {draft.actionType === "Email" && (
-                <div className="pt-0.5 space-y-3 animate-in fade-in-50 duration-150">
-                  {/* To Address with Verification */}
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
-                      To Address <span className="text-red-500 font-bold ml-0.5">*</span>
+                <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
+                  {/* Email Address with Verification */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
+                      Email Address <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <div className="relative flex items-center">
                       <input
@@ -1803,7 +1870,7 @@ export function ScheduleModal({
                         }}
                         placeholder="manager@company.com"
                         className={cn(
-                          "h-7.5 w-full rounded-md border bg-background pl-2.5 pr-20 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                          "h-9 w-full rounded-md border bg-background pl-3 pr-24 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                           errors.toAddress
                             ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                             : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -1814,7 +1881,7 @@ export function ScheduleModal({
                         onClick={handleVerifyEmail}
                         disabled={emailVerificationStatus === "verifying"}
                         className={cn(
-                          "absolute right-1 px-2 py-0.5 text-[11px] font-semibold rounded transition-all cursor-pointer active:scale-95 select-none",
+                          "absolute right-1.5 px-2.5 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer active:scale-95 select-none",
                           emailVerificationStatus === "success"
                             ? "text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20"
                             : emailVerificationStatus === "failed"
@@ -1828,11 +1895,11 @@ export function ScheduleModal({
                           </span>
                         ) : emailVerificationStatus === "success" ? (
                           <span className="flex items-center gap-1">
-                            <CheckCircle2 className="h-3 w-3" /> Verified
+                            <CheckCircle2 className="h-3.5 w-3.5" /> Verified
                           </span>
                         ) : emailVerificationStatus === "failed" ? (
                           <span className="flex items-center gap-1">
-                            <XCircle className="h-3 w-3" /> Failed
+                            <XCircle className="h-3.5 w-3.5" /> Failed
                           </span>
                         ) : (
                           "Verify"
@@ -1840,15 +1907,28 @@ export function ScheduleModal({
                       </button>
                     </div>
                     {errors.toAddress && (
-                      <p className="text-[10px] text-red-500 font-medium">{errors.toAddress}</p>
+                      <p className="text-[11px] text-red-500 font-medium">{errors.toAddress}</p>
                     )}
                   </div>
 
                   {/* Retry Window & Subject Row */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
-                        Retry Window (Mins)
+                  <div className="grid grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
+                        Subject
+                      </label>
+                      <input
+                        type="text"
+                        value={draft.subject}
+                        onChange={(e) => setDraft((d) => ({ ...d, subject: e.target.value }))}
+                        placeholder="Scheduled Travel Report"
+                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
+                        Email Retry Window (Mins)
                       </label>
                       <input
                         type="number"
@@ -1859,57 +1939,44 @@ export function ScheduleModal({
                           setDraft((d) => ({ ...d, emailRetryWindow: e.target.value }))
                         }
                         placeholder="15"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
-                        Subject
-                      </label>
-                      <input
-                        type="text"
-                        value={draft.subject}
-                        onChange={(e) => setDraft((d) => ({ ...d, subject: e.target.value }))}
-                        placeholder="Scheduled Travel Report"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
                       />
                     </div>
                   </div>
 
                   {/* Message with Rich Text Buttons */}
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                      <label className="block text-xs font-semibold text-foreground">
                         Message
                       </label>
-                      <div className="flex items-center gap-1 border border-border/80 rounded-md px-1 py-0.5 bg-background shadow-2xs">
+                      <div className="flex items-center gap-1 border border-border/80 rounded-md px-1.5 py-0.5 bg-background shadow-2xs">
                         <button
                           type="button"
-                          className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                          className="p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
                         >
-                          <Bold className="h-2.5 w-2.5" />
+                          <Bold className="h-3 w-3" />
                         </button>
                         <button
                           type="button"
-                          className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                          className="p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
                         >
-                          <Italic className="h-2.5 w-2.5" />
+                          <Italic className="h-3 w-3" />
                         </button>
                         <button
                           type="button"
-                          className="p-0.5 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                          className="p-1 rounded-xs hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
                         >
-                          <Underline className="h-2.5 w-2.5" />
+                          <Underline className="h-3 w-3" />
                         </button>
                       </div>
                     </div>
                     <textarea
-                      rows={2}
+                      rows={3}
                       value={draft.message}
                       onChange={(e) => setDraft((d) => ({ ...d, message: e.target.value }))}
                       placeholder="Write your email body message here..."
-                      className="w-full rounded-md border border-input/80 bg-background p-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar"
+                      className="w-full min-h-[90px] rounded-md border border-input/80 bg-background p-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none shadow-2xs custom-scrollbar leading-relaxed"
                     />
                   </div>
                 </div>
@@ -1917,10 +1984,10 @@ export function ScheduleModal({
 
               {/* Delivery Configuration Details: FTP */}
               {draft.actionType === "FTP" && (
-                <div className="pt-0.5 space-y-3 animate-in fade-in-50 duration-150">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
+                  <div className="grid grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         Host Address <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
                       <input
@@ -1933,7 +2000,7 @@ export function ScheduleModal({
                         }}
                         placeholder="ftp.example.com"
                         className={cn(
-                          "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                          "h-9 w-full rounded-md border bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                           errors.ftpHost
                             ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                             : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -1941,8 +2008,8 @@ export function ScheduleModal({
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         Port <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
                       <input
@@ -1955,7 +2022,7 @@ export function ScheduleModal({
                         }}
                         placeholder="21"
                         className={cn(
-                          "h-7.5 w-full rounded-md border bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
+                          "h-9 w-full rounded-md border bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none",
                           errors.ftpPort
                             ? "border-red-500 bg-red-500/[0.02] focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                             : "border-input/80 hover:border-[#0089FF]/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20",
@@ -1964,9 +2031,9 @@ export function ScheduleModal({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                  <div className="grid grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         Username <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
                       <input
@@ -1978,12 +2045,12 @@ export function ScheduleModal({
                             setErrors((prev) => ({ ...prev, ftpUsername: undefined }));
                         }}
                         placeholder="ftp_user"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         Password <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
                       <input
@@ -1995,13 +2062,13 @@ export function ScheduleModal({
                             setErrors((prev) => ({ ...prev, ftpPassword: undefined }));
                         }}
                         placeholder="••••••••"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
                       Folder Name <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <input
@@ -2013,7 +2080,7 @@ export function ScheduleModal({
                           setErrors((prev) => ({ ...prev, ftpFolder: undefined }));
                       }}
                       placeholder="/reports/daily"
-                      className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                      className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                     />
                   </div>
                 </div>
@@ -2021,9 +2088,9 @@ export function ScheduleModal({
 
               {/* Delivery Configuration Details: SFTP */}
               {draft.actionType === "SFTP" && (
-                <div className="pt-0.5 space-y-3 animate-in fade-in-50 duration-150">
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
+                <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
                       Platform <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <SelectDropdown
@@ -2034,9 +2101,9 @@ export function ScheduleModal({
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                  <div className="grid grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         Access key ID <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
                       <input
@@ -2048,12 +2115,12 @@ export function ScheduleModal({
                             setErrors((prev) => ({ ...prev, sftpAccessKey: undefined }));
                         }}
                         placeholder="AKIAIOSFODNN7EXAMPLE"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         Secret Access Key <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
                       <input
@@ -2065,14 +2132,14 @@ export function ScheduleModal({
                             setErrors((prev) => ({ ...prev, sftpSecretKey: undefined }));
                         }}
                         placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                  <div className="grid grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         Region <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
                       <input
@@ -2084,12 +2151,12 @@ export function ScheduleModal({
                             setErrors((prev) => ({ ...prev, sftpRegion: undefined }));
                         }}
                         placeholder="ap-south-1"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-semibold text-foreground">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-foreground">
                         Bucket Name <span className="text-red-500 font-bold ml-0.5">*</span>
                       </label>
                       <input
@@ -2101,7 +2168,7 @@ export function ScheduleModal({
                             setErrors((prev) => ({ ...prev, sftpBucketName: undefined }));
                         }}
                         placeholder="my-fleet-reports"
-                        className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                       />
                     </div>
                   </div>
@@ -2110,9 +2177,9 @@ export function ScheduleModal({
 
               {/* Delivery Configuration Details: Media API / WhatsApp */}
               {draft.actionType === "Media API" && (
-                <div className="pt-0.5 space-y-3 animate-in fade-in-50 duration-150">
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
+                <div className="pt-1 space-y-4 animate-in fade-in-50 duration-150">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
                       Media Gateway <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <SelectDropdown
@@ -2123,8 +2190,8 @@ export function ScheduleModal({
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-foreground">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-foreground">
                       Recipient Mobile Number(s) <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <input
@@ -2136,9 +2203,9 @@ export function ScheduleModal({
                           setErrors((prev) => ({ ...prev, mediaRecipientNumber: undefined }));
                       }}
                       placeholder="+91 9876543210, +91 9898989898"
-                      className="h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-foreground placeholder:font-medium placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
+                      className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-normal text-foreground placeholder:font-normal placeholder:italic placeholder:text-muted-foreground/60 transition-all shadow-2xs focus:outline-none"
                     />
-                    <p className="text-[10px] text-muted-foreground font-normal">
+                    <p className="text-[11px] text-muted-foreground font-normal">
                       Separate multiple numbers with commas (include country code).
                     </p>
                   </div>
@@ -2146,32 +2213,32 @@ export function ScheduleModal({
               )}
 
               {/* Advance Configuration Trigger */}
-              <div className="pt-1">
+              <div className="pt-1.5">
                 <button
                   type="button"
                   onClick={() => setAdvanceModalOpen(true)}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] cursor-pointer transition-colors"
+                  className="flex items-center gap-2 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] cursor-pointer transition-colors"
                 >
-                  <Settings2 className="h-3.5 w-3.5" />
+                  <Settings2 className="h-4 w-4" />
                   <span>Advance Configuration</span>
                 </button>
               </div>
             </div>
 
-            {/* Standardized 56px Footer */}
-            <footer className="flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0">
+            {/* Standardized 60px Footer */}
+            <footer className="flex h-[60px] items-center justify-between border-t border-border px-6 bg-background select-none shrink-0">
               <button
                 type="button"
                 onClick={() => setView("list")}
-                className="h-8 rounded-md border border-input/80 bg-background px-3.5 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98 flex items-center gap-1.5"
+                className="h-9 rounded-md border border-input/80 bg-background px-4 text-xs font-medium text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs active:scale-98 flex items-center gap-2"
               >
-                <ArrowLeft className="h-3.5 w-3.5 text-muted-foreground" />
+                <ArrowLeft className="h-4 w-4 text-muted-foreground" />
                 <span>Back</span>
               </button>
               <button
                 type="button"
                 onClick={handleSave}
-                className="h-8 rounded-md bg-[#0089FF] px-6 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98"
+                className="h-9 rounded-md bg-[#0089FF] px-6 text-xs font-semibold text-white shadow-xs hover:bg-[#0070d6] transition-all cursor-pointer active:scale-98"
               >
                 {editingId ? "Update" : "Schedule"}
               </button>
