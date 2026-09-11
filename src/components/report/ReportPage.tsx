@@ -29,6 +29,11 @@ import { FavoriteToggle } from "@/components/chrome/FavoritesMenu";
 import { DriverJobSummaryReport } from "@/components/report/DriverJobSummaryReport";
 import { ReportQuickFilterBar } from "@/components/report/ReportQuickFilterBar";
 import {
+  ReportTabStrip,
+  DEFAULT_REPORT_TABS,
+  type ReportTab,
+} from "@/components/report/ReportTabStrip";
+import {
   DEFAULT_FILTERS,
   ReportConfigPanel,
   type ExportFormat,
@@ -200,13 +205,72 @@ export function ReportPage() {
   const search = useSearch({ strict: false }) as { type?: string };
   const searchType = search?.type || "travel";
 
-  if (searchType === "temperature" || searchType === "temperature-summary") {
-    return <TemperatureSummaryReport />;
-  }
+  // Multi-Report Tabs State
+  const [tabs, setTabs] = useState<ReportTab[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("trakzee_report_tabs_v2");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+    }
+    return DEFAULT_REPORT_TABS;
+  });
 
-  if (searchType === "job" || searchType === "driver-job-summary") {
-    return <DriverJobSummaryReport />;
-  }
+  const [activeTabId, setActiveTabId] = useState<string>(() => {
+    return DEFAULT_REPORT_TABS[0]?.id || "tab-travel";
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("trakzee_report_tabs_v2", JSON.stringify(tabs));
+      } catch {}
+    }
+  }, [tabs]);
+
+  const activeTab = useMemo(
+    () =>
+      tabs.find((t) => t.id === activeTabId) ||
+      tabs[0] ||
+      DEFAULT_REPORT_TABS[0],
+    [tabs, activeTabId],
+  );
+
+  const handleAddTab = (reportItem: { id: string; name: string }) => {
+    const existing = tabs.find((t) => t.reportId === reportItem.id);
+    if (existing) {
+      setActiveTabId(existing.id);
+      return;
+    }
+    const newTab: ReportTab = {
+      id: `tab-${reportItem.id}-${Date.now()}`,
+      reportId: reportItem.id,
+      title: reportItem.name,
+      isFavorite: false,
+    };
+    setTabs((prev) => [...prev, newTab]);
+    setActiveTabId(newTab.id);
+  };
+
+  const handleCloseTab = (tabId: string) => {
+    if (tabs.length <= 1) return;
+    const nextTabs = tabs.filter((t) => t.id !== tabId);
+    setTabs(nextTabs);
+    if (activeTabId === tabId) {
+      setActiveTabId(nextTabs[0]?.id || "");
+    }
+  };
+
+  const handleToggleFavorite = (tabId: string) => {
+    setTabs((prev) =>
+      prev.map((t) =>
+        t.id === tabId ? { ...t, isFavorite: !t.isFavorite } : t,
+      ),
+    );
+  };
 
   const [configOpen, setConfigOpen] = useState(false);
   const [configTab, setConfigTab] = useState<"quick" | "advanced">("quick");
@@ -716,97 +780,52 @@ export function ReportPage() {
     [visibleColumns, colWidths],
   );
 
+  const isFirstTabActive = tabs.length > 0 && activeTabId === tabs[0].id;
+
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col gap-3 p-3 overflow-hidden">
-      {/* Top Header & Sub-Header Frame with minimal subtle slate tint */}
-      <header className="h-[76px] flex flex-col justify-between rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 px-4 py-2 shadow-2xs shrink-0 select-none backdrop-blur-xs">
-        {/* Row 1: Title on left, Utilities + Search + Download on right */}
-        <div className="flex items-center justify-between gap-3 min-w-0 h-7">
-          {/* Left: Star + Report Title / Breadcrumb */}
-          <nav
-            aria-label="Breadcrumb"
-            className="flex items-center gap-1.5 text-xs shrink-0"
-          >
-            {level > 0 ? (
+    <div className="flex h-full min-h-0 flex-1 flex-col p-[10px] overflow-hidden bg-background dark:bg-slate-950">
+      {/* 1. Multi-Report Tab Bar with Inverted Fillet Curves */}
+      <ReportTabStrip
+        tabs={tabs}
+        activeTabId={activeTabId}
+        onSelectTab={(tabId) => setActiveTabId(tabId)}
+        onCloseTab={handleCloseTab}
+        onAddTab={handleAddTab}
+        onToggleFavorite={handleToggleFavorite}
+      />
+
+      {/* 2. Main Continuous Card (Holds Filter Toolbar + Table with ZERO gap & continuous borders) */}
+      <div
+        className={cn(
+          "relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-b-2xl rounded-tr-2xl border border-[#DFE3EB] dark:border-slate-800 bg-card dark:bg-slate-900 shadow-sm -mt-[1px]",
+          !isFirstTabActive && "rounded-tl-xl",
+        )}
+      >
+        {/* Top Single-Row Filter & Utilities Toolbar (No corner radius, flush with card) */}
+        <div className="flex h-11 items-center justify-between gap-3 border-b border-[#DFE3EB] dark:border-slate-800 bg-card dark:bg-slate-900 px-3.5 py-1.5 shrink-0 select-none">
+          {/* Left: Breadcrumb Back (if drilled) + Quick Filter Bar */}
+          <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2">
+            {level > 0 && (
               <button
                 type="button"
                 onClick={goBack}
-                aria-label="Back to previous level"
-                className="inline-flex h-6 w-6 items-center justify-center rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer mr-0.5"
+                className="inline-flex h-7 items-center gap-1 rounded-md border border-input/80 bg-background px-2 text-xs font-semibold text-foreground hover:bg-muted cursor-pointer transition-all shadow-2xs shrink-0"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Back</span>
               </button>
-            ) : null}
-
-            {/* Favorite toggle ahead of the title - Only on level 0 */}
-            {level === 0 && (
-              <FavoriteToggle
-                reportId={searchType || "today-activity"}
-                className="-ml-1 mr-0.5"
-              />
             )}
+            <ReportQuickFilterBar
+              filters={filters}
+              onChange={(patch) => {
+                setFilters((prev) => ({ ...prev, ...patch }));
+                load("Filters updated");
+              }}
+              onOpenFilterDrawer={() => setConfigOpen(true)}
+            />
+          </div>
 
-            {level === 0 ? (
-              <span className="text-[18px] font-medium text-foreground leading-tight tracking-tight">
-                {reportMeta?.name || "Today Activity"}
-              </span>
-            ) : level === 1 ? (
-              <>
-                <button
-                  type="button"
-                  onClick={resetToRoot}
-                  className="text-[18px] font-medium text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight"
-                >
-                  Travel Daily Summary
-                </button>
-                {drillVehicle ? (
-                  <>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-                    <span className="text-xs font-semibold text-foreground">
-                      {drillVehicle.vehicleNo} ({drillVehicle.driver})
-                    </span>
-                  </>
-                ) : null}
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={resetToRoot}
-                  className="text-[18px] font-medium text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight"
-                >
-                  Travel Detail
-                </button>
-                {drillVehicle ? (
-                  <>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        history.current.push({ level: 1 });
-                        setLevel(1);
-                        setDrillDay(null);
-                      }}
-                      className="text-xs font-semibold text-foreground transition-colors hover:text-brand hover:underline cursor-pointer"
-                    >
-                      {drillVehicle.vehicleNo}
-                    </button>
-                  </>
-                ) : null}
-                {drillDay ? (
-                  <>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-                    <span className="text-xs font-semibold text-foreground">
-                      {drillDay.date}
-                    </span>
-                  </>
-                ) : null}
-              </>
-            )}
-          </nav>
-
-          {/* Right: Field Search, Download, Utilities Icons */}
-          {/* Right: Search, Utilities Icons, Download, and Pagination Controls (Kept upside on Row 1) */}
+          {/* Right: Search, Download, Utilities Icons, Page Size, and Pagination Controls */}
           <div className="flex items-center gap-2 ml-auto shrink-0">
             {/* 1. Integrated Field-Specific Search Control */}
             <div className="relative flex h-7 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
@@ -862,7 +881,7 @@ export function ReportPage() {
                       >
                         <span className="truncate">{c.label}</span>
                         {isSelected && (
-                          <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
+                          <Check className="h-3.5 w-3.5 text-[#0089FF]" />
                         )}
                       </DropdownMenuItem>
                     );
@@ -916,7 +935,7 @@ export function ReportPage() {
             {/* Vertical Divider */}
             <div className="h-4 w-px bg-border/80 mx-0.5 shrink-0" />
 
-            {/* 4. Page Size & Pagination Controls (Upside on Row 1) */}
+            {/* 4. Page Size & Pagination Controls */}
             <Popover open={pageSizeOpen} onOpenChange={setPageSizeOpen}>
               <PopoverTrigger asChild>
                 <button
@@ -1002,23 +1021,7 @@ export function ReportPage() {
           </div>
         </div>
 
-        {/* Row 2: Sub-Header Quick Filter Bar */}
-        <div className="flex items-center justify-between gap-3 min-w-0 h-7">
-          <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none">
-            <ReportQuickFilterBar
-              filters={filters}
-              onChange={(patch) => {
-                setFilters((prev) => ({ ...prev, ...patch }));
-                load("Filters updated");
-              }}
-              onOpenFilterDrawer={() => setConfigOpen(true)}
-            />
-          </div>
-        </div>
-      </header>
-
-      {/* Main Table Area with Modern Design */}
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[#DFE3EB] dark:border-slate-700 bg-card shadow-sm">
+        {/* Table Area (Directly connected to toolbar with NO gap) */}
         <div className="min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth">
           {level === 0 ? (
             <table className="w-full min-w-[1000px] text-xs border-collapse">
@@ -1027,7 +1030,7 @@ export function ReportPage() {
                 <tr className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700">
                   <th
                     scope="col"
-                    className="sticky left-0 z-30 w-9 min-w-[36px] max-w-[36px] bg-[#EAF0F6] dark:bg-slate-800 border-r border-[#DFE3EB] dark:border-slate-700 px-2 py-2.5 text-center shadow-xs text-slate-900 dark:text-slate-200 font-bold rounded-tl-xl"
+                    className="sticky left-0 z-30 w-9 min-w-[36px] max-w-[36px] bg-[#EAF0F6] dark:bg-slate-800 border-r border-[#DFE3EB] dark:border-slate-700 px-2 py-2.5 text-center shadow-xs text-slate-900 dark:text-slate-200 font-bold"
                   >
                     #
                   </th>
