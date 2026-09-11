@@ -797,7 +797,7 @@ export function ReportPage() {
       {/* 2. Main Continuous Card (Holds Filter Toolbar + Table with ZERO gap & continuous borders) */}
       <div
         className={cn(
-          "relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-b-2xl rounded-tr-2xl border border-[#DFE3EB] dark:border-slate-800 bg-card dark:bg-slate-900 shadow-sm -mt-[1px]",
+          "relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-b-xl rounded-tr-xl border border-[#DFE3EB] dark:border-slate-800 bg-card dark:bg-slate-900 shadow-sm -mt-[1px]",
           !isFirstTabActive && "rounded-tl-xl",
         )}
       >
