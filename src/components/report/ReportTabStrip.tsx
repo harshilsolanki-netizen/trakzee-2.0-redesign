@@ -87,7 +87,7 @@ export function ReportTabStrip({
   }, [searchQuery]);
 
   return (
-    <div className="relative flex items-end justify-between h-[45px] pt-[10px] px-0 select-none shrink-0 bg-[#F1F5F9] dark:bg-slate-950">
+    <div className="relative flex items-end justify-between h-[45px] pt-[10px] px-0 select-none shrink-0 bg-[#F1F5F9] dark:bg-slate-950 rounded-tl-lg">
       {/* Baseline border that runs across the entire strip under inactive tabs */}
       <div className="absolute left-0 right-0 bottom-0 h-px bg-[#DFE3EB] dark:bg-slate-800 z-0" />
 

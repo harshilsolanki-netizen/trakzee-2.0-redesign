@@ -787,7 +787,7 @@ export function ReportPage() {
   const isFirstTabActive = tabs.length > 0 && activeTabId === tabs[0].id;
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900">
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-tl-lg">
       {/* 1. Header Frame: Multi-Report Tab Bar & Quick Filter Bar (Fixed & Unchanged) */}
       <ReportTabStrip
         tabs={tabs}
