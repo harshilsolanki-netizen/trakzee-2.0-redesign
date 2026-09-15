@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { ChartsMenu } from "@/components/chrome/ChartsMenu";
 import { FavoritesMenu } from "@/components/chrome/FavoritesMenu";
 import { ReportsMenu } from "@/components/chrome/ReportsMenu";
+import { SettingsMenu } from "@/components/chrome/SettingsMenu";
 import {
   Popover,
   PopoverContent,
@@ -165,20 +166,8 @@ export function AppSidebar() {
         {/* Charts cascading menu */}
         <ChartsMenu />
 
-        {/* Bottom Nav Links: Setting */}
-        {NAV_BOTTOM.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            activeOptions={{ exact: item.exact }}
-            className="w-full"
-            aria-label={item.label}
-          >
-            {({ isActive }) => (
-              <SideItem label={item.label} icon={item.icon} active={isActive} />
-            )}
-          </Link>
-        ))}
+        {/* Settings cascading menu */}
+        <SettingsMenu />
 
         {/* Pinned Extra Items */}
         {pinnedMoreItems.map((id) => {
