@@ -1606,18 +1606,20 @@ export function ObjectSettingPage() {
                 className="w-52 p-1.5 rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-popover/95 backdrop-blur-md shadow-xl select-none"
               >
                 <div className="space-y-0.5 text-xs">
+                  {/* 1. Bulk Object Insert */}
                   <button
                     type="button"
                     onClick={() => {
                       setMoreMenuOpen(false);
-                      setBulkDeleteModalOpen(true);
+                      setBulkInsertModalOpen(true);
                     }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer font-medium"
+                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
                   >
-                    <Trash2 className="h-4 w-4 shrink-0 text-rose-500" />
-                    <span>Bulk Delete</span>
+                    <Plus className="h-4 w-4 shrink-0 text-[#0089FF]" />
+                    <span>Bulk Object Insert</span>
                   </button>
 
+                  {/* 2. Bulk Update */}
                   <button
                     type="button"
                     onClick={() => {
@@ -1630,18 +1632,7 @@ export function ObjectSettingPage() {
                     <span>Bulk Update</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMoreMenuOpen(false);
-                      setBulkInsertModalOpen(true);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
-                  >
-                    <Plus className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
-                    <span>Bulk Object Insert</span>
-                  </button>
-
+                  {/* 3. Bulk Maintenance */}
                   <button
                     type="button"
                     onClick={() => {
@@ -1654,6 +1645,7 @@ export function ObjectSettingPage() {
                     <span>Bulk Maintenance</span>
                   </button>
 
+                  {/* 4. QR Code */}
                   <button
                     type="button"
                     onClick={() => {
@@ -1664,6 +1656,21 @@ export function ObjectSettingPage() {
                   >
                     <QrCode className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
                     <span>QR Code</span>
+                  </button>
+
+                  <div className="my-1 border-t border-border/60" />
+
+                  {/* 5. Bulk Delete */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      setBulkDeleteModalOpen(true);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer font-medium"
+                  >
+                    <Trash2 className="h-4 w-4 shrink-0 text-rose-500" />
+                    <span>Bulk Delete</span>
                   </button>
                 </div>
               </PopoverContent>
