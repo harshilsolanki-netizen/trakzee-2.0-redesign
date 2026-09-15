@@ -1586,16 +1586,6 @@ export function ObjectSettingPage() {
               )}
             </button>
 
-            {/* Column Config */}
-            <button
-              type="button"
-              onClick={() => toast.info("Column settings configured")}
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98"
-              title="Column Settings"
-            >
-              <Sliders className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
-            </button>
-
             {/* 3-Dots More Menu Popover */}
             <Popover open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
               <PopoverTrigger asChild>
