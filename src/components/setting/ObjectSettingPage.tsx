@@ -26,6 +26,14 @@ import {
   CheckCircle2,
   Printer,
   Sparkles,
+  MoreVertical,
+  Upload,
+  Wrench,
+  FileSpreadsheet,
+  Mail,
+  FileEdit,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import {
   Dialog,
@@ -1343,6 +1351,14 @@ export function ObjectSettingPage() {
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [selectedQrVehicle, setSelectedQrVehicle] = useState<VehicleItem | null>(null);
 
+  // 3-Dots Overlay Menu & Bulk Modals State
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+  const [bulkUpdateModalOpen, setBulkUpdateModalOpen] = useState(false);
+  const [bulkInsertModalOpen, setBulkInsertModalOpen] = useState(false);
+  const [bulkMaintenanceModalOpen, setBulkMaintenanceModalOpen] = useState(false);
+  const [batchQrModalOpen, setBatchQrModalOpen] = useState(false);
+
   const activeDrawerFilterCount = useMemo(() => {
     let count = 0;
     if (activeFilters.company !== "All") count++;
@@ -1389,6 +1405,14 @@ export function ObjectSettingPage() {
     setVehicles((prev) => [...newVehicles, ...prev]);
     setCopyModalOpen(false);
     toast.success(`Successfully copied ${newVehicles.length} vehicle${newVehicles.length > 1 ? "s" : ""}`);
+  };
+
+  const handleBulkDeleteSuccess = (deletedIds: string[]) => {
+    setVehicles((prev) => prev.filter((v) => !deletedIds.includes(v.id)));
+  };
+
+  const handleBulkInsertSuccess = (count: number) => {
+    toast.success(`Inserted ${count} objects into the fleet`);
   };
 
   const handleDeleteVehicle = (id: string) => {
@@ -1472,12 +1496,9 @@ export function ObjectSettingPage() {
           <h1 className="text-base font-bold text-slate-900 dark:text-white select-none">
             Vehicle
           </h1>
-          <span className="text-[11px] font-semibold text-muted-foreground bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-[#DFE3EB] dark:border-slate-700">
-            {filteredVehicles.length} Total
-          </span>
         </div>
 
-        {/* Right Toolbar: Search, Actions, Pagination, + Vehicle */}
+        {/* Right Toolbar: Search, Actions, Pagination, + Object */}
         <div className="flex items-center gap-2">
           {/* Search Dropdown + Input Group */}
           <div className="flex items-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background overflow-hidden shadow-2xs h-7.5">
@@ -1525,27 +1546,8 @@ export function ObjectSettingPage() {
             </div>
           </div>
 
-          {/* Quick Action Utility Icons: Filter, Download, Copy Vehicle */}
+          {/* Quick Action Utility Icons: Download, Upload, Filter, Column Settings, 3-Dots More */}
           <div className="flex items-center gap-1">
-            {/* Filter Button */}
-            <button
-              type="button"
-              onClick={() => setFilterDrawerOpen(true)}
-              className={cn(
-                "inline-flex h-7.5 items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background px-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98 select-none",
-                activeDrawerFilterCount > 0 && "border-[#0089FF] bg-blue-50/70 dark:bg-blue-950/40 text-[#0089FF]",
-              )}
-              title="Filter Options"
-            >
-              <SlidersHorizontal className={cn("h-3.5 w-3.5", activeDrawerFilterCount > 0 ? "text-[#0089FF]" : "text-slate-600 dark:text-slate-300")} />
-              <span>Filter</span>
-              {activeDrawerFilterCount > 0 && (
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#0089FF] text-[10px] font-bold text-white leading-none">
-                  {activeDrawerFilterCount}
-                </span>
-              )}
-            </button>
-
             {/* Export XLS */}
             <button
               type="button"
@@ -1556,15 +1558,126 @@ export function ObjectSettingPage() {
               <Download className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
             </button>
 
-            {/* Copy Vehicle */}
+            {/* Bulk Object Insert / Upload */}
             <button
               type="button"
-              onClick={() => openCopyModal()}
+              onClick={() => setBulkInsertModalOpen(true)}
               className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98"
-              title="Copy Vehicle Configuration"
+              title="Bulk Object Insert"
             >
-              <Copy className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
+              <Upload className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
             </button>
+
+            {/* Filter Button */}
+            <button
+              type="button"
+              onClick={() => setFilterDrawerOpen(true)}
+              className={cn(
+                "relative inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98 select-none",
+                activeDrawerFilterCount > 0 && "border-[#0089FF] bg-blue-50/70 dark:bg-blue-950/40 text-[#0089FF]",
+              )}
+              title="Filter Options"
+            >
+              <SlidersHorizontal className={cn("h-3.5 w-3.5", activeDrawerFilterCount > 0 ? "text-[#0089FF]" : "text-slate-600 dark:text-slate-300")} />
+              {activeDrawerFilterCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#0089FF] text-[9px] font-bold text-white leading-none">
+                  {activeDrawerFilterCount}
+                </span>
+              )}
+            </button>
+
+            {/* Column Config */}
+            <button
+              type="button"
+              onClick={() => toast.info("Column settings configured")}
+              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98"
+              title="Column Settings"
+            >
+              <Sliders className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
+            </button>
+
+            {/* 3-Dots More Menu Popover */}
+            <Popover open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98",
+                    moreMenuOpen && "bg-muted border-[#0089FF]/50 ring-2 ring-[#0089FF]/20 text-[#0089FF]",
+                  )}
+                  title="More Actions"
+                >
+                  <MoreVertical className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                sideOffset={6}
+                className="w-52 p-1.5 rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-popover/95 backdrop-blur-md shadow-xl select-none"
+              >
+                <div className="space-y-0.5 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      setBulkDeleteModalOpen(true);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer font-medium"
+                  >
+                    <Trash2 className="h-4 w-4 shrink-0 text-rose-500" />
+                    <span>Bulk Delete</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      setBulkUpdateModalOpen(true);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
+                  >
+                    <FileEdit className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                    <span>Bulk Update</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      setBulkInsertModalOpen(true);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
+                  >
+                    <Plus className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                    <span>Bulk Object Insert</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      setBulkMaintenanceModalOpen(true);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
+                  >
+                    <Wrench className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                    <span>Bulk Maintenance</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      setBatchQrModalOpen(true);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
+                  >
+                    <QrCode className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                    <span>QR Code</span>
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Vertical Divider */}
@@ -1643,7 +1756,7 @@ export function ObjectSettingPage() {
             </button>
           </div>
 
-          {/* Reset Table & Filters Button (Beside + Vehicle) */}
+          {/* Reset Table & Filters Button (Beside + Object) */}
           <button
             type="button"
             onClick={handleResetTable}
@@ -1653,14 +1766,14 @@ export function ObjectSettingPage() {
             <RotateCcw className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
           </button>
 
-          {/* Primary Action Button: + Vehicle */}
+          {/* Primary Action Button: + Object */}
           <button
             type="button"
             onClick={openCreateModal}
             className="inline-flex h-7.5 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-3.5 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98"
           >
             <Plus className="h-3.5 w-3.5" />
-            <span>Vehicle</span>
+            <span>Object</span>
           </button>
         </div>
       </div>
@@ -1942,14 +2055,50 @@ export function ObjectSettingPage() {
         onCopySuccess={handleCopySuccess}
       />
 
-      {/* 5. QR Code Modal */}
+      {/* 5. Single QR Code Modal */}
       <VehicleQrCodeModal
         open={qrModalOpen}
         onClose={() => setQrModalOpen(false)}
         vehicle={selectedQrVehicle}
       />
 
-      {/* 6. Right Side Filter Drawer (Matching Alert / Report Drawer) */}
+      {/* 6. Bulk Delete Modal */}
+      <BulkDeleteModal
+        open={bulkDeleteModalOpen}
+        onClose={() => setBulkDeleteModalOpen(false)}
+        allVehicles={vehicles}
+        onDeleteSuccess={handleBulkDeleteSuccess}
+      />
+
+      {/* 7. Bulk Update Modal */}
+      <BulkUpdateModal
+        open={bulkUpdateModalOpen}
+        onClose={() => setBulkUpdateModalOpen(false)}
+        allVehicles={vehicles}
+      />
+
+      {/* 8. Bulk Object Insert Modal */}
+      <BulkInsertModal
+        open={bulkInsertModalOpen}
+        onClose={() => setBulkInsertModalOpen(false)}
+        onInsertSuccess={handleBulkInsertSuccess}
+      />
+
+      {/* 9. Bulk Maintenance Modal */}
+      <BulkMaintenanceModal
+        open={bulkMaintenanceModalOpen}
+        onClose={() => setBulkMaintenanceModalOpen(false)}
+        allVehicles={vehicles}
+      />
+
+      {/* 10. Batch QR Code Modal */}
+      <QrCodeBatchModal
+        open={batchQrModalOpen}
+        onClose={() => setBatchQrModalOpen(false)}
+        allVehicles={vehicles}
+      />
+
+      {/* 11. Right Side Filter Drawer (Matching Alert / Report Drawer) */}
       <VehicleFilterDrawer
         open={filterDrawerOpen}
         onClose={() => setFilterDrawerOpen(false)}
@@ -3824,8 +3973,783 @@ export function VehicleQrCodeModal({
 }
 
 /* =========================================================================
-   Reusable SelectDropdown (Matching Alert Page standard)
+   QR Code Batch Modal (Matching reference media_1789455937719.png)
    ========================================================================= */
+export function QrCodeBatchModal({
+  open,
+  onClose,
+  allVehicles,
+}: {
+  open: boolean;
+  onClose: () => void;
+  allVehicles: VehicleItem[];
+}) {
+  const [action, setAction] = useState<"Download" | "Email" | "Both">("Both");
+  const [email, setEmail] = useState("");
+  const [selectedVehicle, setSelectedVehicle] = useState("All");
+  const [fileFormat, setFileFormat] = useState<"PDF" | "JPG" | "JPEG">("PDF");
+  const [sortBy, setSortBy] = useState("Vehicle Name");
+  const [sortOrder, setSortOrder] = useState("Ascending");
+
+  const handleDownload = () => {
+    if ((action === "Email" || action === "Both") && !email.trim()) {
+      toast.error("Please enter email recipient address");
+      return;
+    }
+    toast.success(`Generated QR Codes in ${fileFormat} format`);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-background shadow-2xl flex flex-col select-none">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#DFE3EB] dark:border-slate-800 bg-background select-none">
+          <DialogTitle className="text-[16px] font-bold text-[#1D3B7A] dark:text-blue-400">
+            QR Code
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Generate and export vehicle QR codes
+          </DialogDescription>
+        </div>
+
+        <div className="p-6 space-y-4 text-xs">
+          {/* Action Radio */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">Action :</label>
+            <div className="flex items-center gap-6">
+              {(["Download", "Email", "Both"] as const).map((opt) => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground">
+                  <input
+                    type="radio"
+                    name="qrAction"
+                    checked={action === opt}
+                    onChange={() => setAction(opt)}
+                    className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                  />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Email input (visible if Email or Both) */}
+          {(action === "Email" || action === "Both") && (
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">Email :</label>
+              <textarea
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter email addresses..."
+                rows={2}
+                className="w-full rounded-md border border-input/80 bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+              />
+            </div>
+          )}
+
+          {/* Vehicle Dropdown */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">Vehicle :</label>
+            <SelectDropdown
+              value={selectedVehicle}
+              options={["All", ...allVehicles.map((v) => v.name)]}
+              onChange={setSelectedVehicle}
+              placeholder="Select Some Options"
+            />
+          </div>
+
+          {/* File Format Radio */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">File Format :</label>
+            <div className="flex items-center gap-6">
+              {(["PDF", "JPG", "JPEG"] as const).map((fmt) => (
+                <label key={fmt} className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground">
+                  <input
+                    type="radio"
+                    name="fileFormat"
+                    checked={fileFormat === fmt}
+                    onChange={() => setFileFormat(fmt)}
+                    className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                  />
+                  <span>{fmt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Sort By & Sort Order */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">Sort by :</label>
+              <SelectDropdown
+                value={sortBy}
+                options={["Vehicle Name", "Company", "Branch", "IMEI Number", "Created Date"]}
+                onChange={setSortBy}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">Sort Order :</label>
+              <SelectDropdown
+                value={sortOrder}
+                options={["Ascending", "Descending"]}
+                onChange={setSortOrder}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 px-6 py-3.5 border-t border-[#DFE3EB] dark:border-slate-800 bg-muted/20">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleDownload}
+            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>Download</span>
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* =========================================================================
+   Bulk Maintenance Modal (Matching reference media_1789455943886.png)
+   ========================================================================= */
+export function BulkMaintenanceModal({
+  open,
+  onClose,
+  allVehicles,
+}: {
+  open: boolean;
+  onClose: () => void;
+  allVehicles: VehicleItem[];
+}) {
+  const [mode, setMode] = useState<"Maintenance" | "Recovery">("Maintenance");
+  const [company, setCompany] = useState("HP Company");
+  const [branch, setBranch] = useState("HP Branch 8");
+  const [object, setObject] = useState("All");
+  const [maintenanceFor, setMaintenanceFor] = useState("Accident");
+  const [maintenanceDate, setMaintenanceDate] = useState("2026-09-15");
+  const [recoveryDate, setRecoveryDate] = useState("2026-09-22");
+  const [remarks, setRemarks] = useState("");
+
+  const handleSave = () => {
+    toast.success(`Maintenance record saved for ${object === "All" ? `${company} fleet` : object}`);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-background shadow-2xl flex flex-col select-none">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#DFE3EB] dark:border-slate-800 bg-background select-none">
+          <DialogTitle className="text-[16px] font-bold text-[#1D3B7A] dark:text-blue-400">
+            Maintenance / Recovery
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Schedule bulk vehicle maintenance and recovery
+          </DialogDescription>
+        </div>
+
+        <div className="p-6 space-y-4 text-xs">
+          {/* Mode */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">Mode :</label>
+            <div className="flex items-center gap-6">
+              {(["Maintenance", "Recovery"] as const).map((m) => (
+                <label key={m} className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground">
+                  <input
+                    type="radio"
+                    name="maintMode"
+                    checked={mode === m}
+                    onChange={() => setMode(m)}
+                    className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                  />
+                  <span>{m}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Company & Branch */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Company <span className="text-rose-500">*</span> :
+              </label>
+              <SelectDropdown
+                value={company}
+                options={["HP Company", "Global Logistics Inc", "Fleet Cargo West", "FastTrack Mobility"]}
+                onChange={setCompany}
+                placeholder="Select Company"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Branch <span className="text-rose-500">*</span> :
+              </label>
+              <SelectDropdown
+                value={branch}
+                options={["HP Branch 8", "HP EV Branch 2", "Central Branch", "North Terminal", "West Hub", "South Depot"]}
+                onChange={setBranch}
+                placeholder="Select Branch"
+              />
+            </div>
+          </div>
+
+          {/* Object */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">
+              Object <span className="text-rose-500">*</span> :
+            </label>
+            <SelectDropdown
+              value={object}
+              options={["All", ...allVehicles.filter(v => v.company === company).map(v => v.name)]}
+              onChange={setObject}
+              placeholder="Search Object"
+            />
+          </div>
+
+          {/* Maintenance For */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">
+              Maintenance For <span className="text-rose-500">*</span> :
+            </label>
+            <SelectDropdown
+              value={maintenanceFor}
+              options={[
+                "Accident",
+                "Routine Service",
+                "Engine Overhaul",
+                "Tire Replacement",
+                "Brake Overhaul",
+                "Battery Maintenance",
+                "Scheduled Inspection",
+                "Breakdown Repair",
+              ]}
+              onChange={setMaintenanceFor}
+            />
+          </div>
+
+          {/* Dates */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Maintenance Date <span className="text-rose-500">*</span> :
+              </label>
+              <input
+                type="date"
+                value={maintenanceDate}
+                onChange={(e) => setMaintenanceDate(e.target.value)}
+                className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Estimated Recovery Date <span className="text-rose-500">*</span> :
+              </label>
+              <input
+                type="date"
+                value={recoveryDate}
+                onChange={(e) => setRecoveryDate(e.target.value)}
+                className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Remarks */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">Remarks :</label>
+            <textarea
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              placeholder="Enter maintenance notes, garage contact, replacement parts..."
+              rows={2}
+              className="w-full rounded-md border border-input/80 bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 px-6 py-3.5 border-t border-[#DFE3EB] dark:border-slate-800 bg-muted/20">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
+          >
+            <Wrench className="h-3.5 w-3.5" />
+            <span>Save Record</span>
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* =========================================================================
+   Bulk Update Modal (Matching reference media_1789455950099.png)
+   ========================================================================= */
+export function BulkUpdateModal({
+  open,
+  onClose,
+  allVehicles,
+}: {
+  open: boolean;
+  onClose: () => void;
+  allVehicles: VehicleItem[];
+}) {
+  const [company, setCompany] = useState("HP Company");
+  const [branch, setBranch] = useState("All");
+  const [vehicle, setVehicle] = useState("All");
+  const [fileName, setFileName] = useState("object_update_sheet.xlsx");
+
+  const handleUploadUpdate = () => {
+    toast.success(`Bulk updated objects for ${company} (${branch})`);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-background shadow-2xl flex flex-col select-none">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#DFE3EB] dark:border-slate-800 bg-background select-none">
+          <DialogTitle className="text-[16px] font-bold text-[#1D3B7A] dark:text-blue-400">
+            Object Bulk Update
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Update multiple vehicle telemetry configurations via spreadsheet upload
+          </DialogDescription>
+        </div>
+
+        <div className="p-6 space-y-4 text-xs">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Company <span className="text-rose-500">*</span> :
+              </label>
+              <SelectDropdown
+                value={company}
+                options={["HP Company", "Global Logistics Inc", "Fleet Cargo West", "FastTrack Mobility"]}
+                onChange={setCompany}
+                placeholder="Select Company"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Branch <span className="text-rose-500">*</span> :
+              </label>
+              <SelectDropdown
+                value={branch}
+                options={["All", "HP Branch 8", "HP EV Branch 2", "Central Branch", "North Terminal", "West Hub", "South Depot"]}
+                onChange={setBranch}
+                placeholder="Select Branch"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">Vehicle :</label>
+            <SelectDropdown
+              value={vehicle}
+              options={["All", ...allVehicles.map(v => v.name)]}
+              onChange={setVehicle}
+              placeholder="Select Vehicle / Object"
+            />
+          </div>
+
+          {/* Upload File */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">
+              Upload File <span className="text-rose-500">*</span> :
+            </label>
+            <div className="border-2 border-dashed border-[#DFE3EB] dark:border-slate-700 rounded-lg p-5 text-center bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer">
+              <Upload className="mx-auto h-7 w-7 text-[#0089FF] mb-1.5" />
+              <p className="text-xs font-semibold text-foreground">
+                Choose File or drag and drop spreadsheet (.xlsx, .csv)
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Current file: <span className="font-mono font-semibold text-[#0089FF]">{fileName}</span> (24.5 KB)
+              </p>
+            </div>
+            <div className="pt-1 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => toast.success("Sample template downloaded: bulk_update_sample.xlsx")}
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0089FF] hover:underline cursor-pointer"
+              >
+                <Download className="h-3 w-3" />
+                <span>Download Sample File</span>
+              </button>
+              <span className="text-[10px] text-muted-foreground">Supported: .XLSX, .CSV</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 px-6 py-3.5 border-t border-[#DFE3EB] dark:border-slate-800 bg-muted/20">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleUploadUpdate}
+            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span>Upload & Update</span>
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* =========================================================================
+   Bulk Object Insert Modal
+   ========================================================================= */
+export function BulkInsertModal({
+  open,
+  onClose,
+  onInsertSuccess,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onInsertSuccess: (count: number) => void;
+}) {
+  const [reseller, setReseller] = useState("HP Reseller");
+  const [company, setCompany] = useState("HP Company");
+  const [branch, setBranch] = useState("HP Branch 8");
+  const [deviceType, setDeviceType] = useState("HP HttpPool Advance-HP HttpPool Service");
+  const [fileName, setFileName] = useState("new_objects_template.xlsx");
+
+  const handleUploadInsert = () => {
+    onInsertSuccess(12);
+    toast.success("Successfully imported 12 new vehicles / objects");
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-background shadow-2xl flex flex-col select-none">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#DFE3EB] dark:border-slate-800 bg-background select-none">
+          <DialogTitle className="text-[16px] font-bold text-[#1D3B7A] dark:text-blue-400">
+            Bulk Object Insert
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Import new vehicles and objects into the fleet via spreadsheet
+          </DialogDescription>
+        </div>
+
+        <div className="p-6 space-y-4 text-xs">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Company <span className="text-rose-500">*</span> :
+              </label>
+              <SelectDropdown
+                value={company}
+                options={["HP Company", "Global Logistics Inc", "Fleet Cargo West", "FastTrack Mobility"]}
+                onChange={setCompany}
+                placeholder="Select Company"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">
+                Branch <span className="text-rose-500">*</span> :
+              </label>
+              <SelectDropdown
+                value={branch}
+                options={["HP Branch 8", "HP EV Branch 2", "Central Branch", "North Terminal", "West Hub", "South Depot"]}
+                onChange={setBranch}
+                placeholder="Select Branch"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">
+              GPS Device Type <span className="text-rose-500">*</span> :
+            </label>
+            <SelectDropdown
+              value={deviceType}
+              options={DEVICE_TYPE_OPTIONS}
+              onChange={setDeviceType}
+              placeholder="Select Device Type"
+            />
+          </div>
+
+          {/* Upload File */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">
+              Upload File <span className="text-rose-500">*</span> :
+            </label>
+            <div className="border-2 border-dashed border-[#DFE3EB] dark:border-slate-700 rounded-lg p-5 text-center bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer">
+              <Upload className="mx-auto h-7 w-7 text-[#0089FF] mb-1.5" />
+              <p className="text-xs font-semibold text-foreground">
+                Choose File or drag and drop spreadsheet (.xlsx, .csv)
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Current file: <span className="font-mono font-semibold text-[#0089FF]">{fileName}</span> (32.1 KB)
+              </p>
+            </div>
+            <div className="pt-1 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => toast.success("Sample template downloaded: bulk_insert_sample.xlsx")}
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0089FF] hover:underline cursor-pointer"
+              >
+                <Download className="h-3 w-3" />
+                <span>Download Sample File</span>
+              </button>
+              <span className="text-[10px] text-muted-foreground">Headers: Name, IMEI, SIM, Type, Plate</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 px-6 py-3.5 border-t border-[#DFE3EB] dark:border-slate-800 bg-muted/20">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleUploadInsert}
+            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Upload & Insert</span>
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* =========================================================================
+   Bulk Delete Modal
+   ========================================================================= */
+export function BulkDeleteModal({
+  open,
+  onClose,
+  allVehicles,
+  onDeleteSuccess,
+}: {
+  open: boolean;
+  onClose: () => void;
+  allVehicles: VehicleItem[];
+  onDeleteSuccess: (deletedIds: string[]) => void;
+}) {
+  const [company, setCompany] = useState("All");
+  const [branch, setBranch] = useState("All");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [reason, setReason] = useState("Decommissioned");
+
+  const availableVehicles = useMemo(() => {
+    return allVehicles.filter(
+      (v) =>
+        (company === "All" || v.company === company) &&
+        (branch === "All" || v.branch === branch)
+    );
+  }, [allVehicles, company, branch]);
+
+  const displayedVehicles = useMemo(() => {
+    if (!searchTerm.trim()) return availableVehicles;
+    const q = searchTerm.toLowerCase();
+    return availableVehicles.filter(
+      (v) => v.name.toLowerCase().includes(q) || v.imei.toLowerCase().includes(q)
+    );
+  }, [availableVehicles, searchTerm]);
+
+  const handleToggle = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIds.length === availableVehicles.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(availableVehicles.map((v) => v.id));
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedIds.length === 0) {
+      toast.error("Please select at least one vehicle to delete");
+      return;
+    }
+    if (
+      window.confirm(
+        `Are you sure you want to permanently delete ${selectedIds.length} vehicles?`
+      )
+    ) {
+      onDeleteSuccess(selectedIds);
+      toast.success(`Successfully deleted ${selectedIds.length} vehicles`);
+      onClose();
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-xl max-h-[90vh] p-0 gap-0 overflow-hidden rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-background shadow-2xl flex flex-col select-none">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#DFE3EB] dark:border-slate-800 bg-background select-none">
+          <DialogTitle className="text-[16px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+            <Trash2 className="h-4 w-4" />
+            <span>Bulk Delete Objects</span>
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Select and delete multiple vehicle objects in bulk
+          </DialogDescription>
+        </div>
+
+        <div className="p-6 space-y-4 text-xs overflow-y-auto custom-scrollbar flex-1">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">Company :</label>
+              <SelectDropdown
+                value={company}
+                options={["All", "HP Company", "Global Logistics Inc", "Fleet Cargo West", "FastTrack Mobility"]}
+                onChange={(c) => {
+                  setCompany(c);
+                  setSelectedIds([]);
+                }}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-foreground">Branch :</label>
+              <SelectDropdown
+                value={branch}
+                options={["All", "HP Branch 8", "HP EV Branch 2", "Central Branch", "North Terminal", "West Hub", "South Depot"]}
+                onChange={(b) => {
+                  setBranch(b);
+                  setSelectedIds([]);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-foreground">
+                Select Objects to Delete ({selectedIds.length} / {availableVehicles.length} selected)
+              </label>
+              <button
+                type="button"
+                onClick={handleSelectAll}
+                className="text-[11px] font-semibold text-[#0089FF] hover:underline cursor-pointer"
+              >
+                {selectedIds.length === availableVehicles.length ? "Deselect All" : "Select All"}
+              </button>
+            </div>
+
+            <div className="rounded-lg border border-input/80 bg-background overflow-hidden shadow-2xs">
+              <div className="flex items-center px-3 py-2 border-b border-border/60 bg-muted/20">
+                <Search className="h-3.5 w-3.5 text-muted-foreground mr-2 shrink-0" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search vehicles to delete..."
+                  className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                />
+              </div>
+
+              <div className="max-h-48 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                {displayedVehicles.map((v) => {
+                  const isChecked = selectedIds.includes(v.id);
+                  return (
+                    <label
+                      key={v.id}
+                      onClick={() => handleToggle(v.id)}
+                      className={cn(
+                        "flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors text-xs select-none",
+                        isChecked
+                          ? "bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 font-semibold"
+                          : "hover:bg-muted/60 border border-transparent text-muted-foreground hover:text-foreground font-medium",
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => {}}
+                          className="h-4 w-4 rounded border-input text-rose-600 accent-rose-600 cursor-pointer shrink-0"
+                        />
+                        <div className="truncate">
+                          <span className="text-foreground font-medium truncate block">{v.name}</span>
+                          <span className="text-[11px] text-muted-foreground font-mono truncate block">
+                            IMEI: {v.imei} • {v.branch}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border text-slate-700 dark:text-slate-300 shrink-0">
+                        {v.company}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">Reason for Deletion :</label>
+            <SelectDropdown
+              value={reason}
+              options={["Decommissioned", "Lease Expired", "Duplicate Record", "Transferred to Another Company", "Retired Fleet"]}
+              onChange={setReason}
+            />
+          </div>
+
+          <div className="flex items-start gap-2.5 p-3 rounded-lg border border-rose-200/80 bg-rose-50/70 dark:border-rose-900/60 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200">
+            <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+            <div className="text-xs leading-relaxed">
+              <span className="font-semibold text-rose-700 dark:text-rose-300">Warning:</span> Bulk deletion permanently removes the selected objects, associated sensors, and alert triggers.
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 px-6 py-3.5 border-t border-[#DFE3EB] dark:border-slate-800 bg-muted/20">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={selectedIds.length === 0}
+            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-rose-600 hover:bg-rose-700 disabled:opacity-50 px-5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer disabled:cursor-not-allowed active:scale-98"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>Delete Selected ({selectedIds.length})</span>
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export type DropdownOption =
   | string
