@@ -1,6 +1,7 @@
 import { ChevronRight, RotateCcw, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppliedFiltersSummary } from "@/components/report/AppliedFiltersSummary";
+import { SelectDropdown } from "@/components/ui/select-dropdown";
 import {
   VehicleAttributeFilterOverlay,
   DEFAULT_VEHICLE_ATTRIBUTES,
@@ -133,17 +134,12 @@ export function ChartFilterDrawer({
           {/* Date Selection */}
           <div className="shrink-0">
             <Field label="Date selection">
-              <select
-                className={selectClass}
+              <SelectDropdown
                 value={value.datePreset}
-                onChange={(e) => onChange({ datePreset: e.target.value })}
-              >
-                {DATE_PRESETS.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
+                options={DATE_PRESETS}
+                onChange={(preset) => onChange({ datePreset: preset })}
+                triggerClassName="h-7.5"
+              />
             </Field>
           </div>
 

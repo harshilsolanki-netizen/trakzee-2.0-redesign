@@ -13,7 +13,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { AppSidebar } from "@/components/chrome/AppSidebar";
 import { NotificationPanel } from "@/components/chrome/NotificationPanel";
-import { UserProfileMenu, applyTheme } from "@/components/chrome/UserProfileMenu";
+import { UserProfileMenu, applyTheme, applyUiStyle, type UiElementStyle } from "@/components/chrome/UserProfileMenu";
 import { ZioLogo } from "@/components/zio/ZioLogo";
 import { AskZioTopBarButton } from "@/components/zio/AskZioCTA";
 import { ZioPanel } from "@/components/zio/ZioPanel";
@@ -157,8 +157,10 @@ function RootComponent() {
 function AppLayout() {
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("trakzee-active-theme-id");
-      if (saved) applyTheme(saved);
+      const savedTheme = localStorage.getItem("trakzee-active-theme-id");
+      if (savedTheme) applyTheme(savedTheme);
+      const savedUi = localStorage.getItem("trakzee-ui-style") as UiElementStyle;
+      if (savedUi) applyUiStyle(savedUi);
     } catch {}
   }, []);
   const { isOpen, mode, openZio } = useZio();
@@ -216,7 +218,7 @@ function TopBar() {
         <input
           aria-label="Search"
           placeholder="Search"
-          className="h-[30px] w-full rounded-md border border-white/15 bg-white/10 pl-8 pr-2.5 text-xs text-nav-foreground placeholder:text-nav-muted focus:outline-none focus-visible:ring-1.5 focus-visible:ring-white/40"
+          className="h-[30px] w-full rounded-md border border-white/15 bg-white/10 pl-8 pr-2.5 text-xs text-nav-foreground placeholder:text-nav-muted hover:border-white/30 hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0089FF]/60 focus:border-[#0089FF] transition-all"
         />
       </div>
       <div className="ml-auto flex items-center gap-2.5">

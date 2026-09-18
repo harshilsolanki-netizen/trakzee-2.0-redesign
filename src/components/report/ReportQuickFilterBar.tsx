@@ -1040,19 +1040,17 @@ export function ReportQuickFilterBar({
           <button
             type="button"
             className={cn(
-              "inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold transition-all cursor-pointer select-none hover:bg-muted/70",
-              dateOpen
-                ? "bg-[#0089FF]/10 text-[#0089FF] ring-1 ring-[#0089FF]/30"
-                : "text-[#0089FF] hover:text-[#0089FF]",
+              "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+              dateOpen && "bg-muted",
             )}
           >
-            <CalendarIcon className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-            <span className="font-semibold text-[#0089FF]">
+            <CalendarIcon className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+            <span className="font-semibold text-slate-900 dark:text-white">
               {dateTimeRangeTriggerLabel}
             </span>
             <ChevronDown
               className={cn(
-                "h-3 w-3 text-[#0089FF]/70 shrink-0 transition-transform duration-200",
+                "h-3 w-3 text-slate-500 dark:text-slate-400 shrink-0 transition-transform duration-200",
                 dateOpen && "rotate-180",
               )}
             />
@@ -1221,12 +1219,12 @@ export function ReportQuickFilterBar({
             type="button"
             className={cn(
               "inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
-              companyOpen && "bg-muted font-semibold",
+              companyOpen && "bg-muted",
             )}
           >
-            <span className="font-semibold text-foreground">Company:</span>
-            <span className="font-medium text-muted-foreground">{companyLabel}</span>
-            <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
+            <span className="font-normal text-slate-500 dark:text-slate-400">Company:</span>
+            <span className="font-semibold text-slate-900 dark:text-white">{companyLabel}</span>
+            <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400 shrink-0" />
           </button>
         </PopoverTrigger>
         <PopoverContent
@@ -1343,12 +1341,12 @@ export function ReportQuickFilterBar({
             type="button"
             className={cn(
               "inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
-              branchOpen && "bg-muted font-semibold",
+              branchOpen && "bg-muted",
             )}
           >
-            <span className="font-semibold text-foreground">Branch:</span>
-            <span className="font-medium text-muted-foreground">{branchLabel}</span>
-            <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
+            <span className="font-normal text-slate-500 dark:text-slate-400">Branch:</span>
+            <span className="font-semibold text-slate-900 dark:text-white">{branchLabel}</span>
+            <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400 shrink-0" />
           </button>
         </PopoverTrigger>
         <PopoverContent
@@ -1465,12 +1463,12 @@ export function ReportQuickFilterBar({
             type="button"
             className={cn(
               "inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
-              vehicleOpen && "bg-muted font-semibold",
+              vehicleOpen && "bg-muted",
             )}
           >
-            <span className="font-semibold text-foreground">Vehicle:</span>
-            <span className="font-medium text-muted-foreground">{vehicleLabel}</span>
-            <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
+            <span className="font-normal text-slate-500 dark:text-slate-400">Vehicle:</span>
+            <span className="font-semibold text-slate-900 dark:text-white">{vehicleLabel}</span>
+            <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400 shrink-0" />
           </button>
         </PopoverTrigger>
         <PopoverContent
@@ -1652,10 +1650,10 @@ export function ReportQuickFilterBar({
         type="button"
         onClick={onOpenFilterDrawer}
         aria-label="Open Filter Drawer"
-        className="inline-flex h-7 items-center gap-1.5 rounded-md bg-[#0089FF]/10 border border-[#0089FF]/30 px-2.5 text-xs font-semibold text-[#0089FF] hover:bg-[#0089FF]/20 transition-all cursor-pointer select-none shadow-2xs active:scale-98"
+        className="inline-flex h-7 items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer select-none shadow-2xs active:scale-98"
       >
-        <SlidersHorizontal className="h-3 w-3 text-[#0089FF]" />
-        <span>Filter</span>
+        <SlidersHorizontal className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+        <span className="font-medium text-slate-700 dark:text-slate-300">Filter</span>
         {activeSideFilterCount > 0 && (
           <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white">
             {activeSideFilterCount}

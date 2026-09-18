@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import {
+  CircleGauge,
+  Truck,
   Plus,
   RotateCcw,
   Download,
@@ -18,6 +20,7 @@ import {
   RefreshCw,
   FileText,
   Info,
+  Star,
 } from "lucide-react";
 import {
   Dialog,
@@ -27,11 +30,20 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { SelectDropdown, type DropdownOption } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
+import { useLayoutMode } from "@/lib/useLayoutMode";
 
 export type AlertSeverity = "Low" | "Medium" | "High" | "Critical";
 
@@ -64,14 +76,86 @@ export type AlertRuleItem = {
 };
 
 export type AlertFilterState = {
+  companies: string[];
+  branches: string[];
+  vehicles: string[];
+  alertTypes: string[];
   company: string;
   branch: string;
+  vehicle: string;
   alertType: string;
 };
 
+export const COMPANY_OPTIONS = [
+  "ABC Logistic",
+  "XYZ Transport",
+  "HP Company",
+  "Planet Eco Building Materials LLC",
+  "Uffizio Indonesia",
+  "Uffizio Thailand",
+  "Global Logistics Inc",
+  "Fleet Cargo West",
+  "FastTrack Mobility",
+];
+
+export const BRANCH_OPTIONS = [
+  "Central Branch",
+  "North Terminal",
+  "West Hub",
+  "South Depot",
+  "East Yard",
+  "Downtown Station",
+  "Airport Depot",
+];
+
+export const VEHICLE_OPTIONS = [
+  "HP Boom Barrier Object",
+  "HP BLE Tamper Object",
+  "HP EV Object 29",
+  "HP Custom Object",
+  "HP EV Object 36",
+  "GL Cold Liner Express 08",
+];
+
+export const ALERT_TYPE_OPTIONS = [
+  "911",
+  "Abnormal Flameout Warning",
+  "Automatic Capture Event",
+  "Calibration Fail",
+  "Camera Cover",
+  "Camera Error Code",
+  "Camera Occlusion Warning",
+  "Distraction",
+  "Door Opening While Driving",
+  "Drinking Water Warning",
+  "Driver Assist Function Failure Warning",
+  "Driver Back",
+  "Driver Changed",
+  "Driver ID Identification Failed",
+  "Driver ID Identification Successful",
+  "Driver On Call",
+  "Driver Shift",
+  "EDS Unauthorized Movement",
+  "Exceeding Road Sign Warning",
+  "Eye closed",
+  "Over Speed",
+  "SOS Panic",
+  "Geofence In/Out",
+  "Harsh Braking",
+  "Harsh Acceleration",
+  "Fuel Drop (Theft)",
+  "Temperature Alert",
+  "Night Driving",
+];
+
 export const DEFAULT_ALERT_FILTERS: AlertFilterState = {
+  companies: [...COMPANY_OPTIONS],
+  branches: [...BRANCH_OPTIONS],
+  vehicles: [...VEHICLE_OPTIONS],
+  alertTypes: [...ALERT_TYPE_OPTIONS],
   company: "All",
   branch: "All",
+  vehicle: "All",
   alertType: "All",
 };
 
@@ -619,40 +703,222 @@ const TIMEZONES = [
   "Asia/Singapore (UTC+08:00)",
 ];
 
-const ALERT_TYPE_OPTIONS = [
-  "911",
-  "Abnormal Flameout Warning",
-  "Automatic Capture Event",
-  "Calibration Fail",
-  "Camera Cover",
-  "Camera Error Code",
-  "Camera Occlusion Warning",
-  "Distraction",
-  "Door Opening While Driving",
-  "Drinking Water Warning",
-  "Driver Assist Function Failure Warning",
-  "Driver Back",
-  "Driver Changed",
-  "Driver ID Identification Failed",
-  "Driver ID Identification Successful",
-  "Driver On Call",
-  "Driver Shift",
-  "EDS Unauthorized Movement",
-  "Exceeding Road Sign Warning",
-  "Eye closed",
-  "Over Speed",
-  "SOS Panic",
-  "Geofence In/Out",
-  "Harsh Braking",
-  "Harsh Acceleration",
-  "Fuel Drop (Theft)",
-  "Temperature Alert",
-  "Night Driving",
+/* =========================================================================
+   Reusable Multi-Select Filter Popover (Matching Report Overlay Theme)
+   ========================================================================= */
+export function MultiSelectFilterPopover({
+  label,
+  title,
+  placeholder,
+  options,
+  selected,
+  onChange,
+}: {
+  label: string; // e.g. "Company"
+  title: string; // e.g. "Select Company"
+  placeholder: string; // e.g. "Search company..."
+  options: string[];
+  selected: string[];
+  onChange: (newSelected: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [draftSelected, setDraftSelected] = useState<string[]>(selected);
+
+  // Sync draft whenever popover opens
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      setDraftSelected([...selected]);
+      setSearch("");
+    }
+    setOpen(nextOpen);
+  };
+
+  const filteredOptions = useMemo(() => {
+    if (!search.trim()) return options;
+    const q = search.toLowerCase();
+    return options.filter((opt) => opt.toLowerCase().includes(q));
+  }, [options, search]);
+
+  const isAllSelected = options.length > 0 && draftSelected.length === options.length;
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setDraftSelected([]);
+    } else {
+      setDraftSelected([...options]);
+    }
+  };
+
+  const toggleOption = (opt: string) => {
+    setDraftSelected((prev) =>
+      prev.includes(opt) ? prev.filter((item) => item !== opt) : [...prev, opt],
+    );
+  };
+
+  const handleClear = () => {
+    setDraftSelected([]);
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+  };
+
+  const handleApply = () => {
+    onChange(draftSelected);
+    setOpen(false);
+  };
+
+  // Determine trigger label text
+  const displayLabel = useMemo(() => {
+    if (selected.length === 0) return "None";
+    if (selected.length === options.length) return "All";
+    if (selected.length === 1) return selected[0];
+    return `${selected[0]} +${selected.length - 1}`;
+  }, [selected, options]);
+
+  return (
+    <Popover open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium shrink-0 cursor-pointer hover:opacity-80 transition-opacity select-none text-xs py-1 px-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800",
+            open && "bg-slate-100 dark:bg-slate-800",
+          )}
+        >
+          <span className="text-slate-500 dark:text-slate-400 font-normal">{label}:</span>
+          <span className="text-slate-900 dark:text-white font-semibold inline-flex items-center gap-1">
+            <span className="max-w-[130px] truncate">{displayLabel}</span>
+            <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400 opacity-80 shrink-0" />
+          </span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        sideOffset={4}
+        className="w-68 p-0 text-xs bg-popover/95 backdrop-blur-md border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
+      >
+        {/* Header with Title & Selected Badge & Search */}
+        <div className="p-3 px-4 border-b border-border/70 space-y-2 bg-muted/20">
+          <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+            <span>{title}</span>
+            <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+              {draftSelected.length} selected
+            </span>
+          </div>
+
+          <div className="flex h-8 items-center gap-2 rounded-md border border-input bg-background px-2.5 focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+            <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={placeholder}
+              className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="rounded-md p-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Select All Checkbox Row */}
+        <div className="px-4 py-1.5 border-b border-border/60 flex items-center justify-between bg-muted/10">
+          <label className="flex items-center gap-2 cursor-pointer select-none w-full text-xs font-semibold text-foreground">
+            <input
+              type="checkbox"
+              checked={isAllSelected}
+              onChange={toggleSelectAll}
+              className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand accent-[#0089FF] cursor-pointer"
+            />
+            <span>Select All</span>
+          </label>
+        </div>
+
+        {/* Options List */}
+        <div className="max-h-52 overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
+          {filteredOptions.map((opt) => {
+            const checked = draftSelected.includes(opt);
+            return (
+              <label
+                key={opt}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-sm hover:bg-muted cursor-pointer transition-colors text-xs select-none"
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggleOption(opt)}
+                  className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand accent-[#0089FF] cursor-pointer shrink-0"
+                />
+                <span
+                  className={cn(
+                    "text-foreground font-medium",
+                    checked && "font-semibold text-foreground",
+                  )}
+                >
+                  {opt}
+                </span>
+              </label>
+            );
+          })}
+          {filteredOptions.length === 0 && (
+            <div className="p-4 text-center text-xs text-muted-foreground">
+              No matching options found
+            </div>
+          )}
+        </div>
+
+        {/* Footer with Clear, Cancel, Apply Buttons */}
+        <div className="p-2.5 px-4 border-t border-border/70 flex items-center justify-between bg-muted/20">
+          <button
+            type="button"
+            onClick={handleClear}
+            className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors"
+          >
+            Clear
+          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="px-3 py-1.5 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleApply}
+              className="px-4 py-1.5 text-xs rounded-md bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer font-semibold shadow-xs transition-all active:scale-98"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+const ALERT_SEARCH_FIELDS = [
+  { id: "all", label: "All fields" },
+  { id: "name", label: "Alert Name" },
+  { id: "type", label: "Alert Type" },
+  { id: "company", label: "Company" },
+  { id: "branch", label: "Branch" },
+  { id: "severity", label: "Severity" },
 ];
 
 export function AlertSettingPage() {
+  const { isSingle } = useLayoutMode();
   const [alerts, setAlerts] = useState<AlertRuleItem[]>(INITIAL_ALERTS);
   const [searchField, setSearchField] = useState("all");
+  const selectedSearchFieldLabel = ALERT_SEARCH_FIELDS.find((f) => f.id === searchField)?.label || "All fields";
   const [searchQuery, setSearchQuery] = useState("");
   const [pageSize, setPageSize] = useState<number>(20);
   const [pageSizeOpen, setPageSizeOpen] = useState<boolean>(false);
@@ -662,9 +928,10 @@ export function AlertSettingPage() {
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<AlertFilterState>(DEFAULT_ALERT_FILTERS);
 
-  // Modal State for Alert Detail (Add / Edit)
-  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  // View Mode: "list" for Alert Table, "form" for In-Screen Add/Edit Alert
+  const [viewMode, setViewMode] = useState<"list" | "form">("list");
   const [editingAlert, setEditingAlert] = useState<AlertRuleItem | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Modal State for Copy Alert
   const [copyModalOpen, setCopyModalOpen] = useState(false);
@@ -672,20 +939,21 @@ export function AlertSettingPage() {
 
   const activeDrawerFilterCount = useMemo(() => {
     let count = 0;
-    if (activeFilters.company !== "All") count++;
-    if (activeFilters.branch !== "All") count++;
-    if (activeFilters.alertType !== "All") count++;
+    if (activeFilters.companies.length < COMPANY_OPTIONS.length) count++;
+    if (activeFilters.branches.length < BRANCH_OPTIONS.length) count++;
+    if (activeFilters.vehicles.length < VEHICLE_OPTIONS.length) count++;
+    if (activeFilters.alertTypes.length < ALERT_TYPE_OPTIONS.length) count++;
     return count;
   }, [activeFilters]);
 
-  const openCreateModal = () => {
+  const openCreateForm = () => {
     setEditingAlert(null);
-    setDetailModalOpen(true);
+    setViewMode("form");
   };
 
-  const openEditModal = (item: AlertRuleItem) => {
+  const openEditForm = (item: AlertRuleItem) => {
     setEditingAlert(item);
-    setDetailModalOpen(true);
+    setViewMode("form");
   };
 
   const openCopyModal = (item?: AlertRuleItem) => {
@@ -703,7 +971,7 @@ export function AlertSettingPage() {
       setAlerts((prev) => [savedAlert, ...prev]);
       toast.success(`Alert rule "${savedAlert.name}" created successfully`);
     }
-    setDetailModalOpen(false);
+    setViewMode("list");
   };
 
   const handleCopySuccess = (newAlerts: AlertRuleItem[]) => {
@@ -729,19 +997,29 @@ export function AlertSettingPage() {
     toast.success("Table filters and search reset");
   };
 
-  // Filtered alerts: applying drawer filters + search query
+  // Filtered alerts: applying drawer/toolbar filters + search query
   const filteredAlerts = useMemo(() => {
     let list = alerts;
 
-    // Apply Drawer filters
-    if (activeFilters.company !== "All") {
-      list = list.filter((item) => item.company.toLowerCase() === activeFilters.company.toLowerCase());
+    // Apply multi-select Company filter
+    if (activeFilters.companies.length < COMPANY_OPTIONS.length) {
+      if (activeFilters.companies.length === 0) return [];
+      const compSet = new Set(activeFilters.companies.map((c) => c.toLowerCase()));
+      list = list.filter((item) => compSet.has(item.company.toLowerCase()));
     }
-    if (activeFilters.branch !== "All") {
-      list = list.filter((item) => item.branch.toLowerCase() === activeFilters.branch.toLowerCase());
+
+    // Apply multi-select Branch filter
+    if (activeFilters.branches.length < BRANCH_OPTIONS.length) {
+      if (activeFilters.branches.length === 0) return [];
+      const branchSet = new Set(activeFilters.branches.map((b) => b.toLowerCase()));
+      list = list.filter((item) => branchSet.has(item.branch.toLowerCase()));
     }
-    if (activeFilters.alertType !== "All") {
-      list = list.filter((item) => item.alertType.toLowerCase() === activeFilters.alertType.toLowerCase());
+
+    // Apply multi-select Alert Type filter
+    if (activeFilters.alertTypes.length < ALERT_TYPE_OPTIONS.length) {
+      if (activeFilters.alertTypes.length === 0) return [];
+      const typeSet = new Set(activeFilters.alertTypes.map((t) => t.toLowerCase()));
+      list = list.filter((item) => typeSet.has(item.alertType.toLowerCase()));
     }
 
     const q = searchQuery.toLowerCase().trim();
@@ -777,372 +1055,635 @@ export function AlertSettingPage() {
   const lastRecord = Math.min(currentPage * pageSize, filteredAlerts.length);
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden bg-[#F8FAFC] dark:bg-slate-950">
-      {/* 1. Top Header Bar with integrated Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0">
-        {/* Left: Page Title */}
-        <h1 className="text-base font-bold text-slate-900 dark:text-white select-none">
-          Alert
-        </h1>
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-[#F0F0F0] dark:bg-slate-950 p-[10px]">
+      <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB]/80 dark:border-slate-800 shadow-2xs">
+      {/* 1. Top Header Strip (Tabbed vs Single Screen Mode) */}
+      {!isSingle ? (
+        <div className="relative flex items-end justify-between h-[45px] pt-[10px] px-0 select-none shrink-0 bg-[#F1F5F9] dark:bg-slate-950 rounded-tl-lg">
+        {/* Baseline border that runs across the entire strip under inactive tabs */}
+        <div className="absolute left-0 right-0 bottom-0 h-px bg-[#DFE3EB] dark:bg-slate-800 z-0" />
 
-        {/* Right Toolbar: Search, Actions, Pagination, + Alert */}
-        <div className="flex items-center gap-2">
-          {/* Search Dropdown + Input Group */}
-          <div className="flex items-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background overflow-hidden shadow-2xs h-7.5">
-            {/* Field Selector */}
-            <div className="relative border-r border-[#DFE3EB] dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
-              <select
-                value={searchField}
-                onChange={(e) => setSearchField(e.target.value)}
-                className="h-7.5 appearance-none bg-transparent pl-2.5 pr-6 text-xs font-semibold text-foreground cursor-pointer focus:outline-none"
-              >
-                <option value="all">All fields</option>
-                <option value="name">Name</option>
-                <option value="type">Alert Type</option>
-                <option value="company">Company</option>
-                <option value="branch">Branch</option>
-                <option value="severity">Severity</option>
-              </select>
-              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 pointer-events-none text-muted-foreground" />
+        {/* Tab bar list */}
+        <div className="relative z-10 flex min-w-0 flex-1 items-end overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden h-full pl-[10px]">
+          <div
+            className="group relative flex shrink-0 cursor-pointer items-center gap-2 text-xs transition-all duration-150 select-none h-[35px] px-4 rounded-t-lg bg-white dark:bg-slate-900 border-t border-l border-r border-[#DFE3EB] dark:border-slate-800 text-slate-800 dark:text-white font-semibold mb-[-1px] z-20 shadow-2xs"
+          >
+            {/* Left Inverted Concave Fillet for Active Tab */}
+            <div className="absolute -left-[8px] bottom-0 w-[8px] h-[8px] overflow-hidden pointer-events-none z-20">
+              <svg className="w-full h-full" viewBox="0 0 8 8" fill="none">
+                <path
+                  d="M 0 8 L 8 8 L 8 0 C 8 4.418 4.418 8 0 8 Z"
+                  className="fill-white dark:fill-slate-900"
+                />
+                <path
+                  d="M 0 8 C 4.418 8 8 4.418 8 0"
+                  className="stroke-[#DFE3EB] dark:stroke-slate-800"
+                  strokeWidth="1"
+                />
+              </svg>
             </div>
 
-            {/* Search Input */}
-            <div className="relative flex items-center px-2">
-              <Search className="h-3.5 w-3.5 text-muted-foreground mr-1.5 shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                placeholder="Search in all fields..."
-                className="h-full w-32 sm:w-44 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              )}
+            {/* Right Inverted Concave Fillet for Active Tab */}
+            <div className="absolute -right-[8px] bottom-0 w-[8px] h-[8px] overflow-hidden pointer-events-none z-20">
+              <svg className="w-full h-full" viewBox="0 0 8 8" fill="none">
+                <path
+                  d="M 8 8 L 0 8 L 0 0 C 0 4.418 3.582 8 8 8 Z"
+                  className="fill-white dark:fill-slate-900"
+                />
+                <path
+                  d="M 8 8 C 3.582 8 0 4.418 0 0"
+                  className="stroke-[#DFE3EB] dark:stroke-slate-800"
+                  strokeWidth="1"
+                />
+              </svg>
             </div>
-          </div>
 
-          {/* Quick Action Utility Icons: Filter, Download, Column Config, Copy Alert */}
-          <div className="flex items-center gap-1">
-            {/* 0. Filter Button (Opens Right-Side Panel matching Report Filter) */}
-            <button
-              type="button"
-              onClick={() => setFilterDrawerOpen(true)}
-              className={cn(
-                "inline-flex h-7.5 items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background px-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98 select-none",
-                activeDrawerFilterCount > 0 && "border-[#0089FF] bg-blue-50/70 dark:bg-blue-950/40 text-[#0089FF]",
-              )}
-              title="Filter Options"
-            >
-              <SlidersHorizontal className={cn("h-3.5 w-3.5", activeDrawerFilterCount > 0 ? "text-[#0089FF]" : "text-slate-600 dark:text-slate-300")} />
-              <span>Filter</span>
-              {activeDrawerFilterCount > 0 && (
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#0089FF] text-[10px] font-bold text-white leading-none">
-                  {activeDrawerFilterCount}
-                </span>
-              )}
-            </button>
-
-            {/* 1. Export XLS */}
-            <button
-              type="button"
-              onClick={() => toast.success("Exported Alert Rules as XLS")}
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98"
-              title="Download Excel XLS"
-            >
-              <Download className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
-            </button>
-
-            {/* 2. Copy Alert */}
-            <button
-              type="button"
-              onClick={() => openCopyModal()}
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98"
-              title="Copy Alert Rule"
-            >
-              <Copy className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
-            </button>
-          </div>
-
-          {/* Vertical Divider */}
-          <div className="h-4 w-px bg-border/80 mx-0.5 shrink-0" />
-
-          {/* Page Size Dropdown */}
-          <Popover open={pageSizeOpen} onOpenChange={setPageSizeOpen}>
-            <PopoverTrigger asChild>
+            {/* Star Favorite Icon in List Mode / Back Button in Form Mode */}
+            {viewMode === "form" ? (
               <button
                 type="button"
-                className={cn(
-                  "h-7.5 inline-flex items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background px-2.5 text-xs font-semibold text-foreground cursor-pointer shadow-2xs transition-all select-none hover:bg-muted hover:border-[#0089FF]/50 active:scale-98",
-                  pageSizeOpen && "bg-muted border-[#0089FF]/50 ring-2 ring-[#0089FF]/20",
-                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setViewMode("list");
+                }}
+                className="p-0.5 -ml-1 rounded text-slate-700 dark:text-slate-200 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                title="Back to Alert List"
               >
-                <span>{pageSize} / page</span>
-                <ChevronDown
+                <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsFavorite(!isFavorite);
+                }}
+                className="p-0.5 rounded transition-colors cursor-pointer shrink-0 text-slate-400 hover:text-amber-400"
+                title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+              >
+                <Star
                   className={cn(
-                    "h-3 w-3 opacity-60 transition-transform",
-                    pageSizeOpen && "rotate-180",
+                    "h-3.5 w-3.5 transition-colors",
+                    isFavorite ? "fill-amber-400 text-amber-400" : ""
                   )}
                 />
               </button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              sideOffset={6}
-              className="w-28 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none"
-            >
-              {PAGE_SIZES.map((s) => {
-                const isActive = pageSize === s;
-                return (
+            )}
+
+            {/* Tab Title */}
+            <span className="truncate max-w-[180px] whitespace-nowrap text-xs">
+              Alert
+            </span>
+          </div>
+        </div>
+      </div>
+      ) : (
+        /* SINGLE SCREEN TITLE */
+        <div className="relative z-20 flex items-center justify-between px-5 pt-5 pb-2.5 select-none shrink-0 bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-2">
+            {viewMode === "form" ? (
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className="p-1 -ml-1 rounded text-slate-700 dark:text-slate-200 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                title="Back to Alert List"
+              >
+                <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsFavorite(!isFavorite)}
+                className="p-1 -ml-1 rounded text-slate-400 hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+              >
+                <Star
+                  className={cn(
+                    "h-5 w-5 transition-colors",
+                    isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-400 stroke-[2]"
+                  )}
+                />
+              </button>
+            )}
+            <h1 className="text-[24px] font-medium text-slate-900 dark:text-white tracking-tight">
+              {viewMode === "form" ? (editingAlert ? `Edit: ${editingAlert.name}` : "Add Alert") : "Alert"}
+            </h1>
+          </div>
+        </div>
+      )}
+
+      {viewMode === "list" ? (
+        <>
+          {/* 2. Top Single-Row Filter & Utilities Toolbar (Visible only in List Mode) */}
+          <div className="relative z-20 flex min-h-[42px] items-center justify-between gap-3 bg-white dark:bg-slate-900 px-5 pb-3.5 shrink-0 select-none">
+            {/* Left: Filter Pills */}
+            <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-3 text-xs select-none">
+              {/* Company Filter Pill */}
+              <MultiSelectFilterPopover
+                label="Company"
+                title="Select Company"
+                placeholder="Search company..."
+                options={COMPANY_OPTIONS}
+                selected={activeFilters.companies}
+                onChange={(companies) => {
+                  setActiveFilters((prev) => ({ ...prev, companies }));
+                  setCurrentPage(1);
+                }}
+              />
+
+              {/* Divider 1 */}
+              <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+
+              {/* Branch Filter Pill */}
+              <MultiSelectFilterPopover
+                label="Branch"
+                title="Select Branch"
+                placeholder="Search branch..."
+                options={BRANCH_OPTIONS}
+                selected={activeFilters.branches}
+                onChange={(branches) => {
+                  setActiveFilters((prev) => ({ ...prev, branches }));
+                  setCurrentPage(1);
+                }}
+              />
+
+              {/* Divider 2 */}
+              <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+
+              {/* Vehicle Filter Pill */}
+              <MultiSelectFilterPopover
+                label="Vehicle"
+                title="Select Vehicle"
+                placeholder="Search vehicle..."
+                options={VEHICLE_OPTIONS}
+                selected={activeFilters.vehicles}
+                onChange={(vehicles) => {
+                  setActiveFilters((prev) => ({ ...prev, vehicles }));
+                  setCurrentPage(1);
+                }}
+              />
+
+              {/* Divider 3 */}
+              <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+
+              {/* Alert Type Filter Pill */}
+              <MultiSelectFilterPopover
+                label="Alert Type"
+                title="Select Alert Type"
+                placeholder="Search alert type..."
+                options={ALERT_TYPE_OPTIONS}
+                selected={activeFilters.alertTypes}
+                onChange={(alertTypes) => {
+                  setActiveFilters((prev) => ({ ...prev, alertTypes }));
+                  setCurrentPage(1);
+                }}
+              />
+
+              {/* Divider 4 */}
+              <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+
+              {/* Filter Button (Matching Report & Vehicle section) */}
+              <button
+                type="button"
+                onClick={() => setFilterDrawerOpen((prev) => !prev)}
+                aria-label="Open Filter Drawer"
+                className="inline-flex h-7 items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer select-none shadow-2xs active:scale-98 shrink-0"
+              >
+                <SlidersHorizontal className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+                <span className="font-medium text-slate-700 dark:text-slate-300">Filter</span>
+                {activeDrawerFilterCount > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white">
+                    {activeDrawerFilterCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Right Toolbar: Search & + Alert */}
+            <div className="flex items-center gap-2 ml-auto shrink-0">
+              {/* Field Search */}
+              <div className="relative flex h-7.5 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      title="Select specific column to search"
+                      className="flex h-full items-center gap-1 border-r border-border/60 bg-muted/30 px-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0 select-none"
+                    >
+                      <span className="max-w-[76px] truncate">
+                        {searchField === "all" ? "All fields" : selectedSearchFieldLabel}
+                      </span>
+                      <ChevronDown className="h-3 w-3 opacity-60" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    className="max-h-64 w-52 overflow-y-auto text-xs p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50 select-none"
+                  >
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSearchField("all");
+                        setCurrentPage(1);
+                      }}
+                      className={cn(
+                        "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
+                        searchField === "all"
+                          ? "bg-muted font-semibold text-foreground"
+                          : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                      )}
+                    >
+                      <span>All fields</span>
+                      {searchField === "all" && (
+                        <Check className="h-3.5 w-3.5 text-[#0089FF]" />
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="my-1 -mx-1" />
+                    {ALERT_SEARCH_FIELDS.filter((f) => f.id !== "all").map((f) => {
+                      const isSelected = searchField === f.id;
+                      return (
+                        <DropdownMenuItem
+                          key={f.id}
+                          onClick={() => {
+                            setSearchField(f.id);
+                            setCurrentPage(1);
+                          }}
+                          className={cn(
+                            "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
+                            isSelected
+                              ? "bg-muted font-semibold text-foreground"
+                              : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                          )}
+                        >
+                          <span className="truncate">{f.label}</span>
+                          {isSelected && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <Search className="ml-2.5 h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="Search in all fields..."
+                  className="h-full w-32 sm:w-44 bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+                />
+                {searchQuery && (
                   <button
-                    key={s}
                     type="button"
                     onClick={() => {
-                      setPageSize(s);
+                      setSearchQuery("");
                       setCurrentPage(1);
-                      setPageSizeOpen(false);
                     }}
-                    className={cn(
-                      "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
-                      isActive
-                        ? "bg-muted font-semibold text-foreground"
-                        : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
-                    )}
+                    className="mr-1.5 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer rounded-full transition-colors"
                   >
-                    <span>{s} / page</span>
-                    {isActive && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
+                    <X className="h-3 w-3" />
                   </button>
-                );
-              })}
-            </PopoverContent>
-          </Popover>
-
-          {/* Range & Navigation Buttons */}
-          <div className="flex items-center gap-1">
-            <span className="px-1 text-xs font-semibold tabular-nums text-muted-foreground whitespace-nowrap select-none">
-              {firstRecord}-{lastRecord} of {filteredAlerts.length}
-            </span>
-            <button
-              type="button"
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="h-7.5 w-7.5 inline-flex items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-foreground disabled:opacity-40 hover:bg-muted transition-all cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-            >
-              <ChevronLeft className="h-3.5 w-3.5" />
-            </button>
-            <button
-              type="button"
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="h-7.5 w-7.5 inline-flex items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-foreground disabled:opacity-40 hover:bg-muted transition-all cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-            >
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {/* Reset Table & Filters Button (Beside + Alert) */}
-          <button
-            type="button"
-            onClick={handleResetTable}
-            className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98"
-            title="Reset Table"
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
-          </button>
-
-          {/* Primary Action Button: + Alert */}
-          <button
-            type="button"
-            onClick={openCreateModal}
-            className="inline-flex h-7.5 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-3.5 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Alert</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 2. Main Content Area with Clean Data Table */}
-      <div className="flex-1 min-h-0 min-w-0 flex flex-col p-2.5 overflow-hidden">
-        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 rounded-lg shadow-2xs">
-          {/* Scrollable Table Area */}
-          <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="sticky top-0 z-10 shadow-xs">
-                <tr className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 select-none">
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 text-center w-10">
-                    #
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Company
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Branch
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Name
-                  </th>
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    Severity
-                  </th>
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    Vehicles
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Alert Type
-                  </th>
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Timezone
-                  </th>
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    Reason
-                  </th>
-                  <th className="py-2.5 px-2 border-r border-[#DFE3EB] dark:border-slate-700 text-center w-10" title="SMS Trigger">
-                    SMS
-                  </th>
-                  <th className="py-2.5 px-2 border-r border-[#DFE3EB] dark:border-slate-700 text-center w-10" title="Email Trigger">
-                    Email
-                  </th>
-                  <th className="py-2.5 px-2 border-r border-[#DFE3EB] dark:border-slate-700 text-center w-10" title="App Push Notification">
-                    Notif
-                  </th>
-                  <th className="py-2.5 px-2 border-r border-[#DFE3EB] dark:border-slate-700 text-center w-10" title="Remote Engine Cut / Immobilizer">
-                    Immo
-                  </th>
-                  <th className="py-2.5 px-2 border-r border-[#DFE3EB] dark:border-slate-700 text-center w-10" title="In-Cabin Buzzer">
-                    Buzzer
-                  </th>
-                  <th className="py-2.5 px-2.5 border-r border-[#DFE3EB] dark:border-slate-700 text-center" title="Email Verify Status">
-                    Email Verify
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Created Date
-                  </th>
-                  <th className="py-2.5 px-3 text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 bg-white dark:bg-slate-900 font-medium">
-                {pageRows.map((row, idx) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
-                    onClick={() => openEditModal(row)}
-                  >
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center text-muted-foreground font-mono text-[11px]">
-                      {(currentPage - 1) * pageSize + idx + 1}
-                    </td>
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-slate-800 dark:text-slate-200">
-                      {row.company}
-                    </td>
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-muted-foreground">
-                      {row.branch}
-                    </td>
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 font-semibold text-foreground group-hover:text-[#0089FF] transition-colors">
-                      {row.name}
-                    </td>
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <SeverityBadge severity={row.severity} />
-                    </td>
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <span className="font-mono font-bold text-[#0089FF] bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 text-[11px]">
-                        {row.vehicleCount}
-                      </span>
-                    </td>
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-medium">
-                      {row.alertType}
-                    </td>
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-muted-foreground font-mono text-[11px]">
-                      {row.timezone}
-                    </td>
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center text-muted-foreground font-mono text-[11px]">
-                      {row.reason || "--"}
-                    </td>
-                    <td className="py-2 px-2 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <ChannelCheck active={row.sms} />
-                    </td>
-                    <td className="py-2 px-2 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <ChannelCheck active={row.email} />
-                    </td>
-                    <td className="py-2 px-2 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <ChannelCheck active={row.notification} />
-                    </td>
-                    <td className="py-2 px-2 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <ChannelCheck active={row.immobilizer} />
-                    </td>
-                    <td className="py-2 px-2 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <ChannelCheck active={row.buzzer} />
-                    </td>
-                    <td className="py-2 px-2.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <span title="Email Verified" className="inline-flex items-center justify-center p-0.5 rounded text-slate-500 dark:text-slate-400">
-                        <FileText className="h-3.5 w-3.5" />
-                      </span>
-                    </td>
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-muted-foreground font-mono text-[11px]">
-                      {row.createdDate}
-                    </td>
-                    <td className="py-2 px-3 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(row)}
-                          className="p-1 rounded text-muted-foreground hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          title="Edit Alert"
-                        >
-                          <Edit2 className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => openCopyModal(row)}
-                          className="p-1 rounded text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
-                          title="Copy Alert Rule"
-                        >
-                          <Copy className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteAlert(row.id)}
-                          className="p-1 rounded text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {pageRows.length === 0 && (
-                  <tr>
-                    <td colSpan={17} className="py-14 text-center text-xs text-muted-foreground">
-                      No alert rules found matching your search.
-                    </td>
-                  </tr>
                 )}
-              </tbody>
-            </table>
+              </div>
+
+              {/* Primary Action Button: + Alert */}
+              <button
+                type="button"
+                onClick={openCreateForm}
+                className="inline-flex h-7.5 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-3.5 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Alert</span>
+              </button>
+            </div>
           </div>
-        </div>
+
+          {/* Horizontal divider with 20px space from left and right */}
+          <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0 relative z-20 bg-white dark:bg-slate-900" />
+
+          {/* Table & Inline Filter Area */}
+          <div className="relative min-h-0 flex-1 flex overflow-hidden bg-white dark:bg-slate-900">
+            {/* Table Scroll Area */}
+            <div className="relative min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth pt-1 mx-5">
+              <table className="w-full text-left text-xs border-collapse">
+                  <thead className="sticky top-0 z-10 shadow-xs">
+                    <tr className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 select-none whitespace-nowrap h-[38px]">
+                      <th className="py-2.5 px-3 text-center w-10 bg-white dark:bg-slate-900">
+                        #
+                      </th>
+                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
+                        Company
+                      </th>
+                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
+                        Branch
+                      </th>
+                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
+                        Name
+                      </th>
+                      <th className="py-2.5 px-3 text-center bg-white dark:bg-slate-900">
+                        Severity
+                      </th>
+                      <th className="py-2.5 px-3 text-center bg-white dark:bg-slate-900">
+                        Vehicles
+                      </th>
+                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
+                        Alert Type
+                      </th>
+                      <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
+                        Timezone
+                      </th>
+                      <th className="py-2.5 px-3 text-center bg-white dark:bg-slate-900">
+                        Reason
+                      </th>
+                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="SMS Trigger">
+                        SMS
+                      </th>
+                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="Email Trigger">
+                        Email
+                      </th>
+                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="App Push Notification">
+                        Notif
+                      </th>
+                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="Remote Engine Cut / Immobilizer">
+                        Immo
+                      </th>
+                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="In-Cabin Buzzer">
+                        Buzzer
+                      </th>
+                      <th className="py-2.5 px-2.5 text-center bg-white dark:bg-slate-900" title="Email Verify Status">
+                        Email Verify
+                      </th>
+                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
+                        Created Date
+                      </th>
+                      <th className="py-2.5 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 bg-white dark:bg-slate-900 font-medium">
+                    {pageRows.map((row, idx) => (
+                      <tr
+                        key={row.id}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
+                        onClick={() => openEditForm(row)}
+                      >
+                        <td className="py-2 px-3 text-center text-muted-foreground font-mono text-[11px]">
+                          {(currentPage - 1) * pageSize + idx + 1}
+                        </td>
+                        <td className="py-2 px-3.5 text-slate-800 dark:text-slate-200">
+                          {row.company}
+                        </td>
+                        <td className="py-2 px-3.5 text-muted-foreground">
+                          {row.branch}
+                        </td>
+                        <td className="py-2 px-3.5 font-semibold text-foreground group-hover:text-[#0089FF] transition-colors">
+                          {row.name}
+                        </td>
+                        <td className="py-2 px-3 text-center">
+                          <SeverityBadge severity={row.severity} />
+                        </td>
+                        <td className="py-2 px-3 text-center">
+                          <span className="font-mono font-bold text-[#0089FF] bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 text-[11px]">
+                            {row.vehicleCount}
+                          </span>
+                        </td>
+                        <td className="py-2 px-3.5 text-slate-700 dark:text-slate-300 font-medium">
+                          {row.alertType}
+                        </td>
+                        <td className="py-2 px-3 text-muted-foreground font-mono text-[11px]">
+                          {row.timezone}
+                        </td>
+                        <td className="py-2 px-3 text-center text-muted-foreground font-mono text-[11px]">
+                          {row.reason || "--"}
+                        </td>
+                        <td className="py-2 px-2 text-center">
+                          <ChannelCheck active={row.sms} />
+                        </td>
+                        <td className="py-2 px-2 text-center">
+                          <ChannelCheck active={row.email} />
+                        </td>
+                        <td className="py-2 px-2 text-center">
+                          <ChannelCheck active={row.notification} />
+                        </td>
+                        <td className="py-2 px-2 text-center">
+                          <ChannelCheck active={row.immobilizer} />
+                        </td>
+                        <td className="py-2 px-2 text-center">
+                          <ChannelCheck active={row.buzzer} />
+                        </td>
+                        <td className="py-2 px-2.5 text-center">
+                          <span title="Email Verified" className="inline-flex items-center justify-center p-0.5 rounded text-slate-500 dark:text-slate-400">
+                            <FileText className="h-3.5 w-3.5" />
+                          </span>
+                        </td>
+                        <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
+                          {row.createdDate}
+                        </td>
+                        <td className="py-2 px-3 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              type="button"
+                              onClick={() => openEditForm(row)}
+                              className="p-1 rounded text-muted-foreground hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Edit Alert"
+                            >
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => openCopyModal(row)}
+                              className="p-1 rounded text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                              title="Copy Alert Rule"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAlert(row.id)}
+                              className="p-1 rounded text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {pageRows.length === 0 && (
+                      <tr>
+                        <td colSpan={17} className="py-14 text-center text-xs text-muted-foreground">
+                          No alert rules found matching your search.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+            </div>
+
+            {/* Inline Right-Side Filter Panel */}
+            <AlertFilterDrawer
+              open={filterDrawerOpen}
+              onClose={() => setFilterDrawerOpen(false)}
+              filters={activeFilters}
+              onApply={(nextFilters) => {
+                setActiveFilters(nextFilters);
+                setCurrentPage(1);
+              }}
+              onReset={() => {
+                setActiveFilters(DEFAULT_ALERT_FILTERS);
+                setCurrentPage(1);
+              }}
+              allAlerts={alerts}
+            />
+          </div>
+
+          {/* Horizontal divider with 20px space from left and right */}
+          <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
+
+          {/* Standard Application Bottom Frame with Centered HubSpot-Style Pagination & Operations */}
+          <footer className="flex h-11 items-center justify-between px-5 bg-white dark:bg-slate-900 shrink-0 select-none">
+            {/* Left: Total records */}
+            <div className="flex items-center min-w-[140px]">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 tabular-nums select-none">
+                {filteredAlerts.length.toLocaleString()} records
+              </span>
+            </div>
+
+            {/* Center: Pagination */}
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              {/* Prev */}
+              <button
+                type="button"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors px-1.5 py-1 rounded"
+              >
+                <ChevronLeft className="h-3.5 w-3.5 stroke-[2.2]" />
+                <span>Prev</span>
+              </button>
+
+              {/* Page numbers */}
+              <div className="flex items-center gap-0.5 sm:gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                  const isActive = p === currentPage;
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setCurrentPage(p)}
+                      className={cn(
+                        "h-6 min-w-[24px] px-1 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center justify-center",
+                        isActive
+                          ? "border border-slate-400 dark:border-slate-500 bg-transparent text-slate-900 dark:text-white font-bold"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Next */}
+              <button
+                type="button"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors px-1.5 py-1 rounded"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-3.5 w-3.5 stroke-[2.2]" />
+              </button>
+
+              {/* Page Size Selector */}
+              <div className="ml-1 sm:ml-2">
+                <Popover open={pageSizeOpen} onOpenChange={setPageSizeOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(
+                        "inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white cursor-pointer select-none transition-colors px-1.5 py-1 rounded bg-transparent border-0 hover:bg-slate-100 dark:hover:bg-slate-800",
+                        pageSizeOpen && "bg-slate-100 dark:bg-slate-800 text-black dark:text-white",
+                      )}
+                    >
+                      <span>{pageSize} per page</span>
+                      <ChevronDown className={cn("h-3 w-3 opacity-60 transition-transform", pageSizeOpen && "rotate-180")} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="center" sideOffset={6} className="w-32 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none z-50">
+                    {PAGE_SIZES.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => {
+                          setPageSize(s);
+                          setCurrentPage(1);
+                          setPageSizeOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
+                          pageSize === s ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                        )}
+                      >
+                        <span>{s} per page</span>
+                        {pageSize === s && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
+                      </button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {/* Right: Other Operations */}
+            <div className="flex items-center gap-1 min-w-[140px] justify-end">
+              {/* Reset Table */}
+              <button
+                type="button"
+                onClick={handleResetTable}
+                className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
+                title="Reset Table"
+              >
+                <RotateCcw className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+              </button>
+
+              {/* Export XLS */}
+              <button
+                type="button"
+                onClick={() => toast.success("Exported Alert Rules as XLS")}
+                className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
+                title="Download Excel XLS"
+              >
+                <Download className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+              </button>
+
+              {/* Copy Alert */}
+              <button
+                type="button"
+                onClick={() => {
+                  setCopySourceAlert(filteredAlerts[0] || alerts[0] || null);
+                  setCopyModalOpen(true);
+                }}
+                className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
+                title="Copy Alert Rule"
+              >
+                <Copy className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+              </button>
+            </div>
+          </footer>
+        </>
+      ) : (
+        /* In-Screen Form View (No Modal) */
+        <AlertDetailFormView
+          alert={editingAlert}
+          onSave={handleSaveAlert}
+          onCancel={() => setViewMode("list")}
+        />
+      )}
       </div>
 
-      {/* 3. Alert Detail Modal (All fields one below another, no back button) */}
-      <AlertDetailModal
-        open={detailModalOpen}
-        onClose={() => setDetailModalOpen(false)}
-        alert={editingAlert}
-        onSave={handleSaveAlert}
-      />
-
-      {/* 4. Copy Alert Modal */}
+      {/* Copy Alert Modal */}
       <CopyAlertModal
         open={copyModalOpen}
         onClose={() => setCopyModalOpen(false)}
@@ -1151,27 +1692,13 @@ export function AlertSettingPage() {
         onCopySuccess={handleCopySuccess}
       />
 
-      {/* 5. Right Side Filter Drawer (Matching Report Panel Theme) */}
-      <AlertFilterDrawer
-        open={filterDrawerOpen}
-        onClose={() => setFilterDrawerOpen(false)}
-        filters={activeFilters}
-        onApply={(nextFilters) => {
-          setActiveFilters(nextFilters);
-          setCurrentPage(1);
-        }}
-        onReset={() => {
-          setActiveFilters(DEFAULT_ALERT_FILTERS);
-          setCurrentPage(1);
-        }}
-        allAlerts={alerts}
-      />
+      
     </div>
   );
 }
 
 /* =========================================================================
-   Alert Filter Drawer (Right Side Panel matching Report Filter Theme)
+   Alert Filter Drawer (Right Side Panel matching Report & Vehicle Filter Theme)
    ========================================================================= */
 export function AlertFilterDrawer({
   open,
@@ -1188,34 +1715,82 @@ export function AlertFilterDrawer({
   onReset: () => void;
   allAlerts: AlertRuleItem[];
 }) {
-  const [draftCompany, setDraftCompany] = useState(filters.company);
-  const [draftBranch, setDraftBranch] = useState(filters.branch);
-  const [draftAlertType, setDraftAlertType] = useState(filters.alertType);
+  const [draftCompany, setDraftCompany] = useState(
+    filters.companies.length === 1
+      ? filters.companies[0]
+      : filters.companies.length === COMPANY_OPTIONS.length
+      ? "All"
+      : filters.company || "All"
+  );
+  const [draftBranch, setDraftBranch] = useState(
+    filters.branches.length === 1
+      ? filters.branches[0]
+      : filters.branches.length === BRANCH_OPTIONS.length
+      ? "All"
+      : filters.branch || "All"
+  );
+  const [draftVehicle, setDraftVehicle] = useState(
+    filters.vehicles.length === 1
+      ? filters.vehicles[0]
+      : filters.vehicles.length === VEHICLE_OPTIONS.length
+      ? "All"
+      : filters.vehicle || "All"
+  );
+  const [draftAlertType, setDraftAlertType] = useState(
+    filters.alertTypes.length === 1
+      ? filters.alertTypes[0]
+      : filters.alertTypes.length === ALERT_TYPE_OPTIONS.length
+      ? "All"
+      : filters.alertType || "All"
+  );
 
   // Sync draft with active filters when drawer opens
   useEffect(() => {
     if (open) {
-      setDraftCompany(filters.company);
-      setDraftBranch(filters.branch);
-      setDraftAlertType(filters.alertType);
+      setDraftCompany(
+        filters.companies.length === 1
+          ? filters.companies[0]
+          : filters.companies.length === COMPANY_OPTIONS.length
+          ? "All"
+          : filters.company || "All"
+      );
+      setDraftBranch(
+        filters.branches.length === 1
+          ? filters.branches[0]
+          : filters.branches.length === BRANCH_OPTIONS.length
+          ? "All"
+          : filters.branch || "All"
+      );
+      setDraftVehicle(
+        filters.vehicles.length === 1
+          ? filters.vehicles[0]
+          : filters.vehicles.length === VEHICLE_OPTIONS.length
+          ? "All"
+          : filters.vehicle || "All"
+      );
+      setDraftAlertType(
+        filters.alertTypes.length === 1
+          ? filters.alertTypes[0]
+          : filters.alertTypes.length === ALERT_TYPE_OPTIONS.length
+          ? "All"
+          : filters.alertType || "All"
+      );
     }
   }, [open, filters]);
 
   // Unique companies
   const companyOptions = useMemo(() => {
-    const list = [
-      "All",
-      "HP Company",
-      "Global Logistics Inc",
-      "Fleet Cargo West",
-      "FastTrack Mobility",
-    ];
-    return list;
+    return ["All", ...COMPANY_OPTIONS];
   }, []);
 
   // Unique branches based on company
   const branchOptions = useMemo(() => {
-    return ["All", "Central Branch", "North Terminal", "West Hub"];
+    return ["All", ...BRANCH_OPTIONS];
+  }, []);
+
+  // Unique vehicles
+  const vehicleOptions = useMemo(() => {
+    return ["All", ...VEHICLE_OPTIONS];
   }, []);
 
   // Unique alert types based on data
@@ -1229,15 +1804,7 @@ export function AlertFilterDrawer({
         set.add(a.alertType);
       }
     });
-    set.add("911");
-    set.add("Abnormal Flameout Warning");
-    set.add("Automatic Capture Event");
-    set.add("Calibration Fail");
-    set.add("Camera Cover");
-    set.add("Camera Error Code");
-    set.add("Distraction");
-    set.add("Over Speed");
-    set.add("SOS Panic");
+    ALERT_TYPE_OPTIONS.forEach((t) => set.add(t));
     return Array.from(set);
   }, [allAlerts, draftCompany, draftBranch]);
 
@@ -1245,7 +1812,12 @@ export function AlertFilterDrawer({
     onApply({
       company: draftCompany,
       branch: draftBranch,
+      vehicle: draftVehicle,
       alertType: draftAlertType,
+      companies: draftCompany === "All" ? [...COMPANY_OPTIONS] : [draftCompany],
+      branches: draftBranch === "All" ? [...BRANCH_OPTIONS] : [draftBranch],
+      vehicles: draftVehicle === "All" ? [...VEHICLE_OPTIONS] : [draftVehicle],
+      alertTypes: draftAlertType === "All" ? [...ALERT_TYPE_OPTIONS] : [draftAlertType],
     });
     onClose();
     toast.success("Filters applied successfully");
@@ -1254,6 +1826,7 @@ export function AlertFilterDrawer({
   const handleDrawerReset = () => {
     setDraftCompany("All");
     setDraftBranch("All");
+    setDraftVehicle("All");
     setDraftAlertType("All");
     onReset();
     onClose();
@@ -1292,7 +1865,7 @@ export function AlertFilterDrawer({
           </button>
         </header>
 
-        {/* Drawer Scrollable Body: Exactly Company, Branch, Alert Type from user reference */}
+        {/* Drawer Scrollable Body: Company, Branch, Vehicle, Alert Type */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs custom-scrollbar">
           {/* 1. Company */}
           <div className="space-y-1.5">
@@ -1327,7 +1900,20 @@ export function AlertFilterDrawer({
             />
           </div>
 
-          {/* 3. Alert Type */}
+          {/* 3. Vehicle */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">
+              Vehicle <span className="text-muted-foreground font-normal">:</span>
+            </label>
+            <SelectDropdown
+              value={draftVehicle}
+              options={vehicleOptions}
+              onChange={setDraftVehicle}
+              placeholder="Select Vehicle"
+            />
+          </div>
+
+          {/* 4. Alert Type */}
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-foreground">
               Alert Type <span className="text-muted-foreground font-normal">:</span>
@@ -1366,43 +1952,40 @@ export function AlertFilterDrawer({
 }
 
 /* =========================================================================
-   Alert Detail Modal (One below another vertical stack, No Back button)
+   In-Screen Alert Detail Form View (Field-Beside-Value horizontal layout)
    ========================================================================= */
-export function AlertDetailModal({
-  open,
-  onClose,
+export function AlertDetailFormView({
   alert,
   onSave,
+  onCancel,
 }: {
-  open: boolean;
-  onClose: () => void;
   alert: AlertRuleItem | null;
   onSave: (saved: AlertRuleItem) => void;
+  onCancel: () => void;
 }) {
   const isEdit = Boolean(alert);
 
   // Form states
-  const [company, setCompany] = useState("HP Company");
-  const [branch, setBranch] = useState("All");
-  const [basedOn, setBasedOn] = useState<"Vehicle" | "Vehicle Group" | "Vehicle Type">("Vehicle");
-  const [object, setObject] = useState("All");
-  const [alertName, setAlertName] = useState("");
-  const [alertType, setAlertType] = useState("911");
-  const [triggerPhase, setTriggerPhase] = useState<"Start" | "Cancel" | "Both">("Start");
-  const [messageText, setMessageText] = useState("911 Emergency Alert Triggered");
-  const [validDays, setValidDays] = useState<"Everyday" | "Custom">("Everyday");
-  const [customDays, setCustomDays] = useState<string[]>(DAYS_OF_WEEK);
-  const [timeFrom, setTimeFrom] = useState("12:00 AM");
-  const [timeTo, setTimeTo] = useState("11:59 PM");
-  const [timezone, setTimezone] = useState("Asia/Kolkata (UTC+05:30)");
-  const [severity, setSeverity] = useState<AlertSeverity>("High");
-  const [sms, setSms] = useState(false);
-  const [email, setEmail] = useState(true);
-  const [notification, setNotification] = useState(true);
-  const [immobilizer, setImmobilizer] = useState(false);
-  const [buzzer, setBuzzer] = useState(false);
+  const [company, setCompany] = useState(alert?.company || "HP Company");
+  const [branch, setBranch] = useState(alert?.branch || "All");
+  const [basedOn, setBasedOn] = useState<"Vehicle" | "Vehicle Group" | "Vehicle Type">(alert?.basedOn || "Vehicle");
+  const [object, setObject] = useState(alert?.targetObject || "All");
+  const [alertName, setAlertName] = useState(alert?.name || "");
+  const [alertType, setAlertType] = useState(alert?.alertType || "911");
+  const [triggerPhase, setTriggerPhase] = useState<"Start" | "Cancel" | "Both">(alert?.triggerPhase || "Start");
+  const [messageText, setMessageText] = useState(alert?.messageText || "911 Emergency Alert Triggered");
+  const [validDays, setValidDays] = useState<"Everyday" | "Custom">(alert?.validDays || "Everyday");
+  const [customDays, setCustomDays] = useState<string[]>(alert?.customDays || DAYS_OF_WEEK);
+  const [timeFrom, setTimeFrom] = useState(alert?.timeFrom || "12:00 AM");
+  const [timeTo, setTimeTo] = useState(alert?.timeTo || "11:59 PM");
+  const [timezone, setTimezone] = useState(alert?.timezone || "Asia/Kolkata (UTC+05:30)");
+  const [severity, setSeverity] = useState<AlertSeverity>(alert?.severity || "High");
+  const [sms, setSms] = useState(alert?.sms ?? false);
+  const [email, setEmail] = useState(alert?.email ?? true);
+  const [notification, setNotification] = useState(alert?.notification ?? true);
+  const [immobilizer, setImmobilizer] = useState(alert?.immobilizer ?? false);
+  const [buzzer, setBuzzer] = useState(alert?.buzzer ?? false);
 
-  // Synchronize state on open or alert change
   useEffect(() => {
     if (alert) {
       setCompany(alert.company);
@@ -1425,7 +2008,6 @@ export function AlertDetailModal({
       setImmobilizer(alert.immobilizer ?? false);
       setBuzzer(alert.buzzer ?? false);
     } else {
-      // Defaults for new alert
       setCompany("HP Company");
       setBranch("All");
       setBasedOn("Vehicle");
@@ -1446,7 +2028,7 @@ export function AlertDetailModal({
       setImmobilizer(false);
       setBuzzer(false);
     }
-  }, [alert, open]);
+  }, [alert]);
 
   const handleReset = () => {
     if (alert) {
@@ -1530,85 +2112,75 @@ export function AlertDetailModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      {/* 80-90% backdrop overlay keeping the underlying app visibly grounded */}
-      <DialogContent
-        overlayClassName="bg-slate-950/80 backdrop-blur-md"
-        className="max-w-2xl max-h-[90vh] p-0 gap-0 overflow-hidden rounded-xl border border-border bg-background shadow-2xl flex flex-col"
-      >
-        {/* Modal Header: Clean Title + Close X (No bell icon badge, no subtext per user feedback) */}
-        <div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-background shrink-0">
-          <DialogTitle className="text-sm font-bold text-foreground">
-            {isEdit ? `Edit Alert Rule: ${alert?.name}` : "Alert Detail"}
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            Alert Rule Configuration Form
-          </DialogDescription>
-        </div>
-
-        {/* Modal Scrollable Form Body: ALL FIELDS ONE BELOW ANOTHER */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar text-xs">
-          {/* 1. Company */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Company <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+    <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-slate-900">
+      {/* Scrollable Form Body with Field-Beside-Value horizontal layout */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-3.5 custom-scrollbar text-xs">
+        {/* 1. Company */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Company <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <SelectDropdown
               value={company}
-              options={["HP Company", "Global Logistics Inc", "Fleet Cargo West"]}
+              options={["HP Company", "Global Logistics Inc", "Fleet Cargo West", "FastTrack Mobility"]}
               onChange={setCompany}
               placeholder="Select Company"
             />
           </div>
+        </div>
 
-          {/* 2. Branch (Below Company) */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Branch <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 2. Branch */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Branch <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <SelectDropdown
               value={branch}
-              options={["All", "Central Branch", "North Terminal", "West Hub"]}
+              options={["All", "Central Branch", "North Terminal", "West Hub", "South Depot"]}
               onChange={setBranch}
               placeholder="Select Branch"
             />
           </div>
+        </div>
 
-          {/* 3. Based On */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Based On <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
-            <div className="grid grid-cols-3 gap-2.5">
-              {(["Vehicle", "Vehicle Group", "Vehicle Type"] as const).map((b) => (
-                <label
-                  key={b}
-                  onClick={() => setBasedOn(b)}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9",
-                    basedOn === b
-                      ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
-                      : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium",
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="modalBasedOn"
-                    checked={basedOn === b}
-                    onChange={() => setBasedOn(b)}
-                    className="accent-[#0089FF] h-4 w-4 cursor-pointer"
-                  />
-                  <span className="text-xs leading-tight truncate">{b}</span>
-                </label>
-              ))}
-            </div>
+        {/* 3. Based On */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Based On <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md grid grid-cols-3 gap-2.5">
+            {(["Vehicle", "Vehicle Group", "Vehicle Type"] as const).map((b) => (
+              <label
+                key={b}
+                onClick={() => setBasedOn(b)}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9",
+                  basedOn === b
+                    ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
+                    : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="formBasedOn"
+                  checked={basedOn === b}
+                  onChange={() => setBasedOn(b)}
+                  className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                />
+                <span className="text-xs leading-tight truncate">{b}</span>
+              </label>
+            ))}
           </div>
+        </div>
 
-          {/* 4. Object */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Object <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 4. Object */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Object <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <SelectDropdown
               value={object}
               options={[
@@ -1616,17 +2188,24 @@ export function AlertDetailModal({
                 "Fuel - 1001 (B 1234 XYZ)",
                 "Truck - 2004 (B 5678 KLM)",
                 "Semi-Trailer - 3008",
+                "HP Boom Barrier Object",
+                "HP BLE Tamper Object",
+                "HP EV Object 29",
+                "HP Custom Object",
+                "HP EV Object 36",
               ]}
               onChange={setObject}
               placeholder="Select Object"
             />
           </div>
+        </div>
 
-          {/* 5. Alert Type (Below Object) */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Alert Type <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 5. Alert Type */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Alert Type <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <SelectDropdown
               value={alertType}
               options={ALERT_TYPE_OPTIONS}
@@ -1634,70 +2213,76 @@ export function AlertDetailModal({
               placeholder="Select Alert Type"
             />
           </div>
+        </div>
 
-          {/* 6. Alert Name */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Alert Name <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 6. Alert Name */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Alert Name <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <input
               type="text"
               value={alertName}
               onChange={(e) => setAlertName(e.target.value)}
-              placeholder="e.g. 911 / Abnormal Flameout Warning"
+              placeholder="e.g. Abnormal Flameout Warning"
               className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all hover:border-[#0089FF]/60"
             />
           </div>
+        </div>
 
-          {/* 7. Value / Trigger Phase */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Value / Trigger Phase <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
-            <div className="grid grid-cols-3 gap-2.5">
-              {(["Start", "Cancel", "Both"] as const).map((phase) => (
-                <label
-                  key={phase}
-                  onClick={() => setTriggerPhase(phase)}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9",
-                    triggerPhase === phase
-                      ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
-                      : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium",
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="modalTriggerPhase"
-                    checked={triggerPhase === phase}
-                    onChange={() => setTriggerPhase(phase)}
-                    className="accent-[#0089FF] h-4 w-4 cursor-pointer"
-                  />
-                  <span className="text-xs leading-tight">{phase}</span>
-                </label>
-              ))}
-            </div>
+        {/* 7. Value / Trigger Phase */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Value / Trigger Phase <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md grid grid-cols-3 gap-2.5">
+            {(["Start", "Cancel", "Both"] as const).map((phase) => (
+              <label
+                key={phase}
+                onClick={() => setTriggerPhase(phase)}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-left h-9",
+                  triggerPhase === phase
+                    ? "border-[#0089FF] bg-[#0089FF]/5 shadow-xs ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
+                    : "border-input/80 bg-background hover:bg-muted/40 hover:border-border text-foreground font-medium",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="formTriggerPhase"
+                  checked={triggerPhase === phase}
+                  onChange={() => setTriggerPhase(phase)}
+                  className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                />
+                <span className="text-xs leading-tight">{phase}</span>
+              </label>
+            ))}
           </div>
+        </div>
 
-          {/* 8. Message Template */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Message Template <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 8. Message Template */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Message Template <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <input
               type="text"
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
-              placeholder="e.g. 911 Emergency Alert Triggered on {vehicleNo}"
+              placeholder="e.g. Abnormal flameout detected on {vehicleNo} at {location}."
               className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 shadow-2xs transition-all hover:border-[#0089FF]/60"
             />
           </div>
+        </div>
 
-          {/* 9. Valid Day(s) */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-foreground">
-              Valid Day(s) <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 9. Valid Day(s) */}
+        <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0 pt-2">
+            Valid Day(s) <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md space-y-2">
             <div className="grid grid-cols-2 gap-2.5">
               <label
                 onClick={() => setValidDays("Everyday")}
@@ -1710,7 +2295,7 @@ export function AlertDetailModal({
               >
                 <input
                   type="radio"
-                  name="modalValidDays"
+                  name="formValidDays"
                   checked={validDays === "Everyday"}
                   onChange={() => setValidDays("Everyday")}
                   className="accent-[#0089FF] h-4 w-4 cursor-pointer"
@@ -1729,7 +2314,7 @@ export function AlertDetailModal({
               >
                 <input
                   type="radio"
-                  name="modalValidDays"
+                  name="formValidDays"
                   checked={validDays === "Custom"}
                   onChange={() => setValidDays("Custom")}
                   className="accent-[#0089FF] h-4 w-4 cursor-pointer"
@@ -1767,12 +2352,14 @@ export function AlertDetailModal({
               </div>
             )}
           </div>
+        </div>
 
-          {/* 10. Start Time */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Start Time <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 10. Start Time */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Start Time <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <SelectDropdown
               value={timeFrom}
               options={TIME_OPTIONS}
@@ -1780,12 +2367,14 @@ export function AlertDetailModal({
               placeholder="Start Time"
             />
           </div>
+        </div>
 
-          {/* 11. End Time (Below Start Time) */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              End Time <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 11. End Time */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            End Time <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <SelectDropdown
               value={timeTo}
               options={TIME_OPTIONS}
@@ -1793,12 +2382,14 @@ export function AlertDetailModal({
               placeholder="End Time"
             />
           </div>
+        </div>
 
-          {/* 12. Timezone */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Timezone <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 12. Timezone */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Timezone <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <SelectDropdown
               value={timezone}
               options={TIMEZONES}
@@ -1806,12 +2397,14 @@ export function AlertDetailModal({
               placeholder="Select Timezone"
             />
           </div>
+        </div>
 
-          {/* 13. Severity (Below Timezone) */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Severity <span className="text-red-500 font-bold ml-0.5">*</span>
-            </label>
+        {/* 13. Severity */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+            Severity <span className="text-red-500 font-bold ml-0.5">*</span>
+          </label>
+          <div className="w-80 sm:w-96 max-w-md">
             <SelectDropdown
               value={severity}
               options={["Low", "Medium", "High", "Critical"]}
@@ -1819,81 +2412,108 @@ export function AlertDetailModal({
               placeholder="Select Severity"
             />
           </div>
+        </div>
 
-          {/* 14. Action Channels */}
-          <div className="space-y-2 pt-1">
-            <label className="block text-xs font-semibold text-foreground">
-              Notification & Action Channels
+        {/* 14. Action Channels */}
+        <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6 min-h-[36px]">
+          <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0 pt-2">
+            Notification Channels
+          </label>
+          <div className="w-80 sm:w-96 max-w-md flex flex-wrap items-center gap-4 p-3 rounded-md border border-input/80 bg-muted/20">
+            <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
+              <input
+                type="checkbox"
+                checked={sms}
+                onChange={(e) => setSms(e.target.checked)}
+                className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+              />
+              <span>SMS</span>
             </label>
-            <div className="flex flex-wrap items-center gap-4 p-3 rounded-md border border-input/80 bg-muted/20">
-              <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
-                <input
-                  type="checkbox"
-                  checked={sms}
-                  onChange={(e) => setSms(e.target.checked)}
-                  className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                />
-                <span>SMS</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
-                <input
-                  type="checkbox"
-                  checked={email}
-                  onChange={(e) => setEmail(e.target.checked)}
-                  className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                />
-                <span>Email</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
-                <input
-                  type="checkbox"
-                  checked={notification}
-                  onChange={(e) => setNotification(e.target.checked)}
-                  className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                />
-                <span>Push Notification</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
-                <input
-                  type="checkbox"
-                  checked={immobilizer}
-                  onChange={(e) => setImmobilizer(e.target.checked)}
-                  className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                />
-                <span>Remote Immobilizer</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
-                <input
-                  type="checkbox"
-                  checked={buzzer}
-                  onChange={(e) => setBuzzer(e.target.checked)}
-                  className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                />
-                <span>In-Cabin Buzzer</span>
-              </label>
-            </div>
+            <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
+              <input
+                type="checkbox"
+                checked={email}
+                onChange={(e) => setEmail(e.target.checked)}
+                className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+              />
+              <span>Email</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
+              <input
+                type="checkbox"
+                checked={notification}
+                onChange={(e) => setNotification(e.target.checked)}
+                className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+              />
+              <span>Push Notification</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
+              <input
+                type="checkbox"
+                checked={immobilizer}
+                onChange={(e) => setImmobilizer(e.target.checked)}
+                className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+              />
+              <span>Remote Immobilizer</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
+              <input
+                type="checkbox"
+                checked={buzzer}
+                onChange={(e) => setBuzzer(e.target.checked)}
+                className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+              />
+              <span>In-Cabin Buzzer</span>
+            </label>
           </div>
         </div>
+      </div>
 
-        {/* Modal Footer: Reset on left, Save Alert Rule on right (Back button removed per user request) */}
-        <div className="flex items-center justify-between border-t border-border bg-muted/20 px-5 py-3 shrink-0">
-          <button
-            type="button"
-            onClick={handleReset}
-            className="inline-flex h-8.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-3.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs"
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
-            <span>Reset</span>
-          </button>
+      {/* Horizontal divider with 20px space from left and right */}
+      <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
 
-          <button
-            type="button"
-            onClick={handleSave}
-            className="h-8.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98"
-          >
-            {isEdit ? "Update Alert Rule" : "Save Alert Rule"}
-          </button>
-        </div>
+      {/* Standard Bottom Footer Frame with Action Buttons */}
+      <footer className="flex h-12 items-center justify-start gap-2.5 px-5 bg-white dark:bg-slate-900 shrink-0 select-none">
+        <button
+          type="button"
+          onClick={handleReset}
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-98"
+        >
+          <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
+          <span>Reset</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
+        >
+          <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+          <span>Save</span>
+        </button>
+      </footer>
+    </div>
+  );
+}
+
+/* =========================================================================
+   Compatibility Wrapper for AlertDetailModal
+   ========================================================================= */
+export function AlertDetailModal({
+  open,
+  onClose,
+  alert,
+  onSave,
+}: {
+  open: boolean;
+  onClose: () => void;
+  alert: AlertRuleItem | null;
+  onSave: (saved: AlertRuleItem) => void;
+}) {
+  if (!open) return null;
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="w-[94vw] max-w-[1000px] h-[88vh] max-h-[88vh] p-0 gap-0 overflow-hidden rounded-2xl border border-border bg-background shadow-2xl flex flex-col">
+        <AlertDetailFormView alert={alert} onSave={onSave} onCancel={onClose} />
       </DialogContent>
     </Dialog>
   );
@@ -2229,137 +2849,6 @@ export function CopyAlertModal({
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-/* =========================================================================
-   Reusable SelectDropdown (Exact Component matching Image 5)
-   ========================================================================= */
-export type DropdownOption =
-  | string
-  | {
-      label: string;
-      value?: string;
-      description?: string;
-    };
-
-function SelectDropdown({
-  value,
-  options,
-  onChange,
-  className,
-  placeholder,
-}: {
-  value: string;
-  options: DropdownOption[];
-  onChange: (v: string) => void;
-  className?: string;
-  placeholder?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    if (open) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
-
-  const selectedOption = options.find((opt) => {
-    if (typeof opt === "object") {
-      return (opt.value ?? opt.label) === value || opt.label === value;
-    }
-    return opt === value;
-  });
-
-  const displayLabel = selectedOption
-    ? typeof selectedOption === "object"
-      ? selectedOption.label
-      : selectedOption
-    : value || placeholder || "Select";
-
-  return (
-    <div ref={ref} className={cn("relative w-full", className)}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className={cn(
-          "flex h-9 w-full items-center justify-between rounded-md border border-input/80 bg-background px-3 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none font-normal",
-          open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
-        )}
-      >
-        <span
-          className={cn(
-            "truncate",
-            value
-              ? "text-foreground font-medium"
-              : "text-muted-foreground/60 font-normal italic",
-          )}
-        >
-          {displayLabel}
-        </span>
-        <ChevronDown
-          className={cn(
-            "h-4 w-4 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1.5",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
-          {options.map((opt) => {
-            const isObj = typeof opt === "object";
-            const optLabel = isObj ? opt.label : opt;
-            const optVal = isObj ? (opt.value ?? opt.label) : opt;
-            const optDesc = isObj ? opt.description : undefined;
-            const isSelected = value === optVal || value === optLabel;
-
-            return (
-              <button
-                key={optVal}
-                type="button"
-                onClick={() => {
-                  onChange(optVal);
-                  setOpen(false);
-                }}
-                className={cn(
-                  "flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-colors cursor-pointer select-none",
-                  isSelected
-                    ? "bg-muted font-semibold text-foreground"
-                    : "text-foreground hover:bg-muted/80 font-normal",
-                )}
-              >
-                <div className="flex flex-col min-w-0 pr-2">
-                  <span
-                    className={cn(
-                      "text-xs leading-tight truncate",
-                      isSelected
-                        ? "font-semibold text-foreground"
-                        : "font-medium text-foreground",
-                    )}
-                  >
-                    {optLabel}
-                  </span>
-                  {optDesc && (
-                    <span className="text-[11px] leading-snug text-muted-foreground mt-0.5 font-normal">
-                      {optDesc}
-                    </span>
-                  )}
-                </div>
-                {isSelected && (
-                  <Check className="h-4 w-4 text-[#0089FF] shrink-0 ml-1" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
   );
 }
 

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ObjectSettingPage } from "@/components/setting/ObjectSettingPage";
 import { AlertSettingPage } from "@/components/setting/AlertSettingPage";
+import { TireSettingPage } from "@/components/setting/TireSettingPage";
 
 type SettingSearchParams = {
   category?: string;
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/setting")({
       {
         name: "description",
         content:
-          "Configure fleet objects, drivers, geofences, alerts, reminders, master rules, and enterprise settings.",
+          "Configure fleet objects, drivers, geofences, alerts, reminders, master rules, tires, and enterprise settings.",
       },
       {
         property: "og:title",
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/setting")({
       {
         property: "og:description",
         content:
-          "Configure fleet objects, drivers, geofences, alerts, reminders, master rules, and enterprise settings.",
+          "Configure fleet objects, drivers, geofences, alerts, reminders, master rules, tires, and enterprise settings.",
       },
     ],
   }),
@@ -44,7 +45,14 @@ function SettingRouteComponent() {
   if (search.tab === "alert") {
     return <AlertSettingPage />;
   }
+  if (
+    search.tab === "tire" ||
+    search.tab === "add_tire" ||
+    search.tab === "tire_management" ||
+    search.tab === "tire_brand_size" ||
+    search.category === "tire"
+  ) {
+    return <TireSettingPage />;
+  }
   return <ObjectSettingPage />;
 }
-
-

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import {
+  CircleGauge,
   Plus,
   RotateCcw,
   Download,
@@ -34,6 +35,7 @@ import {
   FileEdit,
   AlertTriangle,
   RefreshCw,
+  Star,
 } from "lucide-react";
 import {
   Dialog,
@@ -43,11 +45,20 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { SelectDropdown, type DropdownOption } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
+import { useLayoutMode } from "@/lib/useLayoutMode";
 import {
   FuelCalibrationModal,
   type FuelCalibrationData,
@@ -1327,9 +1338,22 @@ const DEFAULT_DOCS: VehicleDocument[] = [
    Main Object / Vehicle Setting Page Component
    ========================================================================= */
 
+const VEHICLE_SEARCH_FIELDS = [
+  { id: "all", label: "All fields" },
+  { id: "name", label: "Vehicle Name" },
+  { id: "imei", label: "IMEI Number" },
+  { id: "sim", label: "SIM Number" },
+  { id: "company", label: "Company" },
+  { id: "branch", label: "Branch" },
+  { id: "group", label: "Object Group" },
+  { id: "deviceType", label: "Device Type" },
+];
+
 export function ObjectSettingPage() {
+  const { isSingle } = useLayoutMode();
   const [vehicles, setVehicles] = useState<VehicleItem[]>(INITIAL_VEHICLES);
   const [searchField, setSearchField] = useState("all");
+  const selectedSearchFieldLabel = VEHICLE_SEARCH_FIELDS.find((f) => f.id === searchField)?.label || "All fields";
   const [searchQuery, setSearchQuery] = useState("");
   const [pageSize, setPageSize] = useState<number>(20);
   const [pageSizeOpen, setPageSizeOpen] = useState<boolean>(false);
@@ -1339,9 +1363,10 @@ export function ObjectSettingPage() {
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<VehicleFilterState>(DEFAULT_VEHICLE_FILTERS);
 
-  // Modal State for Vehicle Detail (Add / Edit)
-  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  // View Mode: "list" for Fleet Table, "form" for In-Screen Add/Edit Vehicle
+  const [viewMode, setViewMode] = useState<"list" | "form">("list");
   const [editingVehicle, setEditingVehicle] = useState<VehicleItem | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Modal State for Copy Vehicle
   const [copyModalOpen, setCopyModalOpen] = useState(false);
@@ -1368,14 +1393,14 @@ export function ObjectSettingPage() {
     return count;
   }, [activeFilters]);
 
-  const openCreateModal = () => {
+  const openCreateForm = () => {
     setEditingVehicle(null);
-    setDetailModalOpen(true);
+    setViewMode("form");
   };
 
-  const openEditModal = (item: VehicleItem) => {
+  const openEditForm = (item: VehicleItem) => {
     setEditingVehicle(item);
-    setDetailModalOpen(true);
+    setViewMode("form");
   };
 
   const openCopyModal = (item?: VehicleItem) => {
@@ -1398,7 +1423,7 @@ export function ObjectSettingPage() {
       setVehicles((prev) => [saved, ...prev]);
       toast.success(`Vehicle "${saved.name}" added successfully`);
     }
-    setDetailModalOpen(false);
+    setViewMode("list");
   };
 
   const handleCopySuccess = (newVehicles: VehicleItem[]) => {
@@ -1488,286 +1513,277 @@ export function ObjectSettingPage() {
   const lastRecord = Math.min(currentPage * pageSize, filteredVehicles.length);
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden bg-[#F8FAFC] dark:bg-slate-950">
-      {/* 1. Top Header Bar with integrated Toolbar matching Alert Setting */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0">
-        {/* Left: Page Title */}
-        <div className="flex items-center gap-2">
-          <h1 className="text-base font-bold text-slate-900 dark:text-white select-none">
-            Vehicle
-          </h1>
-        </div>
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-[#F0F0F0] dark:bg-slate-950 p-[10px]">
+      <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB]/80 dark:border-slate-800 shadow-2xs">
+      {/* 1. Conditional Header: Tabbed View vs Single Screen View (matching reference media_1789714484140.png) */}
+      {!isSingle ? (
+      <div className="relative flex items-end justify-between h-[45px] pt-[10px] px-0 select-none shrink-0 bg-[#F1F5F9] dark:bg-slate-950 rounded-tl-lg">
+        {/* Baseline border that runs across the entire strip under inactive tabs */}
+        <div className="absolute left-0 right-0 bottom-0 h-px bg-[#DFE3EB] dark:bg-slate-800 z-0" />
 
-        {/* Right Toolbar: Search, Actions, Pagination, + Object */}
-        <div className="flex items-center gap-2">
-          {/* Search Dropdown + Input Group */}
-          <div className="flex items-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background overflow-hidden shadow-2xs h-7.5">
-            {/* Field Selector */}
-            <div className="relative border-r border-[#DFE3EB] dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
-              <select
-                value={searchField}
-                onChange={(e) => setSearchField(e.target.value)}
-                className="h-7.5 appearance-none bg-transparent pl-2.5 pr-6 text-xs font-semibold text-foreground cursor-pointer focus:outline-none"
-              >
-                <option value="all">All fields</option>
-                <option value="name">Vehicle Name</option>
-                <option value="imei">IMEI Number</option>
-                <option value="sim">SIM Number</option>
-                <option value="company">Company</option>
-                <option value="branch">Branch</option>
-                <option value="group">Object Group</option>
-                <option value="deviceType">Device Type</option>
-              </select>
-              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 pointer-events-none text-muted-foreground" />
+        {/* Tab bar list */}
+        <div className="relative z-10 flex min-w-0 flex-1 items-end overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden h-full pl-[10px]">
+          <div
+            className="group relative flex shrink-0 cursor-pointer items-center gap-2 text-xs transition-all duration-150 select-none h-[35px] px-4 rounded-t-lg bg-white dark:bg-slate-900 border-t border-l border-r border-[#DFE3EB] dark:border-slate-800 text-slate-800 dark:text-white font-semibold mb-[-1px] z-20 shadow-2xs"
+          >
+            {/* Left Inverted Concave Fillet for Active Tab (curving into baseline) */}
+            <div className="absolute -left-[8px] bottom-0 w-[8px] h-[8px] overflow-hidden pointer-events-none z-20">
+              <svg className="w-full h-full" viewBox="0 0 8 8" fill="none">
+                <path
+                  d="M 0 8 L 8 8 L 8 0 C 8 4.418 4.418 8 0 8 Z"
+                  className="fill-white dark:fill-slate-900"
+                />
+                <path
+                  d="M 0 8 C 4.418 8 8 4.418 8 0"
+                  className="stroke-[#DFE3EB] dark:stroke-slate-800"
+                  strokeWidth="1"
+                />
+              </svg>
             </div>
 
-            {/* Search Input */}
-            <div className="relative flex items-center px-2">
-              <Search className="h-3.5 w-3.5 text-muted-foreground mr-1.5 shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                placeholder="Search in all fields..."
-                className="h-full w-32 sm:w-44 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              )}
+            {/* Right Inverted Concave Fillet for Active Tab (curving into baseline) */}
+            <div className="absolute -right-[8px] bottom-0 w-[8px] h-[8px] overflow-hidden pointer-events-none z-20">
+              <svg className="w-full h-full" viewBox="0 0 8 8" fill="none">
+                <path
+                  d="M 8 8 L 0 8 L 0 0 C 0 4.418 3.582 8 8 8 Z"
+                  className="fill-white dark:fill-slate-900"
+                />
+                <path
+                  d="M 8 8 C 3.582 8 0 4.418 0 0"
+                  className="stroke-[#DFE3EB] dark:stroke-slate-800"
+                  strokeWidth="1"
+                />
+              </svg>
             </div>
-          </div>
 
-          {/* Quick Action Utility Icons: Download, Upload, Filter, Column Settings, 3-Dots More */}
-          <div className="flex items-center gap-1">
-            {/* Export XLS */}
-            <button
-              type="button"
-              onClick={() => toast.success("Exported Vehicle Fleet as XLS")}
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98"
-              title="Download Excel XLS"
-            >
-              <Download className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
-            </button>
-
-            {/* Bulk Object Insert / Upload */}
-            <button
-              type="button"
-              onClick={() => setBulkInsertModalOpen(true)}
-              className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98"
-              title="Bulk Object Insert"
-            >
-              <Upload className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
-            </button>
-
-            {/* Filter Button */}
-            <button
-              type="button"
-              onClick={() => setFilterDrawerOpen(true)}
-              className={cn(
-                "relative inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98 select-none",
-                activeDrawerFilterCount > 0 && "border-[#0089FF] bg-blue-50/70 dark:bg-blue-950/40 text-[#0089FF]",
-              )}
-              title="Filter Options"
-            >
-              <SlidersHorizontal className={cn("h-3.5 w-3.5", activeDrawerFilterCount > 0 ? "text-[#0089FF]" : "text-slate-600 dark:text-slate-300")} />
-              {activeDrawerFilterCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#0089FF] text-[9px] font-bold text-white leading-none">
-                  {activeDrawerFilterCount}
-                </span>
-              )}
-            </button>
-
-            {/* 3-Dots More Menu Popover */}
-            <Popover open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    "inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98",
-                    moreMenuOpen && "bg-muted border-[#0089FF]/50 ring-2 ring-[#0089FF]/20 text-[#0089FF]",
-                  )}
-                  title="More Actions"
-                >
-                  <MoreVertical className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                sideOffset={6}
-                className="w-52 p-1.5 rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-popover/95 backdrop-blur-md shadow-xl select-none"
-              >
-                <div className="space-y-0.5 text-xs">
-                  {/* 1. Bulk Object Insert */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMoreMenuOpen(false);
-                      setBulkInsertModalOpen(true);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
-                  >
-                    <Plus className="h-4 w-4 shrink-0 text-[#0089FF]" />
-                    <span>Bulk Object Insert</span>
-                  </button>
-
-                  {/* 2. Bulk Update */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMoreMenuOpen(false);
-                      setBulkUpdateModalOpen(true);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
-                  >
-                    <FileEdit className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
-                    <span>Bulk Update</span>
-                  </button>
-
-                  {/* 3. Bulk Maintenance */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMoreMenuOpen(false);
-                      setBulkMaintenanceModalOpen(true);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
-                  >
-                    <Wrench className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
-                    <span>Bulk Maintenance</span>
-                  </button>
-
-                  {/* 4. QR Code */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMoreMenuOpen(false);
-                      setBatchQrModalOpen(true);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-foreground hover:bg-muted/80 transition-colors cursor-pointer font-medium"
-                  >
-                    <QrCode className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
-                    <span>QR Code</span>
-                  </button>
-
-                  <div className="my-1 border-t border-border/60" />
-
-                  {/* 5. Bulk Delete */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMoreMenuOpen(false);
-                      setBulkDeleteModalOpen(true);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer font-medium"
-                  >
-                    <Trash2 className="h-4 w-4 shrink-0 text-rose-500" />
-                    <span>Bulk Delete</span>
-                  </button>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Vertical Divider */}
-          <div className="h-4 w-px bg-border/80 mx-0.5 shrink-0" />
-
-          {/* Page Size Dropdown */}
-          <Popover open={pageSizeOpen} onOpenChange={setPageSizeOpen}>
-            <PopoverTrigger asChild>
+            {/* Star Favorite Icon in List Mode / Back Button in Form Mode */}
+            {viewMode === "form" ? (
               <button
                 type="button"
-                className={cn(
-                  "h-7.5 inline-flex items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background px-2.5 text-xs font-semibold text-foreground cursor-pointer shadow-2xs transition-all select-none hover:bg-muted hover:border-[#0089FF]/50 active:scale-98",
-                  pageSizeOpen && "bg-muted border-[#0089FF]/50 ring-2 ring-[#0089FF]/20",
-                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setViewMode("list");
+                }}
+                className="p-0.5 -ml-1 rounded text-slate-700 dark:text-slate-200 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                title="Back to Vehicle List"
               >
-                <span>{pageSize} / page</span>
-                <ChevronDown
+                <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsFavorite(!isFavorite);
+                }}
+                className="p-0.5 rounded transition-colors cursor-pointer shrink-0 text-slate-400 hover:text-amber-400"
+                title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+              >
+                <Star
                   className={cn(
-                    "h-3 w-3 opacity-60 transition-transform",
-                    pageSizeOpen && "rotate-180",
+                    "h-3.5 w-3.5 transition-colors",
+                    isFavorite ? "fill-amber-400 text-amber-400" : ""
                   )}
                 />
               </button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              sideOffset={6}
-              className="w-28 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none"
-            >
-              {PAGE_SIZES.map((s) => {
-                const isActive = pageSize === s;
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => {
-                      setPageSize(s);
-                      setCurrentPage(1);
-                      setPageSizeOpen(false);
-                    }}
-                    className={cn(
-                      "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
-                      isActive
-                        ? "bg-muted font-semibold text-foreground"
-                        : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
-                    )}
-                  >
-                    <span>{s} / page</span>
-                    {isActive && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
-                  </button>
-                );
-              })}
-            </PopoverContent>
-          </Popover>
+            )}
 
-          {/* Range & Navigation Buttons */}
-          <div className="flex items-center gap-1">
-            <span className="px-1 text-xs font-semibold tabular-nums text-muted-foreground whitespace-nowrap select-none">
-              {firstRecord}-{lastRecord} of {filteredVehicles.length}
+            {/* Tab Title */}
+            <span className="truncate max-w-[180px] whitespace-nowrap text-xs">
+              Vehicle
             </span>
-            <button
-              type="button"
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="h-7.5 w-7.5 inline-flex items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-foreground disabled:opacity-40 hover:bg-muted transition-all cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-            >
-              <ChevronLeft className="h-3.5 w-3.5" />
-            </button>
-            <button
-              type="button"
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="h-7.5 w-7.5 inline-flex items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-foreground disabled:opacity-40 hover:bg-muted transition-all cursor-pointer disabled:cursor-not-allowed shadow-2xs"
-            >
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
           </div>
 
-          {/* Reset Table & Filters Button (Beside + Object) */}
-          <button
-            type="button"
-            onClick={handleResetTable}
-            className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/50 transition-all cursor-pointer shadow-2xs active:scale-98"
-            title="Reset Table"
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
-          </button>
+          
+        </div>
+      </div>
+      ) : (
+        /* SINGLE SCREEN TITLE */
+        <div className="relative z-20 flex items-center justify-between px-5 pt-5 pb-2.5 select-none shrink-0 bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-2">
+            {viewMode === "form" ? (
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className="p-1 -ml-1 rounded text-slate-700 dark:text-slate-200 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                title="Back to Vehicle List"
+              >
+                <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsFavorite(!isFavorite)}
+                className="p-1 -ml-1 rounded text-slate-400 hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+              >
+                <Star
+                  className={cn(
+                    "h-5 w-5 transition-colors",
+                    isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-400 stroke-[2]"
+                  )}
+                />
+              </button>
+            )}
+            <h1 className="text-[24px] font-medium text-slate-900 dark:text-white tracking-tight">
+              {viewMode === "form" ? (editingVehicle ? `Edit: ${editingVehicle.name}` : "Add Vehicle") : "Vehicle"}
+            </h1>
+          </div>
+        </div>
+      )}
 
-          {/* Primary Action Button: + Object */}
+      {viewMode === "list" ? (
+        <>
+          {/* 2. Top Single-Row Filter & Utilities Toolbar (Visible only in List Mode) */}
+          <div className="relative z-20 flex min-h-[42px] items-center justify-between gap-3 bg-white dark:bg-slate-900 px-5 pb-3.5 shrink-0 select-none">
+        {/* Left: Filter Pills */}
+        <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-3 text-xs select-none">
+          {/* Company Filter Pill */}
+          <div className="flex items-center gap-1.5 font-medium shrink-0">
+            <span className="text-slate-500 dark:text-slate-400 font-normal">Company:</span>
+            <span className="text-slate-900 dark:text-white font-semibold cursor-pointer hover:underline inline-flex items-center gap-1">
+              ABC Logistic
+              <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+            </span>
+          </div>
+
+          {/* Divider 1 */}
+          <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+
+          {/* Branch Filter Pill */}
+          <div className="flex items-center gap-1.5 font-medium shrink-0">
+            <span className="text-slate-500 dark:text-slate-400 font-normal">Branch:</span>
+            <span className="text-slate-900 dark:text-white font-semibold cursor-pointer hover:underline inline-flex items-center gap-1">
+              HP Branch +3
+              <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+            </span>
+          </div>
+
+          {/* Divider 2 */}
+          <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+
+          {/* Vehicle Filter Pill */}
+          <div className="flex items-center gap-1.5 font-medium shrink-0">
+            <span className="text-slate-500 dark:text-slate-400 font-normal">Vehicle:</span>
+            <span className="text-slate-900 dark:text-white font-semibold cursor-pointer hover:underline inline-flex items-center gap-1">
+              HP Branch +30
+              <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+            </span>
+          </div>
+
+          {/* Divider 3 */}
+          <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+
+          {/* Filter Button (Matching Report section) */}
           <button
             type="button"
-            onClick={openCreateModal}
-            className="inline-flex h-7.5 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-3.5 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98"
+            onClick={() => setFilterDrawerOpen((prev) => !prev)}
+            aria-label="Open Filter Drawer"
+            className="inline-flex h-7 items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer select-none shadow-2xs active:scale-98 shrink-0"
+          >
+            <SlidersHorizontal className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+            <span className="font-medium text-slate-700 dark:text-slate-300">Filter</span>
+            {activeDrawerFilterCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white">
+                {activeDrawerFilterCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Right Toolbar: Search & + Object */}
+        <div className="flex items-center gap-2 ml-auto shrink-0">
+          {/* Field Search */}
+              <div className="relative flex h-7.5 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      title="Select specific column to search"
+                      className="flex h-full items-center gap-1 border-r border-border/60 bg-muted/30 px-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0 select-none"
+                    >
+                      <span className="max-w-[76px] truncate">
+                        {searchField === "all" ? "All fields" : selectedSearchFieldLabel}
+                      </span>
+                      <ChevronDown className="h-3 w-3 opacity-60" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    className="max-h-64 w-52 overflow-y-auto text-xs p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50 select-none"
+                  >
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSearchField("all");
+                        setCurrentPage(1);
+                      }}
+                      className={cn(
+                        "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
+                        searchField === "all"
+                          ? "bg-muted font-semibold text-foreground"
+                          : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                      )}
+                    >
+                      <span>All fields</span>
+                      {searchField === "all" && (
+                        <Check className="h-3.5 w-3.5 text-[#0089FF]" />
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="my-1 -mx-1" />
+                    {VEHICLE_SEARCH_FIELDS.filter((f) => f.id !== "all").map((f) => {
+                      const isSelected = searchField === f.id;
+                      return (
+                        <DropdownMenuItem
+                          key={f.id}
+                          onClick={() => {
+                            setSearchField(f.id);
+                            setCurrentPage(1);
+                          }}
+                          className={cn(
+                            "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
+                            isSelected
+                              ? "bg-muted font-semibold text-foreground"
+                              : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                          )}
+                        >
+                          <span className="truncate">{f.label}</span>
+                          {isSelected && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <Search className="ml-2.5 h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="Search in all fields..."
+                  className="h-full w-32 sm:w-44 bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setCurrentPage(1);
+                    }}
+                    className="mr-1.5 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer rounded-full transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+
+              {/* Primary Action Button: + Object */}
+          <button
+            type="button"
+            onClick={openCreateForm}
+            className="inline-flex h-7.5 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-3.5 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98 ml-1"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Object</span>
@@ -1775,273 +1791,479 @@ export function ObjectSettingPage() {
         </div>
       </div>
 
-      {/* 2. Main Content Area with Clean 21-Column Data Table */}
-      <div className="flex-1 min-h-0 min-w-0 flex flex-col p-2.5 overflow-hidden">
-        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 rounded-lg shadow-2xs">
-          {/* Scrollable Table Area */}
-          <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="sticky top-0 z-10 shadow-xs">
-                <tr className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 select-none whitespace-nowrap">
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 text-center w-10">
-                    #
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Company
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Branch
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Vehicle Name
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Object Group
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 font-mono">
-                    IMEI Number
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 font-mono">
-                    SIM Number
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    GPS Device Type
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    Distance Counter
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    Speed Detection
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Timezone
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Created Date
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Installation Date
-                  </th>
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    Sensor
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    Expiry Date
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    Specification
-                  </th>
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    Primary Vehicle
-                  </th>
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    Documents
-                  </th>
-                  <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 text-center">
-                    QR Code
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    GPS Tracker ID
-                  </th>
-                  <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700">
-                    GPS Tracker Serial No
-                  </th>
-                  <th className="py-2.5 px-3 text-right sticky right-0 bg-[#EAF0F6] dark:bg-slate-800 shadow-l">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 bg-white dark:bg-slate-900 font-medium whitespace-nowrap">
-                {pageRows.map((row, idx) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
-                    onClick={() => openEditModal(row)}
-                  >
-                    {/* Index */}
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center text-muted-foreground font-mono text-[11px]">
-                      {(currentPage - 1) * pageSize + idx + 1}
-                    </td>
+      {/* Horizontal divider with 20px space from left and right */}
+      <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0 relative z-20 bg-white dark:bg-slate-900" />
 
-                    {/* Company */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-slate-800 dark:text-slate-200">
-                      {row.company}
-                    </td>
-
-                    {/* Branch */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-muted-foreground">
-                      {row.branch}
-                    </td>
-
-                    {/* Vehicle Name with Status Indicator */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 font-semibold text-foreground group-hover:text-[#0089FF] transition-colors">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" title="Active Object" />
-                        <span className="truncate">{row.name}</span>
-                      </div>
-                    </td>
-
-                    {/* Object Group */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-medium">
-                      <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[11px]">
-                        {row.objectGroup}
-                      </span>
-                    </td>
-
-                    {/* IMEI Number */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 font-mono text-foreground font-semibold">
-                      {row.imei}
-                    </td>
-
-                    {/* SIM Number */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 font-mono text-muted-foreground">
-                      {row.simPrimary || "--"}
-                    </td>
-
-                    {/* GPS Device Type */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-muted-foreground text-[11px] truncate max-w-[200px]" title={row.deviceType}>
-                      {row.deviceType}
-                    </td>
-
-                    {/* Distance Counter */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center font-semibold text-slate-700 dark:text-slate-300">
-                      {row.distanceCounter}
-                    </td>
-
-                    {/* Speed Detection */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center text-slate-600 dark:text-slate-400 text-[11px]">
-                      {row.speedDetection}
-                    </td>
-
-                    {/* Timezone */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-muted-foreground font-mono text-[11px]">
-                      {row.timezone}
-                    </td>
-
-                    {/* Created Date */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-muted-foreground font-mono text-[11px]">
-                      {row.createdDate}
-                    </td>
-
-                    {/* Installation Date */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-muted-foreground font-mono text-[11px]">
-                      {row.installationDate}
-                    </td>
-
-                    {/* Sensor Count */}
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <span className="font-mono font-bold text-[#0089FF] bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 text-[11px]">
-                        {row.sensorCount}
-                      </span>
-                    </td>
-
-                    {/* Expiry Date */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-muted-foreground font-mono text-[11px]">
-                      {row.expiryDate}
-                    </td>
-
-                    {/* Specification */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                        {row.specification}
-                      </span>
-                    </td>
-
-                    {/* Primary Vehicle Checkmark */}
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center">
-                      {row.isPrimary ? (
-                        <Check className="h-4 w-4 text-emerald-600 mx-auto stroke-[2.5]" />
-                      ) : (
-                        <span className="text-slate-300 dark:text-slate-700 font-bold mx-auto text-xs">✕</span>
-                      )}
-                    </td>
-
-                    {/* Documents */}
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(row)}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-[#0089FF] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
-                        title="View Attached Documents"
-                      >
-                        <FileText className="h-3.5 w-3.5 text-blue-500" />
-                        <span>{row.documentsCount}</span>
-                      </button>
-                    </td>
-
-                    {/* QR Code Action Button */}
-                    <td className="py-2 px-3 border-r border-[#DFE3EB]/70 dark:border-slate-800 text-center" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
-                        onClick={() => openQrModal(row)}
-                        className="p-1 rounded text-slate-600 dark:text-slate-300 hover:text-[#0089FF] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
-                        title="View Vehicle Pairing QR Code"
-                      >
-                        <QrCode className="h-4 w-4" />
-                      </button>
-                    </td>
-
-                    {/* GPS Tracker ID */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 font-mono text-muted-foreground text-[11px]">
-                      {row.trackerId}
-                    </td>
-
-                    {/* GPS Tracker Serial No */}
-                    <td className="py-2 px-3.5 border-r border-[#DFE3EB]/70 dark:border-slate-800 font-mono text-muted-foreground text-[11px]">
-                      {row.serialNo}
-                    </td>
-
-                    {/* Actions Column (Sticky Right) */}
-                    <td className="py-2 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(row)}
-                          className="p-1 rounded text-muted-foreground hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          title="Edit Vehicle"
-                        >
-                          <Edit2 className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => openCopyModal(row)}
-                          className="p-1 rounded text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
-                          title="Copy Vehicle Configuration"
-                        >
-                          <Copy className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteVehicle(row.id)}
-                          className="p-1 rounded text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                          title="Delete Vehicle"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
+      {/* 3. Table & Inline Filter Area */}
+      <div className="relative min-h-0 flex-1 flex overflow-hidden bg-white dark:bg-slate-900">
+        {/* Table Scroll Area */}
+        <div className="relative min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth pt-1 mx-5">
+          <table className="w-full text-left text-xs border-collapse">
+                <thead className="sticky top-0 z-10 shadow-xs">
+                  <tr className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 select-none whitespace-nowrap h-[38px]">
+                    <th className="py-2.5 px-3 text-center w-10 bg-white dark:bg-slate-900">
+                      #
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      Company
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      Branch
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      Vehicle Name
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      Object Group
+                    </th>
+                    <th className="py-2.5 px-3.5 font-mono bg-white dark:bg-slate-900">
+                      IMEI Number
+                    </th>
+                    <th className="py-2.5 px-3.5 font-mono bg-white dark:bg-slate-900">
+                      SIM Number
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      GPS Device Type
+                    </th>
+                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
+                      Distance Counter
+                    </th>
+                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
+                      Speed Detection
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      Timezone
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      Created Date
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      Installation Date
+                    </th>
+                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
+                      Sensor
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      Expiry Date
+                    </th>
+                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
+                      Specification
+                    </th>
+                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
+                      Primary Vehicle
+                    </th>
+                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
+                      Documents
+                    </th>
+                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
+                      QR Code
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      GPS Tracker ID
+                    </th>
+                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
+                      GPS Tracker Serial No
+                    </th>
+                    <th className="py-2.5 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-                {pageRows.length === 0 && (
-                  <tr>
-                    <td colSpan={22} className="py-14 text-center text-xs text-muted-foreground">
-                      No vehicles or objects found matching your search.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 bg-white dark:bg-slate-900 font-medium whitespace-nowrap">
+                  {pageRows.map((row, idx) => (
+                    <tr
+                      key={row.id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
+                      onClick={() => openEditForm(row)}
+                    >
+                      {/* Index */}
+                      <td className="py-2 px-3 text-center text-muted-foreground font-mono text-[11px]">
+                        {(currentPage - 1) * pageSize + idx + 1}
+                      </td>
+
+                      {/* Company */}
+                      <td className="py-2 px-3.5 text-slate-800 dark:text-slate-200">
+                        {row.company}
+                      </td>
+
+                      {/* Branch */}
+                      <td className="py-2 px-3.5 text-muted-foreground">
+                        {row.branch}
+                      </td>
+
+                      {/* Vehicle Name with Status Indicator */}
+                      <td className="py-2 px-3.5 font-semibold text-foreground group-hover:text-[#0089FF] transition-colors">
+                        <div className="flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" title="Active Object" />
+                          <span className="truncate">{row.name}</span>
+                        </div>
+                      </td>
+
+                      {/* Object Group */}
+                      <td className="py-2 px-3.5 text-slate-700 dark:text-slate-300 font-medium">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[11px]">
+                          {row.objectGroup}
+                        </span>
+                      </td>
+
+                      {/* IMEI Number */}
+                      <td className="py-2 px-3.5 font-mono text-foreground font-semibold">
+                        {row.imei}
+                      </td>
+
+                      {/* SIM Number */}
+                      <td className="py-2 px-3.5 font-mono text-muted-foreground">
+                        {row.simPrimary || "--"}
+                      </td>
+
+                      {/* GPS Device Type */}
+                      <td className="py-2 px-3.5 text-muted-foreground text-[11px] truncate max-w-[200px]" title={row.deviceType}>
+                        {row.deviceType}
+                      </td>
+
+                      {/* Distance Counter */}
+                      <td className="py-2 px-3.5 text-center font-semibold text-slate-700 dark:text-slate-300">
+                        {row.distanceCounter}
+                      </td>
+
+                      {/* Speed Detection */}
+                      <td className="py-2 px-3.5 text-center text-slate-600 dark:text-slate-400 text-[11px]">
+                        {row.speedDetection}
+                      </td>
+
+                      {/* Timezone */}
+                      <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
+                        {row.timezone}
+                      </td>
+
+                      {/* Created Date */}
+                      <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
+                        {row.createdDate}
+                      </td>
+
+                      {/* Installation Date */}
+                      <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
+                        {row.installationDate}
+                      </td>
+
+                      {/* Sensor Count */}
+                      <td className="py-2 px-3 text-center">
+                        <span className="font-mono font-bold text-[#0089FF] bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 text-[11px]">
+                          {row.sensorCount}
+                        </span>
+                      </td>
+
+                      {/* Expiry Date */}
+                      <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
+                        {row.expiryDate}
+                      </td>
+
+                      {/* Specification */}
+                      <td className="py-2 px-3.5 text-center">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                          {row.specification}
+                        </span>
+                      </td>
+
+                      {/* Primary Vehicle Checkmark */}
+                      <td className="py-2 px-3 text-center">
+                        {row.isPrimary ? (
+                          <Check className="h-4 w-4 text-emerald-600 mx-auto stroke-[2.5]" />
+                        ) : (
+                          <span className="text-slate-300 dark:text-slate-700 font-bold mx-auto text-xs">✕</span>
+                        )}
+                      </td>
+
+                      {/* Documents */}
+                      <td className="py-2 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={() => openEditForm(row)}
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-[#0089FF] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                          title="View Attached Documents"
+                        >
+                          <FileText className="h-3.5 w-3.5 text-blue-500" />
+                          <span>{row.documentsCount}</span>
+                        </button>
+                      </td>
+
+                      {/* QR Code Action Button */}
+                      <td className="py-2 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={() => openQrModal(row)}
+                          className="p-1 rounded text-slate-600 dark:text-slate-300 hover:text-[#0089FF] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                          title="View Vehicle Pairing QR Code"
+                        >
+                          <QrCode className="h-4 w-4" />
+                        </button>
+                      </td>
+
+                      {/* GPS Tracker ID */}
+                      <td className="py-2 px-3.5 font-mono text-muted-foreground text-[11px]">
+                        {row.trackerId}
+                      </td>
+
+                      {/* GPS Tracker Serial No */}
+                      <td className="py-2 px-3.5 font-mono text-muted-foreground text-[11px]">
+                        {row.serialNo}
+                      </td>
+
+                      {/* Actions Column (Sticky Right) */}
+                      <td className="py-2 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => openEditForm(row)}
+                            className="p-1 rounded text-muted-foreground hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            title="Edit Vehicle"
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openCopyModal(row)}
+                            className="p-1 rounded text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                            title="Copy Vehicle Configuration"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteVehicle(row.id)}
+                            className="p-1 rounded text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                            title="Delete Vehicle"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {pageRows.length === 0 && (
+                    <tr>
+                      <td colSpan={22} className="py-14 text-center text-xs text-muted-foreground">
+                        No vehicles or objects found matching your search.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
         </div>
+
+        {/* Inline Right-Side Filter Panel */}
+        <VehicleFilterDrawer
+          open={filterDrawerOpen}
+          onClose={() => setFilterDrawerOpen(false)}
+          filters={activeFilters}
+          onApply={(nextFilters) => {
+            setActiveFilters(nextFilters);
+            setCurrentPage(1);
+          }}
+          onReset={() => {
+            setActiveFilters(DEFAULT_VEHICLE_FILTERS);
+            setCurrentPage(1);
+          }}
+          allVehicles={vehicles}
+        />
       </div>
 
-      {/* 3. Add / Edit Vehicle Modal (Roomy Fixed Big Dimensions) */}
-      <VehicleDetailModal
-        open={detailModalOpen}
-        onClose={() => setDetailModalOpen(false)}
-        vehicle={editingVehicle}
-        onSave={handleSaveVehicle}
-      />
+          {/* Horizontal divider with 20px space from left and right */}
+          <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
+
+          {/* Standard Application Bottom Frame with Centered HubSpot-Style Pagination & Operations */}
+          <footer className="flex h-11 items-center justify-between px-5 bg-white dark:bg-slate-900 shrink-0 select-none">
+            {/* Left: Total records */}
+            <div className="flex items-center min-w-[140px]">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 tabular-nums select-none">
+                {filteredVehicles.length.toLocaleString()} records
+              </span>
+            </div>
+
+            {/* Center: Pagination */}
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              {/* Prev */}
+              <button
+                type="button"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors px-1.5 py-1 rounded"
+              >
+                <ChevronLeft className="h-3.5 w-3.5 stroke-[2.2]" />
+                <span>Prev</span>
+              </button>
+
+              {/* Page numbers */}
+              <div className="flex items-center gap-0.5 sm:gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                  const isActive = p === currentPage;
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setCurrentPage(p)}
+                      className={cn(
+                        "h-6 min-w-[24px] px-1 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center justify-center",
+                        isActive
+                          ? "border border-slate-400 dark:border-slate-500 bg-transparent text-slate-900 dark:text-white font-bold"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Next */}
+              <button
+                type="button"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors px-1.5 py-1 rounded"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-3.5 w-3.5 stroke-[2.2]" />
+              </button>
+
+              {/* Page Size Selector */}
+              <div className="ml-1 sm:ml-2">
+                <Popover open={pageSizeOpen} onOpenChange={setPageSizeOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(
+                        "inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white cursor-pointer select-none transition-colors px-1.5 py-1 rounded bg-transparent border-0 hover:bg-slate-100 dark:hover:bg-slate-800",
+                        pageSizeOpen && "bg-slate-100 dark:bg-slate-800 text-black dark:text-white",
+                      )}
+                    >
+                      <span>{pageSize} per page</span>
+                      <ChevronDown className={cn("h-3 w-3 opacity-60 transition-transform", pageSizeOpen && "rotate-180")} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="center" sideOffset={6} className="w-32 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none z-50">
+                    {PAGE_SIZES.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => {
+                          setPageSize(s);
+                          setCurrentPage(1);
+                          setPageSizeOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
+                          pageSize === s ? "bg-muted font-semibold text-foreground" : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                        )}
+                      >
+                        <span>{s} per page</span>
+                        {pageSize === s && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
+                      </button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {/* Right: Other Operations */}
+            <div className="flex items-center gap-1 min-w-[140px] justify-end">
+              {/* Reset Table */}
+              <button
+                type="button"
+                onClick={handleResetTable}
+                className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
+                title="Reset Table"
+              >
+                <RotateCcw className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+              </button>
+
+              {/* Export XLS */}
+              <button
+                type="button"
+                onClick={() => toast.success("Exported fleet objects as XLS")}
+                className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
+                title="Download Excel XLS"
+              >
+                <Download className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+              </button>
+
+              {/* 3-Dots More Menu */}
+              <Popover open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
+                    title="More Fleet Actions"
+                  >
+                    <MoreVertical className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" sideOffset={6} className="w-52 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none z-50">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBulkUpdateModalOpen(true);
+                      setMoreMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-muted text-foreground transition-colors cursor-pointer text-left"
+                  >
+                    <SlidersHorizontal className="h-4 w-4 text-slate-500" />
+                    <span>Bulk Object Update</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBulkMaintenanceModalOpen(true);
+                      setMoreMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-muted text-foreground transition-colors cursor-pointer text-left"
+                  >
+                    <Wrench className="h-4 w-4 text-slate-500" />
+                    <span>Bulk Maintenance</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBatchQrModalOpen(true);
+                      setMoreMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-muted text-foreground transition-colors cursor-pointer text-left"
+                  >
+                    <QrCode className="h-4 w-4 text-slate-500" />
+                    <span>Batch QR Codes</span>
+                  </button>
+
+                  <div className="my-1 border-t border-border/60" />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBulkDeleteModalOpen(true);
+                      setMoreMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-destructive/10 text-destructive transition-colors cursor-pointer text-left"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <span>Bulk Delete Objects</span>
+                  </button>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </footer>
+    </>
+    ) : (
+      /* In-Screen Form View (Direct full-bleed container without extra outer box/borders) */
+      <div className="flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden bg-white dark:bg-slate-900">
+        <VehicleDetailFormView
+          vehicle={editingVehicle}
+          onSave={handleSaveVehicle}
+          onCancel={() => setViewMode("list")}
+        />
+      </div>
+    )}
+      </div>
 
       {/* 4. Copy Vehicle Modal */}
       <CopyVehicleModal
@@ -2095,21 +2317,7 @@ export function ObjectSettingPage() {
         allVehicles={vehicles}
       />
 
-      {/* 11. Right Side Filter Drawer (Matching Alert / Report Drawer) */}
-      <VehicleFilterDrawer
-        open={filterDrawerOpen}
-        onClose={() => setFilterDrawerOpen(false)}
-        filters={activeFilters}
-        onApply={(nextFilters) => {
-          setActiveFilters(nextFilters);
-          setCurrentPage(1);
-        }}
-        onReset={() => {
-          setActiveFilters(DEFAULT_VEHICLE_FILTERS);
-          setCurrentPage(1);
-        }}
-        allVehicles={vehicles}
-      />
+      
     </div>
   );
 }
@@ -2202,115 +2410,101 @@ export function VehicleFilterDrawer({
     toast.info("Filters reset to default");
   };
 
+  if (!open) return null;
+
   return (
-    <>
-      {/* Backdrop blur overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 top-[45px] z-30 bg-black/40 backdrop-blur-xs transition-opacity duration-200 animate-in fade-in-0"
+    <aside className="w-[320px] xl:w-[350px] shrink-0 border-l border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full z-10 select-none animate-in slide-in-from-right duration-200">
+      {/* Header matching Reference */}
+      <header className="flex h-11 items-center justify-between border-b border-[#DFE3EB] dark:border-slate-800 px-4 bg-white dark:bg-slate-900 select-none shrink-0">
+        <h2 className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white">
+          Filter Options
+        </h2>
+        <button
+          type="button"
+          aria-label="Close filter"
           onClick={onClose}
-        />
-      )}
+          className="rounded-md p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </header>
 
-      {/* Slide-over Drawer Panel */}
-      <aside
-        className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
-          open ? "translate-x-0" : "pointer-events-none translate-x-full",
-        )}
-      >
-        {/* Standardized 56px Header */}
-        <header className="flex h-[56px] items-center justify-between border-b border-border px-5 bg-background select-none shrink-0">
-          <h2 className="text-[16px] font-semibold tracking-tight text-foreground">
-            Filter Options
-          </h2>
-          <button
-            type="button"
-            aria-label="Close filter"
-            onClick={onClose}
-            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </header>
-
-        {/* Drawer Body */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs custom-scrollbar">
-          {/* 1. Company */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Company <span className="text-muted-foreground font-normal">:</span>
-            </label>
-            <SelectDropdown
-              value={draftCompany}
-              options={companyOptions}
-              onChange={(val) => {
-                setDraftCompany(val);
-                setDraftBranch("All");
-              }}
-              placeholder="Select Company"
-            />
-          </div>
-
-          {/* 2. Branch */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Branch <span className="text-muted-foreground font-normal">:</span>
-            </label>
-            <SelectDropdown
-              value={draftBranch}
-              options={branchOptions}
-              onChange={setDraftBranch}
-              placeholder="Select Branch"
-            />
-          </div>
-
-          {/* 3. GPS Device Type */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              GPS Device Type <span className="text-muted-foreground font-normal">:</span>
-            </label>
-            <SelectDropdown
-              value={draftDeviceType}
-              options={deviceTypeOptions}
-              onChange={setDraftDeviceType}
-              placeholder="Select Device Type"
-            />
-          </div>
-
-          {/* 4. Object Group */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-foreground">
-              Object Group <span className="text-muted-foreground font-normal">:</span>
-            </label>
-            <SelectDropdown
-              value={draftObjectGroup}
-              options={objectGroupOptions}
-              onChange={setDraftObjectGroup}
-              placeholder="Select Object Group"
-            />
-          </div>
+      {/* Drawer Body */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs custom-scrollbar">
+        {/* 1. Company */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Company <span className="text-slate-400 font-normal">:</span>
+          </label>
+          <SelectDropdown
+            value={draftCompany}
+            options={companyOptions}
+            onChange={(val) => {
+              setDraftCompany(val);
+              setDraftBranch("All");
+            }}
+            placeholder="Select Company"
+          />
         </div>
 
-        {/* Standardized 56px Footer */}
-        <footer className="flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0">
-          <button
-            type="button"
-            onClick={handleDrawerReset}
-            className="h-8 rounded-md border border-input/80 bg-background px-4 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shadow-2xs"
-          >
-            Reset
-          </button>
-          <button
-            type="button"
-            onClick={handleDrawerApply}
-            className="h-8 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white transition-colors cursor-pointer shadow-xs active:scale-98"
-          >
-            Apply
-          </button>
-        </footer>
-      </aside>
-    </>
+        {/* 2. Branch */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Branch <span className="text-slate-400 font-normal">:</span>
+          </label>
+          <SelectDropdown
+            value={draftBranch}
+            options={branchOptions}
+            onChange={setDraftBranch}
+            placeholder="Select Branch"
+          />
+        </div>
+
+        {/* 3. GPS Device Type */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+            GPS Device Type <span className="text-slate-400 font-normal">:</span>
+          </label>
+          <SelectDropdown
+            value={draftDeviceType}
+            options={deviceTypeOptions}
+            onChange={setDraftDeviceType}
+            placeholder="Select Device Type"
+          />
+        </div>
+
+        {/* 4. Object Group */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Object Group <span className="text-slate-400 font-normal">:</span>
+          </label>
+          <SelectDropdown
+            value={draftObjectGroup}
+            options={objectGroupOptions}
+            onChange={setDraftObjectGroup}
+            placeholder="Select Object Group"
+          />
+        </div>
+      </div>
+
+      {/* Footer: Reset left, Apply right */}
+      <footer className="flex h-12 items-center justify-between border-t border-[#DFE3EB] dark:border-slate-800 px-4 bg-white dark:bg-slate-900 select-none shrink-0">
+        <button
+          type="button"
+          onClick={handleDrawerReset}
+          className="h-8 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs"
+        >
+          Reset
+        </button>
+        <button
+          type="button"
+          onClick={handleDrawerApply}
+          className="h-8 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white transition-colors cursor-pointer shadow-xs active:scale-98"
+        >
+          Apply
+        </button>
+      </footer>
+    </aside>
   );
 }
 
@@ -2460,7 +2654,7 @@ export function AddSensorModal({
             </label>
             <SelectDropdown
               value={readingType}
-              options={["Direct", "Formula", "Linear", "Inverted"]}
+              options={["Direct", "Inverse"]}
               onChange={setReadingType}
             />
           </div>
@@ -2528,19 +2722,17 @@ export function AddSensorModal({
 }
 
 /* =========================================================================
-   Add / Edit Vehicle Modal (Roomy Fixed Big Dimensions across all tabs)
+   In-Screen Add / Edit Vehicle Form View (Horizontal Field-Beside-Value Layout)
    ========================================================================= */
 
-export function VehicleDetailModal({
-  open,
-  onClose,
+export function VehicleDetailFormView({
   vehicle,
   onSave,
+  onCancel,
 }: {
-  open: boolean;
-  onClose: () => void;
   vehicle: VehicleItem | null;
   onSave: (v: VehicleItem) => void;
+  onCancel: () => void;
 }) {
   const isEdit = Boolean(vehicle);
   const [activeTab, setActiveTab] = useState<"General" | "Profile" | "Sensors" | "Document">("General");
@@ -2598,7 +2790,7 @@ export function VehicleDetailModal({
   const [documents, setDocuments] = useState<VehicleDocument[]>([]);
   const [docUploadModalOpen, setDocUploadModalOpen] = useState(false);
 
-  // Sync state when vehicle prop changes or modal opens
+  // Sync state when vehicle prop changes
   useEffect(() => {
     if (vehicle) {
       setReseller(vehicle.reseller || "");
@@ -2689,7 +2881,7 @@ export function VehicleDetailModal({
       setDocuments([]);
     }
     setActiveTab("General");
-  }, [vehicle, open]);
+  }, [vehicle]);
 
   // Update server address automatically based on device type
   const handleDeviceTypeChange = (newType: string) => {
@@ -2800,793 +2992,914 @@ export function VehicleDetailModal({
     setCalibrationModalOpen(true);
   };
 
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      {/* 
-        EXPANSIVE FIXED MODAL:
-        - Wide: 94vw max-w-[1340px]
-        - Height: Fixed 86vh
-        - Dimensions stay completely constant across tabs without resizing or jumping
-      */}
-      <DialogContent
-        overlayClassName="bg-slate-950/80 backdrop-blur-md"
-        className="w-[94vw] max-w-[1340px] h-[86vh] max-h-[86vh] p-0 gap-0 overflow-hidden rounded-xl border border-border bg-background shadow-2xl flex flex-col"
-      >
-        {/* Modal Header matching reference */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-2 bg-background shrink-0 select-none">
-          <DialogTitle className="text-[18px] font-bold text-[#1D3B7A] dark:text-blue-400">
-            {isEdit ? `Edit Vehicle: ${vehicle?.name}` : "Vehicle"}
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            Vehicle & Object Profile Configuration Modal
-          </DialogDescription>
-        </div>
+  const handleResetForm = () => {
+    setReseller("");
+    setCompany("");
+    setBranch("");
+    setName("");
+    setDeviceType("");
+    setServerAddress("");
+    setImei("");
+    setDeviceImei("");
+    setSatelliteImei("");
+    setSimPrimary("");
+    setSimSecondary("");
+    setDistanceCounter("");
+    setDistanceVariationValue("");
+    setSpeedDetection("");
+    setTimezone("");
+    setSpecification("");
+    setIsPrimary(false);
+    setIgnBasedOnSpeed(false);
+    setPlateNumber("");
+    setObjectType("");
+    setColor("");
+    setDvirTemplate("");
+    setPermit("");
+    setManufactureDate("");
+    setPurchaseDate("");
+    setInstallationDate("");
+    setFuelType("");
+    setBatteryVoltage("");
+    setDistanceFuelConsumption("");
+    setDurationFuelConsumption("");
+    toast.info("Form fields cleared to blank");
+  };
 
-        {/* Modal Tabs Bar matching screenshot media_1789453348270.png */}
-        <div className="relative flex items-center border-b border-[#E2E8F0] dark:border-slate-800 bg-background px-6 shrink-0 select-none gap-6 text-[13.5px] pb-2 pt-1">
-          {(["General", "Profile", "Sensors", "Document"] as const).map((tab) => {
-            const isActive = activeTab === tab;
+  return (
+    <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-slate-900">
+      {/* In-Screen Form Secondary Tabs Bar (General, Profile, Sensors, Document) */}
+      <div className="flex items-center justify-between border-b border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 px-8 shrink-0 select-none text-xs h-10">
+        <div className="flex items-center gap-8 h-full">
+          {(
+            [
+              { id: "General", label: "General" },
+              { id: "Profile", label: "Profile" },
+              { id: "Sensors", label: "Sensors" },
+              { id: "Document", label: "Document" },
+            ] as const
+          ).map((tab) => {
+            const isActive = activeTab === tab.id;
             return (
-              <div key={tab} className="relative flex flex-col items-center">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={cn(
-                    "px-4 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 text-[13.5px] select-none",
-                    isActive
-                      ? "bg-[#E5E7EB] dark:bg-slate-800 text-[#1D3B7A] dark:text-blue-400 font-bold"
-                      : "text-[#1D3B7A] dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-800/60",
-                  )}
-                >
-                  <span>{tab}</span>
-                </button>
-                {/* Deep navy blue indicator line for active tab */}
-                {isActive && (
-                  <div className="absolute -bottom-[9px] left-0 right-0 h-[3px] bg-[#1D3B7A] dark:bg-blue-500 rounded-full" />
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "relative h-full flex items-center px-0.5 text-xs transition-colors cursor-pointer select-none border-b-2 line-tab !rounded-none focus:outline-none",
+                  isActive
+                    ? "border-[#0089FF] text-[#0089FF] dark:text-blue-400 font-bold -mb-[1px]"
+                    : "border-transparent text-muted-foreground font-medium hover:text-foreground hover:border-slate-300 dark:hover:border-slate-700",
                 )}
-              </div>
+              >
+                <span>{tab.label}</span>
+              </button>
             );
           })}
         </div>
+      </div>
 
-        {/* Modal Scrollable Form Body (Fixed flex-1 min-h-0 so size never changes) */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-6 md:p-8 custom-scrollbar text-xs">
-          {/* TAB 1: GENERAL */}
-          {activeTab === "General" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
-              {/* Left Column */}
-              <div className="space-y-4">
-                {/* Reseller * */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Reseller <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <SelectDropdown
-                    value={reseller}
-                    options={["HP Reseller", "Global Reseller Hub", "FleetTech Resellers", "FastTrack Telematics"]}
-                    onChange={setReseller}
-                    placeholder="Select Reseller"
-                  />
-                </div>
-
-                {/* Company * */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Company <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <SelectDropdown
-                    value={company}
-                    options={["HP Company", "Global Logistics Inc", "Fleet Cargo West", "FastTrack Mobility"]}
-                    onChange={setCompany}
-                    placeholder="Select Company"
-                  />
-                </div>
-
-                {/* Branch * */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Branch <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <SelectDropdown
-                    value={branch}
-                    options={["HP Branch 8", "HP EV Branch 2", "Central Branch", "North Terminal", "West Hub", "South Depot"]}
-                    onChange={setBranch}
-                    placeholder="Select Branch"
-                  />
-                </div>
-
-                {/* Name * */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Name <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter Vehicle Name (e.g. HP Boom Barrier)"
-                    className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
-                  />
-                </div>
-
-                {/* Device Type * */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Device Type <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <SelectDropdown
-                    value={deviceType}
-                    options={DEVICE_TYPE_OPTIONS}
-                    onChange={handleDeviceTypeChange}
-                    placeholder="Select Device Type"
-                  />
-                </div>
-
-                {/* Server Address (Read only) */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Server Address
-                  </label>
-                  <input
-                    type="text"
-                    value={serverAddress}
-                    readOnly
-                    placeholder="--"
-                    className="h-9 w-full rounded-md border border-input/80 bg-muted/40 px-3 font-mono text-xs text-muted-foreground shadow-2xs cursor-not-allowed select-all"
-                  />
-                </div>
-
-                {/* Distance Counter */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Distance Counter
-                  </label>
-                  <SelectDropdown
-                    value={distanceCounter}
-                    options={DISTANCE_COUNTER_OPTIONS}
-                    onChange={setDistanceCounter}
-                    placeholder="Select Distance Counter"
-                  />
-                </div>
-
-                {/* Distance Variation */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Distance Variation
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setDistanceVariationSign((s) => (s === "+" ? "-" : "+"))}
-                      className="h-9 w-9 rounded-md border border-input/80 bg-background font-mono font-bold text-foreground hover:bg-muted text-xs shadow-2xs shrink-0 cursor-pointer"
-                    >
-                      {distanceVariationSign}
-                    </button>
-                    <input
-                      type="text"
-                      value={distanceVariationValue}
-                      onChange={(e) => setDistanceVariationValue(e.target.value)}
-                      placeholder="0"
-                      className="h-9 flex-1 rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-                    />
-                    <span className="h-9 flex items-center px-3 rounded-md border border-input/80 bg-muted/30 text-muted-foreground font-bold text-xs shrink-0">
-                      %
-                    </span>
-                  </div>
-                </div>
-
-                {/* Speed Detection */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Speed Detection
-                  </label>
-                  <SelectDropdown
-                    value={speedDetection}
-                    options={SPEED_DETECTION_OPTIONS}
-                    onChange={setSpeedDetection}
-                    placeholder="Select Speed Detection"
-                  />
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-4">
-                {/* IMEI Number * */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    IMEI Number <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={imei}
-                    onChange={(e) => {
-                      setImei(e.target.value);
-                      if (!deviceImei || deviceImei === imei) {
-                        setDeviceImei(e.target.value);
-                      }
-                    }}
-                    placeholder="e.g. 123321026"
-                    className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
-                  />
-                </div>
-
-                {/* Device IMEI Number * */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Device IMEI Number <span className="text-red-500 font-bold ml-0.5">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={deviceImei}
-                    onChange={(e) => setDeviceImei(e.target.value)}
-                    placeholder="e.g. 123321026"
-                    className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
-                  />
-                </div>
-
-                {/* Satellite IMEI Number */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Satellite IMEI Number
-                  </label>
-                  <input
-                    type="text"
-                    value={satelliteImei}
-                    onChange={(e) => setSatelliteImei(e.target.value)}
-                    placeholder="Optional satellite tracker IMEI"
-                    className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
-                  />
-                </div>
-
-                {/* Primary SIM Number */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Primary Sim Number
-                  </label>
-                  <input
-                    type="text"
-                    value={simPrimary}
-                    onChange={(e) => setSimPrimary(e.target.value)}
-                    placeholder="e.g. +62 812 3456 7890"
-                    className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
-                  />
-                </div>
-
-                {/* Secondary SIM Number */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Secondary Sim Number
-                  </label>
-                  <input
-                    type="text"
-                    value={simSecondary}
-                    onChange={(e) => setSimSecondary(e.target.value)}
-                    placeholder="Optional backup SIM"
-                    className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
-                  />
-                </div>
-
-                {/* Timezone */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Time Zone
-                  </label>
-                  <SelectDropdown
-                    value={timezone}
-                    options={TIMEZONE_OPTIONS}
-                    onChange={setTimezone}
-                    placeholder="Select Time Zone"
-                  />
-                </div>
-
-                {/* Specification */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Specification
-                  </label>
-                  <SelectDropdown
-                    value={specification}
-                    options={SPECIFICATION_OPTIONS}
-                    onChange={setSpecification}
-                    placeholder="Select Specification"
-                  />
-                </div>
-
-                {/* Primary Object & Ign based on Speed Toggles */}
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  <label className="flex items-center gap-2.5 p-2.5 rounded-md border border-input/80 bg-background cursor-pointer hover:bg-muted/40 transition-all select-none">
-                    <input
-                      type="checkbox"
-                      checked={isPrimary}
-                      onChange={(e) => setIsPrimary(e.target.checked)}
-                      className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                    />
-                    <span className="text-xs font-semibold text-foreground">Primary Object</span>
-                  </label>
-
-                  <label className="flex items-center gap-2.5 p-2.5 rounded-md border border-input/80 bg-background cursor-pointer hover:bg-muted/40 transition-all select-none">
-                    <input
-                      type="checkbox"
-                      checked={ignBasedOnSpeed}
-                      onChange={(e) => setIgnBasedOnSpeed(e.target.checked)}
-                      className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                    />
-                    <span className="text-xs font-semibold text-foreground">Ign based on Speed</span>
-                  </label>
-                </div>
-
-                {/* Unit of Distance */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">
-                    Unit of distance
-                  </label>
-                  <SelectDropdown
-                    value={unitOfDistance}
-                    options={DISTANCE_UNIT_OPTIONS}
-                    onChange={setUnitOfDistance}
-                  />
-                </div>
+      {/* In-Screen Scrollable Form Body */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-3.5 custom-scrollbar text-xs">
+        {/* TAB 1: GENERAL (Horizontal Field-Beside-Value Layout) */}
+        {activeTab === "General" && (
+          <div className="space-y-3.5">
+            {/* Reseller * */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Reseller <span className="text-red-500 font-bold ml-0.5">*</span>
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={reseller}
+                  options={["HP Reseller", "Global Reseller Hub", "FleetTech Resellers", "FastTrack Telematics"]}
+                  onChange={setReseller}
+                  placeholder="Select Reseller"
+                />
               </div>
             </div>
-          )}
 
-          {/* TAB 2: PROFILE */}
-          {activeTab === "Profile" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">Plate Number</label>
-                  <input
-                    type="text"
-                    value={plateNumber}
-                    onChange={(e) => setPlateNumber(e.target.value)}
-                    placeholder="e.g. HP-08-BB-1026"
-                    className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">Object Type</label>
-                  <SelectDropdown
-                    value={objectType}
-                    options={["Boom Barrier", "EV Van", "Tamper Beacon", "Utility Unit", "Hydraulic Crane", "Reefer Trailer", "Heavy Truck", "Sprinter Van", "Electric Truck", "Mining Dump Truck", "Fuel Tanker Truck", "Courier Van"]}
-                    onChange={setObjectType}
-                    placeholder="Select Object Type"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">Object Category</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {(["Moveable", "Immovable"] as const).map((cat) => (
-                      <label
-                        key={cat}
-                        onClick={() => setObjectCategory(cat)}
-                        className={cn(
-                          "flex items-center gap-2.5 rounded-md border px-3 py-2 transition-all cursor-pointer select-none text-xs",
-                          objectCategory === cat
-                            ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
-                            : "border-input/80 bg-background hover:bg-muted/40 text-foreground font-medium",
-                        )}
-                      >
-                        <input
-                          type="radio"
-                          name="objectCategory"
-                          checked={objectCategory === cat}
-                          onChange={() => setObjectCategory(cat)}
-                          className="accent-[#0089FF] h-4 w-4 cursor-pointer"
-                        />
-                        <span>{cat}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">Color</label>
-                  <SelectDropdown
-                    value={color}
-                    options={["White", "Black", "Blue", "Silver", "Red", "Yellow", "Orange", "Green", "Dark Blue"]}
-                    onChange={setColor}
-                    placeholder="Select Color"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">DVIR Template</label>
-                  <SelectDropdown
-                    value={dvirTemplate}
-                    options={["--Select--", "Heavy Commercial Daily DVIR", "Daily EV Inspection", "Standard Inspection", "Refrigerated Transport Check", "Heavy Plant Inspection"]}
-                    onChange={setDvirTemplate}
-                    placeholder="Select DVIR Template"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">Permit</label>
-                  <SelectDropdown
-                    value={permit}
-                    options={["--Select--", "National Commercial EV Permit", "Industrial Site Permit", "Special Utility Permit", "National Permit", "Interstate Heavy Haul", "Cold Chain Food Safety Permit", "Urban Delivery License", "Zero Emission Cargo Permit", "Hazardous Materials Transport"]}
-                    onChange={setPermit}
-                    placeholder="Select Permit"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">Manufacture Date</label>
-                  <input
-                    type="date"
-                    value={manufactureDate}
-                    onChange={(e) => setManufactureDate(e.target.value)}
-                    className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">Purchase Date</label>
-                  <input
-                    type="date"
-                    value={purchaseDate}
-                    onChange={(e) => setPurchaseDate(e.target.value)}
-                    className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">Fuel Type</label>
-                  <SelectDropdown
-                    value={fuelType}
-                    options={["Diesel", "Petrol", "EV / Electric", "Electric", "GAS (CNG / LPG)", "Battery", "Diesel + Reefer"]}
-                    onChange={setFuelType}
-                    placeholder="Select Fuel Type"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-foreground">Battery Voltage</label>
-                  <SelectDropdown
-                    value={batteryVoltage}
-                    options={["12v", "24v", "48v", "3.7v Internal"]}
-                    onChange={setBatteryVoltage}
-                    placeholder="Select Battery Voltage"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">Distance based Fuel</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        value={distanceFuelConsumption}
-                        onChange={(e) => setDistanceFuelConsumption(e.target.value)}
-                        placeholder="18.5"
-                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-                      />
-                      <span className="text-[11px] text-muted-foreground font-semibold shrink-0">Km/L</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-foreground">Duration based Fuel</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        value={durationFuelConsumption}
-                        onChange={(e) => setDurationFuelConsumption(e.target.value)}
-                        placeholder="1.2"
-                        className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-                      />
-                      <span className="text-[11px] text-muted-foreground font-semibold shrink-0">L/hr</span>
-                    </div>
-                  </div>
-                </div>
+            {/* Company * */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Company <span className="text-red-500 font-bold ml-0.5">*</span>
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={company}
+                  options={["HP Company", "Global Logistics Inc", "Fleet Cargo West", "FastTrack Mobility"]}
+                  onChange={setCompany}
+                  placeholder="Select Company"
+                />
               </div>
             </div>
-          )}
 
-          {/* TAB 3: SENSORS */}
-          {activeTab === "Sensors" && (
-            <div className="space-y-3">
-              {/* Top Action Bar */}
-              <div className="flex items-center justify-end">
+            {/* Branch * */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Branch <span className="text-red-500 font-bold ml-0.5">*</span>
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={branch}
+                  options={["HP Branch 8", "HP EV Branch 2", "Central Branch", "North Terminal", "West Hub", "South Depot"]}
+                  onChange={setBranch}
+                  placeholder="Select Branch"
+                />
+              </div>
+            </div>
+
+            {/* Vehicle Name * */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Vehicle Name <span className="text-red-500 font-bold ml-0.5">*</span>
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter Vehicle Name (e.g. HP Boom Barrier)"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Object Group */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Object Group
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={objectGroup}
+                  options={OBJECT_GROUP_OPTIONS}
+                  onChange={setObjectGroup}
+                  placeholder="Select Object Group"
+                />
+              </div>
+            </div>
+
+            {/* Specification */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Specification
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={specification}
+                  options={SPECIFICATION_OPTIONS}
+                  onChange={setSpecification}
+                  placeholder="Select Specification"
+                />
+              </div>
+            </div>
+
+            {/* Unit of Distance */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Unit of Distance
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={unitOfDistance}
+                  options={DISTANCE_UNIT_OPTIONS}
+                  onChange={setUnitOfDistance}
+                />
+              </div>
+            </div>
+
+            {/* Device Type * */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Device Type <span className="text-red-500 font-bold ml-0.5">*</span>
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={deviceType}
+                  options={DEVICE_TYPE_OPTIONS}
+                  onChange={handleDeviceTypeChange}
+                  placeholder="Select Device Type"
+                />
+              </div>
+            </div>
+
+            {/* Server Address */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Server Address
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={serverAddress}
+                  readOnly
+                  placeholder="--"
+                  className="h-9 w-full rounded-md border border-input/80 bg-muted/40 px-3 font-mono text-xs text-muted-foreground shadow-2xs cursor-not-allowed select-all"
+                />
+              </div>
+            </div>
+
+            {/* IMEI Number * */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                IMEI Number <span className="text-red-500 font-bold ml-0.5">*</span>
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={imei}
+                  onChange={(e) => {
+                    setImei(e.target.value);
+                    if (!deviceImei || deviceImei === imei) {
+                      setDeviceImei(e.target.value);
+                    }
+                  }}
+                  placeholder="e.g. 123321026"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Device IMEI * */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Device IMEI <span className="text-red-500 font-bold ml-0.5">*</span>
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={deviceImei}
+                  onChange={(e) => setDeviceImei(e.target.value)}
+                  placeholder="e.g. 123321026"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Satellite IMEI */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Satellite IMEI
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={satelliteImei}
+                  onChange={(e) => setSatelliteImei(e.target.value)}
+                  placeholder="Optional satellite tracker IMEI"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Primary SIM */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Primary SIM
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={simPrimary}
+                  onChange={(e) => setSimPrimary(e.target.value)}
+                  placeholder="+62 812 3456"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Secondary SIM */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Secondary SIM
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={simSecondary}
+                  onChange={(e) => setSimSecondary(e.target.value)}
+                  placeholder="Optional backup SIM"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Time Zone */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Time Zone
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={timezone}
+                  options={TIMEZONE_OPTIONS}
+                  onChange={setTimezone}
+                  placeholder="Select Time Zone"
+                />
+              </div>
+            </div>
+
+            {/* Distance Counter */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Distance Counter
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={distanceCounter}
+                  options={DISTANCE_COUNTER_OPTIONS}
+                  onChange={setDistanceCounter}
+                  placeholder="Select Counter"
+                />
+              </div>
+            </div>
+
+            {/* Distance Variation */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Distance Variation
+              </label>
+              <div className="w-80 sm:w-96 max-w-md flex items-center gap-1.5">
                 <button
                   type="button"
-                  onClick={() => setAddSensorModalOpen(true)}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-3.5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
+                  onClick={() => setDistanceVariationSign((s) => (s === "+" ? "-" : "+"))}
+                  className="h-9 w-9 rounded-md border border-input/80 bg-background font-mono font-bold text-foreground hover:bg-muted text-xs shadow-2xs shrink-0 cursor-pointer"
                 >
-                  <Plus className="h-3.5 w-3.5" />
-                  <span>Add Sensor</span>
+                  {distanceVariationSign}
                 </button>
-              </div>
-
-              {/* Data Table */}
-              <div className="border border-[#DFE3EB] dark:border-slate-800 rounded-lg overflow-hidden shadow-2xs">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-[#EAF0F6] dark:bg-slate-800 border-b border-[#DFE3EB] dark:border-slate-700 text-slate-800 dark:text-slate-100 font-bold uppercase text-[11px] tracking-wide">
-                    <tr>
-                      <th className="py-2.5 px-3 w-14 text-center">Active</th>
-                      <th className="py-2.5 px-3 w-44">Connection Type</th>
-                      <th className="py-2.5 px-3">Connected Sensor</th>
-                      <th className="py-2.5 px-3 w-36">Reading Type</th>
-                      <th className="py-2.5 px-3 text-center w-36">Work Hour Calc</th>
-                      <th className="py-2.5 px-3 text-center w-24">Calibration</th>
-                      <th className="py-2.5 px-3 text-center w-16">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 bg-white dark:bg-slate-900">
-                    {sensors.map((s) => (
-                      <tr key={s.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="py-2 px-3 text-center">
-                          <input
-                            type="checkbox"
-                            checked={s.active}
-                            onChange={() => toggleSensorActive(s.id)}
-                            className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                          />
-                        </td>
-                        <td className="py-2 px-3 text-foreground font-semibold">
-                          {s.connectionType}
-                        </td>
-                        <td className="py-1.5 px-3">
-                          <SelectDropdown
-                            value={s.connectedSensor}
-                            options={[
-                              "Fuel",
-                              "Ignition",
-                              "Door Sensor",
-                              "SOS Panic",
-                              "PTO",
-                              "RPM",
-                              "Temprature",
-                              "Load Sensor",
-                              "Driver ID / RFID",
-                              "Tire Pressure (TPMS)",
-                              "Seatbelt Sensor",
-                              "Air Conditioner (AC)",
-                              "Beacon / BLE Tag",
-                            ]}
-                            onChange={(v) => updateSensorField(s.id, "connectedSensor", v)}
-                            placeholder="Select Connected Sensor"
-                          />
-                        </td>
-                        <td className="py-1.5 px-3">
-                          <SelectDropdown
-                            value={s.readingType}
-                            options={["Direct", "Formula", "Linear", "Inverted"]}
-                            onChange={(v) => updateSensorField(s.id, "readingType", v)}
-                          />
-                        </td>
-                        <td className="py-2 px-3 text-center">
-                          <input
-                            type="checkbox"
-                            checked={s.workHourCalculation}
-                            onChange={() => toggleWorkHour(s.id)}
-                            className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                          />
-                        </td>
-                        <td className="py-2 px-3 text-center">
-                          {s.hasCalibration ? (
-                            <button
-                              type="button"
-                              onClick={() => openCalibration(s)}
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input/80 bg-background text-muted-foreground hover:text-[#0089FF] hover:border-[#0089FF]/60 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all cursor-pointer shadow-2xs"
-                              title={`Calibrate ${s.connectionType}`}
-                            >
-                              <Sliders className="h-3.5 w-3.5" />
-                            </button>
-                          ) : (
-                            <span className="text-muted-foreground font-mono">--</span>
-                          )}
-                        </td>
-                        <td className="py-2 px-3 text-center">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSensors((prev) => prev.filter((item) => item.id !== s.id));
-                              toast.info(`Removed sensor channel ${s.connectionType}`);
-                            }}
-                            className="p-1 rounded-md text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                            title="Delete Sensor"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                    {sensors.length === 0 && (
-                      <tr>
-                        <td colSpan={7} className="py-10 text-center text-xs text-muted-foreground">
-                          No sensors configured. Click &quot;Add Sensor&quot; above to add input channels.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                <input
+                  type="text"
+                  value={distanceVariationValue}
+                  onChange={(e) => setDistanceVariationValue(e.target.value)}
+                  placeholder="0"
+                  className="h-9 flex-1 rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                />
+                <span className="h-9 flex items-center px-2.5 rounded-md border border-input/80 bg-muted/30 text-muted-foreground font-bold text-xs shrink-0">
+                  %
+                </span>
               </div>
             </div>
-          )}
 
-          {/* TAB 4: DOCUMENT */}
-          {activeTab === "Document" && (
-            <div className="space-y-3">
-              {/* Top Action Bar */}
-              <div className="flex items-center justify-end">
+            {/* Speed Detection */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Speed Detection
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={speedDetection}
+                  options={SPEED_DETECTION_OPTIONS}
+                  onChange={setSpeedDetection}
+                  placeholder="Select Speed Detection"
+                />
+              </div>
+            </div>
+
+            {/* Primary Object */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Primary Object
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <label className="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={isPrimary}
+                    onChange={(e) => setIsPrimary(e.target.checked)}
+                    className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                  />
+                  <span className="text-xs font-semibold text-foreground">Set as Primary Object</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Ign based on Speed */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Ign based on Speed
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <label className="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={ignBasedOnSpeed}
+                    onChange={(e) => setIgnBasedOnSpeed(e.target.checked)}
+                    className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                  />
+                  <span className="text-xs font-semibold text-foreground">Enable Ignition detection based on speed</span>
+                </label>
+              </div>
+            </div>
+
+            
+          </div>
+        )}
+
+        {/* TAB 2: PROFILE (Horizontal Field-Beside-Value Layout) */}
+        {activeTab === "Profile" && (
+          <div className="space-y-3.5">
+            {/* Plate Number */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Plate Number
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={plateNumber}
+                  onChange={(e) => setPlateNumber(e.target.value)}
+                  placeholder="e.g. HP-08-BB-1026"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 font-mono text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Object Type */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Object Type
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={objectType}
+                  options={["Boom Barrier", "EV Van", "Tamper Beacon", "Utility Unit", "Hydraulic Crane", "Reefer Trailer", "Heavy Truck", "Sprinter Van", "Electric Truck", "Mining Dump Truck", "Fuel Tanker Truck", "Courier Van"]}
+                  onChange={setObjectType}
+                  placeholder="Select Object Type"
+                />
+              </div>
+            </div>
+
+            {/* Object Category */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Object Category
+              </label>
+              <div className="w-80 sm:w-96 max-w-md flex items-center gap-3">
+                {(["Moveable", "Immovable"] as const).map((cat) => (
+                  <label
+                    key={cat}
+                    onClick={() => setObjectCategory(cat)}
+                    className={cn(
+                      "flex-1 flex items-center gap-2 rounded-md border px-3 py-1.5 transition-all cursor-pointer select-none text-xs",
+                      objectCategory === cat
+                        ? "border-[#0089FF] bg-[#0089FF]/5 ring-1 ring-[#0089FF]/30 text-foreground font-semibold"
+                        : "border-input/80 bg-background hover:bg-muted/40 text-foreground font-medium",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="objectCategory"
+                      checked={objectCategory === cat}
+                      onChange={() => setObjectCategory(cat)}
+                      className="accent-[#0089FF] h-4 w-4 cursor-pointer"
+                    />
+                    <span>{cat}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Color */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Color
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={color}
+                  options={["White", "Black", "Blue", "Silver", "Red", "Yellow", "Orange", "Green", "Dark Blue"]}
+                  onChange={setColor}
+                  placeholder="Select Color"
+                />
+              </div>
+            </div>
+
+            {/* DVIR Template */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                DVIR Template
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={dvirTemplate}
+                  options={["--Select--", "Heavy Commercial Daily DVIR", "Daily EV Inspection", "Standard Inspection", "Refrigerated Transport Check", "Heavy Plant Inspection"]}
+                  onChange={setDvirTemplate}
+                  placeholder="Select DVIR Template"
+                />
+              </div>
+            </div>
+
+            {/* Permit */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Permit
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={permit}
+                  options={["--Select--", "National Commercial EV Permit", "Industrial Site Permit", "Special Utility Permit", "National Permit", "Interstate Heavy Haul", "Cold Chain Food Safety Permit", "Urban Delivery License", "Zero Emission Cargo Permit", "Hazardous Materials Transport"]}
+                  onChange={setPermit}
+                  placeholder="Select Permit"
+                />
+              </div>
+            </div>
+
+            {/* Manufacture Date */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Manufacture Date
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="date"
+                  value={manufactureDate}
+                  onChange={(e) => setManufactureDate(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Purchase Date */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Purchase Date
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="date"
+                  value={purchaseDate}
+                  onChange={(e) => setPurchaseDate(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Purchase Amount ($) */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Purchase Amount ($)
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={purchaseAmount}
+                  onChange={(e) => setPurchaseAmount(e.target.value)}
+                  placeholder="e.g. 65,000"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Weight Capacity */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Weight Capacity
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={weightCapacity}
+                  onChange={(e) => setWeightCapacity(e.target.value)}
+                  placeholder="e.g. 3.5 Tons"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Warranty (Years) */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Warranty (Years)
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <input
+                  type="text"
+                  value={warrantyYears}
+                  onChange={(e) => setWarrantyYears(e.target.value)}
+                  placeholder="e.g. 5"
+                  className="h-9 w-full rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Fuel Type */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Fuel Type
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={fuelType}
+                  options={["Diesel", "Petrol", "EV / Electric", "Electric", "GAS (CNG / LPG)", "Battery", "Diesel + Reefer"]}
+                  onChange={setFuelType}
+                  placeholder="Select Fuel Type"
+                />
+              </div>
+            </div>
+
+            {/* Battery Voltage */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Battery Voltage
+              </label>
+              <div className="w-80 sm:w-96 max-w-md">
+                <SelectDropdown
+                  value={batteryVoltage}
+                  options={["12v", "24v", "48v", "3.7v Internal"]}
+                  onChange={setBatteryVoltage}
+                  placeholder="Select Battery Voltage"
+                />
+              </div>
+            </div>
+
+            {/* Distance based Fuel */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Distance based Fuel
+              </label>
+              <div className="w-80 sm:w-96 max-w-md flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value={distanceFuelConsumption}
+                  onChange={(e) => setDistanceFuelConsumption(e.target.value)}
+                  placeholder="18.5"
+                  className="h-9 flex-1 rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                />
+                <span className="text-[11px] text-muted-foreground font-semibold shrink-0">Km/L</span>
+              </div>
+            </div>
+
+            {/* Duration based Fuel */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 min-h-[36px]">
+              <label className="w-36 sm:w-44 text-left text-xs font-semibold text-foreground shrink-0">
+                Duration based Fuel
+              </label>
+              <div className="w-80 sm:w-96 max-w-md flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value={durationFuelConsumption}
+                  onChange={(e) => setDurationFuelConsumption(e.target.value)}
+                  placeholder="1.2"
+                  className="h-9 flex-1 rounded-md border border-input/80 bg-background px-3 text-xs text-foreground shadow-2xs focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
+                />
+                <span className="text-[11px] text-muted-foreground font-semibold shrink-0">L/hr</span>
+              </div>
+            </div>
+
+            
+          </div>
+        )}
+
+        {/* TAB 3: SENSORS */}
+        {activeTab === "Sensors" && (
+          <div className="space-y-4">
+            {/* Top Action Bar */}
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-foreground flex items-center gap-2">
+                <span>Configured Hardware Sensor Inputs</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0089FF]/10 text-[#0089FF]">
+                  {sensors.filter((s) => s.active).length} of {sensors.length} Active
+                </span>
+              </h4>
+
+              <button
+                type="button"
+                onClick={() => setAddSensorModalOpen(true)}
+                className="inline-flex h-8.5 items-center gap-1.5 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] px-4 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Add Sensor</span>
+              </button>
+            </div>
+
+            {/* Data Table */}
+            <div className="border border-border/80 rounded-xl overflow-hidden shadow-2xs bg-card">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#EAF0F6] dark:bg-slate-800 border-b border-[#DFE3EB] dark:border-slate-700 text-slate-800 dark:text-slate-100 font-bold uppercase text-[11px] tracking-wide">
+                  <tr>
+                    <th className="py-3 px-4 w-20 text-center">Active</th>
+                    <th className="py-3 px-4 w-52">Connection Type</th>
+                    <th className="py-3 px-4 min-w-[220px]">Connected Sensor</th>
+                    <th className="py-3 px-4 w-44">Reading Type</th>
+                    <th className="py-3 px-4 text-center w-48">Work Hour Calc</th>
+                    <th className="py-3 px-4 text-center w-32">Calibration</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60 bg-background font-medium">
+                  {sensors.map((s) => (
+                    <tr key={s.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="py-2.5 px-4 text-center">
+                        <input
+                          type="checkbox"
+                          checked={s.active}
+                          onChange={() => toggleSensorActive(s.id)}
+                          className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                        />
+                      </td>
+                      <td className="py-2.5 px-4 font-semibold text-foreground">
+                        {s.connectionType}
+                      </td>
+                      <td className="py-2.5 px-4">
+                        <input
+                          type="text"
+                          value={s.connectedSensor}
+                          onChange={(e) => updateSensorField(s.id, "connectedSensor", e.target.value)}
+                          placeholder="e.g. Fuel Sensor / SOS Panic"
+                          className="h-8 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 shadow-2xs focus:border-[#0089FF] focus:ring-1 focus:ring-[#0089FF] focus:outline-none"
+                        />
+                      </td>
+                      <td className="py-2.5 px-4">
+                        <SelectDropdown
+                          value={s.readingType}
+                          options={["Direct", "Inverse"]}
+                          onChange={(val) => updateSensorField(s.id, "readingType", val)}
+                        />
+                      </td>
+                      <td className="py-2.5 px-4 text-center">
+                        <input
+                          type="checkbox"
+                          checked={s.workHourCalculation}
+                          onChange={() => toggleWorkHour(s.id)}
+                          className="h-4 w-4 rounded border-input text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                        />
+                      </td>
+                      <td className="py-2.5 px-4 text-center">
+                        {s.hasCalibration ? (
+                          <button
+                            type="button"
+                            onClick={() => openCalibration(s)}
+                            className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/50 text-[#0089FF] hover:bg-blue-100 border border-blue-200 dark:border-blue-900 transition-colors cursor-pointer"
+                          >
+                            Calibrate
+                          </button>
+                        ) : (
+                          <span className="text-muted-foreground text-[11px]">--</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            
+          </div>
+        )}
+
+        {/* TAB 4: DOCUMENTS */}
+        {activeTab === "Document" && (
+          <div className="space-y-4">
+            {/* Top Action Bar */}
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-foreground flex items-center gap-2">
+                <span>Vehicle Compliance & Registration Documents</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0089FF]/10 text-[#0089FF]">
+                  {documents.length} Files Attached
+                </span>
+              </h4>
+
+              {documents.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setDocUploadModalOpen(true)}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-3.5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
+                  className="inline-flex h-8.5 items-center gap-1.5 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] px-4 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   <span>Add Document</span>
                 </button>
-              </div>
-
-              {/* Documents Table */}
-              <div className="border border-[#DFE3EB] dark:border-slate-800 rounded-lg overflow-hidden shadow-2xs">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-[#EAF0F6] dark:bg-slate-800 border-b border-[#DFE3EB] dark:border-slate-700 text-slate-800 dark:text-slate-100 font-bold uppercase text-[11px] tracking-wide">
-                    <tr>
-                      <th className="py-2.5 px-3">Document Title</th>
-                      <th className="py-2.5 px-3">Category</th>
-                      <th className="py-2.5 px-3">Doc # / ID</th>
-                      <th className="py-2.5 px-3">Issue Date</th>
-                      <th className="py-2.5 px-3">Expiry Date</th>
-                      <th className="py-2.5 px-3">Status</th>
-                      <th className="py-2.5 px-3 text-right w-20">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 bg-white dark:bg-slate-900 font-medium">
-                    {documents.map((doc) => (
-                      <tr key={doc.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="py-2.5 px-3 text-foreground font-semibold">
-                          {doc.name}
-                        </td>
-                        <td className="py-2.5 px-3 text-muted-foreground">
-                          {doc.type}
-                        </td>
-                        <td className="py-2.5 px-3 font-mono font-medium">
-                          {doc.docNumber}
-                        </td>
-                        <td className="py-2.5 px-3 font-mono text-muted-foreground">
-                          {doc.issueDate}
-                        </td>
-                        <td className="py-2.5 px-3 font-mono text-foreground font-bold">
-                          {doc.expiryDate}
-                        </td>
-                        <td className="py-2.5 px-3">
-                          <span
-                            className={cn(
-                              "px-2 py-0.5 text-[10px] font-bold rounded-full border",
-                              doc.status === "Valid" &&
-                                "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-                              doc.status === "Expiring Soon" &&
-                                "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20",
-                              doc.status === "Expired" &&
-                                "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/20",
-                            )}
-                          >
-                            {doc.status}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-3 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              type="button"
-                              onClick={() => toast.success(`Downloaded ${doc.fileName}`)}
-                              className="p-1 rounded-md text-muted-foreground hover:text-[#0089FF] hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                              title="Download Attachment"
-                            >
-                              <Download className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setDocuments((prev) => prev.filter((d) => d.id !== doc.id));
-                                toast.info(`Deleted ${doc.name}`);
-                              }}
-                              className="p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {documents.length === 0 && (
-                      <tr>
-                        <td colSpan={7} className="py-12 text-center text-xs text-muted-foreground">
-                          <div className="flex flex-col items-center justify-center gap-2">
-                            <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center text-[#0089FF]">
-                              <FileText className="h-5 w-5" />
-                            </div>
-                            <span className="font-semibold text-foreground">No documents attached yet</span>
-                            <span className="text-[11px] text-muted-foreground max-w-xs">
-                              Attach insurance certificates, permits, or registration records.
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => setDocUploadModalOpen(true)}
-                              className="mt-1 inline-flex h-7.5 items-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-3 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer"
-                            >
-                              <Plus className="h-3.5 w-3.5" />
-                              <span>Add Document</span>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Modal Footer */}
-        <div className="flex items-center justify-between border-t border-border bg-muted/20 px-6 py-3.5 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              setReseller("");
-              setCompany("");
-              setBranch("");
-              setName("");
-              setDeviceType("");
-              setServerAddress("");
-              setImei("");
-              setDeviceImei("");
-              setSatelliteImei("");
-              setSimPrimary("");
-              setSimSecondary("");
-              setDistanceCounter("");
-              setDistanceVariationValue("");
-              setSpeedDetection("");
-              setTimezone("");
-              setSpecification("");
-              setIsPrimary(false);
-              setIgnBasedOnSpeed(false);
-              setPlateNumber("");
-              setObjectType("");
-              setColor("");
-              setDvirTemplate("");
-              setPermit("");
-              setManufactureDate("");
-              setPurchaseDate("");
-              setInstallationDate("");
-              setFuelType("");
-              setBatteryVoltage("");
-              setDistanceFuelConsumption("");
-              setDurationFuelConsumption("");
-              toast.info("Form fields cleared to blank");
-            }}
-            className="inline-flex h-8.5 items-center gap-1.5 rounded-md border border-input/80 bg-background px-3.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs"
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
-            <span>Reset</span>
-          </button>
+            {/* Documents Table */}
+            <div className="border border-border/80 rounded-xl overflow-hidden shadow-2xs bg-card">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#EAF0F6] dark:bg-slate-800 border-b border-[#DFE3EB] dark:border-slate-700 text-slate-800 dark:text-slate-100 font-bold uppercase text-[11px] tracking-wide">
+                  <tr>
+                    <th className="py-3 px-4 min-w-[240px]">Document Title</th>
+                    <th className="py-3 px-4 w-52">Category</th>
+                    <th className="py-3 px-4 w-44">Doc # / ID</th>
+                    <th className="py-3 px-4 w-36">Issue Date</th>
+                    <th className="py-3 px-4 w-36">Expiry Date</th>
+                    <th className="py-3 px-4 w-36 text-center">Status</th>
+                    <th className="py-3 px-4 text-right w-24">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60 bg-background font-medium">
+                  {documents.map((doc) => (
+                    <tr key={doc.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="py-3 px-4">
+                        <p className="text-foreground font-semibold text-xs">{doc.name}</p>
+                        <p className="text-[10px] text-muted-foreground font-mono">{doc.fileName} • {doc.fileSize}</p>
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground font-medium">
+                        {doc.type}
+                      </td>
+                      <td className="py-3 px-4 font-mono font-medium text-foreground">
+                        {doc.docNumber}
+                      </td>
+                      <td className="py-3 px-4 font-mono text-muted-foreground">
+                        {doc.issueDate}
+                      </td>
+                      <td className="py-3 px-4 font-mono text-foreground font-bold">
+                        {doc.expiryDate}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <span
+                          className={cn(
+                            "inline-flex items-center justify-center px-2.5 py-0.5 text-[10px] font-bold rounded-full border",
+                            doc.status === "Valid" &&
+                              "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+                            doc.status === "Expiring Soon" &&
+                              "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20",
+                            doc.status === "Expired" &&
+                              "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/20",
+                          )}
+                        >
+                          {doc.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => toast.success(`Downloaded ${doc.fileName}`)}
+                            className="p-1.5 rounded-md text-muted-foreground hover:text-[#0089FF] hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            title="Download Attachment"
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDocuments((prev) => prev.filter((d) => d.id !== doc.id));
+                              toast.info(`Deleted ${doc.name}`);
+                            }}
+                            className="p-1.5 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {documents.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="py-14 text-center text-xs text-muted-foreground">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <div className="h-12 w-12 rounded-full bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center text-[#0089FF]">
+                            <FileText className="h-6 w-6" />
+                          </div>
+                          <span className="font-semibold text-foreground text-sm">No documents attached yet</span>
+                          <span className="text-xs text-muted-foreground max-w-sm">
+                            Upload digital copies of vehicle registration, insurance policies, emission certificates, and road permits.
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setDocUploadModalOpen(true)}
+                            className="mt-2 inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] px-4 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            <span>Add Document</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={onClose}
-              className="h-8.5 rounded-md border border-input/80 bg-background px-4 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              className="h-8.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98"
-            >
-              {isEdit ? "Save Changes" : "Create Vehicle"}
-            </button>
+            
           </div>
-        </div>
-      </DialogContent>
+        )}
+      </div>
+
+      {/* Horizontal divider with 20px space from left and right */}
+      <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
+
+      {/* Standard Bottom Footer Frame with Action Buttons */}
+      <footer className="flex h-12 items-center justify-start gap-2.5 px-5 bg-white dark:bg-slate-900 shrink-0 select-none">
+        <button
+          type="button"
+          onClick={handleResetForm}
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-background px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#0089FF]/40 transition-all cursor-pointer shadow-2xs active:scale-98"
+        >
+          <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
+          <span>Reset</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white shadow-xs transition-all cursor-pointer active:scale-98"
+        >
+          <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+          <span>Save</span>
+        </button>
+      </footer>
 
       {/* Add Sensor Submodal */}
       <AddSensorModal
@@ -3616,6 +3929,31 @@ export function VehicleDetailModal({
           setDocuments((prev) => [newDoc, ...prev]);
         }}
       />
+    </div>
+  );
+}
+
+/* =========================================================================
+   Compatibility Wrapper for VehicleDetailModal
+   ========================================================================= */
+
+export function VehicleDetailModal({
+  open,
+  onClose,
+  vehicle,
+  onSave,
+}: {
+  open: boolean;
+  onClose: () => void;
+  vehicle: VehicleItem | null;
+  onSave: (v: VehicleItem) => void;
+}) {
+  if (!open) return null;
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="w-[94vw] max-w-[1180px] h-[88vh] max-h-[88vh] p-0 gap-0 overflow-hidden rounded-2xl border border-border bg-background shadow-2xl flex flex-col">
+        <VehicleDetailFormView vehicle={vehicle} onSave={onSave} onCancel={onClose} />
+      </DialogContent>
     </Dialog>
   );
 }
@@ -4748,130 +5086,3 @@ export function BulkDeleteModal({
   );
 }
 
-export type DropdownOption =
-  | string
-  | {
-      label: string;
-      value?: string;
-      description?: string;
-    };
-
-function SelectDropdown({
-  value,
-  options,
-  onChange,
-  className,
-  placeholder,
-}: {
-  value: string;
-  options: DropdownOption[];
-  onChange: (v: string) => void;
-  className?: string;
-  placeholder?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    if (open) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
-
-  const selectedOption = options.find((opt) => {
-    if (typeof opt === "object") {
-      return (opt.value ?? opt.label) === value || opt.label === value;
-    }
-    return opt === value;
-  });
-
-  const displayLabel = selectedOption
-    ? typeof selectedOption === "object"
-      ? selectedOption.label
-      : selectedOption
-    : value || placeholder || "Select";
-
-  return (
-    <div ref={ref} className={cn("relative w-full", className)}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className={cn(
-          "flex h-9 w-full items-center justify-between rounded-md border border-input/80 bg-background px-3 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none font-normal",
-          open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
-        )}
-      >
-        <span
-          className={cn(
-            "truncate",
-            value
-              ? "text-foreground font-medium"
-              : "text-muted-foreground/60 font-normal italic",
-          )}
-        >
-          {displayLabel}
-        </span>
-        <ChevronDown
-          className={cn(
-            "h-4 w-4 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1.5",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
-          {options.map((opt) => {
-            const isObj = typeof opt === "object";
-            const optLabel = isObj ? opt.label : opt;
-            const optVal = isObj ? (opt.value ?? opt.label) : opt;
-            const optDesc = isObj ? opt.description : undefined;
-            const isSelected = value === optVal || value === optLabel;
-
-            return (
-              <button
-                key={optVal}
-                type="button"
-                onClick={() => {
-                  onChange(optVal);
-                  setOpen(false);
-                }}
-                className={cn(
-                  "flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-colors cursor-pointer select-none",
-                  isSelected
-                    ? "bg-muted font-semibold text-foreground"
-                    : "text-foreground hover:bg-muted/80 font-normal",
-                )}
-              >
-                <div className="flex flex-col min-w-0 pr-2">
-                  <span
-                    className={cn(
-                      "text-xs leading-tight truncate",
-                      isSelected
-                        ? "font-semibold text-foreground"
-                        : "font-medium text-foreground",
-                    )}
-                  >
-                    {optLabel}
-                  </span>
-                  {optDesc && (
-                    <span className="text-[11px] leading-snug text-muted-foreground mt-0.5 font-normal">
-                      {optDesc}
-                    </span>
-                  )}
-                </div>
-                {isSelected && (
-                  <Check className="h-4 w-4 text-[#0089FF] shrink-0 ml-1" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}

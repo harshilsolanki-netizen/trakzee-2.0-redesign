@@ -7,6 +7,7 @@ import {
   VEHICLE_MODELS,
   VEHICLE_TYPES,
 } from "@/data/reports";
+import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 
 export type VehicleAttributeFilters = {
@@ -70,112 +71,82 @@ export function VehicleAttributeFilterOverlay({
         {/* 6 Dropdowns Grid */}
         <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
           {/* Company */}
-          <label className="block">
+          <div className="space-y-1">
             <span className="text-xs font-semibold text-foreground">
               Company
             </span>
-            <select
+            <SelectDropdown
               value={value.company}
-              onChange={(e) => onChange({ company: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
-            >
-              {COMPANIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={(v) => onChange({ company: v })}
+              options={COMPANIES}
+              triggerClassName="h-7.5 text-xs"
+            />
+          </div>
 
           {/* Branch */}
-          <label className="block">
+          <div className="space-y-1">
             <span className="text-xs font-semibold text-foreground">
               Branch
             </span>
-            <select
+            <SelectDropdown
               value={value.branch}
-              onChange={(e) => onChange({ branch: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
-            >
-              {BRANCHES.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={(v) => onChange({ branch: v })}
+              options={BRANCHES}
+              triggerClassName="h-7.5 text-xs"
+            />
+          </div>
 
           {/* Vehicle Group */}
-          <label className="block">
+          <div className="space-y-1">
             <span className="text-xs font-semibold text-foreground">
               Vehicle Group
             </span>
-            <select
+            <SelectDropdown
               value={value.vehicleGroup}
-              onChange={(e) => onChange({ vehicleGroup: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
-            >
-              {VEHICLE_GROUPS.map((g) => (
-                <option key={g} value={g}>
-                  {g}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={(v) => onChange({ vehicleGroup: v })}
+              options={VEHICLE_GROUPS}
+              triggerClassName="h-7.5 text-xs"
+            />
+          </div>
 
           {/* Vehicle Type */}
-          <label className="block">
+          <div className="space-y-1">
             <span className="text-xs font-semibold text-foreground">
               Vehicle Type
             </span>
-            <select
+            <SelectDropdown
               value={value.vehicleType}
-              onChange={(e) => onChange({ vehicleType: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
-            >
-              {VEHICLE_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={(v) => onChange({ vehicleType: v })}
+              options={VEHICLE_TYPES}
+              triggerClassName="h-7.5 text-xs"
+            />
+          </div>
 
           {/* Vehicle Brand */}
-          <label className="block">
+          <div className="space-y-1">
             <span className="text-xs font-semibold text-foreground">
               Vehicle Brand
             </span>
-            <select
+            <SelectDropdown
               value={value.vehicleBrand}
-              onChange={(e) => onChange({ vehicleBrand: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
-            >
-              {VEHICLE_BRANDS.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={(v) => onChange({ vehicleBrand: v })}
+              options={VEHICLE_BRANDS}
+              triggerClassName="h-7.5 text-xs"
+            />
+          </div>
 
           {/* Vehicle Model */}
-          <label className="block">
+          <div className="space-y-1">
             <span className="text-xs font-semibold text-foreground">
               Vehicle Model
             </span>
-            <select
+            <SelectDropdown
               value={value.vehicleModel}
-              onChange={(e) => onChange({ vehicleModel: e.target.value })}
-              className="mt-1 h-7.5 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-medium text-muted-foreground focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 cursor-pointer shadow-2xs"
-            >
-              {VEHICLE_MODELS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={(v) => onChange({ vehicleModel: v })}
+              options={VEHICLE_MODELS}
+              triggerClassName="h-7.5 text-xs"
+            />
+          </div>
         </div>
 
         {/* Actions footer: "Reset" on left, "Apply" on right */}

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { FileText, Save, UploadCloud, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { SelectDropdown } from "@/components/ui/select-dropdown";
 
 export type VehicleDocument = {
   id: string;
@@ -21,6 +22,23 @@ export type VehicleDocument = {
   fileSize: string;
   status: "Valid" | "Expiring Soon" | "Expired";
 };
+
+const DOC_TYPE_OPTIONS = [
+  "Insurance Policy",
+  "Registration Certificate (RC)",
+  "Pollution Under Control (PUC)",
+  "National Transport Permit",
+  "Road Fitness Certificate",
+  "Driver Authorization Letter",
+  "Hazardous Goods Certificate",
+];
+
+const ALERT_DAY_OPTIONS = [
+  { label: "7 Days", value: "7" },
+  { label: "15 Days", value: "15" },
+  { label: "30 Days", value: "30" },
+  { label: "60 Days", value: "60" },
+];
 
 export function DocumentUploadModal({
   open,
@@ -80,31 +98,12 @@ export function DocumentUploadModal({
               <label className="block text-xs font-semibold text-foreground">
                 Document Type <span className="text-rose-500">*</span>
               </label>
-              <select
+              <SelectDropdown
                 value={docType}
-                onChange={(e) => setDocType(e.target.value)}
-                className="h-9 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-              >
-                <option value="Insurance Policy">Insurance Policy</option>
-                <option value="Registration Certificate (RC)">
-                  Registration Certificate (RC)
-                </option>
-                <option value="Pollution Under Control (PUC)">
-                  Pollution Under Control (PUC)
-                </option>
-                <option value="National Transport Permit">
-                  National Transport Permit
-                </option>
-                <option value="Road Fitness Certificate">
-                  Road Fitness Certificate
-                </option>
-                <option value="Driver Authorization Letter">
-                  Driver Authorization Letter
-                </option>
-                <option value="Hazardous Goods Certificate">
-                  Hazardous Goods Certificate
-                </option>
-              </select>
+                onChange={setDocType}
+                options={DOC_TYPE_OPTIONS}
+                triggerClassName="h-9 text-xs"
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -163,16 +162,12 @@ export function DocumentUploadModal({
               <label className="block text-xs font-semibold text-foreground">
                 Alert Before
               </label>
-              <select
-                value={alertDays}
-                onChange={(e) => setAlertDays(Number(e.target.value))}
-                className="h-9 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs text-foreground focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none"
-              >
-                <option value={7}>7 Days</option>
-                <option value={15}>15 Days</option>
-                <option value={30}>30 Days</option>
-                <option value={60}>60 Days</option>
-              </select>
+              <SelectDropdown
+                value={String(alertDays)}
+                onChange={(v) => setAlertDays(Number(v))}
+                options={ALERT_DAY_OPTIONS}
+                triggerClassName="h-9 text-xs"
+              />
             </div>
           </div>
 

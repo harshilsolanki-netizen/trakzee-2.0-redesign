@@ -1,4 +1,6 @@
 import {
+  Star,
+  Plus,
   ArrowDown,
   ArrowLeft,
   ArrowUp,
@@ -55,6 +57,7 @@ import {
 import { ProgressComparisonOverlay } from "@/components/report/ProgressComparisonOverlay";
 import { ScheduleModal } from "@/components/report/ScheduleModal";
 import { ExportPopover } from "@/components/report/ExportPopover";
+import { TablePaginationBar } from "@/components/common/TablePaginationBar";
 import { TemperatureSummaryReport } from "@/components/report/TemperatureSummaryReport";
 import {
   DropdownMenu,
@@ -83,6 +86,7 @@ import {
 import { dailyRowsFor, detailRowsFor, type DailyRow } from "@/data/travelDrill";
 import { downloadReport } from "@/lib/export";
 import { cn } from "@/lib/utils";
+import { useLayoutMode } from "@/lib/useLayoutMode";
 
 const SEARCHABLE_COLUMNS: { id: string; label: string }[] = [
   { id: "vehicleNo", label: "Vehicle No" },
@@ -206,6 +210,7 @@ function formatMetricDisplay(row: TravelRow, metricName: string): string {
 }
 
 export function ReportPage() {
+  const { isSingle } = useLayoutMode();
   const search = useSearch({ strict: false }) as { type?: string };
   const searchType = search?.type || "travel";
 
@@ -787,240 +792,295 @@ export function ReportPage() {
   const isFirstTabActive = tabs.length > 0 && activeTabId === tabs[0].id;
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-tl-lg">
-      {/* 1. Header Frame: Multi-Report Tab Bar & Quick Filter Bar (Fixed & Unchanged) */}
-      <ReportTabStrip
-        tabs={tabs}
-        activeTabId={activeTabId}
-        level={level}
-        onGoBack={goBack}
-        onSelectTab={(tabId) => setActiveTabId(tabId)}
-        onCloseTab={handleCloseTab}
-        onAddTab={handleAddTab}
-        onToggleFavorite={handleToggleFavorite}
-      />
-
-      {/* Top Single-Row Filter & Utilities Toolbar (Fixed & Centered) */}
-      <div className="flex h-10 items-center justify-between gap-3 bg-white dark:bg-slate-900 px-[10px] mt-[5px] shrink-0 select-none">
-        {/* Left: Quick Filter Bar */}
-        <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2">
-          <ReportQuickFilterBar
-            filters={filters}
-            onChange={(patch) => {
-              setFilters((prev) => ({ ...prev, ...patch }));
-              load("Filters updated");
-            }}
-            onOpenFilterDrawer={() => setConfigOpen(true)}
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-[#F0F0F0] dark:bg-slate-950 p-[10px]">
+      <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB]/80 dark:border-slate-800 shadow-2xs">
+      {/* 1. Conditional Header: Tabbed View vs Single Screen View (matching reference media_1789714484140.png) */}
+      {!isSingle ? (
+        <>
+          {/* TABBED MODE: Multi-Report Tab Bar */}
+          <ReportTabStrip
+            tabs={tabs}
+            activeTabId={activeTabId}
+            level={level}
+            onGoBack={goBack}
+            onSelectTab={(tabId) => setActiveTabId(tabId)}
+            onCloseTab={handleCloseTab}
+            onAddTab={handleAddTab}
+            onToggleFavorite={handleToggleFavorite}
           />
-        </div>
 
-        {/* Right: Search, Download, Utilities Icons, Page Size, and Pagination Controls */}
-        <div className="flex items-center gap-2 ml-auto shrink-0">
-            {/* 1. Integrated Field-Specific Search Control */}
-            <div className="relative flex h-7 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    title="Select specific column to search"
-                    className="flex h-full items-center gap-1 border-r border-border/60 bg-muted/30 px-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0 select-none"
-                  >
-                    <span className="max-w-[76px] truncate">
-                      {selectedSearchField === "ALL" ||
-                      selectedSearchField === "all"
-                        ? "All"
-                        : selectedSearchFieldLabel}
-                    </span>
-                    <ChevronDown className="h-3 w-3 opacity-60" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="start"
-                  className="max-h-64 w-52 overflow-y-auto text-xs p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50 select-none"
-                >
-                  <DropdownMenuItem
-                    onClick={() => setSelectedSearchField("ALL")}
-                    className={cn(
-                      "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
-                      selectedSearchField === "ALL" ||
-                      selectedSearchField === "all"
-                        ? "bg-muted font-semibold text-foreground"
-                        : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
-                    )}
-                  >
-                    <span>All Fields</span>
-                    {(selectedSearchField === "ALL" ||
-                      selectedSearchField === "all") && (
-                      <Check className="h-3.5 w-3.5 text-[#0089FF]" />
-                    )}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="my-1 -mx-1" />
-                  {visibleColumns.map((c) => {
-                    const isSelected = selectedSearchField === c.id;
-                    return (
-                      <DropdownMenuItem
-                        key={c.id}
-                        onClick={() => setSelectedSearchField(c.id)}
-                        className={cn(
-                          "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
-                          isSelected
-                            ? "bg-muted font-semibold text-foreground"
-                            : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
-                        )}
-                      >
-                        <span className="truncate">{c.label}</span>
-                        {isSelected && (
-                          <Check className="h-3.5 w-3.5 text-[#0089FF]" />
-                        )}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Search className="ml-2 h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={
-                  selectedSearchField === "ALL" || selectedSearchField === "all"
-                    ? "Search in all fields..."
-                    : `Search ${selectedSearchFieldLabel}...`
-                }
-                className="h-full w-36 sm:w-44 bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+          {/* Tabbed Toolbar */}
+          <div className="relative z-20 flex min-h-[42px] items-center justify-between gap-3 bg-white dark:bg-slate-900 px-5 pb-3.5 shrink-0 select-none">
+            <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2">
+              <ReportQuickFilterBar
+                filters={filters}
+                onChange={(patch) => {
+                  setFilters((prev) => ({ ...prev, ...patch }));
+                  load("Filters updated");
+                }}
+                onOpenFilterDrawer={() => setConfigOpen((prev) => !prev)}
               />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => setQuery("")}
-                  aria-label="Clear search"
-                  className="mr-1.5 rounded-full p-0.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              )}
             </div>
 
-            {/* 2. Quick Action Utility Icons: Download, Schedule, Settings */}
-            <div className="flex items-center gap-1">
-              <ExportPopover onSelect={(f, s, m) => handleExport(f, s, m)} />
-              <IconButton
-                label="Schedule report"
-                onClick={() => setScheduleOpen(true)}
-              >
-                <CalendarClock className="h-3.5 w-3.5" />
-              </IconButton>
-              <IconButton
-                label="Column Settings"
-                onClick={() => setModal("columns")}
-              >
-                <Settings className="h-3.5 w-3.5" />
-              </IconButton>
-            </div>
-
-            {/* Vertical Divider */}
-            <div className="h-4 w-px bg-border/80 mx-0.5 shrink-0" />
-
-            {/* 4. Page Size & Pagination Controls */}
-            <Popover open={pageSizeOpen} onOpenChange={setPageSizeOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Rows per page"
-                  className={cn(
-                    "h-7 inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-background px-2 text-xs font-semibold text-foreground cursor-pointer shadow-2xs transition-all select-none hover:bg-muted hover:border-[#0089FF]/50 active:scale-98",
-                    pageSizeOpen &&
-                      "bg-muted border-[#0089FF]/50 ring-2 ring-[#0089FF]/20",
-                  )}
-                >
-                  <span>{pageSize} / page</span>
-                  <ChevronDown
-                    className={cn(
-                      "h-3 w-3 opacity-60 ml-0.5 transition-transform",
-                      pageSizeOpen && "rotate-180",
-                    )}
-                  />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                sideOffset={6}
-                className="w-28 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none animate-in fade-in-0 zoom-in-95"
-              >
-                {PAGE_SIZES.map((s) => {
-                  const isActive = pageSize === s;
-                  return (
+            <div className="flex items-center gap-2 ml-auto shrink-0">
+              <div className="relative flex h-7.5 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <button
-                      key={s}
                       type="button"
-                      onClick={() => {
-                        setPageSize(s);
-                        setPage(1);
-                        setPageSizeOpen(false);
-                      }}
+                      title="Select specific column to search"
+                      className="flex h-full items-center gap-1 border-r border-border/60 bg-muted/30 px-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0 select-none"
+                    >
+                      <span className="max-w-[76px] truncate">
+                        {selectedSearchField === "ALL" || selectedSearchField === "all"
+                          ? "All"
+                          : selectedSearchFieldLabel}
+                      </span>
+                      <ChevronDown className="h-3 w-3 opacity-60" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    className="max-h-64 w-52 overflow-y-auto text-xs p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50 select-none"
+                  >
+                    <DropdownMenuItem
+                      onClick={() => setSelectedSearchField("ALL")}
                       className={cn(
-                        "flex w-full items-center justify-between px-2.5 py-1.5 text-xs rounded-sm cursor-pointer transition-colors text-left select-none",
-                        isActive
+                        "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
+                        (selectedSearchField === "ALL" || selectedSearchField === "all")
                           ? "bg-muted font-semibold text-foreground"
                           : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
                       )}
                     >
-                      <span>{s} / page</span>
-                      {isActive && (
+                      <span>All Fields</span>
+                      {(selectedSearchField === "ALL" || selectedSearchField === "all") && (
                         <Check className="h-3.5 w-3.5 text-[#0089FF]" />
                       )}
-                    </button>
-                  );
-                })}
-              </PopoverContent>
-            </Popover>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="my-1 -mx-1" />
+                    {visibleColumns.map((c) => {
+                      const isSelected = selectedSearchField === c.id;
+                      return (
+                        <DropdownMenuItem
+                          key={c.id}
+                          onClick={() => setSelectedSearchField(c.id)}
+                          className={cn(
+                            "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
+                            isSelected
+                              ? "bg-muted font-semibold text-foreground"
+                              : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                          )}
+                        >
+                          <span className="truncate">{c.label}</span>
+                          {isSelected && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-            {/* Page counter & Navigation */}
-            <div className="flex items-center gap-1">
-              <span className="px-1 text-xs font-semibold tabular-nums text-muted-foreground whitespace-nowrap">
-                {first}–{last} of {rows.length}
-              </span>
-              <IconButton
-                label="Previous page"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={level !== 0 || page === 1}
-              >
-                <ChevronLeft className="h-3.5 w-3.5" />
-              </IconButton>
-              <IconButton
-                label="Next page"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={level !== 0 || page >= totalPages}
-              >
-                <ChevronRight className="h-3.5 w-3.5" />
-              </IconButton>
-              <IconButton
-                label="Refresh data"
-                onClick={() => load("Report refreshed")}
-                disabled={loading}
-              >
-                <RefreshCw
-                  className={cn("h-3.5 w-3.5", loading && "animate-spin")}
+                <Search className="ml-2.5 h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={
+                    selectedSearchField === "ALL" || selectedSearchField === "all"
+                      ? "Search in all fields..."
+                      : `Search ${selectedSearchFieldLabel}...`
+                  }
+                  className="h-full w-36 sm:w-44 bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
                 />
-              </IconButton>
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery("")}
+                    aria-label="Clear search"
+                    className="mr-1.5 rounded-full p-0.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-0.5">
+                
+                <IconButton label="Schedule report" onClick={() => setScheduleOpen(true)}>
+                  <CalendarClock className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+                </IconButton>
+                <IconButton label="Column Settings" onClick={() => setModal("columns")}>
+                  <Settings className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+                </IconButton>
+              </div>
             </div>
           </div>
-      </div>
+          {/* Horizontal divider with 20px space from left and right */}
+          <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
+        </>
+      ) : (
+        <>
+          {/* SINGLE SCREEN VIEW (Matches Reference Image media_1789714484140.png) */}
+          {/* Title Row */}
+          <div className="flex items-center justify-between px-5 pt-5 pb-2.5 select-none shrink-0 bg-white dark:bg-slate-900">
+            <div className="flex items-center gap-2">
+              {level > 0 ? (
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="p-1 -ml-1 rounded text-slate-700 dark:text-slate-200 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                  title="Go Back"
+                >
+                  <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleToggleFavorite(activeTab?.id || activeTabId)}
+                  className="p-1 -ml-1 rounded text-slate-400 hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                  title={activeTab?.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                >
+                  <Star
+                    className={cn(
+                      "h-5 w-5 transition-colors",
+                      activeTab?.isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-400 stroke-[2]"
+                    )}
+                  />
+                </button>
+              )}
+              <h1 className="text-[24px] font-medium text-slate-900 dark:text-white tracking-tight">
+                {level === 0 ? (activeTab?.title || reportMeta?.name || "Vehicle") : LEVEL_TITLE[level]}
+              </h1>
+            </div>
+          </div>
 
-      {/* 2. Separated Content Area with 10px Margin (Left, Right, Bottom) and Balanced Top Gap */}
-      <div className="flex-1 min-h-0 min-w-0 flex flex-col px-[10px] pb-[10px] pt-1.5 overflow-hidden bg-white dark:bg-slate-900">
-        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 rounded-lg shadow-2xs">
-          {/* Table Area */}
-          <div className="min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth">
-          {level === 0 ? (
+          {/* Single Screen Toolbar Row */}
+          <div className="relative z-20 flex min-h-[42px] items-center justify-between gap-3 bg-white dark:bg-slate-900 px-5 pb-3.5 shrink-0 select-none">
+            {/* Left Filters */}
+            <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2">
+              <ReportQuickFilterBar
+                filters={filters}
+                onChange={(patch) => {
+                  setFilters((prev) => ({ ...prev, ...patch }));
+                  load("Filters updated");
+                }}
+                onOpenFilterDrawer={() => setConfigOpen((prev) => !prev)}
+              />
+            </div>
+
+            {/* Right Controls: All fields search, Download, Schedule, Column settings, Refresh, + Object Button */}
+            <div className="flex items-center gap-2 ml-auto shrink-0">
+              {/* Field Search */}
+              <div className="relative flex h-7.5 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      title="Select specific column to search"
+                      className="flex h-full items-center gap-1 border-r border-border/60 bg-muted/30 px-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0 select-none"
+                    >
+                      <span className="max-w-[76px] truncate">
+                        {selectedSearchField === "ALL" || selectedSearchField === "all"
+                          ? "All fields"
+                          : selectedSearchFieldLabel}
+                      </span>
+                      <ChevronDown className="h-3 w-3 opacity-60" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    className="max-h-64 w-52 overflow-y-auto text-xs p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50 select-none"
+                  >
+                    <DropdownMenuItem
+                      onClick={() => setSelectedSearchField("ALL")}
+                      className={cn(
+                        "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
+                        (selectedSearchField === "ALL" || selectedSearchField === "all")
+                          ? "bg-muted font-semibold text-foreground"
+                          : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                      )}
+                    >
+                      <span>All fields</span>
+                      {(selectedSearchField === "ALL" || selectedSearchField === "all") && (
+                        <Check className="h-3.5 w-3.5 text-[#0089FF]" />
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="my-1 -mx-1" />
+                    {visibleColumns.map((c) => {
+                      const isSelected = selectedSearchField === c.id;
+                      return (
+                        <DropdownMenuItem
+                          key={c.id}
+                          onClick={() => setSelectedSearchField(c.id)}
+                          className={cn(
+                            "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
+                            isSelected
+                              ? "bg-muted font-semibold text-foreground"
+                              : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                          )}
+                        >
+                          <span className="truncate">{c.label}</span>
+                          {isSelected && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <Search className="ml-2.5 h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={
+                    selectedSearchField === "ALL" || selectedSearchField === "all"
+                      ? "Search in all fields..."
+                      : `Search ${selectedSearchFieldLabel}...`
+                  }
+                  className="h-full w-36 sm:w-48 bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery("")}
+                    aria-label="Clear search"
+                    className="mr-1.5 rounded-full p-0.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+
+              {/* Utility Icon Buttons */}
+              <div className="flex items-center gap-0.5">
+                
+                <IconButton label="Schedule report" onClick={() => setScheduleOpen(true)}>
+                  <CalendarClock className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+                </IconButton>
+                <IconButton label="Column Settings" onClick={() => setModal("columns")}>
+                  <Settings className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+                </IconButton>
+              </div>
+
+
+            </div>
+          </div>
+          {/* Horizontal divider with 20px space from left and right */}
+          <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
+        </>
+      )}
+
+      {/* Table & Inline Filter Drawer Area */}
+      <div className="relative min-h-0 flex-1 flex overflow-hidden bg-white dark:bg-slate-900">
+        {/* Table Scroll Area */}
+        <div className="relative min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth pt-1 mx-5">
+        {level === 0 ? (
             <table className="w-full min-w-[1000px] text-xs border-collapse">
               <thead className="sticky top-0 z-20 shadow-xs">
                 {/* Column Titles Header Row */}
-                <tr className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700">
+                <tr className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 h-[38px]">
                   <th
                     scope="col"
-                    className="sticky left-0 z-30 w-9 min-w-[36px] max-w-[36px] bg-[#EAF0F6] dark:bg-slate-800 border-r border-[#DFE3EB] dark:border-slate-700 px-2 py-2.5 text-center shadow-xs text-slate-900 dark:text-slate-200 font-bold"
+                    className="sticky left-0 z-30 w-10 min-w-[40px] max-w-[40px] bg-white dark:bg-slate-900 px-3 py-2 text-center text-slate-500 font-bold border-b border-[#DFE3EB] dark:border-slate-700"
                   >
                     #
                   </th>
@@ -1045,10 +1105,10 @@ export function ReportPage() {
                           }}
                           title={c.label}
                           className={cn(
-                            "group relative border-r border-[#DFE3EB] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none text-left bg-[#EAF0F6] dark:bg-slate-800",
+                            "group relative  px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100  overflow-hidden text-ellipsis whitespace-nowrap select-none text-left bg-white dark:bg-slate-800",
                             isFrozen &&
                               cn(
-                                "sticky z-30 bg-[#EAF0F6] dark:bg-slate-800",
+                                "sticky z-30 bg-white dark:bg-slate-800",
                                 colIdx === frozenCount - 1 &&
                                    "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
                               ),
@@ -1095,12 +1155,12 @@ export function ReportPage() {
                         }}
                         title={c.label}
                         className={cn(
-                          "group relative border-r border-[#DFE3EB] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0 overflow-hidden text-ellipsis whitespace-nowrap select-none bg-[#EAF0F6] dark:bg-slate-800",
+                          "group relative  px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100  overflow-hidden text-ellipsis whitespace-nowrap select-none bg-white dark:bg-slate-800",
                           c.numeric ? "text-right" : "text-left",
-                          c.sortable && "cursor-pointer hover:bg-[#DFE7F0] dark:hover:bg-slate-700/60",
+                          c.sortable && "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/60",
                           isFrozen &&
                             cn(
-                              "sticky z-30 bg-[#EAF0F6] dark:bg-slate-800",
+                              "sticky z-30 bg-white dark:bg-slate-800",
                               colIdx === frozenCount - 1 &&
                                 "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
                             ),
@@ -1149,7 +1209,7 @@ export function ReportPage() {
 
                 {/* Overall Totals / Summary Row */}
                 <tr className="bg-card dark:bg-slate-900 text-[11px] font-bold text-foreground border-b border-[#DFE3EB] dark:border-slate-700 h-[38px]">
-                  <td className="sticky left-0 z-20 w-9 min-w-[36px] max-w-[36px] bg-card dark:bg-slate-900 border-r border-[#DFE3EB] dark:border-slate-700 px-2 py-2 text-center text-muted-foreground font-semibold shadow-xs">
+                  <td className="sticky left-0 z-20 w-10 min-w-[40px] max-w-[40px] bg-white dark:bg-slate-900 px-3 py-2 text-center text-foreground font-bold text-sm border-b border-[#DFE3EB] dark:border-slate-700">
                     ∑
                   </td>
                   {visibleColumns.map((col, colIdx) => {
@@ -1470,7 +1530,6 @@ export function ReportPage() {
               }))}
             />
           )}
-        </div>
 
         {loading ? (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-surface/75 backdrop-blur-xs">
@@ -1479,9 +1538,9 @@ export function ReportPage() {
             </span>
           </div>
         ) : null}
-        </div>
       </div>
 
+      {/* Inline Right-Side Filter Panel */}
       <ReportConfigPanel
         open={configOpen}
         onClose={() => setConfigOpen(false)}
@@ -1498,6 +1557,36 @@ export function ReportPage() {
           handleExport(format, exportScope, "downloaded without loading")
         }
       />
+    </div>
+
+      {/* Horizontal divider with 20px space from left and right */}
+          <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
+
+            {/* Standard Application Bottom Frame with Centered HubSpot-Style Pagination */}
+      <TablePaginationBar
+        page={page}
+        pageSize={pageSize}
+        totalRows={rows.length}
+        pageSizeOptions={PAGE_SIZES}
+        itemLabel="records"
+        disabled={level !== 0}
+        onPageChange={(p) => setPage(p)}
+        onPageSizeChange={(s) => {
+          setPageSize(s);
+          setPage(1);
+        }}
+        onReset={() => {
+          setFilters(DEFAULT_FILTERS);
+          setQuery("");
+          setSelectedSearchField("ALL");
+          resetToRoot();
+          setPage(1);
+          load("Filters and view reset");
+        }}
+        onExport={(f, s, m) => handleExport(f, s, m)}
+      />
+    </div>
+
 
       <ScheduleModal
         open={scheduleOpen}
@@ -1536,13 +1625,13 @@ function SimpleTable({
   return (
     <table className="w-full min-w-[900px] text-xs">
       <thead className="sticky top-0 z-10 shadow-xs">
-        <tr className="bg-[#EAF0F6] text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700">
+        <tr className="bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700">
           {headers.map((h, i) => (
             <th
               key={h}
               scope="col"
               className={cn(
-                "border-r border-[#DFE3EB] dark:border-slate-700 px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 last:border-r-0",
+                " px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 ",
                 i === 0 && "rounded-tl-xl",
                 numeric.includes(i) ? "text-right" : "text-left",
               )}
@@ -1595,11 +1684,13 @@ function IconButton({
   onClick,
   disabled,
   children,
+  className,
 }: {
   label: string;
   onClick: () => void;
   disabled?: boolean;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <Tooltip>
@@ -1609,7 +1700,10 @@ function IconButton({
           aria-label={label}
           onClick={onClick}
           disabled={disabled}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border/80 bg-background text-muted-foreground transition-all duration-150 hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer shadow-2xs active:scale-95"
+          className={cn(
+            "toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-800 disabled:cursor-not-allowed group",
+            className,
+          )}
         >
           {children}
         </button>
@@ -2175,7 +2269,7 @@ function ReportRow({
             : "hover:bg-slate-50/80 dark:hover:bg-slate-800/40",
         )}
       >
-        <td className="sticky left-0 z-10 w-9 min-w-[36px] max-w-[36px] bg-surface group-hover:bg-muted/80 border-r border-border/60 px-2 py-2 text-center shadow-xs">
+        <td className="sticky left-0 z-10 w-10 min-w-[40px] max-w-[40px] bg-white dark:bg-slate-900 group-hover:bg-slate-50/70 dark:group-hover:bg-slate-800/40 px-3 py-2 text-center">
           <button
             type="button"
             onClick={onToggle}
@@ -2183,12 +2277,12 @@ function ReportRow({
             aria-label={
               (open ? "Collapse" : "Expand") + " trips for " + row.vehicleNo
             }
-            className="inline-flex h-5 w-5 items-center justify-center rounded-md border border-input/80 bg-background text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs"
+            className="table-expand-btn inline-flex items-center justify-center p-0.5 bg-transparent border-0 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
           >
             <ChevronRight
               className={cn(
-                "h-3.5 w-3.5 transition-transform duration-200",
-                open && "rotate-90 text-blue-500",
+                "h-4 w-4 stroke-[2.2] transition-transform duration-200",
+                open && "rotate-90 text-[#0089FF]",
               )}
             />
           </button>

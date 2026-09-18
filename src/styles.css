@@ -281,3 +281,240 @@
 .spin-clockwise {
   animation: spinClockwise 1.2s linear infinite !important;
 }
+
+/* =========================================================================
+   UI Elements Style Customization (Compact vs Rounded)
+   Targeted to: Interactive Buttons, Inputs/Search, Dropdowns, Tags/Badges
+   ========================================================================= */
+
+/* Default / Compact style (Crisp 4-6px minimal radius for data-dense views) */
+:root,
+[data-ui-style="compact"] {
+  --ui-radius: 6px;
+  --ui-radius-full: 9999px;
+}
+
+/* Rounded style (Smooth modern pill styling for interactive controls) */
+[data-ui-style="rounded"] {
+  --ui-radius: 9999px;
+}
+
+/* 1. Interactive Action Buttons, CTA, Filter, Toolbar & Pagination */
+[data-ui-style="rounded"] .btn,
+[data-ui-style="rounded"] .btn-action,
+[data-ui-style="rounded"] .btn-primary,
+[data-ui-style="rounded"] .btn-secondary,
+[data-ui-style="rounded"] .btn-filter,
+[data-ui-style="rounded"] button[type="submit"],
+[data-ui-style="rounded"] button[type="button"]:not(.fixed):not(.absolute):not([role="tab"]):not(.line-tab):not(.tab-item):not(.tab-button):not([class*="border-b"]):not(.theme-card-preview):not(.theme-card):not([aria-label*="Close"]):not([aria-label*="Notifications"]):not([aria-label*="User account"]):not([aria-label*="Zio"]):not([data-radix-collection-item]):not([role="menuitem"]):not(.table-cell *):not([role="dialog"] * [role="tab"]) {
+  border-radius: 9999px !important;
+}
+
+/* 2. Text, Number, Password, Date & Search Inputs */
+[data-ui-style="rounded"] input[type="text"]:not(.no-rounded),
+[data-ui-style="rounded"] input[type="search"]:not(.no-rounded),
+[data-ui-style="rounded"] input[type="password"]:not(.no-rounded),
+[data-ui-style="rounded"] input[type="number"]:not(.no-rounded),
+[data-ui-style="rounded"] input[type="email"]:not(.no-rounded),
+[data-ui-style="rounded"] input[type="date"]:not(.no-rounded),
+[data-ui-style="rounded"] .search-container,
+[data-ui-style="rounded"] .search-wrapper,
+[data-ui-style="rounded"] header input,
+[data-ui-style="rounded"] .search-bar {
+  border-radius: 9999px !important;
+}
+
+/* Top bar search container */
+[data-ui-style="rounded"] header .relative.max-w-xs input {
+  border-radius: 9999px !important;
+}
+
+/* Table Search Compound Group (Field Selector + Search Input) */
+[data-ui-style="rounded"] .flex.items-center.rounded-md.border:has(input),
+[data-ui-style="rounded"] .flex.items-center.rounded-md.border:has(select) {
+  border-radius: 9999px !important;
+}
+[data-ui-style="rounded"] .flex.items-center.rounded-md.border:has(input) > div:first-child,
+[data-ui-style="rounded"] .flex.items-center.rounded-md.border:has(select) > div:first-child {
+  border-top-left-radius: 9999px !important;
+  border-bottom-left-radius: 9999px !important;
+}
+[data-ui-style="rounded"] .flex.items-center.rounded-md.border:has(input) > div:last-child,
+[data-ui-style="rounded"] .flex.items-center.rounded-md.border:has(input) input {
+  border-top-right-radius: 9999px !important;
+  border-bottom-right-radius: 9999px !important;
+}
+
+/* 3. Dropdown Select Triggers */
+[data-ui-style="rounded"] .select-dropdown-trigger,
+[data-ui-style="rounded"] .filter-popover-trigger,
+[data-ui-style="rounded"] .date-range-trigger,
+[data-ui-style="rounded"] select:not(.no-rounded) {
+  border-radius: 9999px !important;
+}
+
+/* 4. Badges, Tags & Count Pills */
+[data-ui-style="rounded"] .tag-pill,
+[data-ui-style="rounded"] .badge-pill,
+[data-ui-style="rounded"] .status-badge,
+[data-ui-style="rounded"] .badge,
+[data-ui-style="rounded"] span.rounded-full,
+[data-ui-style="rounded"] span[class*="rounded-full"],
+[data-ui-style="rounded"] span[class*="rounded-md"]:not(.table-cell *):not([role="tab"]):not(.line-tab) {
+  border-radius: 9999px !important;
+}
+
+/* =========================================================================
+   STRICT PROTECTION: Elements that must NEVER become 9999px pills
+   ========================================================================= */
+
+/* Overlays and Backdrop Blur Scrims - Always Flat & Rectangular */
+[data-ui-style="rounded"] button.fixed,
+[data-ui-style="rounded"] button.fixed.inset-0,
+[data-ui-style="rounded"] .fixed.inset-0,
+[data-ui-style="rounded"] [data-radix-portal] > div.fixed.inset-0,
+[data-ui-style="rounded"] .backdrop-blur-xs,
+[data-ui-style="rounded"] .backdrop-blur-md,
+[data-ui-style="rounded"] .backdrop-blur-sm,
+[data-ui-style="rounded"] .backdrop-blur {
+  border-radius: 0px !important;
+}
+
+/* Line Tabs (Underline indicator tabs) - Always 0px flat baseline */
+[data-ui-style="rounded"] [role="tab"].line-tab,
+[data-ui-style="rounded"] .line-tab,
+[data-ui-style="rounded"] [role="tab"].border-b-2,
+[data-ui-style="rounded"] .border-b-2,
+[data-ui-style="rounded"] [class*="border-b-2"],
+[data-ui-style="rounded"] button.line-tab,
+[data-ui-style="rounded"] button[class*="border-b-2"] {
+  border-radius: 0px !important;
+}
+
+/* Theme Preview Cards & Option Preview Cards - Keep Pristine Card Radius */
+[data-ui-style="rounded"] .theme-card-preview,
+[data-ui-style="rounded"] [role="dialog"],
+[data-ui-style="rounded"] .modal-shell,
+[data-ui-style="rounded"] .popover-content {
+  /* Retain card border radius */
+}
+
+/* Dropdown Menus and Menu Item Safety (Always crisp 12px floating card with 8px item highlights) */
+[data-ui-style="rounded"] .select-dropdown-menu,
+[data-ui-style="rounded"] [data-radix-popper-content-wrapper] > div,
+[data-ui-style="rounded"] [role="listbox"],
+[data-ui-style="rounded"] [role="menu"] {
+  border-radius: 0.75rem !important;
+}
+
+[data-ui-style="rounded"] .select-dropdown-item,
+[data-ui-style="rounded"] .select-dropdown-menu button,
+[data-ui-style="rounded"] [role="listbox"] button,
+[data-ui-style="rounded"] [role="option"],
+[data-ui-style="rounded"] [role="menuitem"] {
+  border-radius: 0.5rem !important;
+}
+
+
+
+
+
+
+/* =========================================================================
+   Toolbar Utility Action Icons & Pagination Icons
+   Default: No persistent border or box, clean icon
+   On Hover: Theme-based background appears (rounded-md for compact, rounded-full for rounded)
+   ========================================================================= */
+.toolbar-icon-btn,
+.pagination-icon-btn {
+  border: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: #0f172a !important;
+  border-radius: var(--ui-radius, 6px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease, border-radius 0.15s ease !important;
+}
+
+:root .toolbar-icon-btn,
+:root .pagination-icon-btn,
+[data-ui-style="compact"] .toolbar-icon-btn,
+[data-ui-style="compact"] .pagination-icon-btn {
+  border-radius: 6px !important;
+}
+
+[data-ui-style="rounded"] .toolbar-icon-btn,
+[data-ui-style="rounded"] .pagination-icon-btn {
+  border-radius: 9999px !important;
+}
+
+.dark .toolbar-icon-btn,
+.dark .pagination-icon-btn {
+  color: #f1f5f9 !important;
+}
+
+.toolbar-icon-btn:hover:not(:disabled),
+.pagination-icon-btn:hover:not(:disabled) {
+  background-color: rgba(15, 23, 42, 0.08) !important;
+  color: #000000 !important;
+}
+
+.dark .toolbar-icon-btn:hover:not(:disabled),
+.dark .pagination-icon-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.toolbar-icon-btn svg,
+.pagination-icon-btn svg {
+  width: 1.125rem !important;
+  height: 1.125rem !important;
+  stroke-width: 2.2px !important;
+  color: #0f172a !important;
+  transition: color 0.15s ease-in-out, transform 0.15s ease-in-out !important;
+}
+
+.dark .toolbar-icon-btn svg,
+.dark .pagination-icon-btn svg {
+  color: #f1f5f9 !important;
+}
+
+.toolbar-icon-btn:hover:not(:disabled) svg,
+.pagination-icon-btn:hover:not(:disabled) svg {
+  color: #000000 !important;
+}
+
+.dark .toolbar-icon-btn:hover:not(:disabled) svg,
+.dark .pagination-icon-btn:hover:not(:disabled) svg {
+  color: #ffffff !important;
+}
+
+.toolbar-icon-btn:disabled,
+.pagination-icon-btn:disabled {
+  opacity: 0.3 !important;
+  background-color: transparent !important;
+  cursor: not-allowed !important;
+}
+
+/* Table Expand/Collapse buttons - always bare chevron */
+.table-expand-btn,
+table td button:has(svg.lucide-chevron-right),
+table td button:has(svg.lucide-chevron-down) {
+  border: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 2px !important;
+  border-radius: 0px !important;
+}
+
+/* Ensure compound search group child buttons don't have right-side pills */
+[data-ui-style="rounded"] .flex.items-center.rounded-md.border:has(input) > button:first-child,
+[data-ui-style="rounded"] .flex.items-center.rounded-md.border:has(input) > div:first-child > button,
+[data-ui-style="rounded"] .flex.items-center.rounded-md.border:has(input) > div:first-child select {
+  border-top-left-radius: 9999px !important;
+  border-bottom-left-radius: 9999px !important;
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}

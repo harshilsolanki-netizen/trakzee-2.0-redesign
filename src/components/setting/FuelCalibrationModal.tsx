@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { SelectDropdown } from "@/components/ui/select-dropdown";
 
 export type CalibrationPoint = {
   id: string;
@@ -671,17 +672,12 @@ function FieldSelect({
         {label}
         {required && <span className="text-rose-500 ml-0.5">*</span>}
       </label>
-      <select
+      <SelectDropdown
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-8 w-full rounded-md border border-input bg-background px-2.5 text-xs text-foreground focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 focus:outline-none transition-all cursor-pointer"
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
+        onChange={onChange}
+        options={options}
+        triggerClassName="h-8 text-xs font-medium"
+      />
     </div>
   );
 }

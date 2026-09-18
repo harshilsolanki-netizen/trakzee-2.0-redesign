@@ -228,9 +228,11 @@ export function VehicleTelemetryDrawer({
         <div className="flex border-b border-border text-xs font-semibold">
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === "fuel"}
             onClick={() => setActiveTab("fuel")}
             className={cn(
-              "flex-1 pb-1.5 border-b-2 transition-colors cursor-pointer text-center",
+              "flex-1 pb-1.5 border-b-2 line-tab !rounded-none transition-colors cursor-pointer text-center focus:outline-none",
               activeTab === "fuel"
                 ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "border-transparent text-muted-foreground hover:text-foreground",
@@ -240,9 +242,11 @@ export function VehicleTelemetryDrawer({
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === "sensors"}
             onClick={() => setActiveTab("sensors")}
             className={cn(
-              "flex-1 pb-1.5 border-b-2 transition-colors cursor-pointer text-center",
+              "flex-1 pb-1.5 border-b-2 line-tab !rounded-none transition-colors cursor-pointer text-center focus:outline-none",
               activeTab === "sensors"
                 ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "border-transparent text-muted-foreground hover:text-foreground",
@@ -252,9 +256,11 @@ export function VehicleTelemetryDrawer({
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === "alerts"}
             onClick={() => setActiveTab("alerts")}
             className={cn(
-              "flex-1 pb-1.5 border-b-2 transition-colors cursor-pointer text-center",
+              "flex-1 pb-1.5 border-b-2 line-tab !rounded-none transition-colors cursor-pointer text-center focus:outline-none",
               activeTab === "alerts"
                 ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "border-transparent text-muted-foreground hover:text-foreground",

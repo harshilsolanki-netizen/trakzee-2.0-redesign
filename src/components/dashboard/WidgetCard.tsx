@@ -15,6 +15,7 @@ import {
 import { useDashboard } from "@/dashboard/store";
 import { RANGE_LABEL, type Range } from "@/data/fleet";
 import { widgetMeta, type WidgetId } from "@/dashboard/widgets";
+import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 
 const RANGES: Range[] = ["today", "7d", "30d"];
@@ -68,18 +69,15 @@ export function WidgetCard({
       >
         {extraControls}
         {meta.hasRange && range && onRangeChange ? (
-          <select
-            aria-label={`${meta.title} range`}
-            value={range}
-            onChange={(e) => onRangeChange(e.target.value as Range)}
-            className="h-6.5 rounded-md border border-border/80 bg-background px-1.5 text-[11px] font-medium text-foreground cursor-pointer shadow-2xs hover:border-border focus:outline-none focus:ring-1 focus:ring-primary/40 transition-all"
-          >
-            {RANGES.map((r) => (
-              <option key={r} value={r}>
-                {RANGE_LABEL[r]}
-              </option>
-            ))}
-          </select>
+          <div className="w-24">
+            <SelectDropdown
+              value={range}
+              options={RANGES.map((r) => ({ label: RANGE_LABEL[r], value: r }))}
+              onChange={(v) => onRangeChange(v as Range)}
+              triggerClassName="h-6.5 px-2 text-[11px]"
+              menuClassName="w-28 right-0 left-auto"
+            />
+          </div>
         ) : null}
         <div className="flex items-center gap-0.5 text-muted-foreground">
           <IconBtn

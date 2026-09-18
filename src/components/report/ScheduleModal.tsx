@@ -54,6 +54,7 @@ import {
   DEFAULT_COLUMN_SETTINGS,
   type ReportColumnSettings,
 } from "@/components/report/ColumnConfigModal";
+import { SelectDropdown, type DropdownOption } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 
 export type ScheduleItem = {
@@ -293,134 +294,6 @@ const DEFAULT_DRAFT: ScheduleItem = {
   mediaGateway: "WhatsApp",
   mediaRecipientNumber: "",
 };
-
-export type DropdownOption =
-  | string
-  | {
-      label: string;
-      value?: string;
-      description?: string;
-    };
-
-function SelectDropdown({
-  value,
-  options,
-  onChange,
-  className,
-  placeholder,
-}: {
-  value: string;
-  options: DropdownOption[];
-  onChange: (v: string) => void;
-  className?: string;
-  placeholder?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    if (open) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
-
-  const selectedOption = options.find((opt) => {
-    if (typeof opt === "object") {
-      return (opt.value ?? opt.label) === value || opt.label === value;
-    }
-    return opt === value;
-  });
-
-  const displayLabel = selectedOption
-    ? typeof selectedOption === "object"
-      ? selectedOption.label
-      : selectedOption
-    : value || placeholder || "Select";
-
-  return (
-    <div ref={ref} className={cn("relative w-full", className)}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className={cn(
-          "flex h-9 w-full items-center justify-between rounded-md border border-input/80 bg-background px-3 text-xs shadow-2xs transition-all hover:border-[#0089FF]/60 hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 focus:border-[#0089FF] cursor-pointer select-none font-normal",
-          open && "border-[#0089FF] ring-2 ring-[#0089FF]/20 bg-muted/40",
-        )}
-      >
-        <span
-          className={cn(
-            "truncate",
-            value
-              ? "text-foreground font-medium"
-              : "text-muted-foreground/60 font-normal italic",
-          )}
-        >
-          {displayLabel}
-        </span>
-        <ChevronDown
-          className={cn(
-            "h-4 w-4 text-muted-foreground shrink-0 opacity-70 transition-transform duration-200 ml-1.5",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-
-      {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95 select-none custom-scrollbar">
-          {options.map((opt) => {
-            const isObj = typeof opt === "object";
-            const optLabel = isObj ? opt.label : opt;
-            const optVal = isObj ? (opt.value ?? opt.label) : opt;
-            const optDesc = isObj ? opt.description : undefined;
-            const isSelected = value === optVal || value === optLabel;
-
-            return (
-              <button
-                key={optVal}
-                type="button"
-                onClick={() => {
-                  onChange(optVal);
-                  setOpen(false);
-                }}
-                className={cn(
-                  "flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-colors cursor-pointer select-none",
-                  isSelected
-                    ? "bg-muted font-semibold text-foreground"
-                    : "text-foreground hover:bg-muted/80 font-normal",
-                )}
-              >
-                <div className="flex flex-col min-w-0 pr-2">
-                  <span
-                    className={cn(
-                      "text-xs leading-tight truncate",
-                      isSelected
-                        ? "font-semibold text-foreground"
-                        : "font-medium text-foreground",
-                    )}
-                  >
-                    {optLabel}
-                  </span>
-                  {optDesc && (
-                    <span className="text-[11px] leading-snug text-muted-foreground mt-0.5 font-normal">
-                      {optDesc}
-                    </span>
-                  )}
-                </div>
-                {isSelected && (
-                  <Check className="h-4 w-4 text-[#0089FF] shrink-0 ml-1" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function UniversalMultiSelectDropdown({
   label,

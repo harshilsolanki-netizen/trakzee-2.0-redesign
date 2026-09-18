@@ -52,11 +52,13 @@ function IconButton({
   children,
   onClick,
   disabled,
+  className,
 }: {
   label: string;
   children: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
+  className?: string;
 }) {
   return (
     <Tooltip>
@@ -66,7 +68,10 @@ function IconButton({
           aria-label={label}
           onClick={onClick}
           disabled={disabled}
-          className="inline-flex h-7 w-7 items-center justify-center rounded border border-input bg-background text-muted-foreground transition-all duration-150 hover:bg-muted hover:text-foreground hover:border-border disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
+          className={cn(
+            "toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-800 disabled:cursor-not-allowed group",
+            className,
+          )}
         >
           {children}
         </button>
@@ -311,19 +316,19 @@ export function TemperatureSummaryReport() {
               label="Schedule report"
               onClick={() => setScheduleOpen(true)}
             >
-              <CalendarClock className="h-3.5 w-3.5" />
+              <CalendarClock className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
             </IconButton>
             <IconButton
               label="Column visibility"
               onClick={() => setModal("columns")}
             >
-              <Settings className="h-3.5 w-3.5" />
+              <Settings className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
             </IconButton>
             <IconButton label="Chart view" onClick={() => setModal("chart")}>
-              <BarChart3 className="h-3.5 w-3.5" />
+              <BarChart3 className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
             </IconButton>
             <IconButton label="Help & guide" onClick={() => setModal("help")}>
-              <HelpCircle className="h-3.5 w-3.5" />
+              <HelpCircle className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
             </IconButton>
           </div>
 
@@ -343,7 +348,7 @@ export function TemperatureSummaryReport() {
                 label="Refresh"
                 onClick={() => toast.success("Temperature data refreshed")}
               >
-                <RefreshCw className="h-3.5 w-3.5" />
+                <RefreshCw className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
               </IconButton>
             </div>
           </div>
@@ -351,7 +356,7 @@ export function TemperatureSummaryReport() {
       </header>
 
       {/* Multi-Level Temperature Table */}
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border border-border bg-surface shadow-xs">
+      <div className="relative flex min-h-0 flex-1 flex-row overflow-hidden rounded-md border border-border bg-surface shadow-xs">
         <div className="min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth">
           <table className="w-full border-collapse text-left text-xs whitespace-nowrap">
             <thead className="sticky top-0 z-10 bg-nav text-nav-foreground text-[11px] select-none">
@@ -444,18 +449,15 @@ export function TemperatureSummaryReport() {
                             e.stopPropagation();
                             toggleExpand(row.id);
                           }}
-                          className={cn(
-                            "flex h-4.5 w-4.5 items-center justify-center rounded text-[11px] font-bold transition-transform cursor-pointer",
-                            isExpanded
-                              ? "bg-sky-500 text-white"
-                              : "bg-sky-500/15 text-sky-600 hover:bg-sky-500 hover:text-white",
-                          )}
+                          aria-label={isExpanded ? "Collapse temperature" : "Expand temperature"}
+                          className="table-expand-btn inline-flex items-center justify-center p-0.5 bg-transparent border-0 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
                         >
-                          {isExpanded ? (
-                            <Minus className="h-3 w-3" />
-                          ) : (
-                            <Plus className="h-3 w-3" />
-                          )}
+                          <ChevronRight
+                            className={cn(
+                              "h-4 w-4 stroke-[2.2] transition-transform duration-200",
+                              isExpanded && "rotate-90 text-[#0089FF]",
+                            )}
+                          />
                         </button>
                       </td>
                       <td className="px-3 py-2.5 font-bold text-foreground">
