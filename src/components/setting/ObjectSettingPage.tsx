@@ -1419,6 +1419,155 @@ const VEHICLE_SEARCH_FIELDS = [
   { id: "deviceType", label: "Device Type" },
 ];
 
+
+function renderObjectCell(colId: string, row: VehicleItem) {
+  switch (colId) {
+    case "company":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground font-semibold">
+          {row.company}
+        </td>
+      );
+    case "branch":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
+          {row.branch}
+        </td>
+      );
+    case "name":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-semibold text-[#0089FF] hover:underline cursor-pointer">
+          {row.name}
+        </td>
+      );
+    case "group":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
+          {row.objectGroup}
+        </td>
+      );
+    case "imei":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.imei}
+        </td>
+      );
+    case "sim":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.simPrimary}
+        </td>
+      );
+    case "deviceType":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground text-xs">
+          {row.deviceType}
+        </td>
+      );
+    case "distanceCounter":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 text-center whitespace-nowrap text-foreground">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+            {row.distanceCounter}
+          </span>
+        </td>
+      );
+    case "speedDetection":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 text-center whitespace-nowrap text-foreground">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300">
+            {row.speedDetection}
+          </span>
+        </td>
+      );
+    case "timezone":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.timezone}
+        </td>
+      );
+    case "createdDate":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.createdDate}
+        </td>
+      );
+    case "installationDate":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.installationDate}
+        </td>
+      );
+    case "sensor":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 text-center whitespace-nowrap">
+          <span className="inline-flex items-center justify-center h-5 w-5 rounded-full text-[10px] font-bold bg-[#0089FF]/10 text-[#0089FF]">
+            {row.sensorCount}
+          </span>
+        </td>
+      );
+    case "expiryDate":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.expiryDate}
+        </td>
+      );
+    case "specification":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 text-center whitespace-nowrap">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300">
+            {row.specification}
+          </span>
+        </td>
+      );
+    case "primaryVehicle":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 text-center whitespace-nowrap">
+          <span className={cn(
+            "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold",
+            row.isPrimary ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+          )}>
+            {row.isPrimary ? "Primary" : "Secondary"}
+          </span>
+        </td>
+      );
+    case "documents":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 text-center whitespace-nowrap">
+          <span className="inline-flex items-center justify-center h-5 px-1.5 rounded text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300">
+            {row.documentsCount} Docs
+          </span>
+        </td>
+      );
+    case "qrCode":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 text-center whitespace-nowrap">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300">
+            QR Active
+          </span>
+        </td>
+      );
+    case "gpsTrackerId":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.trackerId}
+        </td>
+      );
+    case "gpsTrackerSerial":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.serialNo}
+        </td>
+      );
+    default:
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
+          {(row as any)[colId] ?? "--"}
+        </td>
+      );
+  }
+}
+
 export function ObjectSettingPage() {
   const { isSingle } = useLayoutMode();
   const [vehicles, setVehicles] = useState<VehicleItem[]>(INITIAL_VEHICLES);
@@ -1538,6 +1687,23 @@ export function ObjectSettingPage() {
 
   const handleBulkInsertSuccess = (count: number) => {
     toast.success(`Inserted ${count} objects into the fleet`);
+  };
+
+  
+  const handleCloneObject = (item: VehicleItem) => {
+    const cloned: VehicleItem = {
+      ...item,
+      id: `veh-${Date.now()}`,
+      name: `${item.name} (Copy)`,
+      imei: `${Math.floor(100000000 + Math.random() * 900000000)}`,
+      deviceImei: `${Math.floor(100000000 + Math.random() * 900000000)}`,
+    };
+    setVehicles((prev) => [cloned, ...prev]);
+    toast.success(`Cloned vehicle "${cloned.name}"`);
+  };
+
+  const handleDeleteObject = (id: string) => {
+    handleDeleteVehicle(id);
   };
 
   const handleDeleteVehicle = (id: string) => {

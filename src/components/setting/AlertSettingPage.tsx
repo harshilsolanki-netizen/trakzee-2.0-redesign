@@ -979,6 +979,135 @@ const ALERT_SEARCH_FIELDS = [
   { id: "severity", label: "Severity" },
 ];
 
+
+function renderAlertCell(colId: string, row: AlertRuleItem) {
+  let severityBadge = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300";
+  if (row.severity === "Low") {
+    severityBadge = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300";
+  } else if (row.severity === "Medium") {
+    severityBadge = "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300";
+  } else if (row.severity === "High") {
+    severityBadge = "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-300";
+  } else if (row.severity === "Critical") {
+    severityBadge = "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300";
+  }
+
+  switch (colId) {
+    case "company":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground font-semibold">
+          {row.company}
+        </td>
+      );
+    case "branch":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
+          {row.branch}
+        </td>
+      );
+    case "name":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-semibold text-[#0089FF] hover:underline cursor-pointer">
+          {row.name}
+        </td>
+      );
+    case "severity":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
+          <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border", severityBadge)}>
+            {row.severity}
+          </span>
+        </td>
+      );
+    case "vehicles":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center font-mono font-bold text-foreground">
+          <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#0089FF]/10 text-[#0089FF]">
+            {row.vehicleCount}
+          </span>
+        </td>
+      );
+    case "alertType":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
+          {row.alertType}
+        </td>
+      );
+    case "timezone":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.timezone}
+        </td>
+      );
+    case "reason":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-muted-foreground">
+          {row.reason}
+        </td>
+      );
+    case "sms":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
+          <span className={cn("inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold", row.sms ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400")}>
+            {row.sms ? "✓" : "-"}
+          </span>
+        </td>
+      );
+    case "email":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
+          <span className={cn("inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold", row.email ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400")}>
+            {row.email ? "✓" : "-"}
+          </span>
+        </td>
+      );
+    case "notif":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
+          <span className={cn("inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold", row.notification ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400")}>
+            {row.notification ? "✓" : "-"}
+          </span>
+        </td>
+      );
+    case "immo":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
+          <span className={cn("inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold", row.immobilizer ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-400")}>
+            {row.immobilizer ? "✓" : "-"}
+          </span>
+        </td>
+      );
+    case "buzzer":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
+          <span className={cn("inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold", row.buzzer ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-400")}>
+            {row.buzzer ? "✓" : "-"}
+          </span>
+        </td>
+      );
+    case "emailVerify":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
+          <span className={cn("inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold", row.emailVerified ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500")}>
+            {row.emailVerified ? "Verified" : "Pending"}
+          </span>
+        </td>
+      );
+    case "createdDate":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.createdDate}
+        </td>
+      );
+    default:
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
+          {(row as any)[colId] ?? "--"}
+        </td>
+      );
+  }
+}
+
 export function AlertSettingPage() {
   const { isSingle } = useLayoutMode();
   const [alerts, setAlerts] = useState<AlertRuleItem[]>(INITIAL_ALERTS);
@@ -1073,6 +1202,17 @@ export function AlertSettingPage() {
     setAlerts((prev) => [...newAlerts, ...prev]);
     setCopyModalOpen(false);
     toast.success(`Successfully copied ${newAlerts.length} alert rule${newAlerts.length > 1 ? "s" : ""}`);
+  };
+
+  
+  const handleCloneAlert = (item: AlertRuleItem) => {
+    const cloned: AlertRuleItem = {
+      ...item,
+      id: `alt-${Date.now()}`,
+      name: `${item.name} (Copy)`,
+    };
+    setAlerts((prev) => [cloned, ...prev]);
+    toast.success(`Cloned alert rule "${cloned.name}"`);
   };
 
   const handleDeleteAlert = (id: string) => {
