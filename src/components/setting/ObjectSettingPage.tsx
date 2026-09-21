@@ -2062,6 +2062,77 @@ export function ObjectSettingPage() {
           >
             <Settings className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
           </IconButton>
+
+          {/* 3-Dots More Menu */}
+          <Popover open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="More Fleet Actions"
+                      className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
+                    >
+                      <MoreVertical className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+                    </button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent>More fleet actions</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <PopoverContent align="end" sideOffset={6} className="w-52 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none z-50">
+              <button
+                type="button"
+                onClick={() => {
+                  setBulkUpdateModalOpen(true);
+                  setMoreMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-muted text-foreground transition-colors cursor-pointer text-left"
+              >
+                <SlidersHorizontal className="h-4 w-4 text-slate-500" />
+                <span>Bulk Object Update</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setBulkMaintenanceModalOpen(true);
+                  setMoreMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-muted text-foreground transition-colors cursor-pointer text-left"
+              >
+                <Wrench className="h-4 w-4 text-slate-500" />
+                <span>Bulk Maintenance</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setBatchQrModalOpen(true);
+                  setMoreMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-muted text-foreground transition-colors cursor-pointer text-left"
+              >
+                <QrCode className="h-4 w-4 text-slate-500" />
+                <span>Batch QR Codes</span>
+              </button>
+
+              <div className="my-1 border-t border-border/60" />
+
+              <button
+                type="button"
+                onClick={() => {
+                  setBulkDeleteModalOpen(true);
+                  setMoreMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-destructive/10 text-destructive transition-colors cursor-pointer text-left"
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+                <span>Bulk Delete Objects</span>
+              </button>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -2265,90 +2336,28 @@ export function ObjectSettingPage() {
             </div>
 
             {/* Right: Other Operations */}
-            <div className="flex items-center gap-1 min-w-[140px] justify-end">
+            <div className="flex items-center gap-2 min-w-[140px] justify-end">
               {/* Reset Table */}
               <button
                 type="button"
                 onClick={handleResetTable}
-                className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
+                className="inline-flex h-7.5 items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer active:scale-98"
                 title="Reset Table"
               >
-                <RotateCcw className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+                <RotateCcw className="h-3.5 w-3.5 stroke-[2.2]" />
+                <span>Reset</span>
               </button>
 
-              {/* Export XLS */}
+              {/* Download XLS */}
               <button
                 type="button"
                 onClick={() => toast.success("Exported fleet objects as XLS")}
-                className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
+                className="inline-flex h-7.5 items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer active:scale-98"
                 title="Download Excel XLS"
               >
-                <Download className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+                <Download className="h-3.5 w-3.5 stroke-[2.2]" />
+                <span>Download</span>
               </button>
-
-              {/* 3-Dots More Menu */}
-              <Popover open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className="toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 group"
-                    title="More Fleet Actions"
-                  >
-                    <MoreVertical className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent align="end" sideOffset={6} className="w-52 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none z-50">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBulkUpdateModalOpen(true);
-                      setMoreMenuOpen(false);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-muted text-foreground transition-colors cursor-pointer text-left"
-                  >
-                    <SlidersHorizontal className="h-4 w-4 text-slate-500" />
-                    <span>Bulk Object Update</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBulkMaintenanceModalOpen(true);
-                      setMoreMenuOpen(false);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-muted text-foreground transition-colors cursor-pointer text-left"
-                  >
-                    <Wrench className="h-4 w-4 text-slate-500" />
-                    <span>Bulk Maintenance</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBatchQrModalOpen(true);
-                      setMoreMenuOpen(false);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-muted text-foreground transition-colors cursor-pointer text-left"
-                  >
-                    <QrCode className="h-4 w-4 text-slate-500" />
-                    <span>Batch QR Codes</span>
-                  </button>
-
-                  <div className="my-1 border-t border-border/60" />
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBulkDeleteModalOpen(true);
-                      setMoreMenuOpen(false);
-                    }}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md hover:bg-destructive/10 text-destructive transition-colors cursor-pointer text-left"
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                    <span>Bulk Delete Objects</span>
-                  </button>
-                </PopoverContent>
-              </Popover>
             </div>
           </footer>
     </>
