@@ -218,7 +218,7 @@ export function ReportPage() {
   const [tabs, setTabs] = useState<ReportTab[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = localStorage.getItem("trakzee_report_tabs_v3");
+        const saved = localStorage.getItem("trakzee_report_tabs_v4");
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -229,13 +229,13 @@ export function ReportPage() {
   });
 
   const [activeTabId, setActiveTabId] = useState<string>(() => {
-    return DEFAULT_REPORT_TABS[0]?.id || "tab-temperature-1";
+    return DEFAULT_REPORT_TABS[0]?.id || "tab-travel-1";
   });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem("trakzee_report_tabs_v3", JSON.stringify(tabs));
+        localStorage.setItem("trakzee_report_tabs_v4", JSON.stringify(tabs));
       } catch {}
     }
   }, [tabs]);
