@@ -916,6 +916,60 @@ export function MultiSelectFilterPopover({
   );
 }
 
+export const DEFAULT_ALERT_COLUMNS: ColumnConfigItem[] = [
+  { id: "company", label: "Company", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 0 },
+  { id: "branch", label: "Branch", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 1 },
+  { id: "name", label: "Name", showable: true, printable: true, sortable: true, sortPriority: 1, sortDir: "asc", pinned: true, originalIndex: 2 },
+  { id: "severity", label: "Severity", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 3 },
+  { id: "vehicles", label: "Vehicles", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "desc", numeric: true, originalIndex: 4 },
+  { id: "alertType", label: "Alert Type", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 5 },
+  { id: "timezone", label: "Timezone", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 6 },
+  { id: "reason", label: "Reason", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 7 },
+  { id: "sms", label: "SMS", showable: true, printable: true, sortable: false, sortPriority: null, sortDir: "asc", originalIndex: 8 },
+  { id: "email", label: "Email", showable: true, printable: true, sortable: false, sortPriority: null, sortDir: "asc", originalIndex: 9 },
+  { id: "notif", label: "Notif", showable: true, printable: true, sortable: false, sortPriority: null, sortDir: "asc", originalIndex: 10 },
+  { id: "immo", label: "Immo", showable: true, printable: true, sortable: false, sortPriority: null, sortDir: "asc", originalIndex: 11 },
+  { id: "buzzer", label: "Buzzer", showable: true, printable: true, sortable: false, sortPriority: null, sortDir: "asc", originalIndex: 12 },
+  { id: "emailVerify", label: "Email Verify", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 13 },
+  { id: "createdDate", label: "Created Date", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 14 },
+];
+
+function IconButton({
+  label,
+  onClick,
+  disabled,
+  children,
+  className,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label={label}
+            onClick={onClick}
+            disabled={disabled}
+            className={cn(
+              "toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-800 disabled:cursor-not-allowed group",
+              className,
+            )}
+          >
+            {children}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
 const ALERT_SEARCH_FIELDS = [
   { id: "all", label: "All fields" },
   { id: "name", label: "Alert Name" },
@@ -937,6 +991,36 @@ export function AlertSettingPage() {
 
   // Right Side Filter Drawer State
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const [columnSettings, setColumnSettings] = useState<ReportColumnSettings>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("trakzee_alert_columns_v1");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.columns?.length) return parsed;
+        }
+      } catch {}
+    }
+    return {
+      columns: DEFAULT_ALERT_COLUMNS,
+      frozenColumnsCount: 1,
+      detailDownloadMode: "multiple",
+      detailScreenSetting: "summary",
+    };
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("trakzee_alert_columns_v1", JSON.stringify(columnSettings));
+    }
+  }, [columnSettings]);
+
+  const [columnModalOpen, setColumnModalOpen] = useState(false);
+
+  const visibleColumns = useMemo(() => {
+    return (columnSettings.columns || DEFAULT_ALERT_COLUMNS).filter((c) => c.showable);
+  }, [columnSettings.columns]);
+
   const [activeFilters, setActiveFilters] = useState<AlertFilterState>(DEFAULT_ALERT_FILTERS);
 
   // View Mode: "list" for Alert Table, "form" for In-Screen Add/Edit Alert
@@ -1367,6 +1451,13 @@ export function AlertSettingPage() {
                 <Plus className="h-3.5 w-3.5" />
                 <span>Alert</span>
               </button>
+
+              <IconButton
+                label="Column Settings"
+                onClick={() => setColumnModalOpen(true)}
+              >
+                <Settings className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+              </IconButton>
             </div>
           </div>
 
@@ -1623,6 +1714,26 @@ export function AlertSettingPage() {
         sourceAlert={copySourceAlert}
         allAlerts={alerts}
         onCopySuccess={handleCopySuccess}
+      />
+
+      {/* Column Settings Modal */}
+      <ColumnConfigModal
+        open={columnModalOpen}
+        onClose={() => setColumnModalOpen(false)}
+        settings={columnSettings}
+        onSave={(newSettings) => {
+          setColumnSettings(newSettings);
+          try {
+            localStorage.setItem("trakzee_alert_columns_v1", JSON.stringify(newSettings));
+          } catch {}
+          setColumnModalOpen(false);
+          toast.success("Column settings updated");
+        }}
+        hideDetailTab={true}
+        hidePreferenceTab={true}
+        hideTabs={true}
+        defaultColumns={DEFAULT_ALERT_COLUMNS}
+        title="Column Setting"
       />
 
       

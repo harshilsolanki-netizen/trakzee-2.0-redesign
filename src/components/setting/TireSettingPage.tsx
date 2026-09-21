@@ -1372,6 +1372,13 @@ export function TireSettingPage() {
                 <Plus className="h-3.5 w-3.5" />
                 <span>Tire</span>
               </button>
+
+              <IconButton
+                label="Column Settings"
+                onClick={() => setColumnModalOpen(true)}
+              >
+                <Settings className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
+              </IconButton>
             </div>
           </div>
 
@@ -1627,6 +1634,26 @@ export function TireSettingPage() {
         />
       )}
       </div>
+
+      {/* Column Settings Modal */}
+      <ColumnConfigModal
+        open={columnModalOpen}
+        onClose={() => setColumnModalOpen(false)}
+        settings={columnSettings}
+        onSave={(newSettings) => {
+          setColumnSettings(newSettings);
+          try {
+            localStorage.setItem("trakzee_tire_columns_v1", JSON.stringify(newSettings));
+          } catch {}
+          setColumnModalOpen(false);
+          toast.success("Column settings updated");
+        }}
+        hideDetailTab={true}
+        hidePreferenceTab={true}
+        hideTabs={true}
+        defaultColumns={DEFAULT_TIRE_COLUMNS}
+        title="Column Setting"
+      />
 
       
     </div>
