@@ -24,9 +24,9 @@ export type ReportTab = {
 
 export const DEFAULT_REPORT_TABS: ReportTab[] = [
   {
-    id: "tab-temperature-1",
+    id: "tab-travel-1",
     reportId: "today-activity",
-    title: "Temperature",
+    title: "Travel Summary",
     isFavorite: false,
   },
   {
@@ -42,7 +42,7 @@ export const DEFAULT_REPORT_TABS: ReportTab[] = [
     isFavorite: false,
   },
   {
-    id: "tab-temperature-2",
+    id: "tab-temperature-summary",
     reportId: "temperature-summary",
     title: "Temperature",
     isFavorite: false,
