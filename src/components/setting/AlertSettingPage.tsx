@@ -21,6 +21,7 @@ import {
   FileText,
   Info,
   Star,
+  Settings,
 } from "lucide-react";
 import {
   Dialog,

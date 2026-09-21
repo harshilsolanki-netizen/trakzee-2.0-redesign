@@ -36,6 +36,7 @@ import {
   AlertTriangle,
   RefreshCw,
   Star,
+  Settings,
 } from "lucide-react";
 import {
   Dialog,
