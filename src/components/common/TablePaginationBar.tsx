@@ -230,11 +230,10 @@ export function TablePaginationBar({
             type="button"
             onClick={onReset}
             disabled={disabled}
-            className="inline-flex h-7.5 items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer active:scale-98"
-            title="Reset all filters and view"
+            className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-full border border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer active:scale-95"
+            title={resetLabel || "Reset all filters and view"}
           >
             <RotateCcw className="h-3.5 w-3.5 stroke-[2.2]" />
-            <span>{resetLabel}</span>
           </button>
         )}
 
