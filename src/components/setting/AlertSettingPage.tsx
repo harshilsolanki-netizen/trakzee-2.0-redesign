@@ -44,6 +44,17 @@ import {
 import { SelectDropdown, type DropdownOption } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 import { useLayoutMode } from "@/lib/useLayoutMode";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  ColumnConfigModal,
+  type ColumnConfigItem,
+  type ReportColumnSettings,
+} from "@/components/report/ColumnConfigModal";
 
 export type AlertSeverity = "Low" | "Medium" | "High" | "Critical";
 
@@ -1372,51 +1383,21 @@ export function AlertSettingPage() {
                       <th className="py-2.5 px-3 text-center w-10 bg-white dark:bg-slate-900">
                         #
                       </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Company
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Branch
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Name
-                      </th>
-                      <th className="py-2.5 px-3 text-center bg-white dark:bg-slate-900">
-                        Severity
-                      </th>
-                      <th className="py-2.5 px-3 text-center bg-white dark:bg-slate-900">
-                        Vehicles
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Alert Type
-                      </th>
-                      <th className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Timezone
-                      </th>
-                      <th className="py-2.5 px-3 text-center bg-white dark:bg-slate-900">
-                        Reason
-                      </th>
-                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="SMS Trigger">
-                        SMS
-                      </th>
-                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="Email Trigger">
-                        Email
-                      </th>
-                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="App Push Notification">
-                        Notif
-                      </th>
-                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="Remote Engine Cut / Immobilizer">
-                        Immo
-                      </th>
-                      <th className="py-2.5 px-2 text-center w-10 bg-white dark:bg-slate-900" title="In-Cabin Buzzer">
-                        Buzzer
-                      </th>
-                      <th className="py-2.5 px-2.5 text-center bg-white dark:bg-slate-900" title="Email Verify Status">
-                        Email Verify
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Created Date
-                      </th>
+                      {visibleColumns.map((col) => {
+                        const isCenter = ["severity", "vehicles", "reason", "sms", "email", "notif", "immo", "buzzer", "emailVerify"].includes(col.id);
+                        return (
+                          <th
+                            key={col.id}
+                            className={cn(
+                              "py-2.5 px-3.5 bg-white dark:bg-slate-900",
+                              isCenter && "text-center",
+                              col.pinned && "bg-slate-50/80 dark:bg-slate-800/80",
+                            )}
+                          >
+                            {col.label}
+                          </th>
+                        );
+                      })}
                       <th className="py-2.5 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l">
                         Actions
                       </th>
@@ -1432,56 +1413,8 @@ export function AlertSettingPage() {
                         <td className="py-2 px-3 text-center text-muted-foreground font-mono text-[11px]">
                           {(currentPage - 1) * pageSize + idx + 1}
                         </td>
-                        <td className="py-2 px-3.5 text-slate-800 dark:text-slate-200">
-                          {row.company}
-                        </td>
-                        <td className="py-2 px-3.5 text-muted-foreground">
-                          {row.branch}
-                        </td>
-                        <td className="py-2 px-3.5 font-semibold text-foreground group-hover:text-[#0089FF] transition-colors">
-                          {row.name}
-                        </td>
-                        <td className="py-2 px-3 text-center">
-                          <SeverityBadge severity={row.severity} />
-                        </td>
-                        <td className="py-2 px-3 text-center">
-                          <span className="font-mono font-bold text-[#0089FF] bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 text-[11px]">
-                            {row.vehicleCount}
-                          </span>
-                        </td>
-                        <td className="py-2 px-3.5 text-slate-700 dark:text-slate-300 font-medium">
-                          {row.alertType}
-                        </td>
-                        <td className="py-2 px-3 text-muted-foreground font-mono text-[11px]">
-                          {row.timezone}
-                        </td>
-                        <td className="py-2 px-3 text-center text-muted-foreground font-mono text-[11px]">
-                          {row.reason || "--"}
-                        </td>
-                        <td className="py-2 px-2 text-center">
-                          <ChannelCheck active={row.sms} />
-                        </td>
-                        <td className="py-2 px-2 text-center">
-                          <ChannelCheck active={row.email} />
-                        </td>
-                        <td className="py-2 px-2 text-center">
-                          <ChannelCheck active={row.notification} />
-                        </td>
-                        <td className="py-2 px-2 text-center">
-                          <ChannelCheck active={row.immobilizer} />
-                        </td>
-                        <td className="py-2 px-2 text-center">
-                          <ChannelCheck active={row.buzzer} />
-                        </td>
-                        <td className="py-2 px-2.5 text-center">
-                          <span title="Email Verified" className="inline-flex items-center justify-center p-0.5 rounded text-slate-500 dark:text-slate-400">
-                            <FileText className="h-3.5 w-3.5" />
-                          </span>
-                        </td>
-                        <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
-                          {row.createdDate}
-                        </td>
-                        <td className="py-2 px-3 text-right" onClick={(e) => e.stopPropagation()}>
+                        {visibleColumns.map((col) => renderAlertCell(col.id, row))}
+                        <td className="py-2 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
                             <button
                               type="button"
@@ -1493,9 +1426,9 @@ export function AlertSettingPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => openCopyModal(row)}
-                              className="p-1 rounded text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
-                              title="Copy Alert Rule"
+                              onClick={() => handleCloneAlert(row)}
+                              className="p-1 rounded text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors cursor-pointer"
+                              title="Clone Alert"
                             >
                               <Copy className="h-3.5 w-3.5" />
                             </button>
@@ -1503,7 +1436,7 @@ export function AlertSettingPage() {
                               type="button"
                               onClick={() => handleDeleteAlert(row.id)}
                               className="p-1 rounded text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                              title="Delete"
+                              title="Delete Alert"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
@@ -1513,8 +1446,8 @@ export function AlertSettingPage() {
                     ))}
                     {pageRows.length === 0 && (
                       <tr>
-                        <td colSpan={17} className="py-14 text-center text-xs text-muted-foreground">
-                          No alert rules found matching your search.
+                        <td colSpan={visibleColumns.length + 2} className="py-14 text-center text-xs text-muted-foreground">
+                          No fleet alerts found matching your search.
                         </td>
                       </tr>
                     )}

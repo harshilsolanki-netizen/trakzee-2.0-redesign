@@ -60,6 +60,17 @@ import { SelectDropdown, type DropdownOption } from "@/components/ui/select-drop
 import { cn } from "@/lib/utils";
 import { useLayoutMode } from "@/lib/useLayoutMode";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  ColumnConfigModal,
+  type ColumnConfigItem,
+  type ReportColumnSettings,
+} from "@/components/report/ColumnConfigModal";
+import {
   FuelCalibrationModal,
   type FuelCalibrationData,
 } from "@/components/setting/FuelCalibrationModal";
@@ -1800,254 +1811,79 @@ export function ObjectSettingPage() {
         <div className="relative min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth pt-1 mx-5">
           <table className="w-full text-left text-xs border-collapse">
                 <thead className="sticky top-0 z-10 shadow-xs">
-                  <tr className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 select-none whitespace-nowrap h-[38px]">
-                    <th className="py-2.5 px-3 text-center w-10 bg-white dark:bg-slate-900">
-                      #
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      Company
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      Branch
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      Vehicle Name
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      Object Group
-                    </th>
-                    <th className="py-2.5 px-3.5 font-mono bg-white dark:bg-slate-900">
-                      IMEI Number
-                    </th>
-                    <th className="py-2.5 px-3.5 font-mono bg-white dark:bg-slate-900">
-                      SIM Number
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      GPS Device Type
-                    </th>
-                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
-                      Distance Counter
-                    </th>
-                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
-                      Speed Detection
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      Timezone
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      Created Date
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      Installation Date
-                    </th>
-                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
-                      Sensor
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      Expiry Date
-                    </th>
-                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
-                      Specification
-                    </th>
-                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
-                      Primary Vehicle
-                    </th>
-                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
-                      Documents
-                    </th>
-                    <th className="py-2.5 px-3.5 text-center bg-white dark:bg-slate-900">
-                      QR Code
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      GPS Tracker ID
-                    </th>
-                    <th className="py-2.5 px-3.5 bg-white dark:bg-slate-900">
-                      GPS Tracker Serial No
-                    </th>
-                    <th className="py-2.5 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 bg-white dark:bg-slate-900 font-medium whitespace-nowrap">
-                  {pageRows.map((row, idx) => (
-                    <tr
-                      key={row.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
-                      onClick={() => openEditForm(row)}
-                    >
-                      {/* Index */}
-                      <td className="py-2 px-3 text-center text-muted-foreground font-mono text-[11px]">
-                        {(currentPage - 1) * pageSize + idx + 1}
-                      </td>
-
-                      {/* Company */}
-                      <td className="py-2 px-3.5 text-slate-800 dark:text-slate-200">
-                        {row.company}
-                      </td>
-
-                      {/* Branch */}
-                      <td className="py-2 px-3.5 text-muted-foreground">
-                        {row.branch}
-                      </td>
-
-                      {/* Vehicle Name with Status Indicator */}
-                      <td className="py-2 px-3.5 font-semibold text-foreground group-hover:text-[#0089FF] transition-colors">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" title="Active Object" />
-                          <span className="truncate">{row.name}</span>
-                        </div>
-                      </td>
-
-                      {/* Object Group */}
-                      <td className="py-2 px-3.5 text-slate-700 dark:text-slate-300 font-medium">
-                        <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[11px]">
-                          {row.objectGroup}
-                        </span>
-                      </td>
-
-                      {/* IMEI Number */}
-                      <td className="py-2 px-3.5 font-mono text-foreground font-semibold">
-                        {row.imei}
-                      </td>
-
-                      {/* SIM Number */}
-                      <td className="py-2 px-3.5 font-mono text-muted-foreground">
-                        {row.simPrimary || "--"}
-                      </td>
-
-                      {/* GPS Device Type */}
-                      <td className="py-2 px-3.5 text-muted-foreground text-[11px] truncate max-w-[200px]" title={row.deviceType}>
-                        {row.deviceType}
-                      </td>
-
-                      {/* Distance Counter */}
-                      <td className="py-2 px-3.5 text-center font-semibold text-slate-700 dark:text-slate-300">
-                        {row.distanceCounter}
-                      </td>
-
-                      {/* Speed Detection */}
-                      <td className="py-2 px-3.5 text-center text-slate-600 dark:text-slate-400 text-[11px]">
-                        {row.speedDetection}
-                      </td>
-
-                      {/* Timezone */}
-                      <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
-                        {row.timezone}
-                      </td>
-
-                      {/* Created Date */}
-                      <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
-                        {row.createdDate}
-                      </td>
-
-                      {/* Installation Date */}
-                      <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
-                        {row.installationDate}
-                      </td>
-
-                      {/* Sensor Count */}
-                      <td className="py-2 px-3 text-center">
-                        <span className="font-mono font-bold text-[#0089FF] bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 text-[11px]">
-                          {row.sensorCount}
-                        </span>
-                      </td>
-
-                      {/* Expiry Date */}
-                      <td className="py-2 px-3.5 text-muted-foreground font-mono text-[11px]">
-                        {row.expiryDate}
-                      </td>
-
-                      {/* Specification */}
-                      <td className="py-2 px-3.5 text-center">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                          {row.specification}
-                        </span>
-                      </td>
-
-                      {/* Primary Vehicle Checkmark */}
-                      <td className="py-2 px-3 text-center">
-                        {row.isPrimary ? (
-                          <Check className="h-4 w-4 text-emerald-600 mx-auto stroke-[2.5]" />
-                        ) : (
-                          <span className="text-slate-300 dark:text-slate-700 font-bold mx-auto text-xs">✕</span>
-                        )}
-                      </td>
-
-                      {/* Documents */}
-                      <td className="py-2 px-3 text-center" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          type="button"
-                          onClick={() => openEditForm(row)}
-                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-[#0089FF] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
-                          title="View Attached Documents"
-                        >
-                          <FileText className="h-3.5 w-3.5 text-blue-500" />
-                          <span>{row.documentsCount}</span>
-                        </button>
-                      </td>
-
-                      {/* QR Code Action Button */}
-                      <td className="py-2 px-3 text-center" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          type="button"
-                          onClick={() => openQrModal(row)}
-                          className="p-1 rounded text-slate-600 dark:text-slate-300 hover:text-[#0089FF] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
-                          title="View Vehicle Pairing QR Code"
-                        >
-                          <QrCode className="h-4 w-4" />
-                        </button>
-                      </td>
-
-                      {/* GPS Tracker ID */}
-                      <td className="py-2 px-3.5 font-mono text-muted-foreground text-[11px]">
-                        {row.trackerId}
-                      </td>
-
-                      {/* GPS Tracker Serial No */}
-                      <td className="py-2 px-3.5 font-mono text-muted-foreground text-[11px]">
-                        {row.serialNo}
-                      </td>
-
-                      {/* Actions Column (Sticky Right) */}
-                      <td className="py-2 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            type="button"
-                            onClick={() => openEditForm(row)}
-                            className="p-1 rounded text-muted-foreground hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                            title="Edit Vehicle"
+                    <tr className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 select-none whitespace-nowrap h-[38px]">
+                      <th className="py-2.5 px-3 text-center w-10 bg-white dark:bg-slate-900">
+                        #
+                      </th>
+                      {visibleColumns.map((col) => {
+                        const isCenter = ["distanceCounter", "speedDetection", "sensor", "specification", "primaryVehicle", "documents", "qrCode"].includes(col.id);
+                        return (
+                          <th
+                            key={col.id}
+                            className={cn(
+                              "py-2.5 px-3.5 bg-white dark:bg-slate-900",
+                              isCenter && "text-center",
+                              col.pinned && "bg-slate-50/80 dark:bg-slate-800/80",
+                            )}
                           >
-                            <Edit2 className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => openCopyModal(row)}
-                            className="p-1 rounded text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
-                            title="Copy Vehicle Configuration"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteVehicle(row.id)}
-                            className="p-1 rounded text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                            title="Delete Vehicle"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </td>
+                            {col.label}
+                          </th>
+                        );
+                      })}
+                      <th className="py-2.5 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l">
+                        Actions
+                      </th>
                     </tr>
-                  ))}
-                  {pageRows.length === 0 && (
-                    <tr>
-                      <td colSpan={22} className="py-14 text-center text-xs text-muted-foreground">
-                        No vehicles or objects found matching your search.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
+                  </thead>
+                  <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 bg-white dark:bg-slate-900 font-medium whitespace-nowrap">
+                    {pageRows.map((row, idx) => (
+                      <tr
+                        key={row.id}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
+                        onClick={() => openEditForm(row)}
+                      >
+                        <td className="py-2 px-3 text-center text-muted-foreground font-mono text-[11px]">
+                          {(currentPage - 1) * pageSize + idx + 1}
+                        </td>
+                        {visibleColumns.map((col) => renderObjectCell(col.id, row))}
+                        <td className="py-2 px-3 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-l" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              type="button"
+                              onClick={() => openEditForm(row)}
+                              className="p-1 rounded text-muted-foreground hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Edit Object"
+                            >
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleCloneObject(row)}
+                              className="p-1 rounded text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors cursor-pointer"
+                              title="Clone Object"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteObject(row.id)}
+                              className="p-1 rounded text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                              title="Delete Object"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {pageRows.length === 0 && (
+                      <tr>
+                        <td colSpan={visibleColumns.length + 2} className="py-14 text-center text-xs text-muted-foreground">
+                          No fleet objects found matching your search.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
               </table>
         </div>
 

@@ -60,6 +60,17 @@ import {
 import { SelectDropdown, type DropdownOption } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 import { useLayoutMode } from "@/lib/useLayoutMode";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  ColumnConfigModal,
+  type ColumnConfigItem,
+  type ReportColumnSettings,
+} from "@/components/report/ColumnConfigModal";
 
 /* =========================================================================
    Tire Data Model & Realistic Mock Dataset
@@ -648,6 +659,185 @@ export function MultiSelectFilterPopover({
   );
 }
 
+export const DEFAULT_TIRE_COLUMNS: ColumnConfigItem[] = [
+  { id: "company", label: "Company", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 0 },
+  { id: "branch", label: "Branch", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 1 },
+  { id: "tireBrand", label: "Tire Brand", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 2 },
+  { id: "tireModel", label: "Tire Model", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 3 },
+  { id: "tireSerialNo", label: "Tire Serial No", showable: true, printable: true, sortable: true, sortPriority: 1, sortDir: "asc", pinned: true, originalIndex: 4 },
+  { id: "rfidTag", label: "RFID Tag", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 5 },
+  { id: "manufactureDate", label: "Manufacture Date", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 6 },
+  { id: "tireCondition", label: "Tire Condition", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 7 },
+  { id: "treadPattern", label: "Tread Pattern", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 8 },
+  { id: "size", label: "Size", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 9 },
+  { id: "tireStatus", label: "Tire Status", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 10 },
+  { id: "tireDepth", label: "Tire Depth", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "desc", numeric: true, originalIndex: 11 },
+  { id: "purchaseDate", label: "Purchase Date", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "asc", originalIndex: 12 },
+  { id: "price", label: "Price", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "desc", numeric: true, originalIndex: 13 },
+  { id: "tirePredictedDistance", label: "Predicted Distance", showable: true, printable: true, sortable: true, sortPriority: null, sortDir: "desc", numeric: true, originalIndex: 14 },
+];
+
+function IconButton({
+  label,
+  onClick,
+  disabled,
+  children,
+  className,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label={label}
+            onClick={onClick}
+            disabled={disabled}
+            className={cn(
+              "toolbar-icon-btn inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-800 disabled:cursor-not-allowed group",
+              className,
+            )}
+          >
+            {children}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function renderTireCell(colId: string, row: TireItem) {
+  let condBadge = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800";
+  if (row.tireCondition === "Good") {
+    condBadge = "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800";
+  } else if (row.tireCondition === "Retreaded" || row.tireCondition === "Repaired" || row.tireCondition === "Re-grooved") {
+    condBadge = "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800";
+  } else if (row.tireCondition === "Worn") {
+    condBadge = "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-800";
+  } else if (row.tireCondition === "Critical") {
+    condBadge = "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800";
+  }
+
+  let statusBadge = "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800";
+  if (row.tireStatus === "In Stock") {
+    statusBadge = "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800";
+  } else if (row.tireStatus === "In Retread") {
+    statusBadge = "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800";
+  } else if (row.tireStatus === "Scrapped") {
+    statusBadge = "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
+  }
+
+  switch (colId) {
+    case "company":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground font-semibold">
+          {row.company}
+        </td>
+      );
+    case "branch":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
+          {row.branch}
+        </td>
+      );
+    case "tireBrand":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-semibold text-foreground">
+          {row.tireBrand}
+        </td>
+      );
+    case "tireModel":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-muted-foreground font-normal">
+          {row.tireModel}
+        </td>
+      );
+    case "tireSerialNo":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-semibold text-[#0089FF] hover:underline cursor-pointer">
+          {row.tireSerialNo}
+        </td>
+      );
+    case "rfidTag":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.rfidTag}
+        </td>
+      );
+    case "manufactureDate":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.manufactureDate}
+        </td>
+      );
+    case "tireCondition":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
+          <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border", condBadge)}>
+            {row.tireCondition}
+          </span>
+        </td>
+      );
+    case "treadPattern":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
+          {row.treadPattern}
+        </td>
+      );
+    case "size":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-foreground font-medium">
+          {row.size}
+        </td>
+      );
+    case "tireStatus":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
+          <span className={cn("inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border", statusBadge)}>
+            {row.tireStatus}
+          </span>
+        </td>
+      );
+    case "tireDepth":
+      return (
+        <td key={colId} className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-right font-mono font-bold text-foreground">
+          {row.tireDepth.toFixed(1)} mm
+        </td>
+      );
+    case "purchaseDate":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.purchaseDate}
+        </td>
+      );
+    case "price":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-semibold text-foreground">
+          {row.price}
+        </td>
+      );
+    case "tirePredictedDistance":
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+          {row.tirePredictedDistance}
+        </td>
+      );
+    default:
+      return (
+        <td key={colId} className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
+          {String((row as any)[colId] ?? "—")}
+        </td>
+      );
+  }
+}
+
 const TIRE_SEARCH_FIELDS = [
   { id: "all", label: "All fields" },
   { id: "brand", label: "Tire Brand" },
@@ -690,6 +880,36 @@ export function TireSettingPage() {
   }, [tires]);
 
   // Filters & Search
+  const [columnSettings, setColumnSettings] = useState<ReportColumnSettings>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("trakzee_tire_columns_v1");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.columns?.length) return parsed;
+        }
+      } catch {}
+    }
+    return {
+      columns: DEFAULT_TIRE_COLUMNS,
+      frozenColumnsCount: 1,
+      detailDownloadMode: "multiple",
+      detailScreenSetting: "summary",
+    };
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("trakzee_tire_columns_v1", JSON.stringify(columnSettings));
+    }
+  }, [columnSettings]);
+
+  const [columnModalOpen, setColumnModalOpen] = useState(false);
+
+  const visibleColumns = useMemo(() => {
+    return (columnSettings.columns || DEFAULT_TIRE_COLUMNS).filter((c) => c.showable);
+  }, [columnSettings.columns]);
+
   const [activeFilters, setActiveFilters] = useState<TireFilterState>(DEFAULT_TIRE_FILTERS);
   const [searchField, setSearchField] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -1165,54 +1385,26 @@ export function TireSettingPage() {
               <table className="w-full text-left text-xs border-collapse">
                   <thead className="sticky top-0 z-10 shadow-xs">
                     <tr className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 select-none whitespace-nowrap h-[38px]">
-                      <th className="py-2.5 px-3 text-center w-10 bg-white dark:bg-slate-900">
+                      <th className="py-2.5 px-3 text-center w-10 bg-white dark:bg-slate-900 border-r border-[#DFE3EB] dark:border-slate-700">
                         #
                       </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Company
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Branch
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Tire Brand
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Tire Model
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Tire Serial No
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        RFID Tag
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Manufacture Date
-                      </th>
-                      <th className="py-2.5 px-3 text-center bg-white dark:bg-slate-900">
-                        Tire Condition
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Tread Pattern
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Size
-                      </th>
-                      <th className="py-2.5 px-3 text-center bg-white dark:bg-slate-900">
-                        Tire Status
-                      </th>
-                      <th className="py-2.5 px-3 text-right bg-white dark:bg-slate-900">
-                        Tire Depth
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Purchase Date
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Price
-                      </th>
-                      <th className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900">
-                        Predicted Distance
-                      </th>
+                      {visibleColumns.map((col) => {
+                        const isRightAligned = col.id === "tireDepth" || col.id === "price" || col.numeric;
+                        const isCenterAligned = col.id === "tireCondition" || col.id === "tireStatus";
+                        return (
+                          <th
+                            key={col.id}
+                            className={cn(
+                              "py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900",
+                              isRightAligned && "text-right",
+                              isCenterAligned && "text-center",
+                              col.pinned && "bg-slate-50/80 dark:bg-slate-800/80",
+                            )}
+                          >
+                            {col.label}
+                          </th>
+                        );
+                      })}
                       <th className="py-2.5 px-3 text-center w-24 sticky right-0 bg-white dark:bg-slate-900 shadow-l">
                         Actions
                       </th>
@@ -1221,130 +1413,16 @@ export function TireSettingPage() {
                   <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 text-slate-800 dark:text-slate-200 font-medium">
                     {pageRows.map((row, idx) => {
                       const rowNum = (currentPage - 1) * pageSize + idx + 1;
-
-                      // Condition Badge Color Styling
-                      let condBadge = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800";
-                      if (row.tireCondition === "Good") {
-                        condBadge = "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800";
-                      } else if (row.tireCondition === "Retreaded" || row.tireCondition === "Repaired" || row.tireCondition === "Re-grooved") {
-                        condBadge = "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800";
-                      } else if (row.tireCondition === "Worn") {
-                        condBadge = "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-800";
-                      } else if (row.tireCondition === "Critical") {
-                        condBadge = "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800";
-                      }
-
-                      // Status Badge Styling
-                      let statusBadge = "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800";
-                      if (row.tireStatus === "In Stock") {
-                        statusBadge = "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800";
-                      } else if (row.tireStatus === "In Retread") {
-                        statusBadge = "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800";
-                      } else if (row.tireStatus === "Scrapped") {
-                        statusBadge = "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
-                      }
-
                       return (
                         <tr
                           key={row.id}
                           className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
                         >
-                          {/* 1. # */}
                           <td className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center font-semibold text-muted-foreground">
                             {rowNum}
                           </td>
-
-                          {/* 2. Company */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground font-semibold">
-                            {row.company}
-                          </td>
-
-                          {/* 3. Branch */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
-                            {row.branch}
-                          </td>
-
-                          {/* 4. Tire Brand */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-semibold text-foreground">
-                            {row.tireBrand}
-                          </td>
-
-                          {/* 5. Tire Model */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-muted-foreground font-normal">
-                            {row.tireModel}
-                          </td>
-
-                          {/* 6. Tire Serial No */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-semibold text-[#0089FF] hover:underline cursor-pointer">
-                            {row.tireSerialNo}
-                          </td>
-
-                          {/* 7. RFID Tag */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
-                            {row.rfidTag}
-                          </td>
-
-                          {/* 8. Manufacture Date */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
-                            {row.manufactureDate}
-                          </td>
-
-                          {/* 9. Tire Condition */}
-                          <td className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
-                            <span
-                              className={cn(
-                                "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border",
-                                condBadge
-                              )}
-                            >
-                              {row.tireCondition}
-                            </span>
-                          </td>
-
-                          {/* 10. Tread Pattern */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap text-foreground">
-                            {row.treadPattern}
-                          </td>
-
-                          {/* 11. Size */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-foreground font-medium">
-                            {row.size}
-                          </td>
-
-                          {/* 12. Tire Status */}
-                          <td className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-center">
-                            <span
-                              className={cn(
-                                "inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border",
-                                statusBadge
-                              )}
-                            >
-                              {row.tireStatus}
-                            </span>
-                          </td>
-
-                          {/* 13. Tire Depth */}
-                          <td className="py-2.5 px-3 border-r border-[#DFE3EB] dark:border-slate-800 text-right font-mono font-bold text-foreground">
-                            {row.tireDepth.toFixed(1)} mm
-                          </td>
-
-                          {/* 14. Purchase Date */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
-                            {row.purchaseDate}
-                          </td>
-
-                          {/* 15. Price */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-semibold text-foreground">
-                            {row.price}
-                          </td>
-
-                          {/* 16. Predicted Distance */}
-                          <td className="py-2.5 px-3.5 border-r border-[#DFE3EB] dark:border-slate-800 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
-                            {row.tirePredictedDistance}
-                          </td>
-
-                          {/* 17. Actions */}
-                          <td className="py-2.5 px-3 text-center">
+                          {visibleColumns.map((col) => renderTireCell(col.id, row))}
+                          <td className="py-2.5 px-3 text-center sticky right-0 bg-white dark:bg-slate-900 shadow-l">
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 type="button"
@@ -1377,7 +1455,7 @@ export function TireSettingPage() {
                     })}
                     {pageRows.length === 0 && (
                       <tr>
-                        <td colSpan={17} className="py-14 text-center text-xs text-muted-foreground">
+                        <td colSpan={visibleColumns.length + 2} className="py-14 text-center text-xs text-muted-foreground">
                           No tire assets found matching your search.
                         </td>
                       </tr>

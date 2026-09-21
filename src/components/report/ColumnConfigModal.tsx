@@ -584,6 +584,11 @@ interface ColumnConfigModalProps {
   settings: ReportColumnSettings;
   onSave: (settings: ReportColumnSettings) => void;
   hideDetailTab?: boolean;
+  hidePreferenceTab?: boolean;
+  hideTabs?: boolean;
+  defaultColumns?: ColumnConfigItem[];
+  title?: string;
+  tabLabel?: string;
 }
 
 export function ColumnConfigModal({
@@ -592,6 +597,11 @@ export function ColumnConfigModal({
   settings,
   onSave,
   hideDetailTab = false,
+  hidePreferenceTab = false,
+  hideTabs = false,
+  defaultColumns,
+  title = "Column Setting",
+  tabLabel,
 }: ColumnConfigModalProps) {
   const [activeTab, setActiveTab] = useState<
     "summary" | "detail" | "preference"
@@ -599,7 +609,7 @@ export function ColumnConfigModal({
 
   const [summaryColumns, setSummaryColumns] = useState<ColumnConfigItem[]>(() =>
     normalizeColumnList(
-      settings.columns || DEFAULT_REPORT_COLUMNS,
+      settings.columns || defaultColumns || DEFAULT_REPORT_COLUMNS,
       settings.frozenColumnsCount ?? 2,
     ),
   );
@@ -632,7 +642,7 @@ export function ColumnConfigModal({
     if (open) {
       setSummaryColumns(
         normalizeColumnList(
-          settings.columns || DEFAULT_REPORT_COLUMNS,
+          settings.columns || defaultColumns || DEFAULT_REPORT_COLUMNS,
           settings.frozenColumnsCount ?? 2,
         ),
       );
@@ -652,7 +662,7 @@ export function ColumnConfigModal({
       setAnimatingId(null);
       prevRects.current.clear();
     }
-  }, [open, settings]);
+  }, [open, settings, defaultColumns]);
 
   const currentColumns =
     activeTab === "summary" ? summaryColumns : detailColumns;
@@ -842,7 +852,7 @@ export function ColumnConfigModal({
   const handleReset = () => {
     setSummaryColumns(
       normalizeColumnList(
-        settings.columns || DEFAULT_REPORT_COLUMNS,
+        settings.columns || defaultColumns || DEFAULT_REPORT_COLUMNS,
         settings.frozenColumnsCount ?? 2,
       ),
     );
@@ -860,10 +870,13 @@ export function ColumnConfigModal({
   };
 
   const handleRestoreDefault = () => {
+    const baseDefault = defaultColumns || DEFAULT_REPORT_COLUMNS;
     setSummaryColumns(
       normalizeColumnList(
-        DEFAULT_REPORT_COLUMNS,
-        DEFAULT_COLUMN_SETTINGS.frozenColumnsCount,
+        baseDefault,
+        defaultColumns
+          ? (baseDefault.filter((c) => c.pinned).length || 2)
+          : DEFAULT_COLUMN_SETTINGS.frozenColumnsCount,
       ),
     );
     setDetailColumns(
@@ -908,7 +921,7 @@ export function ColumnConfigModal({
       <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
         <button
           type="button"
-          aria-label="Close Column Setting"
+          aria-label={"Close " + title}
           onClick={onClose}
           className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
         />
@@ -916,12 +929,12 @@ export function ColumnConfigModal({
           {/* Header (56px) */}
           <header className="flex h-[56px] items-center justify-between border-b border-border px-6 bg-white dark:bg-slate-900 select-none shrink-0">
             <h2 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-              Column Setting
+              {title}
             </h2>
 
             <button
               type="button"
-              aria-label="Close Column Setting"
+              aria-label={"Close " + title}
               onClick={onClose}
               className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
@@ -930,68 +943,72 @@ export function ColumnConfigModal({
           </header>
 
           {/* Dedicated Tab Bar for Summary, Detail and Preference */}
-          <div className="border-b border-[#DFE3EB] dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70 px-6 flex items-center justify-between gap-4 text-xs select-none shrink-0 h-11">
-            <div className="flex items-center gap-6 h-full">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("summary");
-                  setSearchQuery("");
-                }}
-                className={cn(
-                  "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
-                  activeTab === "summary"
-                    ? "text-[#0089FF] font-bold"
-                    : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
-                )}
-              >
-                <span>Summary Report</span>
-                {activeTab === "summary" && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0089FF] rounded-t-full shadow-xs" />
-                )}
-              </button>
-
-              {!hideDetailTab && (
+          {(!hideTabs && !(hideDetailTab && hidePreferenceTab)) && (
+            <div className="border-b border-[#DFE3EB] dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70 px-6 flex items-center justify-between gap-4 text-xs select-none shrink-0 h-11">
+              <div className="flex items-center gap-6 h-full">
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTab("detail");
+                    setActiveTab("summary");
                     setSearchQuery("");
                   }}
                   className={cn(
                     "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
-                    activeTab === "detail"
+                    activeTab === "summary"
                       ? "text-[#0089FF] font-bold"
                       : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
                   )}
                 >
-                  <span>Detail Report</span>
-                  {activeTab === "detail" && (
+                  <span>{tabLabel || (hideDetailTab ? "Columns" : "Summary Report")}</span>
+                  {activeTab === "summary" && (
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0089FF] rounded-t-full shadow-xs" />
                   )}
                 </button>
-              )}
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("preference");
-                  setSearchQuery("");
-                }}
-                className={cn(
-                  "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
-                  activeTab === "preference"
-                    ? "text-[#0089FF] font-bold"
-                    : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
+                {!hideDetailTab && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("detail");
+                      setSearchQuery("");
+                    }}
+                    className={cn(
+                      "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
+                      activeTab === "detail"
+                        ? "text-[#0089FF] font-bold"
+                        : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
+                    )}
+                  >
+                    <span>Detail Report</span>
+                    {activeTab === "detail" && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0089FF] rounded-t-full shadow-xs" />
+                    )}
+                  </button>
                 )}
-              >
-                <span>Preference</span>
-                {activeTab === "preference" && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0089FF] rounded-t-full shadow-xs" />
+
+                {!hidePreferenceTab && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("preference");
+                      setSearchQuery("");
+                    }}
+                    className={cn(
+                      "relative h-full font-semibold transition-all cursor-pointer flex items-center gap-2 text-xs",
+                      activeTab === "preference"
+                        ? "text-[#0089FF] font-bold"
+                        : "text-slate-600 dark:text-slate-400 hover:text-[#0089FF]",
+                    )}
+                  >
+                    <span>Preference</span>
+                    {activeTab === "preference" && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0089FF] rounded-t-full shadow-xs" />
+                    )}
+                  </button>
                 )}
-              </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {activeTab === "preference" ? (
             <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 bg-white dark:bg-slate-900 select-none">
