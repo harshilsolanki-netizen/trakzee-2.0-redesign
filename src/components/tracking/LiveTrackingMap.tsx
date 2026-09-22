@@ -3,11 +3,15 @@ import {
   Calculator,
   ChevronLeft,
   ChevronRight,
+  CircleDot,
   Compass,
   Eye,
+  Gauge,
   GitCompare,
+  Grid2x2,
   Layers,
   Locate,
+  LocateFixed,
   Map,
   MapPin,
   MapPinPlus,
@@ -309,17 +313,12 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={onToggleTelemetryDrawer}
-                className={cn(
-                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
-                  isTelemetryDrawerOpen
-                    ? "bg-[#0089FF] text-white shadow-xs"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
-                )}
+                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center bg-[#0089FF] text-white shadow-xs hover:bg-[#0070d6] active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 {isTelemetryDrawerOpen ? (
-                  <ChevronRight className="h-4 w-4 stroke-[2.5]" />
+                  <ChevronRight className="h-[18px] w-[18px] stroke-[2.5]" />
                 ) : (
-                  <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
+                  <ChevronLeft className="h-[18px] w-[18px] stroke-[2.5]" />
                 )}
               </button>
             </TooltipTrigger>
@@ -328,7 +327,7 @@ export function LiveTrackingMap({
             </TooltipContent>
           </Tooltip>
 
-          <div className="w-full my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
+          <div className="w-5 my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
 
           {/* 1. Select Map */}
           <Tooltip>
@@ -339,13 +338,13 @@ export function LiveTrackingMap({
                   setMapStyle((s) => (s === "streets" ? "satellite" : s === "satellite" ? "dark" : "streets"))
                 }
                 className={cn(
-                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   mapStyle !== "streets"
-                    ? "bg-[#0089FF]/10 text-[#0089FF]"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Map className="h-4 w-4 stroke-[2.2]" />
+                <Layers className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Select Map ({mapStyle.toUpperCase()})</TooltipContent>
@@ -361,13 +360,13 @@ export function LiveTrackingMap({
                   toast.info(showClusters ? "Clusters hidden" : "Clusters visible");
                 }}
                 className={cn(
-                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   !showClusters
-                    ? "bg-[#0089FF]/10 text-[#0089FF]"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Boxes className="h-4 w-4 stroke-[2.2]" />
+                <CircleDot className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Remove Cluster</TooltipContent>
@@ -383,13 +382,13 @@ export function LiveTrackingMap({
                   toast.info(showObjectPath ? "Vehicle path hidden" : "Vehicle path visible");
                 }}
                 className={cn(
-                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   showObjectPath
-                    ? "bg-[#0089FF]/10 text-[#0089FF]"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Route className="h-4 w-4 stroke-[2.2]" />
+                <Route className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Object with path</TooltipContent>
@@ -405,13 +404,13 @@ export function LiveTrackingMap({
                   toast.info(showLabels ? "Labels hidden" : "Labels visible");
                 }}
                 className={cn(
-                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   showLabels
-                    ? "bg-[#0089FF]/10 text-[#0089FF]"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Tag className="h-4 w-4 stroke-[2.2]" />
+                <Tag className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Show label</TooltipContent>
@@ -423,9 +422,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={() => toast.success("Live tracking link copied to clipboard!")}
-                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <Share2 className="h-4 w-4 stroke-[2.2]" />
+                <Share2 className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Share Live location</TooltipContent>
@@ -437,9 +436,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={() => toast.info("Searching nearby assets & places...")}
-                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <Compass className="h-4 w-4 stroke-[2.2]" />
+                <Compass className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Find Near By</TooltipContent>
@@ -455,13 +454,13 @@ export function LiveTrackingMap({
                   toast.info(singleObjectMode ? "Exited Single Object Mode" : "Entered Single Object Mode");
                 }}
                 className={cn(
-                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   singleObjectMode
-                    ? "bg-[#0089FF]/10 text-[#0089FF]"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Target className="h-4 w-4 stroke-[2.2]" />
+                <Target className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Single Object Mode</TooltipContent>
@@ -477,13 +476,13 @@ export function LiveTrackingMap({
                   toast.info(areaMeasurementActive ? "Area measurement closed" : "Click map points to measure area");
                 }}
                 className={cn(
-                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   areaMeasurementActive
-                    ? "bg-[#0089FF]/10 text-[#0089FF]"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Ruler className="h-4 w-4 stroke-[2.2]" />
+                <Ruler className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Area Measurement</TooltipContent>
@@ -495,9 +494,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={() => toast.info("Click map location to add Geofence or Custom Address")}
-                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <MapPinPlus className="h-4 w-4 stroke-[2.2]" />
+                <MapPinPlus className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Add Address and Geofence</TooltipContent>
@@ -509,9 +508,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={() => toast.success("Map re-centered to selected vehicle")}
-                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <Locate className="h-4 w-4 stroke-[2.2]" />
+                <LocateFixed className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Re-center</TooltipContent>
@@ -523,9 +522,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={() => toast.info("Comparing historical vehicle paths...")}
-                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <GitCompare className="h-4 w-4 stroke-[2.2]" />
+                <GitCompare className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Compare path</TooltipContent>
@@ -541,19 +540,19 @@ export function LiveTrackingMap({
                   toast.info(taxiMeterActive ? "Taxi meter stopped" : "Taxi meter activated");
                 }}
                 className={cn(
-                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   taxiMeterActive
-                    ? "bg-[#0089FF]/10 text-[#0089FF]"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Calculator className="h-4 w-4 stroke-[2.2]" />
+                <Gauge className="h-[18px] w-[18px] stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Taxi meter</TooltipContent>
           </Tooltip>
 
-          <div className="w-full my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
+          <div className="w-5 my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
 
           {/* 13. Zoom in */}
           <Tooltip>
@@ -561,9 +560,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={handleZoomIn}
-                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <Plus className="h-4 w-4 stroke-[2.5]" />
+                <Plus className="h-[18px] w-[18px] stroke-[2.5]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Zoom in</TooltipContent>
@@ -575,9 +574,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={handleZoomOut}
-                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <Minus className="h-4 w-4 stroke-[2.5]" />
+                <Minus className="h-[18px] w-[18px] stroke-[2.5]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Zoom out</TooltipContent>
