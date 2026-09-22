@@ -1,18 +1,27 @@
 import {
+  Boxes,
+  Calculator,
   Compass,
   Eye,
+  GitCompare,
   Layers,
+  Locate,
+  Map,
   MapPin,
+  MapPinPlus,
   Maximize2,
   Minimize2,
+  Minus,
   Navigation,
   Play,
   Plus,
-  Minus,
-  RotateCcw,
-  Search,
+  Route,
+  Ruler,
+  Share2,
   SlidersHorizontal,
   Square,
+  Tag,
+  Target,
   TrafficCone,
   TrendingUp,
   Truck,
@@ -20,6 +29,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { type FleetObject, STATUS_META } from "@/data/fleet";
 import { cn } from "@/lib/utils";
 import {
@@ -45,9 +55,14 @@ export function LiveTrackingMap({
   className?: string;
 }) {
   const [mapStyle, setMapStyle] = useState<"streets" | "satellite" | "terrain" | "dark">("streets");
+  const [showClusters, setShowClusters] = useState(true);
+  const [showObjectPath, setShowObjectPath] = useState(true);
+  const [showLabels, setShowLabels] = useState(true);
+  const [singleObjectMode, setSingleObjectMode] = useState(false);
+  const [areaMeasurementActive, setAreaMeasurementActive] = useState(false);
+  const [taxiMeterActive, setTaxiMeterActive] = useState(false);
   const [showGeofences, setShowGeofences] = useState(true);
   const [showTraffic, setShowTraffic] = useState(false);
-  const [showPOIs, setShowPOIs] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(12);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -164,78 +179,83 @@ export function LiveTrackingMap({
         </g>
 
         {/* Active Vehicle Route Path (Tail Trace) */}
-        <path
-          d="M 500,450 L 540,390 L 580,350 L 580,340"
-          fill="none"
-          stroke="#0089FF"
-          strokeWidth="4"
-          strokeDasharray="6,4"
-          strokeLinecap="round"
-        />
-
+        {showObjectPath && (
+          <path
+            d="M 500,450 L 540,390 L 580,350 L 580,340"
+            fill="none"
+            stroke="#0089FF"
+            strokeWidth="4"
+            strokeDasharray="6,4"
+            strokeLinecap="round"
+          />
+        )}
       </svg>
 
       {/* 2. Exact 40px Fixed Diameter Map Clusters (Pixel Perfect on All Monitors & Resolutions) */}
-      {/* Cluster 1: India (4 vehicles) */}
-      <div
-        style={{ left: "35%", top: "33.8%" }}
-        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-      >
-        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray="33 71" />
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="52 52" strokeDashoffset="-33" />
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="21 83" strokeDashoffset="-85" />
-        </svg>
-        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">4</span>
-      </div>
+      {showClusters && (
+        <>
+          {/* Cluster 1: India (4 vehicles) */}
+          <div
+            style={{ left: "35%", top: "33.8%" }}
+            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+          >
+            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray="33 71" />
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="52 52" strokeDashoffset="-33" />
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="21 83" strokeDashoffset="-85" />
+            </svg>
+            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">4</span>
+          </div>
 
-      {/* Cluster 2: Mumbai / West (7 vehicles) */}
-      <div
-        style={{ left: "32%", top: "44.6%" }}
-        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-      >
-        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="62 42" />
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray="42 62" strokeDashoffset="-62" />
-        </svg>
-        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">7</span>
-      </div>
+          {/* Cluster 2: Mumbai / West (7 vehicles) */}
+          <div
+            style={{ left: "32%", top: "44.6%" }}
+            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+          >
+            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="62 42" />
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray="42 62" strokeDashoffset="-62" />
+            </svg>
+            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">7</span>
+          </div>
 
-      {/* Cluster 3: Thailand (3 vehicles - Highlighted in Red Box) */}
-      <div
-        style={{ left: "48%", top: "43.1%" }}
-        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-      >
-        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="73 31" />
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="31 73" strokeDashoffset="-73" />
-        </svg>
-        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">3</span>
-      </div>
+          {/* Cluster 3: Thailand (3 vehicles) */}
+          <div
+            style={{ left: "48%", top: "43.1%" }}
+            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+          >
+            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="73 31" />
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="31 73" strokeDashoffset="-73" />
+            </svg>
+            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">3</span>
+          </div>
 
-      {/* Cluster 4: South East (2 vehicles - Highlighted in Red Box) */}
-      <div
-        style={{ left: "53%", top: "45.4%" }}
-        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-      >
-        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="52 52" />
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#0089FF" strokeWidth="3" strokeDasharray="52 52" strokeDashoffset="-52" />
-        </svg>
-        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">2</span>
-      </div>
+          {/* Cluster 4: South East (2 vehicles) */}
+          <div
+            style={{ left: "53%", top: "45.4%" }}
+            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+          >
+            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="52 52" />
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#0089FF" strokeWidth="3" strokeDasharray="52 52" strokeDashoffset="-52" />
+            </svg>
+            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">2</span>
+          </div>
 
-      {/* Cluster 5: Indonesia Sulawesi (4 vehicles - Highlighted in Red Box) */}
-      <div
-        style={{ left: "76%", top: "80%" }}
-        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-      >
-        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="78 26" />
-          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="26 78" strokeDashoffset="-78" />
-        </svg>
-        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">4</span>
-      </div>
+          {/* Cluster 5: Indonesia Sulawesi (4 vehicles) */}
+          <div
+            style={{ left: "76%", top: "80%" }}
+            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+          >
+            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="78 26" />
+              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="26 78" strokeDashoffset="-78" />
+            </svg>
+            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">4</span>
+          </div>
+        </>
+      )}
 
       {/* 3. Selected Active Vehicle Marker Pin + Ultra Minimal Vehicle Label */}
       <div
@@ -251,15 +271,17 @@ export function LiveTrackingMap({
         </div>
 
         {/* Ultra Minimal Compact Floating Vehicle Label */}
-        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 h-5 rounded-full bg-white/95 dark:bg-slate-900/95 border border-[#DFE3EB] dark:border-slate-800 shadow-xs backdrop-blur-xs select-none">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-          <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap leading-none">
-            {selectedVehicle?.name || "Fuel - 1001"}
-          </span>
-        </div>
+        {showLabels && (
+          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 h-5 rounded-full bg-white/95 dark:bg-slate-900/95 border border-[#DFE3EB] dark:border-slate-800 shadow-xs backdrop-blur-xs select-none">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap leading-none">
+              {selectedVehicle?.name || "Fuel - 1001"}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* 2. Top Center Floating Playback Pill Button (Matching Screenshot 2) */}
+      {/* 2. Top Center Floating Playback Pill Button */}
       <div className="absolute top-3.5 left-1/2 -translate-x-1/2 z-20">
         <button
           type="button"
@@ -271,146 +293,286 @@ export function LiveTrackingMap({
         </button>
       </div>
 
-      {/* 3. Right Floating Map Controls Vertical Toolbar */}
+      {/* 3. Right Floating Map Controls Vertical Toolbar (14 GIS Tools in Exact Specified Order) */}
       <div
         className={cn(
-          "absolute top-3.5 z-20 flex flex-col items-center gap-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-[#DFE3EB] dark:border-slate-800 rounded-2xl p-1.5 shadow-xl transition-all duration-200 overflow-hidden select-none",
+          "absolute top-3.5 z-20 flex flex-col items-center gap-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-[#DFE3EB] dark:border-slate-800 rounded-2xl p-1.5 shadow-xl transition-all duration-200 overflow-y-auto max-h-[calc(100vh-80px)] select-none no-scrollbar",
           isTelemetryDrawerOpen ? "right-[374px]" : "right-3.5",
         )}
       >
-        {/* Toggle Telemetry Drawer */}
         <TooltipProvider delayDuration={150}>
+          {/* 1. Select Map */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() =>
+                  setMapStyle((s) => (s === "streets" ? "satellite" : s === "satellite" ? "dark" : "streets"))
+                }
+                className={cn(
+                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  mapStyle !== "streets"
+                    ? "bg-[#0089FF]/10 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <Map className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Select Map ({mapStyle.toUpperCase()})</TooltipContent>
+          </Tooltip>
+
+          {/* 2. Remove Cluster */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowClusters((prev) => !prev);
+                  toast.info(showClusters ? "Clusters hidden" : "Clusters visible");
+                }}
+                className={cn(
+                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  !showClusters
+                    ? "bg-[#0089FF]/10 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <Boxes className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Remove Cluster</TooltipContent>
+          </Tooltip>
+
+          {/* 3. Object with path */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowObjectPath((prev) => !prev);
+                  toast.info(showObjectPath ? "Vehicle path hidden" : "Vehicle path visible");
+                }}
+                className={cn(
+                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  showObjectPath
+                    ? "bg-[#0089FF]/10 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <Route className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Object with path</TooltipContent>
+          </Tooltip>
+
+          {/* 4. Show label */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLabels((prev) => !prev);
+                  toast.info(showLabels ? "Labels hidden" : "Labels visible");
+                }}
+                className={cn(
+                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  showLabels
+                    ? "bg-[#0089FF]/10 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <Tag className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Show label</TooltipContent>
+          </Tooltip>
+
+          {/* 5. Share Live location */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => toast.success("Live tracking link copied to clipboard!")}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <Share2 className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Share Live location</TooltipContent>
+          </Tooltip>
+
+          {/* 6. Find Near By */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => toast.info("Searching nearby assets & places...")}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <Compass className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Find Near By</TooltipContent>
+          </Tooltip>
+
+          {/* 7. Single Object Mode */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => {
+                  setSingleObjectMode((prev) => !prev);
+                  toast.info(singleObjectMode ? "Exited Single Object Mode" : "Entered Single Object Mode");
+                }}
+                className={cn(
+                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  singleObjectMode
+                    ? "bg-[#0089FF]/10 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <Target className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Single Object Mode</TooltipContent>
+          </Tooltip>
+
+          {/* 8. Area Measurement */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => {
+                  setAreaMeasurementActive((prev) => !prev);
+                  toast.info(areaMeasurementActive ? "Area measurement closed" : "Click map points to measure area");
+                }}
+                className={cn(
+                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  areaMeasurementActive
+                    ? "bg-[#0089FF]/10 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <Ruler className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Area Measurement</TooltipContent>
+          </Tooltip>
+
+          {/* 9. Add Address and Geofence */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => toast.info("Click map location to add Geofence or Custom Address")}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <MapPinPlus className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Add Address and Geofence</TooltipContent>
+          </Tooltip>
+
+          {/* 10. Re-center */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => toast.success("Map re-centered to selected vehicle")}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <Locate className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Re-center</TooltipContent>
+          </Tooltip>
+
+          {/* 11. Compare path */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => toast.info("Comparing historical vehicle paths...")}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <GitCompare className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Compare path</TooltipContent>
+          </Tooltip>
+
+          {/* 12. Taxi meter */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => {
+                  setTaxiMeterActive((prev) => !prev);
+                  toast.info(taxiMeterActive ? "Taxi meter stopped" : "Taxi meter activated");
+                }}
+                className={cn(
+                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  taxiMeterActive
+                    ? "bg-[#0089FF]/10 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <Calculator className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Taxi meter</TooltipContent>
+          </Tooltip>
+
+          <div className="w-full my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
+
+          {/* 13. Zoom in */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={handleZoomIn}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <Plus className="h-4 w-4 stroke-[2.5]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Zoom in</TooltipContent>
+          </Tooltip>
+
+          {/* 14. Zoom out */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={handleZoomOut}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <Minus className="h-4 w-4 stroke-[2.5]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Zoom out</TooltipContent>
+          </Tooltip>
+
+          <div className="w-full my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
+
+          {/* Additional Telemetry Drawer Toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
                 onClick={onToggleTelemetryDrawer}
                 className={cn(
-                  "p-2 rounded-md transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
                   isTelemetryDrawerOpen
-                    ? "bg-slate-100 dark:bg-slate-800 text-[#0089FF]"
+                    ? "bg-[#0089FF] text-white shadow-xs"
                     : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
                 )}
               >
                 <SlidersHorizontal className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="left">Vehicle Telemetry Drawer</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Map Layers (Streets / Satellite) */}
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() =>
-                  setMapStyle((s) => (s === "streets" ? "satellite" : "streets"))
-                }
-                className={cn(
-                  "p-2 rounded-md transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
-                  mapStyle === "satellite"
-                    ? "bg-slate-100 dark:bg-slate-800 text-[#0089FF]"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
-                )}
-              >
-                <Layers className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Map Layers</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Geofences Toggle */}
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => setShowGeofences((g) => !g)}
-                className={cn(
-                  "p-2 rounded-md transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
-                  showGeofences
-                    ? "bg-slate-100 dark:bg-slate-800 text-[#0089FF]"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
-                )}
-              >
-                <Square className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Toggle Geofences</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Traffic Toggle */}
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => setShowTraffic((t) => !t)}
-                className={cn(
-                  "p-2 rounded-md transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
-                  showTraffic
-                    ? "bg-slate-100 dark:bg-slate-800 text-amber-500"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
-                )}
-              >
-                <TrafficCone className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Toggle Live Traffic</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <div className="w-full my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
-
-        {/* Zoom In */}
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={handleZoomIn}
-                className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
-              >
-                <Plus className="h-4 w-4 stroke-[2.5]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Zoom In</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Zoom Out */}
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={handleZoomOut}
-                className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
-              >
-                <Minus className="h-4 w-4 stroke-[2.5]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Zoom Out</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Fullscreen */}
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
-              >
-                <Maximize2 className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Toggle Fullscreen</TooltipContent>
+            <TooltipContent side="left">Telemetry Drawer</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
