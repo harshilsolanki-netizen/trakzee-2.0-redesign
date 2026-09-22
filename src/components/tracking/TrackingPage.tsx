@@ -84,18 +84,11 @@ export function TrackingPage() {
     });
   };
 
-  const defaultCalculatedWidth = useMemo(() => {
-    const count = selectedColumns.length;
-    if (count <= 4) return 390;
-    if (count <= 6) return 440;
-    if (count <= 8) return 490;
-    return 540;
-  }, [selectedColumns.length]);
-
+  const DEFAULT_PANEL_WIDTH = 630;
   const [customWidth, setCustomWidth] = useState<number | null>(null);
   const [isResizing, setIsResizing] = useState(false);
 
-  const panelWidth = customWidth ?? defaultCalculatedWidth;
+  const panelWidth = customWidth ?? DEFAULT_PANEL_WIDTH;
 
   // Global mousemove and mouseup listeners when cursor drag resizing
   useEffect(() => {
@@ -103,7 +96,7 @@ export function TrackingPage() {
 
     const handleMouseMove = (e: MouseEvent) => {
       // 12px is the left padding from screen edge
-      const newWidth = Math.max(340, Math.min(950, e.clientX - 12));
+      const newWidth = Math.max(380, Math.min(1100, e.clientX - 12));
       setCustomWidth(newWidth);
     };
 
@@ -172,7 +165,12 @@ export function TrackingPage() {
             onStartResize={() => setIsResizing(true)}
             onResetWidth={() => setCustomWidth(null)}
             style={{ width: `${panelWidth}px` }}
-            className="relative h-full shadow-2xl pointer-events-auto border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl animate-in slide-in-from-left-4 duration-200"
+            className={cn(
+              "relative h-full shadow-2xl pointer-events-auto border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl animate-in slide-in-from-left-4 duration-200",
+              isResizing
+                ? "transition-none select-none cursor-col-resize"
+                : "transition-[width,max-width,transform] duration-300 ease-in-out",
+            )}
           />
         </div>
       ) : (

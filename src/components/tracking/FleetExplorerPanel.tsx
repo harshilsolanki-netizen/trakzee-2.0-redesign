@@ -423,10 +423,10 @@ export function FleetExplorerPanel({
           onDoubleClick={() => {
             if (onResetWidth) onResetWidth();
           }}
-          title="Drag cursor left or right to resize object panel (Double-click to reset width)"
-          className="absolute top-0 bottom-0 -right-2 w-3.5 z-40 flex items-center justify-center cursor-col-resize group select-none pointer-events-auto"
+          title="Drag to resize panel (Double-click to reset to 630px default width)"
+          className="absolute top-0 bottom-0 -right-2.5 w-5 z-40 flex items-center justify-center cursor-col-resize group select-none pointer-events-auto"
         >
-          <div className="h-12 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-[#0089FF] group-active:bg-[#0089FF] transition-colors shadow-xs flex flex-col items-center justify-center gap-0.5">
+          <div className="h-16 w-1 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-[#0089FF] group-active:bg-[#0089FF] group-hover:w-1.5 transition-all shadow-xs flex flex-col items-center justify-center gap-1">
             <div className="w-0.5 h-0.5 rounded-full bg-white dark:bg-slate-900" />
             <div className="w-0.5 h-0.5 rounded-full bg-white dark:bg-slate-900" />
             <div className="w-0.5 h-0.5 rounded-full bg-white dark:bg-slate-900" />
@@ -1030,7 +1030,7 @@ export function FleetExplorerPanel({
       {/* Structured Table Column Header Bar */}
       {activeTab === "object" && (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100/90 dark:bg-slate-800/70 border-b border-[#DFE3EB] dark:border-slate-800 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 select-none shrink-0 overflow-x-hidden">
-          <div className="w-[170px] shrink-0 truncate flex items-center gap-1 pl-1">
+          <div className="w-[210px] shrink-0 truncate flex items-center gap-1 pl-1">
             <button
               type="button"
               onClick={toggleCollapseAll}
@@ -1042,27 +1042,27 @@ export function FleetExplorerPanel({
             <span>Object / Name</span>
           </div>
           {selectedColumns.includes("speed") && (
-            <div className="w-[45px] shrink-0 text-right">Speed</div>
+            <div className="w-[50px] shrink-0 text-right">Speed</div>
           )}
           {(selectedColumns.includes("ignition") || selectedColumns.includes("gps")) && (
-            <div className="w-[40px] shrink-0 text-center">Status</div>
+            <div className="w-[48px] shrink-0 text-center">Status</div>
           )}
           {(selectedColumns.includes("driver") || selectedColumns.includes("driver_mobile")) && (
             <div
               className={cn(
                 "shrink-0 truncate",
                 selectedColumns.includes("driver") && selectedColumns.includes("driver_mobile")
-                  ? "w-[125px]"
-                  : "w-[95px]"
+                  ? "w-[140px]"
+                  : "w-[125px]"
               )}
             >
               Driver Info
             </div>
           )}
           {selectedColumns.includes("address") && (
-            <div className="flex-1 min-w-[110px] truncate">Location / Address</div>
+            <div className="flex-1 min-w-[140px] truncate">Location / Address</div>
           )}
-          <div className="w-[65px] shrink-0 text-right pr-1">Actions</div>
+          <div className="w-[75px] shrink-0 text-right pr-1">Actions</div>
         </div>
       )}
 
@@ -1142,7 +1142,7 @@ export function FleetExplorerPanel({
                               )}
                             >
                               {/* Col 1: Checkbox + Sleek Status Dot + Name & Timestamp */}
-                              <div className="flex items-center gap-1.5 shrink-0 w-[170px] pl-4">
+                              <div className="flex items-center gap-1.5 shrink-0 w-[210px] pl-4">
                                 <input
                                   type="checkbox"
                                   checked={isChecked}
@@ -1153,7 +1153,7 @@ export function FleetExplorerPanel({
                                   className="h-[12px] w-[12px] rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
                                 />
 
-                                {/* Sleek Status Dot Indicator (Replaced Bulky Square Box) */}
+                                {/* Sleek Status Dot Indicator */}
                                 <span
                                   title={`Status: ${v.status.toUpperCase()}`}
                                   className={cn(
@@ -1190,7 +1190,7 @@ export function FleetExplorerPanel({
 
                               {/* Col 2: Speed */}
                               {selectedColumns.includes("speed") && (
-                                <div className="shrink-0 w-[45px] text-right font-mono font-bold text-xs text-slate-700 dark:text-slate-300 tabular-nums">
+                                <div className="shrink-0 w-[50px] text-right font-mono font-bold text-xs text-slate-700 dark:text-slate-300 tabular-nums">
                                   <span className={v.speed > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}>
                                     {v.speed}
                                   </span>
@@ -1199,7 +1199,7 @@ export function FleetExplorerPanel({
 
                               {/* Col 3: Ignition & GPS Status Icons */}
                               {(selectedColumns.includes("ignition") || selectedColumns.includes("gps")) && (
-                                <div className="flex items-center gap-1.5 shrink-0 w-[40px] justify-center">
+                                <div className="flex items-center gap-1.5 shrink-0 w-[48px] justify-center">
                                   {selectedColumns.includes("ignition") && (
                                     <span title={"Ignition: " + (v.ignition !== false ? "ON" : "OFF")}>
                                       <Key
@@ -1226,8 +1226,8 @@ export function FleetExplorerPanel({
                                   className={cn(
                                     "shrink-0 truncate text-xs flex flex-col justify-center",
                                     selectedColumns.includes("driver") && selectedColumns.includes("driver_mobile")
-                                      ? "w-[125px]"
-                                      : "w-[95px]"
+                                      ? "w-[140px]"
+                                      : "w-[125px]"
                                   )}
                                   title={`${v.driver || "No Driver"}${v.driverPhone ? ` (${v.driverPhone})` : ""}`}
                                 >
@@ -1259,7 +1259,7 @@ export function FleetExplorerPanel({
                               {/* Col 5: Address / Location Column (2 Lines Layout) */}
                               {selectedColumns.includes("address") && (
                                 <div
-                                  className="flex-1 min-w-[110px] line-clamp-2 break-words leading-tight text-[10.5px] text-slate-600 dark:text-slate-400"
+                                  className="flex-1 min-w-[140px] line-clamp-2 break-words leading-tight text-[10.5px] text-slate-600 dark:text-slate-400"
                                   title={v.address || v.branch}
                                 >
                                   {v.address || `At ${v.branch} Location`}
@@ -1267,7 +1267,7 @@ export function FleetExplorerPanel({
                               )}
 
                               {/* Col 6: Action Ports */}
-                              <div className="flex items-center gap-1.5 shrink-0 w-[65px] justify-end pr-1">
+                              <div className="flex items-center gap-1.5 shrink-0 w-[75px] justify-end pr-1">
                                 {selectedColumns.includes("live_streaming") && (
                                   <button
                                     type="button"
