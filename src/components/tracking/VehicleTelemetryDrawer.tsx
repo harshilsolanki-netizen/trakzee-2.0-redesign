@@ -6,20 +6,26 @@ import {
   ChevronRight,
   Clock,
   Compass,
+  Download,
   FileText,
   Flame,
   Gauge,
   HelpCircle,
   Info,
+  Layers,
+  Lock,
   Maximize2,
   Phone,
+  Play,
   Radio,
   RefreshCw,
+  RotateCcw,
   Share2,
   SlidersHorizontal,
   Thermometer,
   Truck,
   User,
+  Wifi,
   Wrench,
   X,
   Zap,
@@ -27,38 +33,53 @@ import {
 import { useState } from "react";
 import { STATUS_META, type FleetObject } from "@/data/fleet";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function VehicleTelemetryDrawer({
   vehicle,
   onClose,
   onSelectVehicle,
   allVehicles,
+  onOpenPlayback,
   className,
 }: {
   vehicle: FleetObject;
   onClose: () => void;
   onSelectVehicle: (id: string) => void;
   allVehicles: FleetObject[];
+  onOpenPlayback?: () => void;
   className?: string;
 }) {
-  const [activeTab, setActiveTab] = useState<
-    "fuel" | "sensors" | "info" | "alerts"
-  >("fuel");
-  const [objectInfoOpen, setObjectInfoOpen] = useState(true);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    activity: true,
+    fuel: true,
+    consumption: true,
+    sensors: true,
+    alerts: false,
+  });
 
-  // Fuel percentage
-  const fuelVal = vehicle.fuel ?? 46;
-  const tankCap = vehicle.tankCapacity ?? 300;
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // Fuel calculation & gauge rotation
+  const fuelVal = vehicle.fuel ?? 6;
+  const tankCap = vehicle.tankCapacity ?? 120;
   const fuelPercent = Math.min(
     100,
     Math.max(0, Math.round((fuelVal / tankCap) * 100)),
   );
-
-  // Gauge needle rotation angle (-90deg at 0% to +90deg at 100%)
+  // Dial gauge angle (-90deg for 0% to +90deg for 100%)
   const needleAngle = -90 + (fuelPercent / 100) * 180;
 
-  // Format mechanical odometer digits (e.g. 0066460)
-  const odoDigits = String(vehicle.odometer ?? 66460)
+  // Format mechanical odometer digits (e.g. 0 0 7 4 8 3 4)
+  const odoDigits = String(vehicle.odometer ?? 74834)
     .padStart(7, "0")
     .split("");
 
@@ -77,119 +98,110 @@ export function VehicleTelemetryDrawer({
     }
   };
 
+  const handleShare = () => {
+    toast.success("Live tracking share link copied to clipboard!");
+  };
+
   return (
     <div
       className={cn(
-        "flex flex-col bg-card/95 backdrop-blur-md border border-border rounded-xl shadow-2xl overflow-hidden transition-all duration-200 w-full sm:w-[360px] text-xs",
+        "flex flex-col bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden transition-all duration-200 w-full sm:w-[350px] text-xs select-none",
         className,
       )}
     >
-      {/* 1. Header Toolbar with Title, Switcher & Action Icons */}
-      <div className="flex h-[56px] items-center justify-between border-b border-border bg-surface-muted/60 px-3 select-none">
-        {/* Title & Dropdown */}
+      {/* 1. Modern Header */}
+      <div className="flex h-11 items-center justify-between border-b border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 px-3 select-none">
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          <span className="font-semibold text-[16px] text-foreground truncate">
-            Fuel -{" "}
-            {vehicle.name.replace(
-              /^(Fuel - |BUS - |RPM - |SOC - |Temperature - )/,
-              "",
-            )}
+          <span className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">
+            {vehicle.name}
           </span>
         </div>
 
-        {/* Quick Utility Icon Actions */}
-        <div className="flex items-center gap-1 shrink-0 text-muted-foreground">
+        {/* Header Action Buttons */}
+        <div className="flex items-center gap-0.5 shrink-0 text-slate-600 dark:text-slate-400">
           <button
             type="button"
             title="Previous Vehicle"
             onClick={handlePrev}
             disabled={currentIndex <= 0}
-            className="p-1.5 rounded-md hover:bg-muted hover:text-foreground disabled:opacity-30 cursor-pointer"
+            className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white disabled:opacity-30 cursor-pointer"
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <ChevronLeft className="h-3.5 w-3.5 stroke-[2.2]" />
           </button>
           <button
             type="button"
             title="Next Vehicle"
             onClick={handleNext}
             disabled={currentIndex >= allVehicles.length - 1}
-            className="p-1.5 rounded-md hover:bg-muted hover:text-foreground disabled:opacity-30 cursor-pointer"
+            className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white disabled:opacity-30 cursor-pointer"
           >
-            <ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="h-3.5 w-3.5 stroke-[2.2]" />
           </button>
           <button
             type="button"
-            title="Share live vehicle tracking link"
-            className="p-1.5 rounded-md hover:bg-muted hover:text-foreground cursor-pointer"
-          >
-            <Share2 className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            title="Close panel"
+            title="Close Panel"
             onClick={onClose}
-            className="p-1.5 rounded-md hover:bg-muted hover:text-foreground cursor-pointer ml-0.5"
+            className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white cursor-pointer ml-0.5"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4 stroke-[2.2]" />
           </button>
         </div>
       </div>
 
-      {/* Scrollable Content Container */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3 max-h-[calc(100vh-220px)]">
-        {/* 2. 3D Truck Vehicle Showcase Card */}
-        <div className="rounded-md border border-border bg-surface-muted/30 p-3 space-y-2.5">
-          {/* Truck Image & Status Badge */}
+      {/* 2. Scrollable Telemetry Cards Container */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3 max-h-[calc(100vh-210px)]">
+        {/* Top Vehicle Showcase Card */}
+        <div className="rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 p-3 space-y-2.5">
+          {/* Vehicle Image & Live Status Pill */}
           <div className="flex items-center justify-between">
-            {/* 3D Truck illustration */}
-            <div className="relative flex items-center justify-center h-20 w-36 bg-gradient-to-tr from-muted/50 to-transparent rounded-lg p-1 overflow-hidden">
+            {/* Vehicle render image */}
+            <div className="relative flex items-center justify-center h-16 w-32 bg-white dark:bg-slate-900 rounded-md p-1 border border-[#DFE3EB] dark:border-slate-800 overflow-hidden shadow-2xs">
               <img
-                src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=400&q=80"
-                alt="Commercial Fleet Vehicle"
-                className="h-full w-full object-contain filter drop-shadow-md transform -scale-x-100"
+                src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=400&q=80"
+                alt="Vehicle Preview"
+                className="h-full w-full object-contain filter drop-shadow-sm"
               />
             </div>
 
-            {/* Status Pill & Trip Stats */}
+            {/* Status Badge & Trip Data */}
             <div className="text-right space-y-1">
               <span
-                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-bold text-[10px] uppercase shadow-2xs"
-                style={{
-                  background: STATUS_META[vehicle.status].tint,
-                  color: STATUS_META[vehicle.status].color,
-                }}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-bold text-[10px] uppercase shadow-2xs",
+                  vehicle.status === "running"
+                    ? "bg-emerald-500 text-white"
+                    : vehicle.status === "idle"
+                      ? "bg-amber-500 text-white"
+                      : "bg-rose-500 text-white",
+                )}
               >
-                <span
-                  className="h-1.5 w-1.5 rounded-full animate-pulse"
-                  style={{ background: STATUS_META[vehicle.status].color }}
-                />
-                {STATUS_META[vehicle.status].label}{" "}
-                {vehicle.duration ?? "11h:15"}
+                <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                {STATUS_META[vehicle.status].label} {vehicle.duration || "116:20"}
               </span>
 
               <div>
-                <span className="text-[10px] text-muted-foreground block">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">
                   Current Trip
                 </span>
-                <span className="text-xs font-bold text-foreground tabular-nums">
-                  {vehicle.currentTrip ?? "288.44"} km
+                <span className="text-xs font-extrabold text-slate-900 dark:text-slate-100 tabular-nums">
+                  {vehicle.currentTrip ?? "331.40"} km
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Mechanical Odometer & Work Hour Box */}
-          <div className="flex items-center justify-between border-t border-border/60 pt-2 text-[11px]">
+          {/* Odometer & Work Hour Box */}
+          <div className="flex items-center justify-between border-t border-[#DFE3EB] dark:border-slate-800 pt-2 text-[11px]">
             <div>
-              <span className="text-[10px] text-muted-foreground block mb-0.5">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mb-0.5 font-medium">
                 Odometer
               </span>
-              {/* Odometer counter display */}
-              <div className="flex gap-0.5 bg-black/90 dark:bg-black p-0.5 rounded border border-slate-700 shadow-inner">
+              {/* 7-digit mechanical odometer box */}
+              <div className="flex gap-0.5 bg-slate-900 dark:bg-black p-0.5 rounded border border-slate-700 shadow-inner">
                 {odoDigits.map((digit, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center justify-center h-4 w-3 bg-zinc-900 text-white font-mono text-[10px] font-bold rounded-xs border-r border-zinc-800 last:border-0"
+                    className="inline-flex items-center justify-center h-4 w-3 bg-zinc-800 text-white font-mono text-[10px] font-bold rounded-xs border-r border-zinc-700 last:border-0"
                   >
                     {digit}
                   </span>
@@ -198,321 +210,341 @@ export function VehicleTelemetryDrawer({
             </div>
 
             <div className="text-right">
-              <span className="text-[10px] text-muted-foreground block">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">
                 Work Hour
               </span>
-              <span className="font-mono font-bold text-foreground tabular-nums text-xs">
-                2578 hrs
+              <span className="font-mono font-extrabold text-slate-900 dark:text-slate-100 tabular-nums text-xs">
+                {vehicle.workHour || "2014 hrs"}
               </span>
             </div>
           </div>
 
           {/* Driver Information */}
-          <div className="flex items-center justify-between border-t border-border/60 pt-2 text-[11px] text-muted-foreground">
+          <div className="flex items-center justify-between border-t border-[#DFE3EB] dark:border-slate-800 pt-2 text-[11px] text-slate-600 dark:text-slate-400">
             <div className="flex items-center gap-1.5 truncate">
-              <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <User className="h-3.5 w-3.5 text-slate-400 shrink-0" />
               <span className="truncate">
                 Driver:{" "}
-                <strong className="text-foreground font-medium">
-                  {vehicle.driver || "--"}
+                <strong className="text-slate-900 dark:text-slate-100 font-semibold">
+                  {vehicle.driver || "Shivam Patel"}
                 </strong>
               </span>
             </div>
-            <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold cursor-pointer hover:underline">
+            <button
+              type="button"
+              onClick={() => toast.info("Driver phone: " + (vehicle.driverPhone || "+91 98765 43210"))}
+              className="text-[10px] text-[#0089FF] font-semibold hover:underline cursor-pointer"
+            >
               More Details &gt;
-            </span>
+            </button>
+          </div>
+
+          {/* Quick Icon Action Toolbar Strip */}
+          <div className="flex items-center justify-between border-t border-[#DFE3EB] dark:border-slate-800 pt-2 px-1 text-slate-600 dark:text-slate-400">
+            <button
+              type="button"
+              onClick={handlePrev}
+              disabled={currentIndex <= 0}
+              className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-black dark:hover:text-white cursor-pointer disabled:opacity-30"
+              title="Previous"
+            >
+              <ChevronLeft className="h-3.5 w-3.5 stroke-[2.2]" />
+            </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={currentIndex >= allVehicles.length - 1}
+              className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-black dark:hover:text-white cursor-pointer disabled:opacity-30"
+              title="Next"
+            >
+              <ChevronRight className="h-3.5 w-3.5 stroke-[2.2]" />
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.info("Vehicle specifications & tracker info")}
+              className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-[#0089FF] cursor-pointer"
+              title="Vehicle Details"
+            >
+              <Info className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleShare}
+              className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-[#0089FF] cursor-pointer"
+              title="Share Live Link"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+            </button>
+            {onOpenPlayback && (
+              <button
+                type="button"
+                onClick={onOpenPlayback}
+                className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-emerald-600 cursor-pointer"
+                title="Route Playback"
+              >
+                <Play className="h-3.5 w-3.5 fill-current" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* 3. Telemetry Navigation Tabs */}
-        <div className="flex border-b border-border text-xs font-semibold">
+        {/* 3. Accordion 1: Today Activity (Matching Screenshot 2) */}
+        <div className="rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-2xs">
           <button
             type="button"
-            role="tab"
-            aria-selected={activeTab === "fuel"}
-            onClick={() => setActiveTab("fuel")}
-            className={cn(
-              "flex-1 pb-1.5 border-b-2 line-tab !rounded-none transition-colors cursor-pointer text-center focus:outline-none",
-              activeTab === "fuel"
-                ? "border-blue-600 text-blue-600 dark:text-blue-400"
-                : "border-transparent text-muted-foreground hover:text-foreground",
-            )}
-          >
-            # Fuel
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "sensors"}
-            onClick={() => setActiveTab("sensors")}
-            className={cn(
-              "flex-1 pb-1.5 border-b-2 line-tab !rounded-none transition-colors cursor-pointer text-center focus:outline-none",
-              activeTab === "sensors"
-                ? "border-blue-600 text-blue-600 dark:text-blue-400"
-                : "border-transparent text-muted-foreground hover:text-foreground",
-            )}
-          >
-            Sensors & OBD
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "alerts"}
-            onClick={() => setActiveTab("alerts")}
-            className={cn(
-              "flex-1 pb-1.5 border-b-2 line-tab !rounded-none transition-colors cursor-pointer text-center focus:outline-none",
-              activeTab === "alerts"
-                ? "border-blue-600 text-blue-600 dark:text-blue-400"
-                : "border-transparent text-muted-foreground hover:text-foreground",
-            )}
-          >
-            Live Alerts
-          </button>
-        </div>
-
-        {/* 4. Fuel & Sensor Telematics View */}
-        {activeTab === "fuel" && (
-          <div className="space-y-3 animate-in fade-in duration-150">
-            {/* Circular / Semi-Circular Live Fuel Gauge */}
-            <div className="flex flex-col items-center justify-center p-2 rounded-md border border-border bg-surface-muted/20">
-              <div className="relative h-28 w-44 flex items-center justify-center">
-                {/* SVG Semi-Circle Gauge */}
-                <svg
-                  className="h-full w-full overflow-visible"
-                  viewBox="0 0 160 90"
-                >
-                  {/* Gauge Background Track */}
-                  <path
-                    d="M 15 80 A 65 65 0 0 1 145 80"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="12"
-                    className="text-muted/40"
-                    strokeLinecap="round"
-                  />
-                  {/* Red low fuel zone */}
-                  <path
-                    d="M 15 80 A 65 65 0 0 1 45 35"
-                    fill="none"
-                    stroke="#ef4444"
-                    strokeWidth="12"
-                    strokeLinecap="round"
-                  />
-                  {/* Amber medium zone */}
-                  <path
-                    d="M 45 35 A 65 65 0 0 1 100 16"
-                    fill="none"
-                    stroke="#f59e0b"
-                    strokeWidth="12"
-                  />
-                  {/* Green good zone */}
-                  <path
-                    d="M 100 16 A 65 65 0 0 1 145 80"
-                    fill="none"
-                    stroke="#10b981"
-                    strokeWidth="12"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Needle */}
-                  <g
-                    transform={"translate(80, 80) rotate(" + needleAngle + ")"}
-                    className="transition-transform duration-500 ease-out"
-                  >
-                    <polygon points="-3,0 3,0 0,-60" fill="#2563eb" />
-                    <circle cx="0" cy="0" r="5" fill="#1e293b" />
-                  </g>
-                </svg>
-
-                {/* Liters Readout */}
-                <div className="absolute bottom-0 text-center">
-                  <span className="text-sm font-extrabold text-foreground tabular-nums">
-                    {fuelVal}{" "}
-                    <span className="text-[10px] font-normal text-muted-foreground">
-                      liter
-                    </span>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Tank Metrics Breakdown */}
-            <div className="grid grid-cols-3 gap-2 text-[11px] rounded-md border border-border p-2.5 bg-card">
-              <div>
-                <span className="text-[10px] text-muted-foreground block">
-                  Tanks
-                </span>
-                <span className="font-bold text-foreground">1</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-muted-foreground block">
-                  Refill
-                </span>
-                <span className="font-bold text-foreground">NA 0</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-muted-foreground block">
-                  Drain
-                </span>
-                <span className="font-bold text-foreground">NA 0</span>
-              </div>
-              <div className="col-span-3 border-t border-border/40 pt-1.5 flex justify-between">
-                <span className="text-muted-foreground">Tank Capacity</span>
-                <span className="font-bold text-foreground">
-                  {tankCap}.0 liter
-                </span>
-              </div>
-            </div>
-
-            {/* Detailed Consumption & Eco Metrics */}
-            <div className="space-y-1.5 rounded-md border border-border p-2.5 bg-card text-[11px]">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Consumption</span>
-                <span className="font-medium text-foreground">
-                  Sensor <strong>5.80 L</strong> &nbsp;|&nbsp; CAN{" "}
-                  <strong>0.00 L</strong>
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Carbon Emission</span>
-                <span className="font-medium text-foreground">
-                  Sensor <strong>0.00</strong> &nbsp;|&nbsp; CAN{" "}
-                  <strong>NA</strong>
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground flex items-center gap-1">
-                  Waste{" "}
-                  <HelpCircle className="h-3 w-3 text-muted-foreground/60" />
-                </span>
-                <span className="font-medium text-foreground">
-                  Pre-defined <strong>0 L</strong> &nbsp;|&nbsp; CAN{" "}
-                  <strong>0.00 L</strong>
-                </span>
-              </div>
-              <p className="text-[10px] text-muted-foreground text-right italic">
-                (Due to 0 hrs idling)
-              </p>
-              <div className="border-t border-border/40 pt-1.5 flex justify-between">
-                <span className="text-muted-foreground">Remaining Range</span>
-                <span className="font-bold text-blue-600 dark:text-blue-400">
-                  688 km
-                </span>
-              </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground">
-                <span>Updated</span>
-                <span className="font-mono">27-08-2026 11:22 AM</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Sensors Tab */}
-        {activeTab === "sensors" && (
-          <div className="space-y-2 text-[11px] animate-in fade-in duration-150">
-            <div className="rounded-md border border-border p-2.5 bg-card space-y-1.5">
-              <span className="font-bold text-foreground text-xs block mb-1">
-                Cold Chain Sensors
-              </span>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Sensor 1 (Front)</span>
-                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                  -18.4 °C
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Sensor 2 (Rear)</span>
-                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                  -19.1 °C
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Door Status</span>
-                <span className="font-bold text-foreground">Closed</span>
-              </div>
-            </div>
-
-            <div className="rounded-md border border-border p-2.5 bg-card space-y-1.5">
-              <span className="font-bold text-foreground text-xs block mb-1">
-                Engine & Electrical
-              </span>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Engine RPM</span>
-                <span className="font-mono font-bold text-foreground">
-                  1,450 RPM
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Battery Voltage</span>
-                <span className="font-mono font-bold text-foreground">
-                  24.2 V
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Coolant Temp</span>
-                <span className="font-mono font-bold text-foreground">
-                  84 °C
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Alerts Tab */}
-        {activeTab === "alerts" && (
-          <div className="space-y-2 text-[11px] animate-in fade-in duration-150">
-            <div className="rounded-md border border-border p-2.5 bg-card space-y-2">
-              <div className="flex items-center gap-1.5 text-amber-600 font-bold">
-                <AlertTriangle className="h-3.5 w-3.5" />
-                <span>Geofence Entry: Kendari Port</span>
-              </div>
-              <span className="text-[10px] text-muted-foreground block">
-                Today at 10:45 AM · Speed: 12 km/h
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* 5. Object Information Collapsible Accordion */}
-        <div className="rounded-md border border-border bg-card overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setObjectInfoOpen((prev) => !prev)}
-            className="flex items-center justify-between w-full p-2.5 bg-surface-muted/40 font-bold text-xs text-foreground cursor-pointer hover:bg-surface-muted/80 transition-colors"
+            onClick={() => toggleSection("activity")}
+            className="flex w-full items-center justify-between p-2.5 font-semibold text-xs text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
           >
             <div className="flex items-center gap-1.5">
-              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Object Information</span>
+              <Compass className="h-4 w-4 text-[#0089FF]" />
+              <span>Today Activity</span>
             </div>
             <ChevronDown
               className={cn(
-                "h-3.5 w-3.5 text-muted-foreground transition-transform duration-150",
-                !objectInfoOpen && "-rotate-90",
+                "h-3.5 w-3.5 text-slate-400 transition-transform duration-150",
+                !openSections.activity && "-rotate-90",
               )}
             />
           </button>
 
-          {objectInfoOpen && (
-            <div className="p-2.5 space-y-1.5 text-[11px] border-t border-border/60">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Purchase Date</span>
-                <span className="font-medium text-foreground">--</span>
+          {openSections.activity && (
+            <div className="p-3 pt-0 border-t border-[#DFE3EB]/60 dark:border-slate-800/60 space-y-2.5">
+              {/* Distance big stat */}
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+                  Total Distance
+                </span>
+                <span className="text-base font-extrabold text-[#0089FF] tabular-nums">
+                  331 km
+                </span>
+              </div>
+
+              {/* Time breakdown grid */}
+              <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-[#DFE3EB]/40 dark:border-slate-800/40">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Running</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                    {vehicle.runningTime || "11:26 hrs"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Idle</span>
+                  <span className="font-bold text-amber-600 dark:text-amber-400 font-mono">
+                    {vehicle.idleTime || "00:00 hrs"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Stop</span>
+                  <span className="font-bold text-rose-600 dark:text-rose-400 font-mono">
+                    {vehicle.stopTime || "00:00 hrs"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Inactive</span>
+                  <span className="font-bold text-indigo-600 dark:text-indigo-400 font-mono">
+                    {vehicle.inactiveTime || "00:00 hrs"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Start & Stop info */}
+              <div className="space-y-1 pt-1 text-[11px] border-t border-[#DFE3EB]/40 dark:border-slate-800/40">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Working Start:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {vehicle.workingStart || "12:00 AM"}
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  <span>Last Stop: </span>
+                  <span className="text-slate-700 dark:text-slate-300 font-medium">
+                    {vehicle.lastStop || "Rantepao, Tana Toraja Regency, South Sulawesi, Indonesia (NW)"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Show Log link */}
+              <div className="pt-1 text-right">
+                <button
+                  type="button"
+                  onClick={() => toast.info("Opening full trip activity log")}
+                  className="text-xs font-semibold text-[#0089FF] hover:underline cursor-pointer"
+                >
+                  Show Log
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 4. Accordion 2: Fuel Dial Gauge (Matching Screenshot 2) */}
+        <div className="rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-2xs">
+          <button
+            type="button"
+            onClick={() => toggleSection("fuel")}
+            className="flex w-full items-center justify-between p-2.5 font-semibold text-xs text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
+          >
+            <div className="flex items-center gap-1.5">
+              <Flame className="h-4 w-4 text-amber-500" />
+              <span># Fuel</span>
+            </div>
+            <ChevronDown
+              className={cn(
+                "h-3.5 w-3.5 text-slate-400 transition-transform duration-150",
+                !openSections.fuel && "-rotate-90",
+              )}
+            />
+          </button>
+
+          {openSections.fuel && (
+            <div className="p-3 pt-0 border-t border-[#DFE3EB]/60 dark:border-slate-800/60 space-y-3">
+              {/* Semicircle Fuel Dial Gauge */}
+              <div className="flex flex-col items-center justify-center pt-2">
+                <div className="relative w-44 h-24 flex items-end justify-center">
+                  <svg className="w-44 h-24" viewBox="0 0 160 90">
+                    <defs>
+                      <linearGradient id="fuelArcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#EF4444" />
+                        <stop offset="25%" stopColor="#F59E0B" />
+                        <stop offset="60%" stopColor="#10B981" />
+                        <stop offset="100%" stopColor="#0089FF" />
+                      </linearGradient>
+                    </defs>
+                    {/* Background Arc */}
+                    <path
+                      d="M 20,80 A 60,60 0 0,1 140,80"
+                      fill="none"
+                      stroke="#E2E8F0"
+                      strokeWidth="12"
+                      strokeLinecap="round"
+                    />
+                    {/* Colored Gradient Arc */}
+                    <path
+                      d="M 20,80 A 60,60 0 0,1 140,80"
+                      fill="none"
+                      stroke="url(#fuelArcGrad)"
+                      strokeWidth="12"
+                      strokeLinecap="round"
+                      strokeDasharray="188.4"
+                      strokeDashoffset={188.4 - (188.4 * fuelPercent) / 100}
+                    />
+                    {/* Tick labels: E, 1/2, F */}
+                    <text x="18" y="88" fill="#94A3B8" fontSize="8" fontWeight="bold">E</text>
+                    <text x="76" y="24" fill="#94A3B8" fontSize="8" fontWeight="bold">1/2</text>
+                    <text x="138" y="88" fill="#94A3B8" fontSize="8" fontWeight="bold">F</text>
+                    {/* Gauge Needle */}
+                    <g transform={`translate(80, 80) rotate(${needleAngle})`}>
+                      <line x1="0" y1="0" x2="0" y2="-52" stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round" />
+                      <circle cx="0" cy="0" r="5" fill="#1E293B" />
+                      <circle cx="0" cy="0" r="2" fill="#FFFFFF" />
+                    </g>
+                  </svg>
+
+                  {/* Fuel Liter Value Badge */}
+                  <div className="absolute -bottom-1 text-center">
+                    <span className="text-sm font-extrabold text-slate-900 dark:text-slate-100 tabular-nums">
+                      {fuelVal} liter
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tank Breakdown Details */}
+              <div className="grid grid-cols-2 gap-2 text-[11px] pt-2 border-t border-[#DFE3EB]/40 dark:border-slate-800/40">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Tank:</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">1</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Refill:</span>
+                  <span className="font-medium text-slate-700 dark:text-slate-300">NA</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Drain:</span>
+                  <span className="font-medium text-slate-700 dark:text-slate-300">0</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Tank Capacity:</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{tankCap}.0 ltr</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 5. Accordion 3: Consumption */}
+        <div className="rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-2xs">
+          <button
+            type="button"
+            onClick={() => toggleSection("consumption")}
+            className="flex w-full items-center justify-between p-2.5 font-semibold text-xs text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
+          >
+            <div className="flex items-center gap-1.5">
+              <Zap className="h-4 w-4 text-emerald-500" />
+              <span># Consumption</span>
+            </div>
+            <ChevronDown
+              className={cn(
+                "h-3.5 w-3.5 text-slate-400 transition-transform duration-150",
+                !openSections.consumption && "-rotate-90",
+              )}
+            />
+          </button>
+
+          {openSections.consumption && (
+            <div className="p-3 pt-0 border-t border-[#DFE3EB]/60 dark:border-slate-800/60 space-y-2 text-[11px]">
+              <div className="flex justify-between pt-2">
+                <span className="text-slate-500">Fuel Economy:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">8.4 L/100km</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Purchase Amount</span>
-                <span className="font-medium text-foreground">0</span>
+                <span className="text-slate-500">Total Fuel Used:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">27.8 L</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Insurance Expiry</span>
-                <span className="font-medium text-foreground">15-12-2026</span>
+                <span className="text-slate-500">Idle Fuel:</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300 font-mono">0.4 L</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 6. Accordion 4: Temperature & Sensors */}
+        <div className="rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-2xs">
+          <button
+            type="button"
+            onClick={() => toggleSection("sensors")}
+            className="flex w-full items-center justify-between p-2.5 font-semibold text-xs text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
+          >
+            <div className="flex items-center gap-1.5">
+              <Thermometer className="h-4 w-4 text-rose-500" />
+              <span># Temperature & Sensors</span>
+            </div>
+            <ChevronDown
+              className={cn(
+                "h-3.5 w-3.5 text-slate-400 transition-transform duration-150",
+                !openSections.sensors && "-rotate-90",
+              )}
+            />
+          </button>
+
+          {openSections.sensors && (
+            <div className="p-3 pt-0 border-t border-[#DFE3EB]/60 dark:border-slate-800/60 space-y-2 text-[11px]">
+              <div className="flex justify-between pt-2">
+                <span className="text-slate-500">Engine Temp:</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">88 °C (Normal)</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Fitness Expiry</span>
-                <span className="font-medium text-foreground">20-11-2026</span>
+                <span className="text-slate-500">Chamber Temp:</span>
+                <span className="font-bold text-[#0089FF] font-mono">18.2 °C (Chilled)</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Pollution Expiry</span>
-                <span className="font-medium text-foreground">10-09-2026</span>
+                <span className="text-slate-500">Battery Voltage:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">24.2 V (Healthy)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Ignition Status:</span>
+                <span className="font-bold text-emerald-600 font-mono">ON</span>
               </div>
             </div>
           )}

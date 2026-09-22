@@ -1,27 +1,46 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FleetExplorerPanel } from "@/components/tracking/FleetExplorerPanel";
 import { LiveTrackingMap } from "@/components/tracking/LiveTrackingMap";
 import { VehicleTelemetryDrawer } from "@/components/tracking/VehicleTelemetryDrawer";
 import { RoutePlaybackBar } from "@/components/tracking/RoutePlaybackBar";
 import { LiveDashcamModal } from "@/components/tracking/LiveDashcamModal";
-import { ObjectColumnSettingsModal } from "@/components/tracking/ObjectColumnSettingsModal";
+import { AddVehiclePage } from "@/components/tracking/AddVehiclePage";
+import {
+  ObjectColumnSettingsModal,
+  DEFAULT_COLUMNS,
+} from "@/components/tracking/ObjectColumnSettingsModal";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
 import { useZio } from "@/zio/ZioContext";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ChevronRight, Navigation } from "lucide-react";
+
+import { useNavigate } from "@tanstack/react-router";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function TrackingPage() {
+  const navigate = useNavigate();
+  const [vehiclesList, setVehiclesList] = useState<FleetObject[]>(fleetObjects);
+  const [isAddVehicleOpen, setIsAddVehicleOpen] = useState(false);
   const [selectedVehicleId, setSelectedVehicleIdState] = useState(
     fleetObjects[0]!.id,
   );
   const [checkedVehicleIds, setCheckedVehicleIds] = useState<string[]>(
     fleetObjects.map((v) => v.id),
   );
+  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
   const [isTelemetryDrawerOpen, setIsTelemetryDrawerOpen] = useState(true);
   const [playbackOpen, setPlaybackOpen] = useState(false);
   const [dashcamVehicle, setDashcamVehicle] = useState<FleetObject | null>(
     null,
   );
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(DEFAULT_COLUMNS);
 
   const { setSelectedVehicleId } = useZio();
 
@@ -65,29 +84,58 @@ export function TrackingPage() {
     });
   };
 
-  return (
-    <div className="relative flex h-full w-full overflow-hidden p-2.5 gap-2.5 bg-background">
-      {/* 1. Left Floating / Docked Fleet Object Explorer Panel */}
-      <FleetExplorerPanel
-        vehicles={fleetObjects}
-        selectedVehicleId={selectedVehicleId}
-        onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
-        checkedVehicleIds={checkedVehicleIds}
-        onToggleCheckVehicle={handleToggleCheckVehicle}
-        onToggleCheckGroup={handleToggleCheckGroup}
-        onToggleCheckAll={handleToggleCheckAll}
-        onOpenDashcam={(v) => setDashcamVehicle(v)}
-        onOpenSettings={() => setSettingsModalOpen(true)}
-        onOpenTelemetry={(v) => {
-          setSelectedVehicleIdState(v.id);
-          setIsTelemetryDrawerOpen(true);
-        }}
-        onTraceVehicle={handleTraceVehicle}
-        className="w-full sm:w-[410px] shrink-0 z-10"
-      />
+  const defaultCalculatedWidth = useMemo(() => {
+    const count = selectedColumns.length;
+    if (count <= 4) return 390;
+    if (count <= 6) return 440;
+    if (count <= 8) return 490;
+    return 540;
+  }, [selectedColumns.length]);
 
-      {/* 2. Center Fullscreen Interactive GIS Map Canvas */}
-      <div className="relative flex-1 h-full min-w-0 flex flex-col">
+  const [customWidth, setCustomWidth] = useState<number | null>(null);
+  const [isResizing, setIsResizing] = useState(false);
+
+  const panelWidth = customWidth ?? defaultCalculatedWidth;
+
+  // Global mousemove and mouseup listeners when cursor drag resizing
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // 12px is the left padding from screen edge
+      const newWidth = Math.max(340, Math.min(950, e.clientX - 12));
+      setCustomWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing]);
+
+  if (isAddVehicleOpen) {
+    return (
+      <AddVehiclePage
+        onBack={() => setIsAddVehicleOpen(false)}
+        onSaveVehicle={(newObj) => {
+          setVehiclesList((prev) => [newObj, ...prev]);
+          setSelectedVehicleIdState(newObj.id);
+          setCheckedVehicleIds((prev) => [...prev, newObj.id]);
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="relative h-full w-full overflow-hidden select-none bg-background">
+      {/* 1. Fullscreen Interactive GIS Map Canvas (Full Bleed Background) */}
+      <div className="absolute inset-0 z-0">
         <LiveTrackingMap
           selectedVehicle={selectedVehicle}
           checkedVehicles={checkedVehicles}
@@ -96,32 +144,81 @@ export function TrackingPage() {
           onToggleTelemetryDrawer={() =>
             setIsTelemetryDrawerOpen((prev) => !prev)
           }
-          className="h-full w-full"
+          className="h-full w-full rounded-none border-0 shadow-none"
         />
-
-        {/* Floating Route Playback Bar (when active) */}
-        {playbackOpen && (
-          <div className="absolute bottom-3 left-4 right-4 z-30 max-w-2xl mx-auto">
-            <RoutePlaybackBar
-              vehicle={selectedVehicle}
-              onClose={() => setPlaybackOpen(false)}
-            />
-          </div>
-        )}
       </div>
+
+      {/* 2. Left Floating Fleet Explorer Panel */}
+      {isLeftPanelOpen ? (
+        <div className="absolute top-3 bottom-3 left-3 z-10 flex flex-col pointer-events-none">
+          <FleetExplorerPanel
+            vehicles={vehiclesList}
+            selectedVehicleId={selectedVehicleId}
+            onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
+            checkedVehicleIds={checkedVehicleIds}
+            onToggleCheckVehicle={handleToggleCheckVehicle}
+            onToggleCheckGroup={handleToggleCheckGroup}
+            onToggleCheckAll={handleToggleCheckAll}
+            onOpenDashcam={(v) => setDashcamVehicle(v)}
+            onOpenSettings={() => setSettingsModalOpen(true)}
+            onOpenTelemetry={(v) => {
+              setSelectedVehicleIdState(v.id);
+              setIsTelemetryDrawerOpen(true);
+            }}
+            onTraceVehicle={handleTraceVehicle}
+            onOpenAddVehicle={() => navigate({ to: "/setting", search: { action: "add" } })}
+            onToggleCollapse={() => setIsLeftPanelOpen(false)}
+            selectedColumns={selectedColumns}
+            onStartResize={() => setIsResizing(true)}
+            onResetWidth={() => setCustomWidth(null)}
+            style={{ width: `${panelWidth}px` }}
+            className="relative h-full shadow-2xl pointer-events-auto border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl animate-in slide-in-from-left-4 duration-200"
+          />
+        </div>
+      ) : (
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 animate-in slide-in-from-left duration-200">
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setIsLeftPanelOpen(true)}
+                  className="flex h-12 w-5 items-center justify-center rounded-r-xl border border-l-0 border-[#DFE3EB] dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-600 dark:text-slate-300 shadow-md hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-all cursor-pointer active:scale-95"
+                >
+                  <ChevronRight className="h-4 w-4 stroke-[2.5]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Expand Fleet Explorer</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      )}
 
       {/* 3. Right Floating Vehicle Telemetry & Diagnostics Drawer */}
       {isTelemetryDrawerOpen && (
-        <VehicleTelemetryDrawer
-          vehicle={selectedVehicle}
-          onClose={() => setIsTelemetryDrawerOpen(false)}
-          onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
-          allVehicles={fleetObjects}
-          className="shrink-0 z-10 animate-in slide-in-from-right-4 duration-200"
-        />
+        <div className="absolute top-3 bottom-3 right-3 z-10 flex flex-col pointer-events-none animate-in slide-in-from-right-4 duration-200">
+          <VehicleTelemetryDrawer
+            vehicle={selectedVehicle}
+            onClose={() => setIsTelemetryDrawerOpen(false)}
+            onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
+            allVehicles={fleetObjects}
+            onOpenPlayback={() => setPlaybackOpen(true)}
+            className="w-[350px] sm:w-[360px] h-full shadow-2xl pointer-events-auto border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl overflow-hidden"
+          />
+        </div>
       )}
 
-      {/* 4. Live Multi-Channel Dashcam Video Streaming Modal */}
+      {/* 4. Floating Route Playback Bar (when active) */}
+      {playbackOpen && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-full max-w-2xl px-4 pointer-events-auto animate-in slide-in-from-bottom-4 duration-200">
+          <RoutePlaybackBar
+            vehicle={selectedVehicle}
+            onClose={() => setPlaybackOpen(false)}
+          />
+        </div>
+      )}
+
+      {/* 5. Live Multi-Channel Dashcam Video Streaming Modal */}
       {dashcamVehicle && (
         <LiveDashcamModal
           vehicle={dashcamVehicle}
@@ -129,10 +226,12 @@ export function TrackingPage() {
         />
       )}
 
-      {/* 5. Object Display & Columns Customization Settings Modal */}
+      {/* 6. Object Display & Columns Customization Settings Modal */}
       <ObjectColumnSettingsModal
         open={settingsModalOpen}
         onClose={() => setSettingsModalOpen(false)}
+        selectedColumns={selectedColumns}
+        onSaveColumns={setSelectedColumns}
       />
     </div>
   );

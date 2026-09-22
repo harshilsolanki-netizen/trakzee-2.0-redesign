@@ -1569,7 +1569,13 @@ function renderObjectCell(colId: string, row: VehicleItem) {
   }
 }
 
-export function ObjectSettingPage() {
+export function ObjectSettingPage({
+  initialAction,
+  initialTab,
+}: {
+  initialAction?: string;
+  initialTab?: string;
+} = {}) {
   const { isSingle } = useLayoutMode();
   const [vehicles, setVehicles] = useState<VehicleItem[]>(INITIAL_VEHICLES);
   const [searchField, setSearchField] = useState("all");
@@ -1614,7 +1620,9 @@ export function ObjectSettingPage() {
   const [activeFilters, setActiveFilters] = useState<VehicleFilterState>(DEFAULT_VEHICLE_FILTERS);
 
   // View Mode: "list" for Fleet Table, "form" for In-Screen Add/Edit Vehicle
-  const [viewMode, setViewMode] = useState<"list" | "form">("list");
+  const [viewMode, setViewMode] = useState<"list" | "form">(
+    initialAction === "add" || initialTab === "add_vehicle" || initialTab === "add" ? "form" : "list"
+  );
   const [editingVehicle, setEditingVehicle] = useState<VehicleItem | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
 

@@ -54,5 +54,5 @@ function SettingRouteComponent() {
   ) {
     return <TireSettingPage />;
   }
-  return <ObjectSettingPage />;
+  return <ObjectSettingPage initialAction={search.action} initialTab={search.tab} />;
 }

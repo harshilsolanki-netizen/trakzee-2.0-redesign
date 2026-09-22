@@ -42,26 +42,26 @@ export function RoutePlaybackBar({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card/95 backdrop-blur-md shadow-2xl p-3 text-xs animate-in slide-in-from-bottom-4 duration-200 select-none",
+        "rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-2xl p-3 text-xs animate-in slide-in-from-bottom-4 duration-200 select-none",
         className,
       )}
     >
       {/* Top Header Row */}
-      <div className="flex items-center justify-between border-b border-border pb-2 mb-2.5">
+      <div className="flex items-center justify-between border-b border-[#DFE3EB] dark:border-slate-800 pb-2 mb-2.5">
         <div className="flex items-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <h4 className="font-bold text-xs text-foreground">
+          <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100">
             Route Playback · {vehicle.name}
           </h4>
-          <span className="text-[11px] text-muted-foreground font-mono">
-            Date: 27-08-2026 (08:00 AM → 11:30 AM)
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+            Date: 21-09-2026 (08:00 AM → 11:30 AM)
           </span>
         </div>
 
         {/* Speed Controls & Close */}
         <div className="flex items-center gap-2">
           {/* Speed Multiplier Pill */}
-          <div className="flex items-center bg-surface-muted rounded-md p-0.5 border border-border text-[10px] font-bold">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-md p-0.5 border border-[#DFE3EB] dark:border-slate-700 text-[10px] font-bold">
             {([1, 2, 5, 10] as const).map((s) => (
               <button
                 key={s}
@@ -70,8 +70,8 @@ export function RoutePlaybackBar({
                 className={cn(
                   "px-2 py-0.5 rounded transition-colors cursor-pointer",
                   speedMultiplier === s
-                    ? "bg-blue-600 text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground",
+                    ? "bg-[#0089FF] text-white shadow-xs"
+                    : "text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white",
                 )}
               >
                 {s}x
@@ -82,7 +82,7 @@ export function RoutePlaybackBar({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            className="p-1 rounded text-slate-500 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -91,12 +91,12 @@ export function RoutePlaybackBar({
 
       {/* Center Scrubber Progress Bar */}
       <div className="space-y-1.5 mb-2.5">
-        <div className="flex items-center justify-between text-[10px] text-muted-foreground font-mono">
-          <span>08:15 AM · Kolaka Depot (0 km)</span>
-          <span className="font-bold text-blue-600 dark:text-blue-400">
-            Speed: {Math.round(12 + (progress % 40))} km/h · Odo: 66,460 km
+        <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+          <span>08:15 AM · Starting Point (0 km)</span>
+          <span className="font-bold text-[#0089FF]">
+            Speed: {Math.round(12 + (progress % 40))} km/h · Odo: {vehicle.odometer.toLocaleString()} km
           </span>
-          <span>11:22 AM · Kendari Port (288.44 km)</span>
+          <span>11:22 AM · Current Location ({vehicle.currentTrip} km)</span>
         </div>
 
         <div className="relative flex items-center">
@@ -106,7 +106,7 @@ export function RoutePlaybackBar({
             max="100"
             value={progress}
             onChange={(e) => setProgress(Number(e.target.value))}
-            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-blue-600"
+            className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#0089FF]"
           />
         </div>
       </div>
@@ -119,24 +119,24 @@ export function RoutePlaybackBar({
             type="button"
             onClick={() => setProgress(0)}
             title="Restart playback"
-            className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+            className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white cursor-pointer"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <RotateCcw className="h-3.5 w-3.5 stroke-[2.2]" />
           </button>
 
           <button
             type="button"
             onClick={() => setProgress((p) => Math.max(0, p - 10))}
             title="Previous 10 mins"
-            className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+            className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white cursor-pointer"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4 stroke-[2.2]" />
           </button>
 
           <button
             type="button"
             onClick={() => setIsPlaying((p) => !p)}
-            className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-colors cursor-pointer"
+            className="flex items-center justify-center h-8 w-8 rounded-full bg-[#0089FF] hover:bg-[#0070d6] text-white shadow-md transition-colors cursor-pointer active:scale-95"
           >
             {isPlaying ? (
               <Pause className="h-4 w-4 fill-current" />
@@ -149,24 +149,24 @@ export function RoutePlaybackBar({
             type="button"
             onClick={() => setProgress((p) => Math.min(100, p + 10))}
             title="Next 10 mins"
-            className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+            className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white cursor-pointer"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 stroke-[2.2]" />
           </button>
         </div>
 
         {/* Live Trip Telemetry Stat Pills */}
         <div className="flex items-center gap-2 text-[11px]">
-          <div className="flex items-center gap-1 bg-surface-muted px-2 py-0.5 rounded border border-border">
-            <Clock className="h-3 w-3 text-muted-foreground" />
-            <span className="font-mono">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded border border-[#DFE3EB] dark:border-slate-700 text-slate-700 dark:text-slate-300">
+            <Clock className="h-3 w-3 text-slate-500" />
+            <span className="font-mono font-semibold">
               Trip: {((progress / 100) * 3.2).toFixed(1)} hrs
             </span>
           </div>
-          <div className="flex items-center gap-1 bg-surface-muted px-2 py-0.5 rounded border border-border">
-            <MapPin className="h-3 w-3 text-blue-600" />
-            <span className="font-mono">
-              {((progress / 100) * 288.44).toFixed(1)} km
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded border border-[#DFE3EB] dark:border-slate-700 text-[#0089FF]">
+            <MapPin className="h-3 w-3" />
+            <span className="font-mono font-bold">
+              {((progress / 100) * (vehicle.currentTrip || 331.4)).toFixed(1)} km
             </span>
           </div>
         </div>

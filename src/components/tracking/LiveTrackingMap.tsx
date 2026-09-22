@@ -15,12 +15,19 @@ import {
   Square,
   TrafficCone,
   TrendingUp,
+  Truck,
   Volume2,
   Zap,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { type FleetObject, STATUS_META } from "@/data/fleet";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function LiveTrackingMap({
   selectedVehicle,
@@ -37,18 +44,13 @@ export function LiveTrackingMap({
   onToggleTelemetryDrawer: () => void;
   className?: string;
 }) {
-  const [mapStyle, setMapStyle] = useState<
-    "streets" | "satellite" | "terrain" | "dark"
-  >("terrain");
+  const [mapStyle, setMapStyle] = useState<"streets" | "satellite" | "terrain" | "dark">("streets");
   const [showGeofences, setShowGeofences] = useState(true);
   const [showTraffic, setShowTraffic] = useState(false);
   const [showPOIs, setShowPOIs] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(12);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-
-  // Animated truck position
-  const [truckPos, setTruckPos] = useState({ x: 265, y: 310, heading: 45 });
 
   // Toggle fullscreen
   const toggleFullscreen = () => {
@@ -61,434 +63,367 @@ export function LiveTrackingMap({
     }
   };
 
+  const handleZoomIn = () => setZoomLevel((z) => Math.min(18, z + 1));
+  const handleZoomOut = () => setZoomLevel((z) => Math.max(2, z - 1));
+
   return (
     <div
       ref={mapContainerRef}
       className={cn(
-        "relative flex-1 h-full w-full overflow-hidden rounded-xl border border-border bg-[#e8ece9] dark:bg-[#1a2332] shadow-inner select-none",
+        "relative flex-1 h-full w-full overflow-hidden bg-[#E8ECE9] dark:bg-[#151D2A] select-none",
         className,
       )}
     >
-      {/* 1. Vector / GIS Map Canvas Simulation (Matching Sulawesi / Indonesia Island Topography in Reference) */}
+      {/* 1. Interactive SVG Map Canvas (Real Map Styling) */}
       <svg
-        className="absolute inset-0 h-full w-full"
+        className="absolute inset-0 h-full w-full cursor-grab active:cursor-grabbing"
         viewBox="0 0 1000 650"
         preserveAspectRatio="xMidYMid slice"
       >
         <defs>
-          {/* Water Pattern / Gradient */}
+          {/* Street Map Pattern */}
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(200, 210, 220, 0.25)" strokeWidth="0.8" />
+          </pattern>
+          {/* Water Gradient */}
           <linearGradient id="oceanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop
-              offset="0%"
-              stopColor={mapStyle === "dark" ? "#0f172a" : "#cae4f8"}
-            />
-            <stop
-              offset="100%"
-              stopColor={mapStyle === "dark" ? "#090d16" : "#b2d8f5"}
-            />
+            <stop offset="0%" stopColor={mapStyle === "dark" ? "#0F172A" : "#D4E6F1"} />
+            <stop offset="100%" stopColor={mapStyle === "dark" ? "#090D16" : "#C2DCED"} />
           </linearGradient>
-
-          {/* Landmass Texture / Colors */}
+          {/* Landmass */}
           <linearGradient id="landGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop
-              offset="0%"
-              stopColor={mapStyle === "dark" ? "#1e293b" : "#f1ebd9"}
-            />
-            <stop
-              offset="100%"
-              stopColor={mapStyle === "dark" ? "#151e2e" : "#e8e1cd"}
-            />
+            <stop offset="0%" stopColor={mapStyle === "dark" ? "#1E293B" : "#F4EFE6"} />
+            <stop offset="100%" stopColor={mapStyle === "dark" ? "#182234" : "#ECE5D8"} />
           </linearGradient>
-
-          {/* Forest / Green Mountain Zones */}
-          <linearGradient id="forestGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop
-              offset="0%"
-              stopColor={mapStyle === "dark" ? "#143a29" : "#c6e0b4"}
-            />
-            <stop
-              offset="100%"
-              stopColor={mapStyle === "dark" ? "#0e291c" : "#b0d49b"}
-            />
+          {/* Road Network Yellow Gradient */}
+          <linearGradient id="primaryRoadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FCD34D" />
+            <stop offset="100%" stopColor="#FBBF24" />
           </linearGradient>
-
-          {/* Drop shadow for vehicles */}
-          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="1" dy="2" stdDeviation="2" floodOpacity="0.3" />
-          </filter>
         </defs>
 
         {/* Ocean Background */}
         <rect width="100%" height="100%" fill="url(#oceanGrad)" />
 
-        {/* Realistic Sulawesi Landmass Shape */}
+        {/* Realistic Landmass Map Contours */}
         <g id="landmass">
-          {/* Main Island Peninsula */}
+          {/* Asia / SE Asia Main Continent */}
           <path
-            d="M 180,0 L 220,120 Q 240,220 230,320 L 210,480 Q 240,560 350,600 Q 420,620 480,650 L 900,650 Q 880,500 860,420 Q 820,380 780,340 Q 740,280 750,180 Q 720,80 640,0 Z"
+            d="M 50,0 L 220,40 Q 300,120 320,240 L 260,380 Q 240,460 310,500 L 420,530 Q 520,540 600,480 L 700,420 Q 750,300 720,180 L 680,60 Q 640,0 550,0 Z"
             fill="url(#landGrad)"
-            stroke={mapStyle === "dark" ? "#334155" : "#d1c7b7"}
-            strokeWidth="1.5"
+            stroke={mapStyle === "dark" ? "#334155" : "#D8D0C2"}
+            strokeWidth="1.2"
           />
-
-          {/* Forest & Protected Green Zones */}
-          {/* North Forest */}
+          {/* Island 1 (Indonesia - Sulawesi / Java / Bali) */}
           <path
-            d="M 520,10 Q 560,40 550,70 Q 530,90 550,140 Q 580,180 570,220 Q 530,240 520,280 Q 490,260 500,210 Q 480,180 500,120 Q 490,60 520,10 Z"
-            fill="url(#forestGrad)"
-            opacity="0.85"
+            d="M 680,480 Q 740,460 820,490 Q 860,540 840,600 Q 780,620 720,590 Q 660,540 680,480 Z"
+            fill="url(#landGrad)"
+            stroke={mapStyle === "dark" ? "#334155" : "#D8D0C2"}
+            strokeWidth="1.2"
           />
-          {/* South Central Green Forest */}
+          {/* Island 2 (Thailand / Malaysia Peninsula) */}
           <path
-            d="M 500,320 Q 540,360 530,420 Q 560,480 540,560 Q 500,620 460,650 Q 420,620 440,560 Q 460,480 450,420 Q 440,360 500,320 Z"
-            fill="url(#forestGrad)"
-            opacity="0.85"
+            d="M 440,280 Q 480,340 470,420 Q 450,480 430,520 Q 410,480 420,400 Q 400,320 440,280 Z"
+            fill="url(#landGrad)"
+            stroke={mapStyle === "dark" ? "#334155" : "#D8D0C2"}
+            strokeWidth="1.2"
           />
-
-          {/* Off-shore Islands */}
-          {/* Pulau Labengke */}
-          <path
-            d="M 700,60 Q 715,50 720,70 Q 715,85 700,80 Q 690,70 700,60 Z"
-            fill="url(#forestGrad)"
-            stroke="#b0d49b"
-          />
-          <text
-            x="730"
-            y="70"
-            fontSize="9"
-            fill={mapStyle === "dark" ? "#94a3b8" : "#475569"}
-            fontWeight="500"
-          >
-            Pulau Labengke
-          </text>
-
-          {/* Pulau Lambasii */}
-          <path
-            d="M 680,120 Q 695,110 700,130 Q 690,145 675,140 Z"
-            fill="url(#forestGrad)"
-          />
-          <text
-            x="710"
-            y="130"
-            fontSize="9"
-            fill={mapStyle === "dark" ? "#94a3b8" : "#475569"}
-            fontWeight="500"
-          >
-            Pulau Lambasii
-          </text>
-
-          {/* Pulau Keramat */}
-          <path
-            d="M 650,180 Q 665,170 670,190 Q 660,200 645,195 Z"
-            fill="url(#forestGrad)"
-          />
-          <text
-            x="680"
-            y="190"
-            fontSize="9"
-            fill={mapStyle === "dark" ? "#94a3b8" : "#475569"}
-            fontWeight="500"
-          >
-            Pulau Keramat
-          </text>
         </g>
 
-        {/* Geofence Polygon Overlay (Matching reference: 001,0221) */}
-        {showGeofences && (
-          <g id="geofences">
-            {/* Green Geofence Polygon 1 near Kolaka */}
-            <polygon
-              points="180,310 260,310 260,380 180,380"
-              fill="#22c55e"
-              fillOpacity="0.25"
-              stroke="#16a34a"
-              strokeWidth="1.5"
-              strokeDasharray="4 2"
-            />
-            <text
-              x="190"
-              y="345"
-              fontSize="10"
-              fontWeight="bold"
-              fill="#15803d"
-              className="select-none"
-            >
-              001,0221
-            </text>
+        {/* Grid pattern overlay */}
+        <rect width="100%" height="100%" fill="url(#grid)" />
 
-            {/* Geofence 2: Tiraweta Zone */}
-            <polygon
-              points="270,260 300,260 300,290 270,290"
-              fill="#22c55e"
-              fillOpacity="0.5"
-              stroke="#16a34a"
-              strokeWidth="1"
-            />
-          </g>
-        )}
-
-        {/* Traveled Route Polyline */}
-        <g id="route-polyline">
-          {/* Glow backdrop */}
+        {/* Primary Highway & City Roads */}
+        <g id="roads" strokeLinecap="round" strokeLinejoin="round">
+          {/* Secondary Grey Roads */}
           <path
-            d="M 265,310 Q 280,285 300,285 L 340,300 Q 370,290 400,320 L 450,310 Q 480,280 510,290 L 580,220 Q 610,210 660,240 L 720,260 Q 750,250 780,270 L 640,340 Q 580,360 520,320"
+            d="M 280,180 L 360,260 L 450,290 L 520,270 L 600,340 L 680,380"
             fill="none"
-            stroke="#0284c7"
+            stroke={mapStyle === "dark" ? "#334155" : "#CBD5E1"}
             strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            filter="url(#shadow)"
           />
-          {/* Main route stroke */}
           <path
-            d="M 265,310 Q 280,285 300,285 L 340,300 Q 370,290 400,320 L 450,310 Q 480,280 510,290 L 580,220 Q 610,210 660,240 L 720,260 Q 750,250 780,270 L 640,340 Q 580,360 520,320"
+            d="M 340,320 L 410,380 L 460,460 L 540,490"
             fill="none"
-            stroke="#0ea5e9"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            stroke={mapStyle === "dark" ? "#334155" : "#CBD5E1"}
+            strokeWidth="3.5"
+          />
+          {/* Major Yellow National Arterial Highway (Matching Screenshot) */}
+          <path
+            d="M 320,120 Q 420,240 480,320 T 580,420 L 760,520"
+            fill="none"
+            stroke="url(#primaryRoadGrad)"
+            strokeWidth="7"
+          />
+          <path
+            d="M 480,320 L 540,210 L 620,180"
+            fill="none"
+            stroke="url(#primaryRoadGrad)"
+            strokeWidth="5"
           />
         </g>
 
-        {/* City & Place Labels */}
-        <g id="cities" className="select-none font-semibold text-xs">
-          <text x="210" y="325" fill="#334155" fontSize="11" fontWeight="bold">
-            Kolaka
-          </text>
-          <text x="310" y="285" fill="#334155" fontSize="10" fontWeight="bold">
-            Tiraweta
-          </text>
-          <text x="560" y="210" fill="#0284c7" fontSize="11" fontWeight="bold">
-            Unaaha
-          </text>
-          <text
-            x="760"
-            y="260"
-            fill="#0284c7"
-            fontSize="12"
-            fontWeight="extrabold"
-          >
-            Kendari
-          </text>
-          <text x="650" y="470" fill="#475569" fontSize="10">
-            Andoolo
-          </text>
-          <text x="570" y="60" fill="#475569" fontSize="10">
-            Wangoudu
-          </text>
-        </g>
+        {/* Active Vehicle Route Path (Tail Trace) */}
+        <path
+          d="M 500,450 L 540,390 L 580,350 L 580,340"
+          fill="none"
+          stroke="#0089FF"
+          strokeWidth="4"
+          strokeDasharray="6,4"
+          strokeLinecap="round"
+        />
 
-        {/* Live Active Moving Vehicle Marker */}
-        <g
-          id="active-vehicle"
-          transform={"translate(" + truckPos.x + ", " + truckPos.y + ")"}
-        >
-          {/* Pulse Ripple */}
-          <circle
-            r="18"
-            fill="#22c55e"
-            opacity="0.25"
-            className="animate-ping"
-          />
-          <circle r="10" fill="#16a34a" opacity="0.3" />
-
-          {/* Top-down Truck Marker SVG */}
-          <g transform={"rotate(" + truckPos.heading + ")"}>
-            <rect
-              x="-8"
-              y="-14"
-              width="16"
-              height="28"
-              rx="3"
-              fill="#15803d"
-              stroke="#ffffff"
-              strokeWidth="1.5"
-            />
-            <rect x="-6" y="-10" width="12" height="5" rx="1" fill="#86efac" />
-            <rect
-              x="-7"
-              y="-2"
-              width="14"
-              height="14"
-              rx="1.5"
-              fill="#166534"
-            />
-            <rect x="-9" y="-12" width="2" height="5" rx="0.5" fill="#18181b" />
-            <rect x="7" y="-12" width="2" height="5" rx="0.5" fill="#18181b" />
-            <rect x="-9" y="5" width="2" height="5" rx="0.5" fill="#18181b" />
-            <rect x="7" y="5" width="2" height="5" rx="0.5" fill="#18181b" />
-          </g>
-
-          {/* Floating Speed & Name Badge */}
-          <g transform="translate(-35, 18)">
-            <rect
-              width="70"
-              height="16"
-              rx="3"
-              fill="#16a34a"
-              stroke="#ffffff"
-              strokeWidth="1"
-              filter="url(#shadow)"
-            />
-            <text
-              x="35"
-              y="11.5"
-              textAnchor="middle"
-              fill="#ffffff"
-              fontSize="9"
-              fontWeight="bold"
-              fontFamily="ui-monospace, monospace"
-            >
-              1001 - 12 km/h
-            </text>
-          </g>
-        </g>
       </svg>
 
-      {/* 2. Top Center Floating Playback Action Button */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
+      {/* 2. Exact 40px Fixed Diameter Map Clusters (Pixel Perfect on All Monitors & Resolutions) */}
+      {/* Cluster 1: India (4 vehicles) */}
+      <div
+        style={{ left: "35%", top: "33.8%" }}
+        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+      >
+        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray="33 71" />
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="52 52" strokeDashoffset="-33" />
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="21 83" strokeDashoffset="-85" />
+        </svg>
+        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">4</span>
+      </div>
+
+      {/* Cluster 2: Mumbai / West (7 vehicles) */}
+      <div
+        style={{ left: "32%", top: "44.6%" }}
+        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+      >
+        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="62 42" />
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray="42 62" strokeDashoffset="-62" />
+        </svg>
+        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">7</span>
+      </div>
+
+      {/* Cluster 3: Thailand (3 vehicles - Highlighted in Red Box) */}
+      <div
+        style={{ left: "48%", top: "43.1%" }}
+        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+      >
+        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="73 31" />
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="31 73" strokeDashoffset="-73" />
+        </svg>
+        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">3</span>
+      </div>
+
+      {/* Cluster 4: South East (2 vehicles - Highlighted in Red Box) */}
+      <div
+        style={{ left: "53%", top: "45.4%" }}
+        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+      >
+        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="52 52" />
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#0089FF" strokeWidth="3" strokeDasharray="52 52" strokeDashoffset="-52" />
+        </svg>
+        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">2</span>
+      </div>
+
+      {/* Cluster 5: Indonesia Sulawesi (4 vehicles - Highlighted in Red Box) */}
+      <div
+        style={{ left: "76%", top: "80%" }}
+        className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
+      >
+        <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="78 26" />
+          <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="26 78" strokeDashoffset="-78" />
+        </svg>
+        <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">4</span>
+      </div>
+
+      {/* 3. Selected Active Vehicle Marker Pin + Ultra Minimal Vehicle Label */}
+      <div
+        style={{ left: "58%", top: "52.3%" }}
+        className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 cursor-pointer animate-in zoom-in-50 duration-300"
+      >
+        {/* Minimal Vehicle Direction Pin */}
+        <div className="relative flex items-center justify-center">
+          <div className="absolute w-6 h-6 rounded-md bg-emerald-500/25 animate-ping" />
+          <div className="h-6 w-6 rounded-md bg-[#10B981] border-2 border-white text-white flex items-center justify-center shadow-md">
+            <Navigation className="h-3 w-3 fill-current rotate-[35deg]" />
+          </div>
+        </div>
+
+        {/* Ultra Minimal Compact Floating Vehicle Label */}
+        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 h-5 rounded-full bg-white/95 dark:bg-slate-900/95 border border-[#DFE3EB] dark:border-slate-800 shadow-xs backdrop-blur-xs select-none">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap leading-none">
+            {selectedVehicle?.name || "Fuel - 1001"}
+          </span>
+        </div>
+      </div>
+
+      {/* 2. Top Center Floating Playback Pill Button (Matching Screenshot 2) */}
+      <div className="absolute top-3.5 left-1/2 -translate-x-1/2 z-20">
         <button
           type="button"
           onClick={onOpenPlayback}
-          className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 font-bold text-xs shadow-lg transition-all transform hover:scale-105 cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#0089FF] hover:bg-[#0070d6] text-white text-xs font-semibold shadow-md active:scale-95 transition-all cursor-pointer"
         >
           <Play className="h-3.5 w-3.5 fill-current" />
           <span>Playback</span>
         </button>
       </div>
 
-      {/* 3. Floating Right Map Toolbars */}
-      <div className="absolute right-3 top-3 z-20 flex flex-col gap-1.5">
-        {/* Toggle Right Telemetry Sidecar Drawer Button */}
-        <button
-          type="button"
-          title={
-            isTelemetryDrawerOpen
-              ? "Collapse Telemetry Panel"
-              : "Expand Telemetry Panel"
-          }
-          onClick={onToggleTelemetryDrawer}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card/95 backdrop-blur-md text-foreground shadow-md hover:bg-muted transition-colors cursor-pointer font-bold"
-        >
-          {isTelemetryDrawerOpen ? ">>" : "<<"}
-        </button>
+      {/* 3. Right Floating Map Controls Vertical Toolbar */}
+      <div
+        className={cn(
+          "absolute top-3.5 z-20 flex flex-col items-center gap-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-[#DFE3EB] dark:border-slate-800 rounded-2xl p-1.5 shadow-xl transition-all duration-200 overflow-hidden select-none",
+          isTelemetryDrawerOpen ? "right-[374px]" : "right-3.5",
+        )}
+      >
+        {/* Toggle Telemetry Drawer */}
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={onToggleTelemetryDrawer}
+                className={cn(
+                  "p-2 rounded-md transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  isTelemetryDrawerOpen
+                    ? "bg-slate-100 dark:bg-slate-800 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <SlidersHorizontal className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Vehicle Telemetry Drawer</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-        {/* Map Tool Actions Stack */}
-        <div className="flex flex-col rounded-lg border border-border bg-card/95 backdrop-blur-md shadow-md divide-y divide-border/60 overflow-hidden">
-          {/* Search POI */}
-          <button
-            type="button"
-            title="Search on Map"
-            className="flex h-7 w-8 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          >
-            <Search className="h-3.5 w-3.5" />
-          </button>
+        {/* Map Layers (Streets / Satellite) */}
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() =>
+                  setMapStyle((s) => (s === "streets" ? "satellite" : "streets"))
+                }
+                className={cn(
+                  "p-2 rounded-md transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  mapStyle === "satellite"
+                    ? "bg-slate-100 dark:bg-slate-800 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <Layers className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Map Layers</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-          {/* Map Layer Switch */}
-          <button
-            type="button"
-            title="Change Map Layer"
-            onClick={() =>
-              setMapStyle((s) =>
-                s === "terrain"
-                  ? "satellite"
-                  : s === "satellite"
-                    ? "streets"
-                    : "terrain",
-              )
-            }
-            className="flex h-7 w-8 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          >
-            <Layers className="h-3.5 w-3.5" />
-          </button>
+        {/* Geofences Toggle */}
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => setShowGeofences((g) => !g)}
+                className={cn(
+                  "p-2 rounded-md transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  showGeofences
+                    ? "bg-slate-100 dark:bg-slate-800 text-[#0089FF]"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <Square className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Toggle Geofences</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-          {/* Geofences Toggle */}
-          <button
-            type="button"
-            title="Toggle Geofences"
-            onClick={() => setShowGeofences((v) => !v)}
-            className={cn(
-              "flex h-7 w-8 items-center justify-center transition-colors cursor-pointer",
-              showGeofences
-                ? "text-blue-600 font-bold bg-blue-500/10"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted",
-            )}
-          >
-            <Square className="h-3.5 w-3.5" />
-          </button>
+        {/* Traffic Toggle */}
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => setShowTraffic((t) => !t)}
+                className={cn(
+                  "p-2 rounded-md transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  showTraffic
+                    ? "bg-slate-100 dark:bg-slate-800 text-amber-500"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                <TrafficCone className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Toggle Live Traffic</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-          {/* POIs Toggle */}
-          <button
-            type="button"
-            title="Toggle Landmarks & POIs"
-            onClick={() => setShowPOIs((v) => !v)}
-            className={cn(
-              "flex h-7 w-8 items-center justify-center transition-colors cursor-pointer",
-              showPOIs
-                ? "text-blue-600 font-bold bg-blue-500/10"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted",
-            )}
-          >
-            <MapPin className="h-3.5 w-3.5" />
-          </button>
+        <div className="w-full my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
 
-          {/* Traffic Layer Toggle */}
-          <button
-            type="button"
-            title="Toggle Live Traffic"
-            onClick={() => setShowTraffic((v) => !v)}
-            className={cn(
-              "flex h-7 w-8 items-center justify-center transition-colors cursor-pointer",
-              showTraffic
-                ? "text-rose-600 font-bold bg-rose-500/10"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted",
-            )}
-          >
-            <TrafficCone className="h-3.5 w-3.5" />
-          </button>
+        {/* Zoom In */}
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={handleZoomIn}
+                className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <Plus className="h-4 w-4 stroke-[2.5]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Zoom In</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-          {/* Fullscreen Toggle */}
-          <button
-            type="button"
-            title="Toggle Fullscreen"
-            onClick={toggleFullscreen}
-            className="flex h-7 w-8 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          >
-            {isFullscreen ? (
-              <Minimize2 className="h-3.5 w-3.5" />
-            ) : (
-              <Maximize2 className="h-3.5 w-3.5" />
-            )}
-          </button>
-        </div>
+        {/* Zoom Out */}
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={handleZoomOut}
+                className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <Minus className="h-4 w-4 stroke-[2.5]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Zoom Out</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-        {/* Zoom Controls */}
-        <div className="flex flex-col rounded-lg border border-border bg-card/95 backdrop-blur-md shadow-md divide-y divide-border/60 overflow-hidden">
-          <button
-            type="button"
-            title="Zoom In"
-            onClick={() => setZoomLevel((z) => Math.min(18, z + 1))}
-            className="flex h-7 w-8 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          >
-            <Plus className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            title="Zoom Out"
-            onClick={() => setZoomLevel((z) => Math.max(4, z - 1))}
-            className="flex h-7 w-8 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          >
-            <Minus className="h-3.5 w-3.5" />
-          </button>
-        </div>
+        {/* Fullscreen */}
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              >
+                <Maximize2 className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Toggle Fullscreen</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
-      {/* 4. Bottom Right Map Scale Bar */}
-      <div className="absolute bottom-3 right-3 z-10 flex flex-col items-center select-none">
-        <div className="flex items-center gap-1 bg-card/85 backdrop-blur-xs px-2 py-0.5 rounded border border-border/80 text-[10px] font-mono text-muted-foreground shadow-xs">
-          <span>10 km</span>
-          <div className="h-1.5 w-12 border-b-2 border-l-2 border-r-2 border-foreground" />
-        </div>
+      {/* 4. Bottom Map Scale & Coordinates */}
+      <div
+        className={cn(
+          "absolute bottom-3 z-10 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3 py-1 rounded-xl border border-[#DFE3EB] dark:border-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 transition-all duration-200 shadow-sm",
+          isTelemetryDrawerOpen ? "right-[374px]" : "right-3.5",
+        )}
+      >
+        <span>0.05 km</span>
+        <div className="w-8 h-1 bg-slate-800 dark:bg-slate-200" />
       </div>
     </div>
   );

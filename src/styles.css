@@ -311,6 +311,7 @@
 }
 
 /* 2. Text, Number, Password, Date & Search Inputs */
+[data-ui-style="rounded"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not(.no-rounded),
 [data-ui-style="rounded"] input[type="text"]:not(.no-rounded),
 [data-ui-style="rounded"] input[type="search"]:not(.no-rounded),
 [data-ui-style="rounded"] input[type="password"]:not(.no-rounded),
@@ -353,7 +354,13 @@
   border-radius: 9999px !important;
 }
 
-/* 4. Badges, Tags & Count Pills */
+/* 4. Badges, Tags, Toolbar Action Buttons & Count Pills */
+[data-ui-style="compact"] .toolbar-action-btn {
+  border-radius: 0.5rem !important;
+}
+[data-ui-style="rounded"] .toolbar-action-btn {
+  border-radius: 9999px !important;
+}
 [data-ui-style="rounded"] .tag-pill,
 [data-ui-style="rounded"] .badge-pill,
 [data-ui-style="rounded"] .status-badge,
@@ -368,15 +375,14 @@
    STRICT PROTECTION: Elements that must NEVER become 9999px pills
    ========================================================================= */
 
-/* Overlays and Backdrop Blur Scrims - Always Flat & Rectangular */
-[data-ui-style="rounded"] button.fixed,
+/* Overlays and Backdrop Blur Scrims - Full Screen Scrims only */
 [data-ui-style="rounded"] button.fixed.inset-0,
 [data-ui-style="rounded"] .fixed.inset-0,
 [data-ui-style="rounded"] [data-radix-portal] > div.fixed.inset-0,
-[data-ui-style="rounded"] .backdrop-blur-xs,
-[data-ui-style="rounded"] .backdrop-blur-md,
-[data-ui-style="rounded"] .backdrop-blur-sm,
-[data-ui-style="rounded"] .backdrop-blur {
+[data-ui-style="rounded"] .fixed.inset-0.backdrop-blur-xs,
+[data-ui-style="rounded"] .fixed.inset-0.backdrop-blur-md,
+[data-ui-style="rounded"] .fixed.inset-0.backdrop-blur-sm,
+[data-ui-style="rounded"] .fixed.inset-0.backdrop-blur {
   border-radius: 0px !important;
 }
 
@@ -397,6 +403,14 @@
 [data-ui-style="rounded"] .modal-shell,
 [data-ui-style="rounded"] .popover-content {
   /* Retain card border radius */
+}
+
+/* Compact Preview Card Elements - Always preserve squircle 6px radius even when data-ui-style="rounded" */
+[data-ui-style="rounded"] .compact-preview span,
+[data-ui-style="rounded"] .compact-preview div,
+[data-ui-style="rounded"] .compact-preview button,
+[data-ui-style="rounded"] .compact-preview input {
+  border-radius: 0.375rem !important;
 }
 
 /* Dropdown Menus and Menu Item Safety (Always crisp 12px floating card with 8px item highlights) */

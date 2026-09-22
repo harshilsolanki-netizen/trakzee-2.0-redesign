@@ -1306,18 +1306,18 @@ export function UserProfileMenu() {
                       <h4 className="text-xs font-bold text-foreground">Compact</h4>
 
                       {/* Interactive / Visual Preview Row (Minimal radius ~4px / rounded-md) */}
-                      <div className="flex flex-wrap items-center gap-2 mt-3 p-2.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-border/50">
-                        <span className="inline-flex h-7 items-center justify-center px-3 rounded-md bg-[#0089FF] text-white text-[11px] font-semibold shadow-2xs">
+                      <div className="compact-preview flex flex-wrap items-center gap-2 mt-3 p-2.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-border/50">
+                        <span className="inline-flex h-7 items-center justify-center px-3 !rounded-md bg-[#0089FF] text-white text-[11px] font-semibold shadow-2xs">
                           Button
                         </span>
-                        <span className="inline-flex h-7 items-center px-2.5 rounded-md border border-input bg-background text-[11px] font-medium text-muted-foreground shadow-2xs">
+                        <span className="inline-flex h-7 items-center px-2.5 !rounded-md border border-input bg-background text-[11px] font-medium text-muted-foreground shadow-2xs">
                           Input field
                         </span>
-                        <span className="inline-flex h-7 items-center gap-1.5 px-2.5 rounded-md border border-input bg-background text-[11px] font-medium text-muted-foreground shadow-2xs">
+                        <span className="inline-flex h-7 items-center gap-1.5 px-2.5 !rounded-md border border-input bg-background text-[11px] font-medium text-muted-foreground shadow-2xs">
                           <span>Dropdown</span>
                           <ChevronDown className="h-3 w-3 opacity-60" />
                         </span>
-                        <span className="inline-flex h-7 items-center px-2.5 rounded-md bg-[#0089FF]/10 text-[#0089FF] text-[11px] font-bold">
+                        <span className="inline-flex h-7 items-center px-2.5 !rounded-md bg-[#0089FF]/10 text-[#0089FF] text-[11px] font-bold">
                           Tag
                         </span>
                       </div>
