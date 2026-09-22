@@ -99,6 +99,13 @@ export function ObjectColumnSettingsModal({
   const [showObjectName, setShowObjectName] = useState(true);
   const [localColumns, setLocalColumns] = useState<string[]>(selectedColumns);
   const [searchQuery, setSearchQuery] = useState("");
+  const [groups, setGroups] = useState(COLUMN_GROUPS);
+
+  // Drag and Drop State
+  const [draggedGroupIndex, setDraggedGroupIndex] = useState<number | null>(null);
+  const [dragOverGroupIndex, setDragOverGroupIndex] = useState<number | null>(null);
+  const [draggedColIndex, setDraggedColIndex] = useState<{ groupId: string; colIndex: number } | null>(null);
+  const [dragOverColIndex, setDragOverColIndex] = useState<{ groupId: string; colIndex: number } | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -124,7 +131,7 @@ export function ObjectColumnSettingsModal({
   };
 
   const toggleGroupAll = (groupId: string) => {
-    const group = COLUMN_GROUPS.find((g) => g.id === groupId);
+    const group = groups.find((g) => g.id === groupId);
     if (!group) return;
     const groupIds = group.columns.map((c) => c.id);
     const someSelected = groupIds.some((id) => localColumns.includes(id));
@@ -267,7 +274,7 @@ export function ObjectColumnSettingsModal({
 
             {/* Unified Outer Boxed Container - Fills all space down to footer */}
             <div className="flex-1 min-h-0 rounded-md border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-950/40 p-3 space-y-4 overflow-y-auto custom-scrollbar">
-              {COLUMN_GROUPS.map((group) => {
+              {groups.map((group, groupIndex) => {
                 const groupColumnIds = group.columns.map((c) => c.id);
                 const filteredColumns = searchQuery.trim()
                   ? group.columns.filter((c) =>
@@ -287,10 +294,47 @@ export function ObjectColumnSettingsModal({
                 );
                 const groupIndeterminate = groupSomeChecked && !groupAllChecked;
 
+                const isGroupDragging = draggedGroupIndex === groupIndex;
+                const isGroupDragOver = dragOverGroupIndex === groupIndex && draggedGroupIndex !== groupIndex;
+
                 return (
-                  <div key={group.id} className="space-y-2">
+                  <div
+                    key={group.id}
+                    draggable
+                    onDragStart={(e) => {
+                      setDraggedGroupIndex(groupIndex);
+                      e.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      if (dragOverGroupIndex !== groupIndex) {
+                        setDragOverGroupIndex(groupIndex);
+                      }
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (draggedGroupIndex !== null && draggedGroupIndex !== groupIndex) {
+                        const updated = [...groups];
+                        const [moved] = updated.splice(draggedGroupIndex, 1);
+                        updated.splice(groupIndex, 0, moved);
+                        setGroups(updated);
+                        toast.success(`Reordered category: ${moved.label}`);
+                      }
+                      setDraggedGroupIndex(null);
+                      setDragOverGroupIndex(null);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedGroupIndex(null);
+                      setDragOverGroupIndex(null);
+                    }}
+                    className={cn(
+                      "space-y-2 p-1.5 rounded-md transition-all duration-150",
+                      isGroupDragging && "opacity-40 scale-[0.99] border border-dashed border-[#0089FF]",
+                      isGroupDragOver && "border-t-2 border-t-[#0089FF] bg-[#0089FF]/5",
+                    )}
+                  >
                     {/* Category Header Row */}
-                    <div className="flex items-center justify-between py-0.5">
+                    <div className="flex items-center justify-between py-0.5 group/header">
                       <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-slate-800 dark:text-slate-100">
                         <input
                           type="checkbox"
@@ -303,27 +347,98 @@ export function ObjectColumnSettingsModal({
                         />
                         <span>{group.label}</span>
                       </label>
-                      <GripVertical className="h-3.5 w-3.5 text-slate-400 cursor-grab shrink-0" />
+                      <button
+                        type="button"
+                        aria-label={`Drag section ${group.label}`}
+                        className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-[#0089FF] cursor-grab active:cursor-grabbing shrink-0 transition-colors"
+                      >
+                        <GripVertical className="h-4 w-4" />
+                      </button>
                     </div>
 
                     {/* Column Items Indented List */}
                     <div className="space-y-1.5 pl-5">
-                      {filteredColumns.map((col) => (
-                        <label
-                          key={col.id}
-                          className="flex items-center gap-2 cursor-pointer hover:text-[#0089FF] transition-colors"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={localColumns.includes(col.id)}
-                            onChange={() => toggleColumn(col.id)}
-                            className="h-3.5 w-3.5 rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer"
-                          />
-                          <span className="text-xs font-normal text-slate-700 dark:text-slate-200">
-                            {col.label}
-                          </span>
-                        </label>
-                      ))}
+                      {filteredColumns.map((col, colIndex) => {
+                        const isColDragging =
+                          draggedColIndex?.groupId === group.id && draggedColIndex?.colIndex === colIndex;
+                        const isColDragOver =
+                          dragOverColIndex?.groupId === group.id &&
+                          dragOverColIndex?.colIndex === colIndex &&
+                          !isColDragging;
+
+                        return (
+                          <div
+                            key={col.id}
+                            draggable
+                            onDragStart={(e) => {
+                              e.stopPropagation();
+                              setDraggedColIndex({ groupId: group.id, colIndex });
+                              e.dataTransfer.effectAllowed = "move";
+                            }}
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (
+                                !dragOverColIndex ||
+                                dragOverColIndex.groupId !== group.id ||
+                                dragOverColIndex.colIndex !== colIndex
+                              ) {
+                                setDragOverColIndex({ groupId: group.id, colIndex });
+                              }
+                            }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (
+                                draggedColIndex &&
+                                draggedColIndex.groupId === group.id &&
+                                draggedColIndex.colIndex !== colIndex
+                              ) {
+                                setGroups((prevGroups) =>
+                                  prevGroups.map((g) => {
+                                    if (g.id !== group.id) return g;
+                                    const updatedCols = [...g.columns];
+                                    const [movedCol] = updatedCols.splice(draggedColIndex.colIndex, 1);
+                                    updatedCols.splice(colIndex, 0, movedCol);
+                                    return { ...g, columns: updatedCols };
+                                  }),
+                                );
+                              }
+                              setDraggedColIndex(null);
+                              setDragOverColIndex(null);
+                            }}
+                            onDragEnd={(e) => {
+                              e.stopPropagation();
+                              setDraggedColIndex(null);
+                              setDragOverColIndex(null);
+                            }}
+                            className={cn(
+                              "flex items-center justify-between gap-2 py-0.5 px-1.5 rounded group/item transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-900/60",
+                              isColDragging && "opacity-30 border border-dashed border-[#0089FF]",
+                              isColDragOver && "border-t-2 border-t-[#0089FF] bg-[#0089FF]/5",
+                            )}
+                          >
+                            <label className="flex items-center gap-2 cursor-pointer hover:text-[#0089FF] transition-colors flex-1 min-w-0">
+                              <input
+                                type="checkbox"
+                                checked={localColumns.includes(col.id)}
+                                onChange={() => toggleColumn(col.id)}
+                                className="h-3.5 w-3.5 rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                              />
+                              <span className="text-xs font-normal text-slate-700 dark:text-slate-200 truncate">
+                                {col.label}
+                              </span>
+                            </label>
+                            <button
+                              type="button"
+                              aria-label={`Drag column ${col.label}`}
+                              className="p-0.5 rounded text-slate-300 hover:text-[#0089FF] cursor-grab active:cursor-grabbing shrink-0 transition-colors opacity-60 group-hover/item:opacity-100"
+                            >
+                              <GripVertical className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
