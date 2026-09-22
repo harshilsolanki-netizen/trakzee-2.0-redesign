@@ -1,6 +1,8 @@
 import {
   Boxes,
   Calculator,
+  ChevronLeft,
+  ChevronRight,
   Compass,
   Eye,
   GitCompare,
@@ -301,6 +303,33 @@ export function LiveTrackingMap({
         )}
       >
         <TooltipProvider delayDuration={150}>
+          {/* Telemetry Drawer Toggle (Top Placement with Chevron Icon) */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={onToggleTelemetryDrawer}
+                className={cn(
+                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
+                  isTelemetryDrawerOpen
+                    ? "bg-[#0089FF] text-white shadow-xs"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
+                )}
+              >
+                {isTelemetryDrawerOpen ? (
+                  <ChevronRight className="h-4 w-4 stroke-[2.5]" />
+                ) : (
+                  <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              {isTelemetryDrawerOpen ? "Close Telemetry Drawer" : "Open Telemetry Drawer"}
+            </TooltipContent>
+          </Tooltip>
+
+          <div className="w-full my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
+
           {/* 1. Select Map */}
           <Tooltip>
             <TooltipTrigger asChild>
@@ -552,27 +581,6 @@ export function LiveTrackingMap({
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Zoom out</TooltipContent>
-          </Tooltip>
-
-          <div className="w-full my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
-
-          {/* Additional Telemetry Drawer Toggle */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={onToggleTelemetryDrawer}
-                className={cn(
-                  "p-2 rounded-xl transition-colors cursor-pointer text-slate-700 dark:text-slate-300",
-                  isTelemetryDrawerOpen
-                    ? "bg-[#0089FF] text-white shadow-xs"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white",
-                )}
-              >
-                <SlidersHorizontal className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Telemetry Drawer</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
