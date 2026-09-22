@@ -133,17 +133,20 @@ export function TrackingPage() {
           selectedVehicle={selectedVehicle}
           checkedVehicles={checkedVehicles}
           onOpenPlayback={() => setPlaybackOpen(true)}
+          isLeftPanelOpen={isLeftPanelOpen}
+          leftPanelWidth={panelWidth}
           isTelemetryDrawerOpen={isTelemetryDrawerOpen}
           onToggleTelemetryDrawer={() =>
             setIsTelemetryDrawerOpen((prev) => !prev)
           }
+          onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
           className="h-full w-full rounded-none border-0 shadow-none"
         />
       </div>
 
       {/* 2. Left Floating Fleet Explorer Panel */}
       {isLeftPanelOpen ? (
-        <div className="absolute top-3 bottom-3 left-3 z-10 flex flex-col pointer-events-none">
+        <div className="absolute top-2.5 bottom-2.5 left-2.5 z-10 flex flex-col pointer-events-none">
           <FleetExplorerPanel
             vehicles={vehiclesList}
             selectedVehicleId={selectedVehicleId}
@@ -194,14 +197,14 @@ export function TrackingPage() {
 
       {/* 3. Right Floating Vehicle Telemetry & Diagnostics Drawer */}
       {isTelemetryDrawerOpen && (
-        <div className="absolute top-3 bottom-3 right-3 z-10 flex flex-col pointer-events-none animate-in slide-in-from-right-4 duration-200">
+        <div className="absolute top-2.5 bottom-2.5 right-2.5 z-10 flex flex-col pointer-events-none animate-in slide-in-from-right-4 duration-200">
           <VehicleTelemetryDrawer
             vehicle={selectedVehicle}
             onClose={() => setIsTelemetryDrawerOpen(false)}
             onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
             allVehicles={fleetObjects}
             onOpenPlayback={() => setPlaybackOpen(true)}
-            className="w-[350px] sm:w-[360px] h-full shadow-2xl pointer-events-auto border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl overflow-hidden"
+            className="w-[280px] sm:w-[280px] h-full pointer-events-auto bg-transparent border-0 shadow-none"
           />
         </div>
       )}

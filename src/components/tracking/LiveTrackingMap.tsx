@@ -1,4 +1,6 @@
 import {
+  Activity,
+  AlertTriangle,
   Boxes,
   Calculator,
   ChevronLeft,
@@ -10,6 +12,7 @@ import {
   GitCompare,
   Grid2x2,
   Layers,
+  ListFilter,
   Locate,
   LocateFixed,
   Map,
@@ -24,17 +27,23 @@ import {
   Route,
   Ruler,
   Share2,
+  ShieldCheck,
   SlidersHorizontal,
   Square,
   Tag,
   Target,
+  ThumbsUp,
+  Timer,
   TrafficCone,
   TrendingUp,
   Truck,
   Volume2,
+  X,
   Zap,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { toast } from "sonner";
 import { type FleetObject, STATUS_META } from "@/data/fleet";
 import { cn } from "@/lib/utils";
@@ -45,19 +54,140 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+export const CLUSTERS_DATA = [
+  {
+    id: "cluster-1",
+    label: "India Fleet",
+    count: 15,
+    lat: 20.5937,
+    lng: 78.9629,
+    left: "35%",
+    top: "33.8%",
+    svgCircles: [
+      { stroke: "#EF4444", dashArray: "33 71", dashOffset: 0 },
+      { stroke: "#10B981", dashArray: "52 52", dashOffset: -33 },
+      { stroke: "#F59E0B", dashArray: "21 83", dashOffset: -85 },
+    ],
+    stats: { running: 8, idle: 3, stopped: 2, inactive: 1, nodata: 1 },
+    vehicles: [
+      { id: "veh-1", name: "1234 ABC", status: "running", speed: 45 },
+      { id: "veh-2", name: "5678 DEF", status: "idle", speed: 0 },
+      { id: "veh-3", name: "9101 GHI", status: "running", speed: 62 },
+      { id: "veh-4", name: "1121 JKL", status: "running", speed: 50 },
+      { id: "veh-5", name: "5141 MNO", status: "running", speed: 38 },
+      { id: "veh-6", name: "5161 PQR", status: "running", speed: 41 },
+      { id: "veh-7", name: "7181 STU", status: "stopped", speed: 0, alert: true },
+      { id: "veh-8", name: "9202 VWX", status: "running", speed: 70 },
+      { id: "veh-9", name: "2233 YZA", status: "stopped", speed: 0, alert: true },
+      { id: "veh-10", name: "4455 BCD", status: "inactive", speed: 0 },
+      { id: "veh-11", name: "6677 EFG", status: "running", speed: 55 },
+      { id: "veh-12", name: "8899 HIJ", status: "running", speed: 48 },
+      { id: "veh-13", name: "0001 KLM", status: "idle", speed: 0 },
+      { id: "veh-14", name: "2345 NOP", status: "idle", speed: 0 },
+      { id: "veh-15", name: "6789 QRS", status: "nodata", speed: 0 },
+    ],
+  },
+  {
+    id: "cluster-2",
+    label: "Mumbai Region",
+    count: 7,
+    lat: 19.0760,
+    lng: 72.8777,
+    left: "32%",
+    top: "44.6%",
+    svgCircles: [
+      { stroke: "#10B981", dashArray: "62 42", dashOffset: 0 },
+      { stroke: "#EF4444", dashArray: "42 62", dashOffset: -62 },
+    ],
+    stats: { running: 4, idle: 2, stopped: 1, inactive: 0, nodata: 0 },
+    vehicles: [
+      { id: "veh-5", name: "MH04AB1234", status: "running", speed: 52 },
+      { id: "veh-6", name: "MH45NO5678", status: "stopped", speed: 0, alert: true },
+      { id: "veh-7", name: "Mercedes GLE 300d", status: "running", speed: 99 },
+      { id: "veh-8", name: "Scania - 1004", status: "idle", speed: 0 },
+      { id: "veh-9", name: "Temperature - 1005", status: "running", speed: 45 },
+      { id: "veh-10", name: "RPM - 130004", status: "running", speed: 71 },
+      { id: "veh-11", name: "SOC - 130002", status: "idle", speed: 0 },
+    ],
+  },
+  {
+    id: "cluster-3",
+    label: "Thailand Fleet",
+    count: 3,
+    lat: 13.7563,
+    lng: 100.5018,
+    left: "48%",
+    top: "43.1%",
+    svgCircles: [
+      { stroke: "#10B981", dashArray: "73 31", dashOffset: 0 },
+      { stroke: "#F59E0B", dashArray: "31 73", dashOffset: -73 },
+    ],
+    stats: { running: 2, idle: 1, stopped: 0, inactive: 0, nodata: 0 },
+    vehicles: [
+      { id: "veh-12", name: "BUS - 130003", status: "running", speed: 135 },
+      { id: "veh-13", name: "Fuel - 130001", status: "idle", speed: 0 },
+      { id: "veh-14", name: "RPM - 130004", status: "running", speed: 71 },
+    ],
+  },
+  {
+    id: "cluster-4",
+    label: "South East",
+    count: 2,
+    lat: 3.1390,
+    lng: 101.6869,
+    left: "53%",
+    top: "45.4%",
+    svgCircles: [
+      { stroke: "#10B981", dashArray: "52 52", dashOffset: 0 },
+      { stroke: "#0089FF", dashArray: "52 52", dashOffset: -52 },
+    ],
+    stats: { running: 1, idle: 0, stopped: 0, inactive: 1, nodata: 0 },
+    vehicles: [
+      { id: "veh-15", name: "SOC - 130002", status: "running", speed: 135 },
+      { id: "veh-16", name: "Temperature - 12394", status: "inactive", speed: 0 },
+    ],
+  },
+  {
+    id: "cluster-5",
+    label: "Indonesia Sulawesi",
+    count: 4,
+    lat: -5.1477,
+    lng: 119.4327,
+    left: "76%",
+    top: "80%",
+    svgCircles: [
+      { stroke: "#10B981", dashArray: "78 26", dashOffset: 0 },
+      { stroke: "#F59E0B", dashArray: "26 78", dashOffset: -78 },
+    ],
+    stats: { running: 3, idle: 1, stopped: 0, inactive: 0, nodata: 0 },
+    vehicles: [
+      { id: "veh-17", name: "Fuel - 1001", status: "running", speed: 107 },
+      { id: "veh-18", name: "Mercedes GLE 300d", status: "running", speed: 99 },
+      { id: "veh-19", name: "Scania - 1004", status: "running", speed: 102 },
+      { id: "veh-20", name: "Temperature - 1005", status: "idle", speed: 0 },
+    ],
+  },
+];
+
 export function LiveTrackingMap({
   selectedVehicle,
   checkedVehicles,
   onOpenPlayback,
+  isLeftPanelOpen = true,
+  leftPanelWidth = 630,
   isTelemetryDrawerOpen,
   onToggleTelemetryDrawer,
+  onSelectVehicle,
   className,
 }: {
   selectedVehicle: FleetObject;
   checkedVehicles: FleetObject[];
   onOpenPlayback: () => void;
+  isLeftPanelOpen?: boolean;
+  leftPanelWidth?: number;
   isTelemetryDrawerOpen: boolean;
   onToggleTelemetryDrawer: () => void;
+  onSelectVehicle?: (id: string) => void;
   className?: string;
 }) {
   const [mapStyle, setMapStyle] = useState<"streets" | "satellite" | "terrain" | "dark">("streets");
@@ -71,7 +201,119 @@ export function LiveTrackingMap({
   const [showTraffic, setShowTraffic] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(12);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Cluster hover and click popover state
+  const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
+  const [activeClusterId, setActiveClusterId] = useState<string | null>(null);
+
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapElementRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
+  const polylineRef = useRef<L.Polyline | null>(null);
+
+  const [clusterScreenCoords, setClusterScreenCoords] = useState<Record<string, { x: number; y: number }>>({});
+  const [activeVehicleCoord, setActiveVehicleCoord] = useState<{ x: number; y: number } | null>(null);
+
+  // Initialize Leaflet Map Instance
+  useEffect(() => {
+    if (!mapElementRef.current || mapInstanceRef.current) return;
+
+    const map = L.map(mapElementRef.current, {
+      center: [15.8700, 95.0000],
+      zoom: 4,
+      zoomControl: false,
+      attributionControl: false,
+    });
+
+    mapInstanceRef.current = map;
+
+    const syncPositions = () => {
+      const coords: Record<string, { x: number; y: number }> = {};
+      CLUSTERS_DATA.forEach((cluster) => {
+        const pt = map.latLngToContainerPoint([cluster.lat, cluster.lng]);
+        coords[cluster.id] = { x: pt.x, y: pt.y };
+      });
+      setClusterScreenCoords(coords);
+
+      const vehPt = map.latLngToContainerPoint([19.0760, 72.8777]);
+      setActiveVehicleCoord({ x: vehPt.x, y: vehPt.y });
+    };
+
+    map.on("move zoom viewreset resize", syncPositions);
+    syncPositions();
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, []);
+
+  // Update Leaflet Tile Layer on mapStyle change
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    if (tileLayerRef.current) {
+      mapInstanceRef.current.removeLayer(tileLayerRef.current);
+    }
+
+    const tileConfigs = {
+      streets: {
+        url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        subdomains: "abcd",
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+      },
+      satellite: {
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}",
+        subdomains: "a",
+        attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS",
+      },
+      dark: {
+        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        subdomains: "abcd",
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+      },
+      terrain: {
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{x}/{y}",
+        subdomains: "a",
+        attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+      },
+    };
+
+    const cfg = tileConfigs[mapStyle];
+    const layer = L.tileLayer(cfg.url, {
+      attribution: cfg.attribution,
+      subdomains: cfg.subdomains || "a",
+      maxZoom: 19,
+    });
+    layer.addTo(mapInstanceRef.current);
+    tileLayerRef.current = layer;
+  }, [mapStyle]);
+
+  // Sync polyline active vehicle route path
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    if (polylineRef.current) {
+      mapInstanceRef.current.removeLayer(polylineRef.current);
+      polylineRef.current = null;
+    }
+
+    if (showObjectPath) {
+      const routePoints: [number, number][] = [
+        [19.0760, 72.8777],
+        [19.0820, 72.8850],
+        [19.0910, 72.8940],
+        [19.1020, 72.9030],
+        [19.1150, 72.9150],
+      ];
+      const polyline = L.polyline(routePoints, {
+        color: "#0089FF",
+        weight: 4,
+        dashArray: "6, 8",
+        opacity: 0.9,
+      }).addTo(mapInstanceRef.current);
+      polylineRef.current = polyline;
+    }
+  }, [showObjectPath]);
 
   // Toggle fullscreen
   const toggleFullscreen = () => {
@@ -84,8 +326,62 @@ export function LiveTrackingMap({
     }
   };
 
-  const handleZoomIn = () => setZoomLevel((z) => Math.min(18, z + 1));
-  const handleZoomOut = () => setZoomLevel((z) => Math.max(2, z - 1));
+  const handleZoomIn = () => mapInstanceRef.current?.zoomIn();
+  const handleZoomOut = () => mapInstanceRef.current?.zoomOut();
+  const handleRecenter = () => {
+    mapInstanceRef.current?.flyTo([19.0760, 72.8777], 13);
+    toast.success("Map re-centered to selected vehicle");
+  };
+
+  // Active Score Tab state (Single selection tab)
+  const [activeScoreTab, setActiveScoreTab] = useState<"safety" | "efficiency" | "risk" | "discipline">("safety");
+
+  const leftOffset = isLeftPanelOpen ? leftPanelWidth + 24 : 16;
+  const rightOffset = isTelemetryDrawerOpen ? 296 : 16;
+  const healthBarCenterShift = Math.round((leftOffset - rightOffset) / 2);
+
+  const SCORE_TABS = [
+    {
+      id: "safety" as const,
+      label: "Safety",
+      score: "85",
+      icon: ShieldCheck,
+      activeBg: "bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 border-emerald-500",
+      hoverBorder: "hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-300",
+      tooltipTitle: "Safety Index: 85/100",
+      tooltipDesc: "0 Harsh Braking · 1 Rapid Accel · 0 Speeding",
+    },
+    {
+      id: "efficiency" as const,
+      label: "Efficiency",
+      score: "72",
+      icon: Timer,
+      activeBg: "bg-amber-500 text-white shadow-sm shadow-amber-500/25 border-amber-500",
+      hoverBorder: "hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-700 dark:hover:text-amber-300",
+      tooltipTitle: "Efficiency Index: 72/100",
+      tooltipDesc: "Fuel Economy: 92% · Idle Duration: 8%",
+    },
+    {
+      id: "risk" as const,
+      label: "Risk",
+      score: "15",
+      icon: AlertTriangle,
+      activeBg: "bg-rose-500 text-white shadow-sm shadow-rose-500/25 border-rose-500",
+      hoverBorder: "hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 dark:hover:text-rose-300",
+      tooltipTitle: "Risk Level: 15 (Low Risk)",
+      tooltipDesc: "Collision Risk: Low · Driver Fatigue: Normal",
+    },
+    {
+      id: "discipline" as const,
+      label: "Discipline",
+      score: "98",
+      icon: ThumbsUp,
+      activeBg: "bg-[#0089FF] text-white shadow-sm shadow-[#0089FF]/25 border-[#0089FF]",
+      hoverBorder: "hover:bg-sky-50 dark:hover:bg-sky-950/40 hover:text-[#0089FF] dark:hover:text-sky-300",
+      tooltipTitle: "Route Discipline: 98/100",
+      tooltipDesc: "Geofence Compliance: 100% · Timings: On Track",
+    },
+  ];
 
   return (
     <div
@@ -95,177 +391,179 @@ export function LiveTrackingMap({
         className,
       )}
     >
-      {/* 1. Interactive SVG Map Canvas (Real Map Styling) */}
-      <svg
-        className="absolute inset-0 h-full w-full cursor-grab active:cursor-grabbing"
-        viewBox="0 0 1000 650"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        <defs>
-          {/* Street Map Pattern */}
-          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(200, 210, 220, 0.25)" strokeWidth="0.8" />
-          </pattern>
-          {/* Water Gradient */}
-          <linearGradient id="oceanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={mapStyle === "dark" ? "#0F172A" : "#D4E6F1"} />
-            <stop offset="100%" stopColor={mapStyle === "dark" ? "#090D16" : "#C2DCED"} />
-          </linearGradient>
-          {/* Landmass */}
-          <linearGradient id="landGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={mapStyle === "dark" ? "#1E293B" : "#F4EFE6"} />
-            <stop offset="100%" stopColor={mapStyle === "dark" ? "#182234" : "#ECE5D8"} />
-          </linearGradient>
-          {/* Road Network Yellow Gradient */}
-          <linearGradient id="primaryRoadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FCD34D" />
-            <stop offset="100%" stopColor="#FBBF24" />
-          </linearGradient>
-        </defs>
+      {/* 1. Real Interactive Leaflet Tile Map Engine */}
+      <div
+        ref={mapElementRef}
+        className="absolute inset-0 h-full w-full z-0 cursor-grab active:cursor-grabbing"
+      />
 
-        {/* Ocean Background */}
-        <rect width="100%" height="100%" fill="url(#oceanGrad)" />
-
-        {/* Realistic Landmass Map Contours */}
-        <g id="landmass">
-          {/* Asia / SE Asia Main Continent */}
-          <path
-            d="M 50,0 L 220,40 Q 300,120 320,240 L 260,380 Q 240,460 310,500 L 420,530 Q 520,540 600,480 L 700,420 Q 750,300 720,180 L 680,60 Q 640,0 550,0 Z"
-            fill="url(#landGrad)"
-            stroke={mapStyle === "dark" ? "#334155" : "#D8D0C2"}
-            strokeWidth="1.2"
-          />
-          {/* Island 1 (Indonesia - Sulawesi / Java / Bali) */}
-          <path
-            d="M 680,480 Q 740,460 820,490 Q 860,540 840,600 Q 780,620 720,590 Q 660,540 680,480 Z"
-            fill="url(#landGrad)"
-            stroke={mapStyle === "dark" ? "#334155" : "#D8D0C2"}
-            strokeWidth="1.2"
-          />
-          {/* Island 2 (Thailand / Malaysia Peninsula) */}
-          <path
-            d="M 440,280 Q 480,340 470,420 Q 450,480 430,520 Q 410,480 420,400 Q 400,320 440,280 Z"
-            fill="url(#landGrad)"
-            stroke={mapStyle === "dark" ? "#334155" : "#D8D0C2"}
-            strokeWidth="1.2"
-          />
-        </g>
-
-        {/* Grid pattern overlay */}
-        <rect width="100%" height="100%" fill="url(#grid)" />
-
-        {/* Primary Highway & City Roads */}
-        <g id="roads" strokeLinecap="round" strokeLinejoin="round">
-          {/* Secondary Grey Roads */}
-          <path
-            d="M 280,180 L 360,260 L 450,290 L 520,270 L 600,340 L 680,380"
-            fill="none"
-            stroke={mapStyle === "dark" ? "#334155" : "#CBD5E1"}
-            strokeWidth="4"
-          />
-          <path
-            d="M 340,320 L 410,380 L 460,460 L 540,490"
-            fill="none"
-            stroke={mapStyle === "dark" ? "#334155" : "#CBD5E1"}
-            strokeWidth="3.5"
-          />
-          {/* Major Yellow National Arterial Highway (Matching Screenshot) */}
-          <path
-            d="M 320,120 Q 420,240 480,320 T 580,420 L 760,520"
-            fill="none"
-            stroke="url(#primaryRoadGrad)"
-            strokeWidth="7"
-          />
-          <path
-            d="M 480,320 L 540,210 L 620,180"
-            fill="none"
-            stroke="url(#primaryRoadGrad)"
-            strokeWidth="5"
-          />
-        </g>
-
-        {/* Active Vehicle Route Path (Tail Trace) */}
-        {showObjectPath && (
-          <path
-            d="M 500,450 L 540,390 L 580,350 L 580,340"
-            fill="none"
-            stroke="#0089FF"
-            strokeWidth="4"
-            strokeDasharray="6,4"
-            strokeLinecap="round"
-          />
-        )}
-      </svg>
-
-      {/* 2. Exact 40px Fixed Diameter Map Clusters (Pixel Perfect on All Monitors & Resolutions) */}
+      {/* 2. Exact 40px Fixed Diameter Map Clusters with Hover Menu & Click Popover Overlay */}
       {showClusters && (
         <>
-          {/* Cluster 1: India (4 vehicles) */}
-          <div
-            style={{ left: "35%", top: "33.8%" }}
-            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-          >
-            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray="33 71" />
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="52 52" strokeDashoffset="-33" />
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="21 83" strokeDashoffset="-85" />
-            </svg>
-            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">4</span>
-          </div>
+          {CLUSTERS_DATA.map((cluster) => {
+            const isHovered = hoveredClusterId === cluster.id;
+            const isActive = activeClusterId === cluster.id;
+            const pos = clusterScreenCoords[cluster.id];
 
-          {/* Cluster 2: Mumbai / West (7 vehicles) */}
-          <div
-            style={{ left: "32%", top: "44.6%" }}
-            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-          >
-            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="62 42" />
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray="42 62" strokeDashoffset="-62" />
-            </svg>
-            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">7</span>
-          </div>
+            const style = pos
+              ? { left: `${pos.x}px`, top: `${pos.y}px` }
+              : { left: cluster.left, top: cluster.top };
 
-          {/* Cluster 3: Thailand (3 vehicles) */}
-          <div
-            style={{ left: "48%", top: "43.1%" }}
-            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-          >
-            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="73 31" />
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="31 73" strokeDashoffset="-73" />
-            </svg>
-            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">3</span>
-          </div>
+            return (
+              <div
+                key={cluster.id}
+                style={style}
+                onMouseEnter={() => setHoveredClusterId(cluster.id)}
+                onMouseLeave={() => setHoveredClusterId(null)}
+                className="absolute -translate-x-1/2 -translate-y-1/2 z-10 transition-all duration-300 cursor-pointer"
+              >
+                {/* SVG Cluster Ring */}
+                <div
+                  onClick={() => {
+                    setActiveClusterId((prev) => (prev === cluster.id ? null : cluster.id));
+                  }}
+                  className="relative flex items-center justify-center h-10 w-10 transition-transform duration-200 hover:scale-110 active:scale-95"
+                >
+                  <svg className="h-full w-full -rotate-90" viewBox="0 0 40 40">
+                    <circle
+                      cx="20"
+                      cy="20"
+                      r="16.5"
+                      fill="white"
+                      className="dark:fill-slate-900 shadow-md"
+                    />
+                    {cluster.svgCircles.map((c, i) => (
+                      <circle
+                        key={i}
+                        cx="20"
+                        cy="20"
+                        r="16.5"
+                        fill="none"
+                        stroke={c.stroke}
+                        strokeWidth="3.5"
+                        strokeDasharray={c.dashArray}
+                        strokeDashoffset={c.dashOffset}
+                      />
+                    ))}
+                  </svg>
 
-          {/* Cluster 4: South East (2 vehicles) */}
-          <div
-            style={{ left: "53%", top: "45.4%" }}
-            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-          >
-            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="52 52" />
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#0089FF" strokeWidth="3" strokeDasharray="52 52" strokeDashoffset="-52" />
-            </svg>
-            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">2</span>
-          </div>
+                  <span className="absolute font-extrabold text-xs text-slate-900 dark:text-slate-100 font-mono">
+                    {cluster.count}
+                  </span>
+                </div>
 
-          {/* Cluster 5: Indonesia Sulawesi (4 vehicles) */}
-          <div
-            style={{ left: "76%", top: "80%" }}
-            className="absolute -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer hover:scale-110 transition-transform select-none z-10"
-          >
-            <svg className="absolute inset-0 w-[40px] h-[40px] -rotate-90">
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="78 26" />
-              <circle cx="20" cy="20" r="16.5" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="26 78" strokeDashoffset="-78" />
-            </svg>
-            <span className="text-xs font-black text-slate-900 dark:text-slate-100 z-10">4</span>
-          </div>
+                {/* Hover Menu Badge Icon (Appears on Hover next to cluster ring) */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveClusterId((prev) => (prev === cluster.id ? null : cluster.id));
+                  }}
+                  className={cn(
+                    "absolute left-full top-1/2 -translate-y-1/2 ml-1.5 p-1 rounded-md bg-[#0089FF] text-white shadow-md transition-all duration-200 cursor-pointer flex items-center gap-1",
+                    isHovered || isActive ? "opacity-100 scale-100 translate-x-0" : "opacity-0 scale-75 -translate-x-2 pointer-events-none",
+                  )}
+                  title="Open Object List for this Cluster"
+                >
+                  <ListFilter className="h-3.5 w-3.5" />
+                </button>
+
+                {/* Click Popover Object List Overlay (Matching Screenshot media_1790059147228.png) */}
+                {isActive && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute left-full top-1/2 -translate-y-1/2 ml-3 w-[260px] bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-2xl rounded-2xl overflow-hidden select-none z-50 animate-in zoom-in-95 duration-200"
+                  >
+                    {/* Header matching reference */}
+                    <div className="flex items-center justify-between px-3.5 py-2 bg-[#0F172A] text-white">
+                      <div className="flex items-center gap-2">
+                        <ListFilter className="h-4 w-4 text-[#0089FF]" />
+                        <span className="text-xs font-bold tracking-wide">Object List</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveClusterId(null)}
+                        className="p-0.5 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Status KPI Pills summary bar matching reference */}
+                    <div className="flex items-center justify-between px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800/80 border-b border-[#DFE3EB] dark:border-slate-700/60 text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+                        {cluster.stats.running}
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                        {cluster.stats.idle}
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-rose-500/15 text-rose-700 dark:text-rose-300">
+                        {cluster.stats.stopped}
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">
+                        {cluster.stats.inactive}
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-slate-500/15 text-slate-700 dark:text-slate-300">
+                        {cluster.stats.nodata}
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-[#0089FF]/15 text-[#0089FF] font-black">
+                        {cluster.count}
+                      </span>
+                    </div>
+
+                    {/* Vehicles list in cluster */}
+                    <div className="max-h-[220px] overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800 text-xs">
+                      {cluster.vehicles.map((v, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => {
+                            if (onSelectVehicle) onSelectVehicle(v.id);
+                            toast.info(`Selected vehicle ${v.name} from cluster`);
+                            setActiveClusterId(null);
+                          }}
+                          className={cn(
+                            "flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer",
+                            v.alert && "bg-rose-50/70 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200",
+                          )}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span
+                              className={cn(
+                                "h-2 w-2 rounded-full shrink-0",
+                                v.status === "running"
+                                  ? "bg-emerald-500"
+                                  : v.status === "idle"
+                                    ? "bg-amber-500"
+                                    : v.status === "stopped"
+                                      ? "bg-rose-500"
+                                      : "bg-indigo-500",
+                              )}
+                            />
+                            <span className="font-semibold text-slate-800 dark:text-slate-200 text-xs truncate">
+                              {v.name}
+                            </span>
+                          </div>
+                          {v.alert && (
+                            <AlertTriangle className="h-3.5 w-3.5 text-rose-500 shrink-0 fill-rose-500/20" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </>
       )}
 
       {/* 3. Selected Active Vehicle Marker Pin + Ultra Minimal Vehicle Label */}
       <div
-        style={{ left: "58%", top: "52.3%" }}
+        style={
+          activeVehicleCoord
+            ? { left: `${activeVehicleCoord.x}px`, top: `${activeVehicleCoord.y}px` }
+            : { left: "58%", top: "52.3%" }
+        }
         className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 cursor-pointer animate-in zoom-in-50 duration-300"
       >
         {/* Minimal Vehicle Direction Pin */}
@@ -303,11 +601,11 @@ export function LiveTrackingMap({
       <div
         className={cn(
           "absolute top-3.5 z-20 flex flex-col items-center gap-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-[#DFE3EB] dark:border-slate-800 rounded-2xl p-1.5 shadow-xl transition-all duration-200 overflow-y-auto max-h-[calc(100vh-80px)] select-none no-scrollbar",
-          isTelemetryDrawerOpen ? "right-[374px]" : "right-3.5",
+          isTelemetryDrawerOpen ? "right-[298px]" : "right-3.5",
         )}
       >
         <TooltipProvider delayDuration={150}>
-          {/* Telemetry Drawer Toggle (Top Placement with Chevron Icon) */}
+          {/* Telemetry Drawer Toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
               <button
@@ -323,7 +621,7 @@ export function LiveTrackingMap({
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">
-              {isTelemetryDrawerOpen ? "Close Telemetry Drawer" : "Open Telemetry Drawer"}
+              {isTelemetryDrawerOpen ? "Close Telemetry Panel" : "Open Telemetry Panel"}
             </TooltipContent>
           </Tooltip>
 
@@ -507,7 +805,7 @@ export function LiveTrackingMap({
             <TooltipTrigger asChild>
               <button
                 type="button"
-                onClick={() => toast.success("Map re-centered to selected vehicle")}
+                onClick={handleRecenter}
                 className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
                 <LocateFixed className="h-[18px] w-[18px] stroke-[2.2]" />
@@ -586,13 +884,64 @@ export function LiveTrackingMap({
 
       {/* 4. Bottom Map Scale & Coordinates */}
       <div
-        className={cn(
-          "absolute bottom-3 z-10 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3 py-1 rounded-xl border border-[#DFE3EB] dark:border-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 transition-all duration-200 shadow-sm",
-          isTelemetryDrawerOpen ? "right-[374px]" : "right-3.5",
-        )}
+        style={{ right: isTelemetryDrawerOpen ? "298px" : "14px" }}
+        className="absolute bottom-3 z-10 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3 py-1 rounded-xl border border-[#DFE3EB] dark:border-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 transition-all duration-300 shadow-sm"
       >
         <span>0.05 km</span>
         <div className="w-8 h-1 bg-slate-800 dark:bg-slate-200" />
+      </div>
+
+      {/* 5. Health Score Dock Bar (Matches Map Controller Margin, Padding & Height) */}
+      <div
+        style={{ left: `calc(50% + ${healthBarCenterShift}px)` }}
+        className="score-dock-container absolute bottom-3.5 -translate-x-1/2 z-20 flex items-center bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-[#DFE3EB] dark:border-slate-800 shadow-2xl select-none transition-all duration-300 ease-out"
+      >
+        <TooltipProvider delayDuration={150}>
+          {SCORE_TABS.map((tab) => {
+            const isSelected = activeScoreTab === tab.id;
+            const Icon = tab.icon;
+
+            return (
+              <Tooltip key={tab.id}>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveScoreTab(tab.id);
+                      toast.info(`${tab.label} tab selected (${tab.score})`);
+                    }}
+                    className={cn(
+                      "score-dock-tab h-[34px] px-3.5 border flex items-center gap-1.5 text-[11px] font-bold transition-all cursor-pointer select-none shrink-0",
+                      isSelected
+                        ? tab.activeBg
+                        : cn(
+                            "bg-slate-100/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/80",
+                            tab.hoverBorder,
+                          ),
+                    )}
+                  >
+                    <Icon className={cn("h-3.5 w-3.5 stroke-[2.2]", isSelected ? "text-white" : "opacity-80")} />
+                    <span>{tab.label}</span>
+                    <span
+                      className={cn(
+                        "score-dock-badge font-mono font-black text-[10px] px-1.5 py-0.5",
+                        isSelected
+                          ? "bg-white/20 text-white"
+                          : "bg-slate-200/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200",
+                      )}
+                    >
+                      {tab.score}
+                    </span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs">
+                  <p className="font-bold">{tab.tooltipTitle}</p>
+                  <p className="text-[11px] text-slate-300">{tab.tooltipDesc}</p>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </TooltipProvider>
       </div>
     </div>
   );
