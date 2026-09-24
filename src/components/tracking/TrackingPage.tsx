@@ -204,7 +204,7 @@ export function TrackingPage() {
             onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
             allVehicles={fleetObjects}
             onOpenPlayback={() => setPlaybackOpen(true)}
-            className="w-[280px] sm:w-[280px] h-full pointer-events-auto bg-transparent border-0 shadow-none"
+            className="w-[240px] sm:w-[240px] h-full pointer-events-auto bg-transparent border-0 shadow-none"
           />
         </div>
       )}

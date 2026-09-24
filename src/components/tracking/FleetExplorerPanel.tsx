@@ -2,6 +2,7 @@ import {
   Activity,
   ArrowUpDown,
   Bell,
+  Briefcase,
   Calendar,
   Camera,
   Check,
@@ -62,12 +63,13 @@ import {
 
 export type TrackingTab =
   | "object"
+  | "jobs"
   | "driver"
+  | "address"
   | "geofence"
-  | "route"
-  | "landmark"
-  | "camera"
-  | "alerts";
+  | "trailer"
+  | "beacon"
+  | "video_telematics";
 
 export function FleetExplorerPanel({
   vehicles,
@@ -322,21 +324,22 @@ export function FleetExplorerPanel({
     <div
       style={style}
       className={cn(
-        "flex flex-col bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 rounded-2xl shadow-lg select-none relative transition-all duration-75",
+        "flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg select-none relative transition-all duration-75",
         className,
       )}
     >
       {/* 1. Top Modern Tab Bar Header (Trakzee 2.0 Style) */}
-      <div className="flex h-11 items-center justify-between bg-white dark:bg-slate-900 border-b border-[#DFE3EB] dark:border-slate-800 px-3 select-none rounded-t-2xl">
-        <div className="flex items-center gap-1">
+      <div className="flex h-11 items-center justify-between bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 select-none rounded-t-2xl">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth flex-1 min-w-0 pr-1">
           {[
             { id: "object", label: "Object", icon: Navigation },
-            { id: "driver", label: "Drivers", icon: User },
-            { id: "geofence", label: "Geofences", icon: Layers },
-            { id: "route", label: "Routes", icon: TrendingUp },
-            { id: "landmark", label: "Landmarks", icon: MapPin },
-            { id: "camera", label: "Cameras", icon: Video },
-            { id: "alerts", label: "Alerts", icon: Bell },
+            { id: "jobs", label: "Jobs", icon: Briefcase },
+            { id: "driver", label: "Driver", icon: User },
+            { id: "address", label: "Address", icon: MapPin },
+            { id: "geofence", label: "Geofence", icon: Shield },
+            { id: "trailer", label: "Trailer", icon: Truck },
+            { id: "beacon", label: "Beacon", icon: Radio },
+            { id: "video_telematics", label: "Video Telematics", icon: Video },
           ].map((tab) => {
             const isActive = activeTab === tab.id;
             const IconComp = tab.icon;
@@ -347,7 +350,7 @@ export function FleetExplorerPanel({
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id as TrackingTab)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] text-white text-xs font-semibold shadow-2xs transition-all cursor-pointer active:scale-98"
+                  className="h-8 flex items-center gap-1.5 px-3 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] text-white text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-98"
                 >
                   <IconComp className="h-3.5 w-3.5 stroke-[2.2] fill-current shrink-0" />
                   <span>{tab.label}</span>
@@ -362,12 +365,14 @@ export function FleetExplorerPanel({
                     <button
                       type="button"
                       onClick={() => setActiveTab(tab.id as TrackingTab)}
-                      className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
+                      className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer shrink-0"
                     >
                       <IconComp className="h-4 w-4 stroke-[2]" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">{tab.label}</TooltipContent>
+                  <TooltipContent side="bottom" className="text-xs">
+                    {tab.label}
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             );
@@ -403,7 +408,7 @@ export function FleetExplorerPanel({
               <button
                 type="button"
                 onClick={onToggleCollapse}
-                className="absolute left-full top-1/2 -translate-y-1/2 z-50 flex h-12 w-5 items-center justify-center rounded-r-xl border border-l-0 border-[#DFE3EB] dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-600 dark:text-slate-300 shadow-md hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-all cursor-pointer active:scale-95 pointer-events-auto"
+                className="absolute left-full top-1/2 -translate-y-1/2 z-50 flex h-12 w-5 items-center justify-center rounded-r-xl border border-l-0 border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-600 dark:text-slate-300 shadow-md hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-all cursor-pointer active:scale-95 pointer-events-auto"
               >
                 <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
               </button>
@@ -581,14 +586,14 @@ export function FleetExplorerPanel({
       </div>
 
       {/* 3. Search & Action Toolbar */}
-      <div className="flex items-center gap-1.5 border-b border-[#DFE3EB] dark:border-slate-800 p-2 bg-white dark:bg-slate-900 shrink-0">
+      <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 p-2 bg-white dark:bg-slate-900 shrink-0">
         {/* Select All Checkbox */}
         <input
           type="checkbox"
           checked={allChecked}
           onChange={onToggleCheckAll}
           title="Select / Deselect all vehicles on map"
-          className="h-[12px] w-[12px] rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0 ml-0.5"
+          className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0 ml-0.5"
         />
 
         {/* Search input */}
@@ -598,7 +603,7 @@ export function FleetExplorerPanel({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by IMEI, VIN, Registration, Object Model, SIM Number, etc."
-            className="h-8 w-full rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-slate-50/60 dark:bg-slate-950/40 pl-3 pr-8 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#0089FF] focus:bg-white dark:focus:bg-slate-900 transition-colors"
+            className="h-8 w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-950/40 pl-3 pr-8 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#0089FF] focus:bg-white dark:focus:bg-slate-900 transition-colors"
           />
           {query ? (
             <button
@@ -623,7 +628,7 @@ export function FleetExplorerPanel({
                   type="button"
                   onClick={handleReload}
                   className={cn(
-                    "h-7 w-7 flex items-center justify-center rounded-lg border border-[#DFE3EB] dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
+                    "h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
                     isRefreshing && "bg-sky-50 text-[#0089FF] border-[#0089FF]/40 shadow-xs",
                   )}
                 >
@@ -648,7 +653,7 @@ export function FleetExplorerPanel({
                   onClick={() => {
                     if (onOpenAddVehicle) onOpenAddVehicle();
                   }}
-                  className="h-7 w-7 flex items-center justify-center rounded-lg border border-[#DFE3EB] dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
+                  className="h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
                 >
                   <PlusCircle className="h-3.5 w-3.5 stroke-[2.2]" />
                 </button>
@@ -666,7 +671,7 @@ export function FleetExplorerPanel({
                   "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
                   filterOpen
                     ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
-                    : "border-[#DFE3EB] dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
+                    : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
                 )}
               >
                 <Filter className="h-3.5 w-3.5 stroke-[2.2]" />
@@ -675,7 +680,7 @@ export function FleetExplorerPanel({
             <PopoverContent
               align="end"
               sideOffset={6}
-              className="w-auto p-0 bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-2xl rounded-2xl text-xs z-50 select-none overflow-hidden"
+              className="w-auto p-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl text-xs z-50 select-none overflow-hidden"
             >
               <div className="flex divide-x divide-[#DFE3EB] dark:divide-slate-800">
                 {/* Primary Category List (Left Panel) */}
@@ -702,7 +707,7 @@ export function FleetExplorerPanel({
                         className={cn(
                           "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
                           isActive
-                            ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-[#DFE3EB]/80 dark:border-slate-700/80"
+                            ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-slate-200/80 dark:border-slate-700/80"
                             : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60",
                         )}
                       >
@@ -724,7 +729,7 @@ export function FleetExplorerPanel({
                 <div className="w-72 p-3 flex flex-col justify-between bg-white dark:bg-slate-900 shrink-0">
                   <div>
                     {/* Header with Title and Selected Count Badge */}
-                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#DFE3EB]/70 dark:border-slate-800">
+                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200/70 dark:border-slate-800">
                       <span className="font-bold text-slate-900 dark:text-slate-100 text-xs">
                         Select {activeFilterCategory.replace(/\(s\)/g, "")}
                       </span>
@@ -740,7 +745,7 @@ export function FleetExplorerPanel({
                         value={filterSearch}
                         onChange={(e) => setFilterSearch(e.target.value)}
                         placeholder={`Search ${activeFilterCategory.toLowerCase()}...`}
-                        className="w-full h-8 pl-8 pr-3 text-xs bg-slate-50 dark:bg-slate-950 border border-[#DFE3EB] dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#0089FF] transition-colors"
+                        className="w-full h-8 pl-8 pr-3 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#0089FF] transition-colors"
                       />
                       {filterSearch && (
                         <button
@@ -775,12 +780,12 @@ export function FleetExplorerPanel({
                               setTempSelectedGroups([]);
                             }
                           }}
-                          className="h-[12px] w-[12px] rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF]"
+                          className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF]"
                         />
                         <span>Select All</span>
                       </label>
 
-                      <div className="border-t border-[#DFE3EB]/50 dark:border-slate-800/80 my-1" />
+                      <div className="border-t border-slate-200/50 dark:border-slate-800/80 my-1" />
 
                       {/* Items */}
                       {(activeFilterCategory === "Group(s)"
@@ -814,7 +819,7 @@ export function FleetExplorerPanel({
                                       : [...prev, item],
                                   );
                                 }}
-                                className="h-[12px] w-[12px] rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF]"
+                                className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF]"
                               />
                               <span className="truncate">{item}</span>
                             </label>
@@ -824,7 +829,7 @@ export function FleetExplorerPanel({
                   </div>
 
                   {/* Action Buttons Bar matching Report Overlay Footer */}
-                  <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-[#DFE3EB] dark:border-slate-800">
+                  <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-slate-200 dark:border-slate-800">
                     <button
                       type="button"
                       onClick={() => setTempSelectedGroups([])}
@@ -836,7 +841,7 @@ export function FleetExplorerPanel({
                       <button
                         type="button"
                         onClick={() => setFilterOpen(false)}
-                        className="px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-98"
+                        className="px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-98"
                       >
                         Cancel
                       </button>
@@ -869,7 +874,7 @@ export function FleetExplorerPanel({
                   "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
                   sortOpen
                     ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
-                    : "border-[#DFE3EB] dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
+                    : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
                 )}
               >
                 <ArrowUpDown className="h-3.5 w-3.5 stroke-[2.2]" />
@@ -878,7 +883,7 @@ export function FleetExplorerPanel({
             <PopoverContent
               align="end"
               sideOffset={6}
-              className="w-auto p-0 bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 shadow-2xl rounded-2xl text-xs z-50 overflow-hidden select-none"
+              className="w-auto p-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl text-xs z-50 overflow-hidden select-none"
             >
               <div className="flex divide-x divide-[#DFE3EB] dark:divide-slate-800">
                 {/* Left Category Menu (Sorting / Order) */}
@@ -890,7 +895,7 @@ export function FleetExplorerPanel({
                     className={cn(
                       "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
                       activeSortCategory === "Sorting"
-                        ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-[#DFE3EB]/80 dark:border-slate-700/80"
+                        ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-slate-200/80 dark:border-slate-700/80"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60",
                     )}
                   >
@@ -910,7 +915,7 @@ export function FleetExplorerPanel({
                     className={cn(
                       "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
                       activeSortCategory === "Order"
-                        ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-[#DFE3EB]/80 dark:border-slate-700/80"
+                        ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-slate-200/80 dark:border-slate-700/80"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60",
                     )}
                   >
@@ -951,7 +956,7 @@ export function FleetExplorerPanel({
                               type="checkbox"
                               checked={isSelected}
                               onChange={() => {}}
-                              className="h-[12px] w-[12px] rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF]"
+                              className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF]"
                             />
                             <span>{item.label}</span>
                           </label>
@@ -987,7 +992,7 @@ export function FleetExplorerPanel({
                   </div>
 
                   {/* Footer Bar */}
-                  <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-[#DFE3EB] dark:border-slate-800">
+                  <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-slate-200 dark:border-slate-800">
                     <button
                       type="button"
                       onClick={() => {
@@ -1002,7 +1007,7 @@ export function FleetExplorerPanel({
                       <button
                         type="button"
                         onClick={() => setSortOpen(false)}
-                        className="px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-98"
+                        className="px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-98"
                       >
                         Cancel
                       </button>
@@ -1029,7 +1034,7 @@ export function FleetExplorerPanel({
 
       {/* Structured Table Column Header Bar */}
       {activeTab === "object" && (
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100/90 dark:bg-slate-800/70 border-b border-[#DFE3EB] dark:border-slate-800 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 select-none shrink-0 overflow-x-hidden">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100/90 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 select-none shrink-0 overflow-x-hidden">
           <div className="w-[210px] shrink-0 truncate flex items-center gap-1 pl-1">
             <button
               type="button"
@@ -1094,7 +1099,7 @@ export function FleetExplorerPanel({
                             if (el) el.indeterminate = isGroupSomeChecked;
                           }}
                           onChange={() => onToggleCheckGroup(groupIds)}
-                          className="h-[12px] w-[12px] rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                          className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
                         />
                         <button
                           type="button"
@@ -1150,7 +1155,7 @@ export function FleetExplorerPanel({
                                     e.stopPropagation();
                                     onToggleCheckVehicle(v.id);
                                   }}
-                                  className="h-[12px] w-[12px] rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                  className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
                                 />
 
                                 {/* Sleek Status Dot Indicator */}
@@ -1334,7 +1339,7 @@ export function FleetExplorerPanel({
         {/* Drivers Tab View */}
         {activeTab === "driver" && (
           <div className="p-3 space-y-2">
-            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-[#DFE3EB] dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
               <span>All Active Drivers ({filteredVehicles.filter((v) => v.driver).length})</span>
               <span className="text-[10px] text-[#0089FF] font-mono">Duty Roster</span>
             </div>
@@ -1380,7 +1385,7 @@ export function FleetExplorerPanel({
         {/* Geofences Tab View */}
         {activeTab === "geofence" && (
           <div className="p-3 space-y-2">
-            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-[#DFE3EB] dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
               <span>Geofences & Zones (4)</span>
               <span className="text-[10px] text-[#0089FF]">GIS Layer</span>
             </div>
@@ -1390,7 +1395,7 @@ export function FleetExplorerPanel({
               { name: "Bangkok Terminal 2", type: "Polygon Zone", count: 5, speedLimit: "50 km/h" },
               { name: "Surat Port Yard", type: "Circular Zone (5 km)", count: 18, speedLimit: "25 km/h" },
             ].map((g, i) => (
-              <div key={i} className="p-3 rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-[#0089FF] cursor-pointer transition-all">
+              <div key={i} className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-[#0089FF] cursor-pointer transition-all">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-md bg-sky-50 text-[#0089FF] dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800">
                     <Layers className="h-4 w-4" />
@@ -1411,7 +1416,7 @@ export function FleetExplorerPanel({
         {/* Routes Tab View */}
         {activeTab === "route" && (
           <div className="p-3 space-y-2">
-            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-[#DFE3EB] dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
               <span>Active Freight Routes (3)</span>
               <span className="text-[10px] text-[#0089FF]">Live Dispatch</span>
             </div>
@@ -1420,7 +1425,7 @@ export function FleetExplorerPanel({
               { name: "Java Highway 1", origin: "Jakarta", dest: "Bandung", dist: "154 km", status: "Heavy Traffic" },
               { name: "Thai Inter-City 4", origin: "Bangkok", dest: "Chonburi", dist: "88 km", status: "Clear" },
             ].map((r, i) => (
-              <div key={i} className="p-3 rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-[#0089FF] cursor-pointer transition-all">
+              <div key={i} className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-[#0089FF] cursor-pointer transition-all">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-md bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800">
                     <TrendingUp className="h-4 w-4" />
@@ -1441,7 +1446,7 @@ export function FleetExplorerPanel({
         {/* Landmarks Tab View */}
         {activeTab === "landmark" && (
           <div className="p-3 space-y-2">
-            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-[#DFE3EB] dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
               <span>Landmarks & POIs (4)</span>
               <span className="text-[10px] text-[#0089FF]">Custom POI</span>
             </div>
@@ -1451,7 +1456,7 @@ export function FleetExplorerPanel({
               { name: "Bangkok Cargo Terminal", category: "Warehouse", city: "Bangkok" },
               { name: "Highway Rest Stop 14", category: "Rest Area", city: "Surat" },
             ].map((p, i) => (
-              <div key={i} className="p-3 rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-[#0089FF] cursor-pointer transition-all">
+              <div key={i} className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-[#0089FF] cursor-pointer transition-all">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-md bg-amber-50 text-amber-600 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800">
                     <MapPin className="h-4 w-4" />
@@ -1469,7 +1474,7 @@ export function FleetExplorerPanel({
         {/* Video Cameras Tab View */}
         {activeTab === "camera" && (
           <div className="p-3 space-y-2">
-            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-[#DFE3EB] dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
               <span>Live Video Telematics Cameras</span>
               <span className="text-[10px] text-emerald-600 font-mono font-bold">● LIVE</span>
             </div>
@@ -1477,7 +1482,7 @@ export function FleetExplorerPanel({
               <div
                 key={v.id}
                 onClick={() => onOpenDashcam(v)}
-                className="p-3 rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-[#0089FF] cursor-pointer transition-all"
+                className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-[#0089FF] cursor-pointer transition-all"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-md bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800">
@@ -1502,7 +1507,7 @@ export function FleetExplorerPanel({
         {/* Live Alerts Tab View */}
         {activeTab === "alerts" && (
           <div className="p-3 space-y-2">
-            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-[#DFE3EB] dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
               <span>Recent Live Fleet Alerts</span>
               <span className="text-[10px] text-rose-500 font-mono font-bold">Real-Time</span>
             </div>
@@ -1512,7 +1517,7 @@ export function FleetExplorerPanel({
               { type: "Geofence Exit", vehicle: "Temperature - 12394", speed: "150 km/h", time: "14 mins ago", sev: "med" },
               { type: "Low Battery Level", vehicle: "Scania - 1004", speed: "102 km/h", time: "22 mins ago", sev: "low" },
             ].map((a, i) => (
-              <div key={i} className="p-3 rounded-lg border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-rose-500 cursor-pointer transition-all">
+              <div key={i} className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-rose-500 cursor-pointer transition-all">
                 <div className="flex items-center gap-2.5">
                   <div className={cn(
                     "p-2 rounded-md border",

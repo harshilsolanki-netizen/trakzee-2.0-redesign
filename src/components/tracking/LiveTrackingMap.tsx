@@ -201,6 +201,7 @@ export function LiveTrackingMap({
   const [showTraffic, setShowTraffic] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(12);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [activeHealthTab, setActiveHealthTab] = useState<"safety" | "efficiency" | "risk" | "discipline">("safety");
 
   // Cluster hover and click popover state
   const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
@@ -258,9 +259,9 @@ export function LiveTrackingMap({
 
     const tileConfigs = {
       streets: {
-        url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-        subdomains: "abcd",
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: "abc",
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       },
       satellite: {
         url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}",
@@ -333,55 +334,11 @@ export function LiveTrackingMap({
     toast.success("Map re-centered to selected vehicle");
   };
 
-  // Active Score Tab state (Single selection tab)
-  const [activeScoreTab, setActiveScoreTab] = useState<"safety" | "efficiency" | "risk" | "discipline">("safety");
+
 
   const leftOffset = isLeftPanelOpen ? leftPanelWidth + 24 : 16;
-  const rightOffset = isTelemetryDrawerOpen ? 296 : 16;
+  const rightOffset = isTelemetryDrawerOpen ? 255 : 16;
   const healthBarCenterShift = Math.round((leftOffset - rightOffset) / 2);
-
-  const SCORE_TABS = [
-    {
-      id: "safety" as const,
-      label: "Safety",
-      score: "85",
-      icon: ShieldCheck,
-      activeBg: "bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 border-emerald-500",
-      hoverBorder: "hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-300",
-      tooltipTitle: "Safety Index: 85/100",
-      tooltipDesc: "0 Harsh Braking · 1 Rapid Accel · 0 Speeding",
-    },
-    {
-      id: "efficiency" as const,
-      label: "Efficiency",
-      score: "72",
-      icon: Timer,
-      activeBg: "bg-amber-500 text-white shadow-sm shadow-amber-500/25 border-amber-500",
-      hoverBorder: "hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-700 dark:hover:text-amber-300",
-      tooltipTitle: "Efficiency Index: 72/100",
-      tooltipDesc: "Fuel Economy: 92% · Idle Duration: 8%",
-    },
-    {
-      id: "risk" as const,
-      label: "Risk",
-      score: "15",
-      icon: AlertTriangle,
-      activeBg: "bg-rose-500 text-white shadow-sm shadow-rose-500/25 border-rose-500",
-      hoverBorder: "hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 dark:hover:text-rose-300",
-      tooltipTitle: "Risk Level: 15 (Low Risk)",
-      tooltipDesc: "Collision Risk: Low · Driver Fatigue: Normal",
-    },
-    {
-      id: "discipline" as const,
-      label: "Discipline",
-      score: "98",
-      icon: ThumbsUp,
-      activeBg: "bg-[#0089FF] text-white shadow-sm shadow-[#0089FF]/25 border-[#0089FF]",
-      hoverBorder: "hover:bg-sky-50 dark:hover:bg-sky-950/40 hover:text-[#0089FF] dark:hover:text-sky-300",
-      tooltipTitle: "Route Discipline: 98/100",
-      tooltipDesc: "Geofence Compliance: 100% · Timings: On Track",
-    },
-  ];
 
   return (
     <div
@@ -585,23 +542,119 @@ export function LiveTrackingMap({
         )}
       </div>
 
-      {/* 2. Top Center Floating Playback Pill Button */}
-      <div className="absolute top-3.5 left-1/2 -translate-x-1/2 z-20">
-        <button
-          type="button"
-          onClick={onOpenPlayback}
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#0089FF] hover:bg-[#0070d6] text-white text-xs font-semibold shadow-md active:scale-95 transition-all cursor-pointer"
-        >
-          <Play className="h-3.5 w-3.5 fill-current" />
-          <span>Playback</span>
-        </button>
+      {/* 2. Top Center Floating Playback & Health Scores Dock Bar (Dynamic Map Canvas Fit) */}
+      <div
+        className="absolute top-2.5 z-20 flex items-center justify-center transition-all duration-300 pointer-events-none select-none"
+        style={{
+          left: isLeftPanelOpen ? `${leftPanelWidth + 16}px` : "16px",
+          right: isTelemetryDrawerOpen ? "260px" : "50px",
+        }}
+      >
+        <div className="pointer-events-auto flex items-center gap-2.5 max-w-full overflow-x-auto no-scrollbar py-0.5 px-1">
+          {/* Standalone Playback Button Card */}
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={onOpenPlayback}
+                  className="h-11 w-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md flex items-center justify-center text-[#0089FF] hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer shrink-0 active:scale-95"
+                >
+                  <Play className="h-4 w-4 fill-[#0089FF] text-[#0089FF] ml-0.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Playback</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          {/* Health Score Dock Bar Container (Matching media_1790248530674.png) */}
+          <div className="h-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md p-1 flex items-center gap-1 text-xs font-semibold shrink-0">
+            {/* Safety */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveHealthTab("safety");
+                toast.info("Safety Index: 85/100");
+              }}
+              className={cn(
+                "px-3.5 py-1.5 rounded-xl flex items-center gap-2.5 transition-all duration-200 cursor-pointer shrink-0",
+                activeHealthTab === "safety"
+                  ? "bg-[#EBF9F0] dark:bg-emerald-950/50 text-slate-900 dark:text-slate-100 font-bold"
+                  : "bg-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium",
+              )}
+            >
+              <div className="h-5 w-5 rounded-full bg-[#10B981] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <ShieldCheck className="h-3 w-3 stroke-[3]" />
+              </div>
+              <span className="text-xs">Safety</span>
+              <span className="font-extrabold text-[#10B981] text-xs font-mono ml-0.5">85</span>
+            </button>
+
+            {/* Efficiency */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveHealthTab("efficiency");
+                toast.info("Efficiency Index: 72/100");
+              }}
+              className={cn(
+                "px-3.5 py-1.5 rounded-xl flex items-center gap-2.5 transition-all duration-200 cursor-pointer shrink-0",
+                activeHealthTab === "efficiency"
+                  ? "bg-[#FFFBEB] dark:bg-amber-950/50 text-slate-900 dark:text-slate-100 font-bold"
+                  : "bg-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium",
+              )}
+            >
+              <Timer className="h-4.5 w-4.5 text-[#D97706] shrink-0 stroke-[2.2]" />
+              <span className="text-xs">Efficiency</span>
+              <span className="font-extrabold text-[#D97706] text-xs font-mono ml-0.5">72</span>
+            </button>
+
+            {/* Risk */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveHealthTab("risk");
+                toast.info("Risk Level: 15 (Low Risk)");
+              }}
+              className={cn(
+                "px-3.5 py-1.5 rounded-xl flex items-center gap-2.5 transition-all duration-200 cursor-pointer shrink-0",
+                activeHealthTab === "risk"
+                  ? "bg-[#FEF2F2] dark:bg-rose-950/50 text-slate-900 dark:text-slate-100 font-bold"
+                  : "bg-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium",
+              )}
+            >
+              <AlertTriangle className="h-4.5 w-4.5 text-[#EF4444] fill-[#EF4444] stroke-white shrink-0" />
+              <span className="text-xs">Risk</span>
+              <span className="font-extrabold text-[#EF4444] text-xs font-mono ml-0.5">15</span>
+            </button>
+
+            {/* Discipline */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveHealthTab("discipline");
+                toast.info("Route Discipline: 98/100");
+              }}
+              className={cn(
+                "px-3.5 py-1.5 rounded-xl flex items-center gap-2.5 transition-all duration-200 cursor-pointer shrink-0",
+                activeHealthTab === "discipline"
+                  ? "bg-[#F0F9FF] dark:bg-sky-950/50 text-slate-900 dark:text-slate-100 font-bold"
+                  : "bg-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium",
+              )}
+            >
+              <ThumbsUp className="h-4.5 w-4.5 text-[#0089FF] fill-[#0089FF] shrink-0" />
+              <span className="text-xs">Discipline</span>
+              <span className="font-extrabold text-[#0089FF] text-xs font-mono ml-0.5">98</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* 3. Right Floating Map Controls Vertical Toolbar (14 GIS Tools in Exact Specified Order) */}
       <div
         className={cn(
-          "absolute top-3.5 z-20 flex flex-col items-center gap-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-[#DFE3EB] dark:border-slate-800 rounded-2xl p-1.5 shadow-xl transition-all duration-200 overflow-y-auto max-h-[calc(100vh-80px)] select-none no-scrollbar",
-          isTelemetryDrawerOpen ? "right-[298px]" : "right-3.5",
+          "w-[35px] absolute top-3.5 z-20 flex flex-col items-center gap-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-xl transition-all duration-200 overflow-y-auto max-h-[calc(100vh-80px)] select-none no-scrollbar",
+          isTelemetryDrawerOpen ? "right-[256px]" : "right-3.5",
         )}
       >
         <TooltipProvider delayDuration={150}>
@@ -611,12 +664,12 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={onToggleTelemetryDrawer}
-                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center bg-[#0089FF] text-white shadow-xs hover:bg-[#0070d6] active:scale-95 transition-all cursor-pointer shrink-0"
+                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center bg-[#0089FF] text-white shadow-xs hover:bg-[#0070d6] active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 {isTelemetryDrawerOpen ? (
-                  <ChevronRight className="h-[18px] w-[18px] stroke-[2.5]" />
+                  <ChevronRight className="h-4 w-4 stroke-[2.5]" />
                 ) : (
-                  <ChevronLeft className="h-[18px] w-[18px] stroke-[2.5]" />
+                  <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
                 )}
               </button>
             </TooltipTrigger>
@@ -625,7 +678,7 @@ export function LiveTrackingMap({
             </TooltipContent>
           </Tooltip>
 
-          <div className="w-5 my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
+          <div className="w-4 my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
 
           {/* 1. Select Map */}
           <Tooltip>
@@ -636,13 +689,13 @@ export function LiveTrackingMap({
                   setMapStyle((s) => (s === "streets" ? "satellite" : s === "satellite" ? "dark" : "streets"))
                 }
                 className={cn(
-                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   mapStyle !== "streets"
                     ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
                     : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Layers className="h-[18px] w-[18px] stroke-[2.2]" />
+                <Layers className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Select Map ({mapStyle.toUpperCase()})</TooltipContent>
@@ -658,13 +711,13 @@ export function LiveTrackingMap({
                   toast.info(showClusters ? "Clusters hidden" : "Clusters visible");
                 }}
                 className={cn(
-                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   !showClusters
                     ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
                     : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <CircleDot className="h-[18px] w-[18px] stroke-[2.2]" />
+                <CircleDot className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Remove Cluster</TooltipContent>
@@ -680,13 +733,13 @@ export function LiveTrackingMap({
                   toast.info(showObjectPath ? "Vehicle path hidden" : "Vehicle path visible");
                 }}
                 className={cn(
-                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   showObjectPath
                     ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
                     : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Route className="h-[18px] w-[18px] stroke-[2.2]" />
+                <Route className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Object with path</TooltipContent>
@@ -702,13 +755,13 @@ export function LiveTrackingMap({
                   toast.info(showLabels ? "Labels hidden" : "Labels visible");
                 }}
                 className={cn(
-                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   showLabels
                     ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
                     : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Tag className="h-[18px] w-[18px] stroke-[2.2]" />
+                <Tag className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Show label</TooltipContent>
@@ -720,9 +773,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={() => toast.success("Live tracking link copied to clipboard!")}
-                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <Share2 className="h-[18px] w-[18px] stroke-[2.2]" />
+                <Share2 className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Share Live location</TooltipContent>
@@ -734,9 +787,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={() => toast.info("Searching nearby assets & places...")}
-                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <Compass className="h-[18px] w-[18px] stroke-[2.2]" />
+                <Compass className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Find Near By</TooltipContent>
@@ -752,13 +805,13 @@ export function LiveTrackingMap({
                   toast.info(singleObjectMode ? "Exited Single Object Mode" : "Entered Single Object Mode");
                 }}
                 className={cn(
-                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   singleObjectMode
                     ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
                     : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Target className="h-[18px] w-[18px] stroke-[2.2]" />
+                <Target className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Single Object Mode</TooltipContent>
@@ -774,13 +827,13 @@ export function LiveTrackingMap({
                   toast.info(areaMeasurementActive ? "Area measurement closed" : "Click map points to measure area");
                 }}
                 className={cn(
-                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   areaMeasurementActive
                     ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
                     : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Ruler className="h-[18px] w-[18px] stroke-[2.2]" />
+                <Ruler className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Area Measurement</TooltipContent>
@@ -792,9 +845,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={() => toast.info("Click map location to add Geofence or Custom Address")}
-                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <MapPinPlus className="h-[18px] w-[18px] stroke-[2.2]" />
+                <MapPinPlus className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Add Address and Geofence</TooltipContent>
@@ -806,9 +859,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={handleRecenter}
-                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <LocateFixed className="h-[18px] w-[18px] stroke-[2.2]" />
+                <LocateFixed className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Re-center</TooltipContent>
@@ -820,9 +873,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={() => toast.info("Comparing historical vehicle paths...")}
-                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <GitCompare className="h-[18px] w-[18px] stroke-[2.2]" />
+                <GitCompare className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Compare path</TooltipContent>
@@ -838,19 +891,19 @@ export function LiveTrackingMap({
                   toast.info(taxiMeterActive ? "Taxi meter stopped" : "Taxi meter activated");
                 }}
                 className={cn(
-                  "w-[34px] h-[34px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
                   taxiMeterActive
                     ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
                     : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
                 )}
               >
-                <Gauge className="h-[18px] w-[18px] stroke-[2.2]" />
+                <Gauge className="h-4 w-4 stroke-[2.2]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Taxi meter</TooltipContent>
           </Tooltip>
 
-          <div className="w-5 my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
+          <div className="w-4 my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
 
           {/* 13. Zoom in */}
           <Tooltip>
@@ -858,9 +911,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={handleZoomIn}
-                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <Plus className="h-[18px] w-[18px] stroke-[2.5]" />
+                <Plus className="h-4 w-4 stroke-[2.5]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Zoom in</TooltipContent>
@@ -872,9 +925,9 @@ export function LiveTrackingMap({
               <button
                 type="button"
                 onClick={handleZoomOut}
-                className="w-[34px] h-[34px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
               >
-                <Minus className="h-[18px] w-[18px] stroke-[2.5]" />
+                <Minus className="h-4 w-4 stroke-[2.5]" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left">Zoom out</TooltipContent>
@@ -884,65 +937,13 @@ export function LiveTrackingMap({
 
       {/* 4. Bottom Map Scale & Coordinates */}
       <div
-        style={{ right: isTelemetryDrawerOpen ? "298px" : "14px" }}
+        style={{ right: isTelemetryDrawerOpen ? "255px" : "14px" }}
         className="absolute bottom-3 z-10 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3 py-1 rounded-xl border border-[#DFE3EB] dark:border-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 transition-all duration-300 shadow-sm"
       >
         <span>0.05 km</span>
         <div className="w-8 h-1 bg-slate-800 dark:bg-slate-200" />
       </div>
 
-      {/* 5. Health Score Dock Bar (Matches Map Controller Margin, Padding & Height) */}
-      <div
-        style={{ left: `calc(50% + ${healthBarCenterShift}px)` }}
-        className="score-dock-container absolute bottom-3.5 -translate-x-1/2 z-20 flex items-center bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-[#DFE3EB] dark:border-slate-800 shadow-2xl select-none transition-all duration-300 ease-out"
-      >
-        <TooltipProvider delayDuration={150}>
-          {SCORE_TABS.map((tab) => {
-            const isSelected = activeScoreTab === tab.id;
-            const Icon = tab.icon;
-
-            return (
-              <Tooltip key={tab.id}>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveScoreTab(tab.id);
-                      toast.info(`${tab.label} tab selected (${tab.score})`);
-                    }}
-                    className={cn(
-                      "score-dock-tab h-[34px] px-3.5 border flex items-center gap-1.5 text-[11px] font-bold transition-all cursor-pointer select-none shrink-0",
-                      isSelected
-                        ? tab.activeBg
-                        : cn(
-                            "bg-slate-100/90 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/80",
-                            tab.hoverBorder,
-                          ),
-                    )}
-                  >
-                    <Icon className={cn("h-3.5 w-3.5 stroke-[2.2]", isSelected ? "text-white" : "opacity-80")} />
-                    <span>{tab.label}</span>
-                    <span
-                      className={cn(
-                        "score-dock-badge font-mono font-black text-[10px] px-1.5 py-0.5",
-                        isSelected
-                          ? "bg-white/20 text-white"
-                          : "bg-slate-200/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200",
-                      )}
-                    >
-                      {tab.score}
-                    </span>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="text-xs">
-                  <p className="font-bold">{tab.tooltipTitle}</p>
-                  <p className="text-[11px] text-slate-300">{tab.tooltipDesc}</p>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </TooltipProvider>
-      </div>
     </div>
   );
 }
