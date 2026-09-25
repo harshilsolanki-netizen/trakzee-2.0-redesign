@@ -220,12 +220,12 @@ export function VehicleTelemetryDrawer({
     <>
       <div
         className={cn(
-          "flex flex-col gap-2.5 w-full sm:w-[242px] text-xs select-none h-full bg-transparent pointer-events-none",
+          "flex flex-col gap-2 w-full sm:w-[228px] text-xs select-none h-full bg-transparent pointer-events-none",
           className,
         )}
       >
         {/* 1. Header Card (Full-Width Floating Card Matching Tooltip Cards Width 1:1) */}
-        <div className="flex h-11 w-full items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 select-none rounded-2xl shadow-md shrink-0 pointer-events-auto">
+        <div className="flex h-11 w-[220px] items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 select-none rounded-2xl shadow-md shrink-0 pointer-events-auto">
           <div className="flex items-center gap-1 min-w-0">
             {DRAWER_TABS.map((tab) => {
               const isActive = activeDrawerTab === tab.id;
@@ -287,12 +287,12 @@ export function VehicleTelemetryDrawer({
         </div>
 
         {/* 2. Scrollable Column of Floating Cards (Matching reference 1:1) */}
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-2 custom-scrollbar pr-0.5 pointer-events-auto">
+        <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar py-0.5 pr-2 pointer-events-auto">
           {cardsOrder.map((cardId) => {
             const isDraggingThis = draggedCardId === cardId;
             const isRefreshingThis = refreshingCardId === cardId;
             const cardWrapperClass = cn(
-              "group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden text-xs transition-all relative",
+              "w-[220px] shrink-0 group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden text-xs transition-all relative",
               isDraggingThis && "opacity-50 border-dashed border-[#0089FF]"
             );
 
@@ -307,85 +307,87 @@ export function VehicleTelemetryDrawer({
               case "vehicle_main":
                 return (
                   <div key={cardId} {...dragProps} className={cardWrapperClass}>
-                    {/* 1. Header Row */}
-                    <div className="flex items-center justify-between px-2.5 py-2 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <Truck className="h-4 w-4 text-slate-800 dark:text-slate-200 stroke-[1.8] shrink-0" />
-                        <h3 className="text-[12px] font-semibold text-slate-900 dark:text-slate-100 tracking-tight truncate">
-                          {vehicle.name || "Vehicle Name"}
+                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <Truck className="h-4 w-4 text-[#1D293D] dark:text-slate-200 stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
+                          {vehicle.name || "Fuel - 1001"}
                         </h3>
                       </div>
-                      <div className="flex items-center gap-0.5 shrink-0">
+                      <div className="flex items-center gap-[2px] shrink-0">
                         <button
                           type="button"
                           onClick={() => handleRefreshCard(vehicle.name || "Vehicle Card", cardId)}
-                          className="p-1 rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                          className="w-[22px] h-[22px] p-1 flex items-center justify-center rounded-[6px] text-[#90A1B9] hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                           title="Refresh widget"
                         >
-                          <RefreshCw className={cn("h-3.5 w-3.5 transition-transform", isRefreshingThis && "animate-spin text-[#0089FF]")} />
+                          <RefreshCw className={cn("h-[14px] w-[14px] transition-transform", isRefreshingThis && "animate-spin text-[#0089FF]")} />
                         </button>
                         <button
                           type="button"
                           onClick={() => toast.info(`Vehicle Specs: ${vehicle.name} (${vehicle.imei || "IMEI 8610760861"})`)}
-                          className="p-1 rounded-full text-slate-500 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                          className="w-[22px] h-[22px] p-1 flex items-center justify-center rounded-full text-[#62748E] hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                           title="Vehicle Info"
                         >
-                          <Info className="h-3.5 w-3.5 stroke-[1.8]" />
+                          <Info className="h-[14px] w-[14px] stroke-[1.8]" />
                         </button>
                         <GripVertical className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-0.5" />
                       </div>
                     </div>
 
-                    {/* 2. Grey Banner Section (#F4F5F7) */}
-                    <div className="bg-[#F4F5F7] dark:bg-slate-800/60 pl-0 pr-2.5 py-1 flex items-center justify-between min-h-[102px] overflow-hidden">
-                      <div className="w-[140px] h-[98px] relative flex items-center justify-start shrink-0 -ml-9">
+                    {/* 2. Grey Banner Section */}
+                    <div className="bg-[#FAFAFA] dark:bg-slate-800/60 border-b border-[#F1F5F9] dark:border-slate-800 pl-0 pr-3 py-2 flex items-center justify-between h-[114px] min-h-[114px] overflow-hidden">
+                      {/* Left: Prominent Large Vehicle Image (Scaled up & pushed left to eliminate transparent image margins) */}
+                      <div className="w-[134px] h-[104px] relative overflow-hidden isolate shrink-0 pointer-events-none -ml-2.5">
                         <img
                           src="/yellow_dump_truck.png"
                           alt="Vehicle Preview"
-                          className="h-full w-full object-contain scale-[1.95] origin-left filter drop-shadow-sm"
+                          className="absolute w-[245px] max-w-none h-[162px] -left-[40px] -top-[24px] object-contain filter drop-shadow-[0px_2px_6px_rgba(0,0,0,0.12)]"
                         />
                       </div>
 
-                      <div className="flex flex-col items-end justify-center gap-1 shrink-0">
-                        <span className="font-bold text-slate-900 dark:text-slate-100 text-xs tracking-tight font-sans whitespace-nowrap">
+                      {/* Right: Duration & Status Badge (Right aligned with exact spacing from right card border) */}
+                      <div className="w-[76px] flex flex-col items-end justify-center gap-2 shrink-0">
+                        <span className="w-full font-bold text-[#1D293D] dark:text-slate-100 text-[13px] leading-[17px] tracking-[-0.3px] font-sans whitespace-nowrap text-right">
                           {formatDuration(vehicle.duration)}
                         </span>
-                        <div className="p-0.5 rounded-lg bg-[#E6F4EA] dark:bg-emerald-950/50">
-                          <span className="inline-flex items-center justify-center rounded-md bg-[#22AD00] px-2 py-0.5 text-white font-semibold text-[10.5px] leading-none whitespace-nowrap">
+                        <div className="w-[71px] h-[22px] px-3 py-1 bg-[#22C55E] rounded-[6px] shadow-[0px_1px_2px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                          <span className="font-bold text-white text-[11.5px] leading-[12px] font-sans whitespace-nowrap">
                             {STATUS_META[vehicle.status]?.label || "Running"}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    {/* 3. Main Data Content Area */}
-                    <div className="px-3 py-2 space-y-1.5">
+                    {/* 3. Main Data Content Area (Figma: padding 8px 12px) */}
+                    <div className="px-[12px] py-[8px] space-y-1.5">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-normal text-slate-600 dark:text-slate-400 shrink-0">Current Trip</span>
-                        <span className="text-[12px] font-semibold text-slate-900 dark:text-slate-100 text-right truncate">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Current Trip</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
                           {vehicle.currentTrip ?? "331.4"}{" "}
-                          <span className="font-normal text-slate-500 text-[11.5px]">km</span>
+                          <span className="font-normal text-[#45556C] text-[11px]">km</span>
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-normal text-slate-600 dark:text-slate-400 shrink-0">Work Hour</span>
-                        <span className="text-[12px] font-semibold text-slate-900 dark:text-slate-100 text-right truncate">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Work Hour</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
                           {vehicle.workHour || "11:26"}{" "}
-                          <span className="font-normal text-slate-500 text-[11.5px]">hrs</span>
+                          <span className="font-normal text-[#45556C] text-[11px]">hrs</span>
                         </span>
                       </div>
 
                       {isEnabled("odometer") && (
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[11px] font-normal text-slate-600 dark:text-slate-400 shrink-0">Odometer</span>
-                          <div className="bg-[#F4F5F7] dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-md px-1.5 py-0.5 shadow-2xs flex items-center divide-x divide-slate-200/90 dark:divide-slate-700 shrink-0">
+                          <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Odometer</span>
+                          <div className="bg-[#F4F5F7] dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-[6px] px-[6px] py-[2px] h-[21px] shadow-[0px_1px_0px_rgba(0,0,0,0.05)] flex items-center divide-x divide-slate-200/90 dark:divide-slate-700 shrink-0">
                             {odoDigits.map((digit, i) => (
                               <span
                                 key={i}
                                 className={cn(
-                                  "px-1 text-[11px] font-semibold text-slate-800 dark:text-slate-200 font-sans",
-                                  digit === "0" && i < 2 && "italic text-slate-500",
+                                  "px-1 text-[11px] font-semibold text-[#1D293D] dark:text-slate-200 font-sans leading-[15px]",
+                                  digit === "0" && i < 2 && "italic text-[#62748E]",
                                 )}
                               >
                                 {digit}
@@ -398,15 +400,15 @@ export function VehicleTelemetryDrawer({
                       {isEnabled("driver") && (
                         <>
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[11px] font-normal text-slate-600 dark:text-slate-400 shrink-0">Driver</span>
-                            <span className="text-[12px] font-semibold text-slate-900 dark:text-slate-100 text-right truncate">
-                              {vehicle.driver || "Venu Gopal Iyer"}
+                            <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Driver</span>
+                            <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                              {vehicle.driver || "Wamela (Jambouleano)"}
                             </span>
                           </div>
 
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[11px] font-normal text-slate-600 dark:text-slate-400 shrink-0">Mobile</span>
-                            <span className="text-[12px] font-semibold text-slate-900 dark:text-slate-100 text-right font-sans truncate">
+                            <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Mobile</span>
+                            <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right font-sans leading-[16px] truncate">
                               {vehicle.driverPhone || "+62 812 3456 7890"}
                             </span>
                           </div>
@@ -414,8 +416,8 @@ export function VehicleTelemetryDrawer({
                       )}
                     </div>
 
-                    {/* 4. Action Toolbar Row */}
-                    <div className="bg-[#F4F5F7] dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 px-2 h-[34px] flex items-center justify-around text-slate-600 dark:text-slate-400 rounded-b-xl">
+                    {/* 4. Action Toolbar Row (Figma: 218px x 34px, padding 0px 8px, background #F4F5F7) */}
+                    <div className="bg-[#F4F5F7] dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 px-[8px] h-[34px] flex items-center justify-around text-[#45556C] dark:text-slate-400 rounded-b-[10px]">
                       <TooltipProvider delayDuration={150}>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -696,7 +698,7 @@ export function VehicleTelemetryDrawer({
                     <div>
                       <div>
                         {/* 2. Fuel Sensor Icon-Only Scrollable Tabs Strip */}
-                        <div className="mx-2 my-1.5 p-1 bg-slate-100 dark:bg-slate-800/70 rounded-xl flex items-center gap-1 overflow-x-auto custom-scrollbar no-scrollbar scroll-smooth text-xs select-none">
+                        <div className="mx-2 my-1.5 p-1 bg-slate-100 dark:bg-slate-800/70 rounded-xl flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden scroll-smooth text-xs select-none">
                           <button
                             type="button"
                             onClick={() => setSelectedTank(0)}
@@ -969,16 +971,17 @@ export function VehicleTelemetryDrawer({
                 if (!isEnabled("consumption")) return null;
 
                 return (
-                  <div key={cardId} {...dragProps} className={cn(cardWrapperClass, "p-3 space-y-1.5")}>
+                  <div key={cardId} {...dragProps} className={cn(cardWrapperClass, "p-3 space-y-2")}>
+                    {/* Header */}
                     <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-slate-800/70 pb-1.5">
                       <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-slate-100 min-w-0">
-                        <Zap className="h-4 w-4 text-emerald-500 shrink-0" />
-                        <span className="truncate"># Consumption</span>
+                        <Droplet className="h-4 w-4 text-[#D97706] shrink-0" />
+                        <span className="truncate">Fuel Consumption</span>
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <button
                           type="button"
-                          onClick={() => handleRefreshCard("Consumption Widget", cardId)}
+                          onClick={() => handleRefreshCard("Fuel Consumption Widget", cardId)}
                           className="p-1 rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                           title="Refresh widget"
                         >
@@ -987,18 +990,109 @@ export function VehicleTelemetryDrawer({
                         <GripVertical className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-0.5" />
                       </div>
                     </div>
-                    <div className="space-y-1 text-[11px] pt-0.5">
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Fuel Economy:</span>
-                        <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">8.4 L/100km</span>
+
+                    {/* Creative Graphic: Radial Fuel Meter Gauge */}
+                    <div className="pt-0.5 pb-1 flex justify-center">
+                      <svg viewBox="0 0 120 68" className="w-34 h-19 shrink-0">
+                        <defs>
+                          <linearGradient id="fuelGaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#10B981" />
+                            <stop offset="65%" stopColor="#F59E0B" />
+                            <stop offset="100%" stopColor="#EF4444" />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Background Track Arc */}
+                        <path
+                          d="M 15 58 A 45 45 0 0 1 105 58"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="6"
+                          strokeLinecap="round"
+                          className="text-slate-200/80 dark:text-slate-800"
+                        />
+
+                        {/* Active Gradient Arc Track */}
+                        <path
+                          d="M 15 58 A 45 45 0 0 1 105 58"
+                          fill="none"
+                          stroke="url(#fuelGaugeGrad)"
+                          strokeWidth="6"
+                          strokeLinecap="round"
+                          strokeDasharray="141.37"
+                          strokeDashoffset="24"
+                        />
+
+                        {/* Center Droplet Graphic */}
+                        <g transform="translate(60, 44)">
+                          <circle r="12" fill="#F59E0B" fillOpacity="0.15" />
+                          <path
+                            d="M 0 -6 C 0 -6 -4.5 0 -4.5 3.5 A 4.5 4.5 0 0 0 4.5 3.5 C 4.5 0 0 -6 0 -6 Z"
+                            fill="#D97706"
+                          />
+                        </g>
+
+                        {/* Fuel Type Label */}
+                        <text
+                          x="60"
+                          y="65"
+                          textAnchor="middle"
+                          className="fill-slate-800 dark:fill-slate-200 font-bold text-[10px]"
+                        >
+                          Petrol
+                        </text>
+                      </svg>
+                    </div>
+
+                    {/* Clean Icon-Bulleted Metric List */}
+                    <div className="space-y-1.5 text-[11.5px] pt-0.5 border-t border-slate-100 dark:border-slate-800/80">
+                      {/* Distance Row */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                          <div className="w-5 h-5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                            <Navigation className="w-3 h-3" />
+                          </div>
+                          <span className="font-normal">Distance</span>
+                        </div>
+                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">10 ltr</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Total Fuel Used:</span>
-                        <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">27.8 L</span>
+
+                      {/* Duration Row */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                          <div className="w-5 h-5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                            <Clock className="w-3 h-3" />
+                          </div>
+                          <span className="font-normal">Duration</span>
+                        </div>
+                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">10 ltr</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Idle Fuel:</span>
-                        <span className="font-medium text-slate-700 dark:text-slate-300 font-mono">0.4 L</span>
+
+                      {/* CO₂ Emission Row */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                          <div className="w-5 h-5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                            <Leaf className="w-3 h-3" />
+                          </div>
+                          <span className="font-normal">CO₂ Emission</span>
+                        </div>
+                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">10 kg</span>
+                      </div>
+
+                      {/* Waste Row & Subtext */}
+                      <div className="space-y-0.5 pt-0.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                            <div className="w-5 h-5 rounded-md bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                              <AlertTriangle className="w-3 h-3" />
+                            </div>
+                            <span className="font-semibold text-rose-600 dark:text-rose-400">Waste</span>
+                          </div>
+                          <span className="font-extrabold text-[#DC2626] dark:text-rose-400 font-sans">05 ltr</span>
+                        </div>
+                        <p className="text-[10px] italic text-rose-500/90 dark:text-rose-400/90 pl-6.5 font-normal">
+                          Due to 2 hrs idling
+                        </p>
                       </div>
                     </div>
                   </div>

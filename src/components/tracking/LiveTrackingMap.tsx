@@ -547,7 +547,7 @@ export function LiveTrackingMap({
         className="absolute top-2.5 z-20 flex items-center justify-center transition-all duration-300 pointer-events-none select-none"
         style={{
           left: isLeftPanelOpen ? `${leftPanelWidth + 16}px` : "16px",
-          right: isTelemetryDrawerOpen ? "260px" : "50px",
+          right: isTelemetryDrawerOpen ? "288px" : "46px",
         }}
       >
         <div className="pointer-events-auto flex items-center gap-2.5 max-w-full overflow-x-auto no-scrollbar py-0.5 px-1">
@@ -653,8 +653,8 @@ export function LiveTrackingMap({
       {/* 3. Right Floating Map Controls Vertical Toolbar (14 GIS Tools in Exact Specified Order) */}
       <div
         className={cn(
-          "w-[35px] absolute top-3.5 z-20 flex flex-col items-center gap-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-xl transition-all duration-200 overflow-y-auto max-h-[calc(100vh-80px)] select-none no-scrollbar",
-          isTelemetryDrawerOpen ? "right-[256px]" : "right-3.5",
+          "w-[35px] absolute top-2.5 z-20 flex flex-col items-center gap-0.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-xl transition-all duration-200 overflow-hidden select-none",
+          isTelemetryDrawerOpen ? "right-[246px]" : "right-2.5",
         )}
       >
         <TooltipProvider delayDuration={150}>
@@ -937,7 +937,7 @@ export function LiveTrackingMap({
 
       {/* 4. Bottom Map Scale & Coordinates */}
       <div
-        style={{ right: isTelemetryDrawerOpen ? "255px" : "14px" }}
+        style={{ right: isTelemetryDrawerOpen ? "246px" : "10px" }}
         className="absolute bottom-3 z-10 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3 py-1 rounded-xl border border-[#DFE3EB] dark:border-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 transition-all duration-300 shadow-sm"
       >
         <span>0.05 km</span>
