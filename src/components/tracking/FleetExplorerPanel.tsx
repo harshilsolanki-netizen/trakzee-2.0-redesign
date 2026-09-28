@@ -1,5 +1,6 @@
 import {
   Activity,
+  AlertTriangle,
   ArrowUpDown,
   Bell,
   Briefcase,
@@ -34,8 +35,11 @@ import {
   Settings,
   Shield,
   ShieldAlert,
+  ShieldCheck,
   SlidersHorizontal,
   Target,
+  ThumbsUp,
+  Timer,
   TrendingUp,
   Truck,
   User,
@@ -67,6 +71,7 @@ export type TrackingTab =
   | "driver"
   | "address"
   | "geofence"
+  | "health"
   | "trailer"
   | "beacon"
   | "video_telematics";
@@ -109,7 +114,7 @@ export function FleetExplorerPanel({
   onToggleCheckAll: () => void;
   onOpenDashcam: (vehicle: FleetObject) => void;
   onOpenSettings: () => void;
-  onOpenTelemetry: (vehicle: FleetObject) => void;
+  onOpenTelemetry: (vehicle: FleetObject, isHealthOnly?: boolean) => void;
   onTraceVehicle: (vehicle: FleetObject) => void;
   onOpenAddVehicle?: () => void;
   onToggleCollapse?: () => void;
@@ -122,6 +127,12 @@ export function FleetExplorerPanel({
   const [activeTab, setActiveTab] = useState<TrackingTab>("object");
   const [query, setQuery] = useState("");
   const [activeStatus, setActiveStatus] = useState<ObjectStatus | "all">("all");
+  const [selectedHealthCategory, setSelectedHealthCategory] = useState<
+    "all" | "safety" | "efficiency" | "risk" | "discipline"
+  >("all");
+  const [healthSearch, setHealthSearch] = useState("");
+  const [healthSortOrder, setHealthSortOrder] = useState<"asc" | "desc">("desc");
+
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({
     Company: false,
     Indonesia: false,
@@ -137,6 +148,33 @@ export function FleetExplorerPanel({
   useEffect(() => {
     setLocalVehicles(vehicles);
   }, [vehicles]);
+
+  const filteredHealthVehicles = useMemo(() => {
+    const q = healthSearch.trim().toLowerCase();
+    const list = localVehicles.filter((v) => {
+      const matchesQuery =
+        q === "" ||
+        v.name.toLowerCase().includes(q) ||
+        v.branch.toLowerCase().includes(q) ||
+        v.imei.toLowerCase().includes(q) ||
+        (v.plateNumber && v.plateNumber.toLowerCase().includes(q));
+
+      if (!matchesQuery) return false;
+      if (selectedHealthCategory === "safety") return v.speed <= 80;
+      if (selectedHealthCategory === "efficiency") return v.status === "running" || v.status === "idle";
+      if (selectedHealthCategory === "risk") return v.status === "stopped" || v.status === "nodata";
+      if (selectedHealthCategory === "discipline") return v.battery !== undefined && v.battery > 50;
+      return true;
+    });
+
+    return list.sort((a, b) => {
+      const idxA = localVehicles.indexOf(a);
+      const idxB = localVehicles.indexOf(b);
+      const scoreA = 75 + ((idxA * 7 + 13) % 23);
+      const scoreB = 75 + ((idxB * 7 + 13) % 23);
+      return healthSortOrder === "asc" ? scoreA - scoreB : scoreB - scoreA;
+    });
+  }, [localVehicles, healthSearch, selectedHealthCategory, healthSortOrder]);
 
   // Reload Animation State
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -337,6 +375,7 @@ export function FleetExplorerPanel({
             { id: "driver", label: "Driver", icon: User },
             { id: "address", label: "Address", icon: MapPin },
             { id: "geofence", label: "Geofence", icon: Shield },
+            { id: "health", label: "Health Score", icon: ShieldCheck },
             { id: "trailer", label: "Trailer", icon: Truck },
             { id: "beacon", label: "Beacon", icon: Radio },
             { id: "video_telematics", label: "Video Telematics", icon: Video },
@@ -400,22 +439,21 @@ export function FleetExplorerPanel({
         </div>
       </div>
 
-      {/* Sleek Floating Right-Edge Collapse Handle (Google Maps Style Edge Toggle Tab) */}
+      {/* Sleek Floating Right-Edge Collapse Handle (Centered vertically with the top 44px tab header bar) */}
       {onToggleCollapse && (
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={onToggleCollapse}
-                className="absolute left-full top-1/2 -translate-y-1/2 z-50 flex h-12 w-5 items-center justify-center rounded-r-xl border border-l-0 border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-600 dark:text-slate-300 shadow-md hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-all cursor-pointer active:scale-95 pointer-events-auto"
-              >
-                <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Collapse Fleet Explorer</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setTimeout(() => {
+              onToggleCollapse();
+            }, 0);
+          }}
+          className="absolute left-full top-[2px] z-50 flex h-10 w-5 items-center justify-center rounded-r-xl border border-l-0 border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-600 dark:text-slate-300 shadow-md hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-all cursor-pointer active:scale-95 pointer-events-auto"
+          title="Collapse Fleet Explorer"
+        >
+          <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
+        </button>
       )}
 
       {/* Interactive Cursor Drag-to-Resize Handle Bar */}
@@ -440,161 +478,166 @@ export function FleetExplorerPanel({
       )}
 
       {/* 2. Trendy Minimal Soft Tint Segmented KPI Status Counter Bar */}
-      <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0">
-        <div className="grid grid-cols-6 gap-1.5">
-          {/* Running */}
-          <button
-            type="button"
-            onClick={() =>
-              setActiveStatus(activeStatus === "running" ? "all" : "running")
-            }
-            className={cn(
-              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-              activeStatus === "running"
-                ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
-                : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
-            )}
-          >
-            <div className="flex items-center gap-1">
-              <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "running" ? "bg-white animate-pulse" : "bg-emerald-500")} />
-              <span className="text-xs font-black tabular-nums leading-none">
-                {counts.running}
+      {activeTab !== "health" && (
+        <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0">
+          <div className="grid grid-cols-6 gap-1.5">
+            {/* Running */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveStatus(activeStatus === "running" ? "all" : "running")
+              }
+              className={cn(
+                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeStatus === "running"
+                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
+                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "running" ? "bg-white animate-pulse" : "bg-emerald-500")} />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {counts.running}
+                </span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "running" ? "text-emerald-100" : "text-emerald-700/80 dark:text-emerald-400/80")}>
+                Running
               </span>
-            </div>
-            <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "running" ? "text-emerald-100" : "text-emerald-700/80 dark:text-emerald-400/80")}>
-              Running
-            </span>
-          </button>
+            </button>
 
-          {/* Idle */}
-          <button
-            type="button"
-            onClick={() =>
-              setActiveStatus(activeStatus === "idle" ? "all" : "idle")
-            }
-            className={cn(
-              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-              activeStatus === "idle"
-                ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
-                : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
-            )}
-          >
-            <div className="flex items-center gap-1">
-              <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "idle" ? "bg-white" : "bg-amber-500")} />
-              <span className="text-xs font-black tabular-nums leading-none">
-                {counts.idle}
+            {/* Idle */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveStatus(activeStatus === "idle" ? "all" : "idle")
+              }
+              className={cn(
+                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeStatus === "idle"
+                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
+                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "idle" ? "bg-white" : "bg-amber-500")} />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {counts.idle}
+                </span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "idle" ? "text-amber-100" : "text-amber-700/80 dark:text-amber-400/80")}>
+                Idle
               </span>
-            </div>
-            <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "idle" ? "text-amber-100" : "text-amber-700/80 dark:text-amber-400/80")}>
-              Idle
-            </span>
-          </button>
+            </button>
 
-          {/* Stopped */}
-          <button
-            type="button"
-            onClick={() =>
-              setActiveStatus(activeStatus === "stopped" ? "all" : "stopped")
-            }
-            className={cn(
-              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-              activeStatus === "stopped"
-                ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
-                : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
-            )}
-          >
-            <div className="flex items-center gap-1">
-              <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "stopped" ? "bg-white" : "bg-rose-500")} />
-              <span className="text-xs font-black tabular-nums leading-none">
-                {counts.stopped}
+            {/* Stopped */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveStatus(activeStatus === "stopped" ? "all" : "stopped")
+              }
+              className={cn(
+                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeStatus === "stopped"
+                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
+                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "stopped" ? "bg-white" : "bg-rose-500")} />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {counts.stopped}
+                </span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "stopped" ? "text-rose-100" : "text-rose-700/80 dark:text-rose-400/80")}>
+                Stopped
               </span>
-            </div>
-            <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "stopped" ? "text-rose-100" : "text-rose-700/80 dark:text-rose-400/80")}>
-              Stopped
-            </span>
-          </button>
+            </button>
 
-          {/* Inactive */}
-          <button
-            type="button"
-            onClick={() =>
-              setActiveStatus(activeStatus === "inactive" ? "all" : "inactive")
-            }
-            className={cn(
-              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-              activeStatus === "inactive"
-                ? "bg-indigo-500 text-white border-indigo-600 shadow-md shadow-indigo-500/25 font-bold scale-[1.02]"
-                : "bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200/60 dark:border-indigo-800/40 text-indigo-800 dark:text-indigo-300 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/50",
-            )}
-          >
-            <div className="flex items-center gap-1">
-              <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "inactive" ? "bg-white" : "bg-indigo-500")} />
-              <span className="text-xs font-black tabular-nums leading-none">
-                {counts.inactive}
+            {/* Inactive */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveStatus(activeStatus === "inactive" ? "all" : "inactive")
+              }
+              className={cn(
+                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeStatus === "inactive"
+                  ? "bg-indigo-500 text-white border-indigo-600 shadow-md shadow-indigo-500/25 font-bold scale-[1.02]"
+                  : "bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200/60 dark:border-indigo-800/40 text-indigo-800 dark:text-indigo-300 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "inactive" ? "bg-white" : "bg-indigo-500")} />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {counts.inactive}
+                </span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "inactive" ? "text-indigo-100" : "text-indigo-700/80 dark:text-indigo-400/80")}>
+                Inactive
               </span>
-            </div>
-            <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "inactive" ? "text-indigo-100" : "text-indigo-700/80 dark:text-indigo-400/80")}>
-              Inactive
-            </span>
-          </button>
+            </button>
 
-          {/* NoData */}
-          <button
-            type="button"
-            onClick={() =>
-              setActiveStatus(activeStatus === "nodata" ? "all" : "nodata")
-            }
-            className={cn(
-              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-              activeStatus === "nodata"
-                ? "bg-slate-600 text-white border-slate-700 shadow-md shadow-slate-600/25 font-bold scale-[1.02]"
-                : "bg-slate-100/80 dark:bg-slate-800/40 border-slate-200/70 dark:border-slate-700/40 text-slate-700 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700/50",
-            )}
-          >
-            <div className="flex items-center gap-1">
-              <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "nodata" ? "bg-white" : "bg-slate-400")} />
-              <span className="text-xs font-black tabular-nums leading-none">
-                {counts.nodata}
+            {/* NoData */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveStatus(activeStatus === "nodata" ? "all" : "nodata")
+              }
+              className={cn(
+                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeStatus === "nodata"
+                  ? "bg-slate-600 text-white border-slate-700 shadow-md shadow-slate-600/25 font-bold scale-[1.02]"
+                  : "bg-slate-100/80 dark:bg-slate-800/40 border-slate-200/70 dark:border-slate-700/40 text-slate-700 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "nodata" ? "bg-white" : "bg-slate-400")} />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {counts.nodata}
+                </span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "nodata" ? "text-slate-200" : "text-slate-500 dark:text-slate-400")}>
+                No Data
               </span>
-            </div>
-            <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "nodata" ? "text-slate-200" : "text-slate-500 dark:text-slate-400")}>
-              No Data
-            </span>
-          </button>
+            </button>
 
-          {/* Total */}
-          <button
-            type="button"
-            onClick={() => setActiveStatus("all")}
-            className={cn(
-              "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-              activeStatus === "all"
-                ? "bg-[#0089FF] text-white border-[#0070d6] shadow-md shadow-[#0089FF]/25 font-bold scale-[1.02]"
-                : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-[#0089FF] dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
-            )}
-          >
-            <div className="flex items-center gap-1">
-              <span className="text-xs font-black tabular-nums leading-none">
-                {counts.total}
+            {/* Total */}
+            <button
+              type="button"
+              onClick={() => setActiveStatus("all")}
+              className={cn(
+                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeStatus === "all"
+                  ? "bg-[#0089FF] text-white border-[#0070d6] shadow-md shadow-[#0089FF]/25 font-bold scale-[1.02]"
+                  : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-[#0089FF] dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {counts.total}
+                </span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "all" ? "text-sky-100" : "text-[#0089FF]")}>
+                Total
               </span>
-            </div>
-            <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "all" ? "text-sky-100" : "text-[#0089FF]")}>
-              Total
-            </span>
-          </button>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 3. Search & Action Toolbar */}
-      <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 p-2 bg-white dark:bg-slate-900 shrink-0">
-        {/* Select All Checkbox */}
-        <input
-          type="checkbox"
-          checked={allChecked}
-          onChange={onToggleCheckAll}
-          title="Select / Deselect all vehicles on map"
-          className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0 ml-0.5"
-        />
+      {activeTab !== "health" && (
+        <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 p-2 bg-white dark:bg-slate-900 shrink-0">
+        {/* Select All Checkbox (Hidden on Health tab) */}
+        {activeTab !== "health" && (
+          <input
+            type="checkbox"
+            checked={allChecked}
+            onChange={onToggleCheckAll}
+            title="Select / Deselect all vehicles on map"
+            className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0 ml-0.5"
+          />
+        )}
 
         {/* Search input */}
         <div className="relative flex-1 flex items-center">
@@ -618,9 +661,10 @@ export function FleetExplorerPanel({
           )}
         </div>
 
-        {/* Action Toolbar Icons (Dynamically adapts to User Setting: Compact vs Rounded) */}
-        <div className="flex items-center gap-1.5 shrink-0 text-slate-600 dark:text-slate-400">
-          {/* 1. Reload Button */}
+        {/* Action Toolbar Icons (Hidden on Health tab) */}
+        {activeTab !== "health" && (
+          <div className="flex items-center gap-1.5 shrink-0 text-slate-600 dark:text-slate-400">
+          {/* 1. Reload Button with Latest UI Trend Spring Rotation & Sonar Pulse Animation */}
           <TooltipProvider delayDuration={150}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -628,19 +672,26 @@ export function FleetExplorerPanel({
                   type="button"
                   onClick={handleReload}
                   className={cn(
-                    "h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
-                    isRefreshing && "bg-sky-50 text-[#0089FF] border-[#0089FF]/40 shadow-xs",
+                    "group relative h-8 w-8 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/50 transition-all duration-300 shadow-2xs cursor-pointer active:scale-90 toolbar-action-btn overflow-hidden",
+                    isRefreshing && "bg-sky-50 dark:bg-sky-950/70 text-[#0089FF] border-[#0089FF] shadow-[0_0_12px_rgba(0,137,255,0.35)]",
                   )}
                 >
+                  {/* Sonar Ripple Pulse Ring on Refresh */}
+                  {isRefreshing && (
+                    <span className="absolute inset-0 rounded-xl bg-[#0089FF]/30 animate-ping pointer-events-none" />
+                  )}
+
                   <RotateCw
                     className={cn(
-                      "h-3.5 w-3.5 stroke-[2.2] transition-transform",
-                      isRefreshing && "animate-spin text-[#0089FF]",
+                      "h-3.5 w-3.5 stroke-[2.2] transition-transform duration-500 ease-out group-hover:rotate-180",
+                      isRefreshing && "animate-spin text-[#0089FF] duration-700",
                     )}
                   />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>Reload / Refresh Status</TooltipContent>
+              <TooltipContent side="bottom" className="font-semibold text-xs bg-slate-900 text-white border-slate-800">
+                Refresh Live Telemetry
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -1029,8 +1080,10 @@ export function FleetExplorerPanel({
               </div>
             </PopoverContent>
           </Popover>
-        </div>
+          </div>
+        )}
       </div>
+      )}
 
       {/* Structured Table Column Header Bar */}
       {activeTab === "object" && (
@@ -1072,7 +1125,13 @@ export function FleetExplorerPanel({
       )}
 
       {/* 5. Hierarchical Object Tree & Custom Tab Views */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden max-h-[calc(100vh-280px)] min-h-[350px] divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 text-xs rounded-b-2xl">
+      <div
+        className={cn(
+          "flex-1 min-h-0 flex flex-col text-xs rounded-b-2xl",
+          activeTab === "health" ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden",
+          activeTab === "object" && "divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60"
+        )}
+      >
         {activeTab === "object" && (
           <div>
             {/* Branches Groups */}
@@ -1535,7 +1594,296 @@ export function FleetExplorerPanel({
             ))}
           </div>
         )}
+
+        {/* Health Score Full View (Matching media_1790577972357.png & media_1790579625204.png) */}
+        {activeTab === "health" && (
+          <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900">
+            {/* 1. Category Filters Header Bar */}
+            <div className="p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 grid grid-cols-4 gap-1.5 shrink-0">
+              {/* Safety */}
+              <button
+                type="button"
+                onClick={() => setSelectedHealthCategory(selectedHealthCategory === "safety" ? "all" : "safety")}
+                className={cn(
+                  "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                  selectedHealthCategory === "safety"
+                    ? "bg-[#10B981] text-white border-emerald-600 shadow-md shadow-emerald-500/20 font-bold"
+                    : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/60 text-slate-800 dark:text-slate-100 hover:bg-emerald-100/80"
+                )}
+              >
+                <div className="flex items-center gap-1 min-w-0">
+                  <div className={cn("h-4 w-4 rounded-full flex items-center justify-center shrink-0", selectedHealthCategory === "safety" ? "bg-white text-[#10B981]" : "bg-[#10B981] text-white")}>
+                    <ShieldCheck className="h-2.5 w-2.5 stroke-[3]" />
+                  </div>
+                  <span className="text-xs truncate">Safety</span>
+                </div>
+                <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")}>85</span>
+              </button>
+
+              {/* Efficiency */}
+              <button
+                type="button"
+                onClick={() => setSelectedHealthCategory(selectedHealthCategory === "efficiency" ? "all" : "efficiency")}
+                className={cn(
+                  "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                  selectedHealthCategory === "efficiency"
+                    ? "bg-[#D97706] text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold"
+                    : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 text-slate-800 dark:text-slate-100 hover:bg-amber-100/80"
+                )}
+              >
+                <div className="flex items-center gap-1 min-w-0">
+                  <Timer className={cn("h-3.5 w-3.5 shrink-0 stroke-[2.2]", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")} />
+                  <span className="text-xs truncate">Efficiency</span>
+                </div>
+                <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")}>72</span>
+              </button>
+
+              {/* Risk */}
+              <button
+                type="button"
+                onClick={() => setSelectedHealthCategory(selectedHealthCategory === "risk" ? "all" : "risk")}
+                className={cn(
+                  "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                  selectedHealthCategory === "risk"
+                    ? "bg-[#EF4444] text-white border-rose-600 shadow-md shadow-rose-500/20 font-bold"
+                    : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60 text-slate-800 dark:text-slate-100 hover:bg-rose-100/80"
+                )}
+              >
+                <div className="flex items-center gap-1 min-w-0">
+                  <AlertTriangle className={cn("h-3.5 w-3.5 shrink-0 stroke-white", selectedHealthCategory === "risk" ? "text-white fill-white stroke-[#EF4444]" : "text-[#EF4444] fill-[#EF4444]")} />
+                  <span className="text-xs truncate">Risk</span>
+                </div>
+                <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")}>15</span>
+              </button>
+
+              {/* Discipline */}
+              <button
+                type="button"
+                onClick={() => setSelectedHealthCategory(selectedHealthCategory === "discipline" ? "all" : "discipline")}
+                className={cn(
+                  "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                  selectedHealthCategory === "discipline"
+                    ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/20 font-bold"
+                    : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/80 dark:border-sky-800/60 text-slate-800 dark:text-slate-100 hover:bg-sky-100/80"
+                )}
+              >
+                <div className="flex items-center gap-1 min-w-0">
+                  <ThumbsUp className={cn("h-3.5 w-3.5 shrink-0 fill-current", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")} />
+                  <span className="text-xs truncate">Discipline</span>
+                </div>
+                <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")}>98</span>
+              </button>
+            </div>
+
+            {/* 2. Search & Info Sub-Header (Matching media_1790577972357.png) */}
+            <div className="p-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0 space-y-1">
+              <div className="flex items-center gap-1.5">
+                <div className="relative flex-1 flex items-center">
+                  <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={healthSearch}
+                    onChange={(e) => setHealthSearch(e.target.value)}
+                    placeholder="Search by IMEI, Registration, Object Model..."
+                    className="w-full h-8 pl-8 pr-8 rounded-lg bg-slate-100 dark:bg-slate-800 border-0 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0089FF]"
+                  />
+                  {healthSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setHealthSearch("")}
+                      className="absolute right-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Ascending / Descending Sort Button Beside Search Input (Matching media_1790577972357.png) */}
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextOrder = healthSortOrder === "asc" ? "desc" : "asc";
+                          setHealthSortOrder(nextOrder);
+                          toast.success(
+                            `Sorted by Health Score (${nextOrder === "asc" ? "Ascending" : "Descending"})`,
+                          );
+                        }}
+                        className={cn(
+                          "h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all cursor-pointer shrink-0 active:scale-95",
+                          healthSortOrder === "asc" && "text-[#0089FF] border-[#0089FF]/60 bg-sky-50 dark:bg-sky-950/40",
+                        )}
+                        title="Sort Ascending / Descending"
+                      >
+                        <ArrowUpDown className="h-3.5 w-3.5 stroke-[2.2]" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs font-semibold">
+                      Sort {healthSortOrder === "asc" ? "Descending (High to Low)" : "Ascending (Low to High)"}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+
+              <div className="px-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                Based on {filteredHealthVehicles.length} eligible vehicles
+              </div>
+            </div>
+
+            {/* 3. Full View Vehicle Health Score List (Matching media_1790577972357.png) */}
+            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-slate-100 dark:divide-slate-800/60">
+              {filteredHealthVehicles.map((v, i) => {
+                const score = 75 + ((i * 7 + 13) % 23);
+                const isSelected = v.id === selectedVehicleId;
+
+                return (
+                  <div
+                    key={v.id}
+                    onClick={() => {
+                      onSelectVehicle(v.id);
+                      onOpenTelemetry(v, true);
+                    }}
+                    className={cn(
+                      "flex items-center justify-between px-3.5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer select-none",
+                      isSelected && "bg-sky-50/80 dark:bg-sky-950/40 border-l-3 border-[#0089FF]"
+                    )}
+                  >
+                    {/* Left: Status dot + Name & IMEI */}
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1 pl-1">
+                      <span
+                        className={cn(
+                          "h-2 w-2 rounded-full shrink-0 shadow-2xs ml-0.5",
+                          v.status === "running"
+                            ? "bg-emerald-500"
+                            : v.status === "idle"
+                              ? "bg-amber-500"
+                              : v.status === "stopped"
+                                ? "bg-rose-500"
+                                : "bg-indigo-500"
+                        )}
+                      />
+                      <div className="flex flex-col min-w-0 truncate">
+                        <span className="font-semibold text-xs text-slate-800 dark:text-slate-100 truncate">
+                          {v.name}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 truncate">
+                          IMEI: {v.imei}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right: Score Pill Badge + Chevron */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className={cn(
+                          "px-2.5 py-0.5 rounded-md font-mono text-xs font-bold border tabular-nums shadow-2xs",
+                          score >= 80
+                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-500/20"
+                            : score >= 60
+                              ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-500/20"
+                              : "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-500/20"
+                        )}
+                      >
+                        {score}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-slate-400 stroke-[2]" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Pinned Bottom Vehicle Health Scores Footer Bar (Hidden when on Health tab) */}
+      {activeTab !== "health" && (
+        <div className="shrink-0 border-t border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-2 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar select-none rounded-b-2xl">
+          {/* Safety Score */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("health");
+              setSelectedHealthCategory("safety");
+            }}
+            className={cn(
+              "flex-1 min-w-[76px] py-1.5 px-2 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+              activeTab === "health" && selectedHealthCategory === "safety"
+                ? "bg-[#10B981] text-white border-emerald-600 shadow-md shadow-emerald-500/20 font-bold"
+                : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-800/50 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/50"
+            )}
+            title="View Safety Health Scores"
+          >
+            <div className={cn("h-4 w-4 rounded-full flex items-center justify-center shrink-0 shadow-2xs", activeTab === "health" && selectedHealthCategory === "safety" ? "bg-white text-[#10B981]" : "bg-[#10B981] text-white")}>
+              <ShieldCheck className="h-2.5 w-2.5 stroke-[3]" />
+            </div>
+            <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "safety" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Safety</span>
+            <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")}>85</span>
+          </button>
+
+          {/* Efficiency Score */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("health");
+              setSelectedHealthCategory("efficiency");
+            }}
+            className={cn(
+              "flex-1 min-w-[82px] py-1.5 px-2 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+              activeTab === "health" && selectedHealthCategory === "efficiency"
+                ? "bg-[#D97706] text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold"
+                : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/50 hover:bg-amber-100/70 dark:hover:bg-amber-900/50"
+            )}
+            title="View Efficiency Health Scores"
+          >
+            <Timer className={cn("h-4 w-4 shrink-0 stroke-[2.2]", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")} />
+            <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Efficiency</span>
+            <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")}>72</span>
+          </button>
+
+          {/* Risk Score */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("health");
+              setSelectedHealthCategory("risk");
+            }}
+            className={cn(
+              "flex-1 min-w-[68px] py-1.5 px-2 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+              activeTab === "health" && selectedHealthCategory === "risk"
+                ? "bg-[#EF4444] text-white border-rose-600 shadow-md shadow-rose-500/20 font-bold"
+                : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/60 dark:border-rose-800/50 hover:bg-rose-100/70 dark:hover:bg-rose-900/50"
+            )}
+            title="View Risk Health Scores"
+          >
+            <AlertTriangle className={cn("h-4 w-4 shrink-0 stroke-white", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white fill-white stroke-[#EF4444]" : "text-[#EF4444] fill-[#EF4444]")} />
+            <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Risk</span>
+            <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")}>15</span>
+          </button>
+
+          {/* Discipline Score */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("health");
+              setSelectedHealthCategory("discipline");
+            }}
+            className={cn(
+              "flex-1 min-w-[88px] py-1.5 px-2 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+              activeTab === "health" && selectedHealthCategory === "discipline"
+                ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/20 font-bold"
+                : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/60 dark:border-sky-800/50 hover:bg-sky-100/70 dark:hover:bg-sky-900/50"
+            )}
+            title="View Route Discipline Scores"
+          >
+            <ThumbsUp className={cn("h-4 w-4 shrink-0 fill-current", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")} />
+            <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Discipline</span>
+            <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")}>98</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

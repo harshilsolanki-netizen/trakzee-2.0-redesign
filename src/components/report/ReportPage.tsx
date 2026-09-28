@@ -28,6 +28,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useLocation, useSearch } from "@tanstack/react-router";
 import { FavoriteToggle } from "@/components/chrome/FavoritesMenu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DriverJobSummaryReport } from "@/components/report/DriverJobSummaryReport";
 import { ReportQuickFilterBar } from "@/components/report/ReportQuickFilterBar";
 import {
@@ -469,7 +470,7 @@ export function ReportPage() {
       setLoading(false);
       setLoaded(true);
       toast.success(message);
-    }, 550);
+    }, 1200);
   }, []);
 
   const rows = useMemo(() => {
@@ -1423,7 +1424,20 @@ export function ReportPage() {
                 </tr>
               </thead>
               <tbody>
-                {!loaded && !loading ? (
+                {loading ? (
+                  Array.from({ length: 8 }).map((_, rIdx) => (
+                    <tr key={rIdx} className="border-b border-slate-200/60 dark:border-slate-800/60 h-10 animate-pulse">
+                      <td className="w-10 min-w-[40px] max-w-[40px] px-3 py-2 text-center">
+                        <Skeleton className="h-4 w-5 mx-auto rounded bg-slate-200/80 dark:bg-slate-800/80" />
+                      </td>
+                      {visibleColumns.map((col) => (
+                        <td key={col.id} className="px-2.5 py-2">
+                          <Skeleton className="h-4 w-full rounded bg-slate-200/80 dark:bg-slate-800/80" />
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : !loaded ? (
                   <tr>
                     <td
                       colSpan={visibleColumns.length + 1}
@@ -1471,6 +1485,7 @@ export function ReportPage() {
             </table>
           ) : level === 1 ? (
             <SimpleTable
+              loading={loading}
               headers={[
                 "Date",
                 "Day",
@@ -1504,6 +1519,7 @@ export function ReportPage() {
             />
           ) : (
             <SimpleTable
+              loading={loading}
               headers={[
                 "Date",
                 "Time",
@@ -1612,6 +1628,7 @@ function SimpleTable({
   rows,
   numeric = [],
   hint,
+  loading = false,
 }: {
   headers: string[];
   rows: {
@@ -1621,6 +1638,7 @@ function SimpleTable({
   }[];
   numeric?: number[];
   hint?: string;
+  loading?: boolean;
 }) {
   return (
     <table className="w-full min-w-[900px] text-xs">
@@ -1642,28 +1660,40 @@ function SimpleTable({
         </tr>
       </thead>
       <tbody>
-        {rows.map((r) => (
-          <tr
-            key={r.key}
-            onDoubleClick={r.onDoubleClick}
-            className={cn(
-              "border-b border-border transition-colors duration-150 hover:bg-muted",
-              r.onDoubleClick && "cursor-pointer",
-            )}
-          >
-            {r.cells.map((c, i) => (
-              <td
-                key={r.key + "-" + i}
-                className={cn(
-                  "px-2.5 py-1.5",
-                  numeric.includes(i) && "text-right tabular-nums",
-                )}
-              >
-                {c}
-              </td>
-            ))}
-          </tr>
-        ))}
+        {loading ? (
+          Array.from({ length: 8 }).map((_, rIdx) => (
+            <tr key={rIdx} className="border-b border-border/60 h-9 animate-pulse">
+              {headers.map((_, cIdx) => (
+                <td key={cIdx} className="px-2.5 py-1.5">
+                  <Skeleton className="h-4 w-full rounded bg-slate-200/80 dark:bg-slate-800/80" />
+                </td>
+              ))}
+            </tr>
+          ))
+        ) : (
+          rows.map((r) => (
+            <tr
+              key={r.key}
+              onDoubleClick={r.onDoubleClick}
+              className={cn(
+                "border-b border-border transition-colors duration-150 hover:bg-muted",
+                r.onDoubleClick && "cursor-pointer",
+              )}
+            >
+              {r.cells.map((c, i) => (
+                <td
+                  key={r.key + "-" + i}
+                  className={cn(
+                    "px-2.5 py-1.5",
+                    numeric.includes(i) && "text-right tabular-nums",
+                  )}
+                >
+                  {c}
+                </td>
+              ))}
+            </tr>
+          ))
+        )}
         {hint ? (
           <tr>
             <td

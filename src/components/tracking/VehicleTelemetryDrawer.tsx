@@ -8,12 +8,14 @@ import {
   Clock,
   Cloud,
   Compass,
+  Copy,
   Download,
   Droplet,
   Eye,
   FileText,
   Flame,
   Gauge,
+  Globe,
   GripVertical,
   HelpCircle,
   Info,
@@ -22,10 +24,12 @@ import {
   Locate,
   Lock,
   MapPin,
+  MapPinPlus,
   Maximize2,
   Navigation,
   Phone,
   Play,
+  Plus,
   Radio,
   RefreshCw,
   RotateCcw,
@@ -33,9 +37,13 @@ import {
   Search,
   Settings,
   Share2,
+  ShieldCheck,
   SlidersHorizontal,
+  SquarePen,
   Target,
   Thermometer,
+  ThumbsUp,
+  Timer,
   Truck,
   User,
   Users,
@@ -48,12 +56,7 @@ import { useState } from "react";
 import { STATUS_META, type FleetObject } from "@/data/fleet";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,12 +92,46 @@ function formatDuration(raw?: string): string {
   return raw;
 }
 
+function WidgetActionButton({
+  isRefreshing,
+  onClick,
+  cardName,
+}: {
+  isRefreshing: boolean;
+  onClick: () => void;
+  cardName: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group/btn relative w-6 h-6 flex items-center justify-center rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 transition-all duration-200 cursor-pointer active:scale-90 shrink-0"
+      title={`Refresh ${cardName}`}
+    >
+      {isRefreshing && (
+        <span className="absolute inset-0 rounded-md bg-[#0089FF]/30 animate-ping pointer-events-none" />
+      )}
+      <div className="relative w-3.5 h-3.5 flex items-center justify-center">
+        {isRefreshing ? (
+          <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#0089FF]" />
+        ) : (
+          <>
+            <GripVertical className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400 group-hover/btn:opacity-0 group-hover/btn:scale-75 transition-all duration-200 absolute" />
+            <RefreshCw className="h-3.5 w-3.5 text-[#0089FF] opacity-0 scale-75 group-hover/btn:opacity-100 group-hover/btn:scale-100 group-hover/btn:rotate-180 transition-all duration-300 absolute" />
+          </>
+        )}
+      </div>
+    </button>
+  );
+}
+
 export function VehicleTelemetryDrawer({
   vehicle,
   onClose,
   onSelectVehicle,
   allVehicles,
   onOpenPlayback,
+  isHealthOnly = false,
   className,
 }: {
   vehicle: FleetObject;
@@ -102,6 +139,7 @@ export function VehicleTelemetryDrawer({
   onSelectVehicle: (id: string) => void;
   allVehicles: FleetObject[];
   onOpenPlayback?: () => void;
+  isHealthOnly?: boolean;
   className?: string;
 }) {
   const [activeDrawerTab, setActiveDrawerTab] = useState<"details" | "telemetry" | "settings">("details");
@@ -116,10 +154,17 @@ export function VehicleTelemetryDrawer({
     city?: string;
   } | null>(null);
   const [selectedTank, setSelectedTank] = useState<number>(0);
+  const [activeHealthCategory, setActiveHealthCategory] = useState<
+    "safety" | "efficiency" | "risk" | "discipline"
+  >("safety");
 
   const [cardsOrder, setCardsOrder] = useState<string[]>([
+    "health_score",
     "vehicle_main",
+    "driver_info",
     "today_activity",
+    "location",
+    "documents",
     "fuel",
     "consumption",
     "temperature",
@@ -220,79 +265,61 @@ export function VehicleTelemetryDrawer({
     <>
       <div
         className={cn(
-          "flex flex-col gap-2 w-full sm:w-[228px] text-xs select-none h-full bg-transparent pointer-events-none",
+          "flex flex-col gap-2 w-full text-xs select-none h-full bg-transparent pointer-events-none",
           className,
         )}
       >
-        {/* 1. Header Card (Full-Width Floating Card Matching Tooltip Cards Width 1:1) */}
-        <div className="flex h-11 w-[220px] items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 select-none rounded-2xl shadow-md shrink-0 pointer-events-auto">
-          <div className="flex items-center gap-1 min-w-0">
-            {DRAWER_TABS.map((tab) => {
-              const isActive = activeDrawerTab === tab.id;
-              const IconComp = tab.icon;
+        {/* 1. Header Card (Hidden when isHealthOnly is true) */}
+        {!isHealthOnly && (
+          <div className="flex h-11 w-full items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 select-none rounded-2xl shadow-md shrink-0 pointer-events-auto">
+            <div className="flex items-center gap-1 min-w-0">
+              {DRAWER_TABS.map((tab) => {
+                const isActive = activeDrawerTab === tab.id;
+                const IconComp = tab.icon;
 
-              if (isActive) {
                 return (
                   <button
                     key={tab.id}
                     type="button"
+                    title={tab.label}
                     onClick={() => setActiveDrawerTab(tab.id as any)}
-                    className="h-8 flex items-center gap-1.5 px-3 rounded-xl bg-[#0089FF] hover:bg-[#0070d6] text-white text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-98"
+                    className={cn(
+                      "h-8 w-8 flex items-center justify-center rounded-xl transition-all cursor-pointer shrink-0 active:scale-95",
+                      isActive
+                        ? "bg-[#0089FF] text-white shadow-2xs"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
+                    )}
                   >
-                    <IconComp className="h-3.5 w-3.5 stroke-[2.2] fill-current shrink-0" />
-                    <span>{tab.label}</span>
+                    <IconComp className={cn("h-4 w-4 stroke-[2]", isActive && "fill-current")} />
                   </button>
                 );
-              }
+              })}
+            </div>
 
-              return (
-                <TooltipProvider key={tab.id} delayDuration={150}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => setActiveDrawerTab(tab.id as any)}
-                        className="h-8 w-8 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer shrink-0"
-                      >
-                        <IconComp className="h-4 w-4 stroke-[2]" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="text-xs">
-                      {tab.label}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              );
-            })}
+            {/* Header Action Buttons */}
+            <div className="flex items-center gap-0.5 shrink-0">
+              <button
+                type="button"
+                title="Tooltip Widget Settings"
+                onClick={() => setShowWidgetSettings(true)}
+                className="h-8 w-8 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-colors cursor-pointer shrink-0"
+              >
+                <Settings className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </div>
           </div>
+        )}
 
-          {/* Header Settings Gear Icon Button */}
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  title="Tooltip Widget Settings"
-                  onClick={() => setShowWidgetSettings(true)}
-                  className="h-8 w-8 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-colors cursor-pointer shrink-0"
-                >
-                  <Settings className="h-4 w-4 stroke-[2.2]" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs">
-                Tooltip Widget Settings
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-
-        {/* 2. Scrollable Column of Floating Cards (Matching reference 1:1) */}
-        <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar py-0.5 pr-2 pointer-events-auto">
-          {cardsOrder.map((cardId) => {
+        {/* 2. Scrollable Column of Floating Cards */}
+        <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar py-0.5 pr-1 pointer-events-auto">
+          {(isHealthOnly
+            ? ["health_score"]
+            : cardsOrder.filter((id) => id !== "health_score")
+          ).map((cardId) => {
             const isDraggingThis = draggedCardId === cardId;
             const isRefreshingThis = refreshingCardId === cardId;
             const cardWrapperClass = cn(
-              "w-[220px] shrink-0 group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden text-xs transition-all relative",
+              "w-full shrink-0 group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden text-xs transition-all relative",
               isDraggingThis && "opacity-50 border-dashed border-[#0089FF]"
             );
 
@@ -304,6 +331,252 @@ export function VehicleTelemetryDrawer({
             };
 
             switch (cardId) {
+              case "health_score":
+                return (
+                  <div key={cardId} {...dragProps} className={cardWrapperClass}>
+                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <ShieldCheck className="h-4 w-4 text-[#0089FF] stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
+                          Health Score Details
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <WidgetActionButton
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Health Score Details", cardId)}
+                          cardName="Health Score Details"
+                        />
+                      </div>
+                    </div>
+
+                    {/* 2. Category Filter Switcher Pills */}
+                    <div className="p-1.5 bg-slate-50 dark:bg-slate-950/50 border-b border-[#F1F5F9] dark:border-slate-800 grid grid-cols-4 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setActiveHealthCategory("safety")}
+                        className={cn(
+                          "py-1 px-1 rounded-lg text-[10px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
+                          activeHealthCategory === "safety"
+                            ? "bg-[#10B981] text-white border-emerald-600 shadow-2xs"
+                            : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/60 text-slate-800 dark:text-slate-200 hover:bg-emerald-100/70"
+                        )}
+                      >
+                        <span>Safety</span>
+                        <span className="font-mono text-[11px] font-extrabold" style={{ color: activeHealthCategory === "safety" ? "#ffffff" : "#10B981" }}>85</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setActiveHealthCategory("efficiency")}
+                        className={cn(
+                          "py-1 px-1 rounded-lg text-[10px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
+                          activeHealthCategory === "efficiency"
+                            ? "bg-[#D97706] text-white border-amber-600 shadow-2xs"
+                            : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/60 text-slate-800 dark:text-slate-200 hover:bg-amber-100/70"
+                        )}
+                      >
+                        <span>Effic.</span>
+                        <span className="font-mono text-[11px] font-extrabold" style={{ color: activeHealthCategory === "efficiency" ? "#ffffff" : "#D97706" }}>72</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setActiveHealthCategory("risk")}
+                        className={cn(
+                          "py-1 px-1 rounded-lg text-[10px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
+                          activeHealthCategory === "risk"
+                            ? "bg-[#EF4444] text-white border-rose-600 shadow-2xs"
+                            : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/60 text-slate-800 dark:text-slate-200 hover:bg-rose-100/70"
+                        )}
+                      >
+                        <span>Risk</span>
+                        <span className="font-mono text-[11px] font-extrabold" style={{ color: activeHealthCategory === "risk" ? "#ffffff" : "#EF4444" }}>15</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setActiveHealthCategory("discipline")}
+                        className={cn(
+                          "py-1 px-1 rounded-lg text-[10px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
+                          activeHealthCategory === "discipline"
+                            ? "bg-[#0089FF] text-white border-sky-600 shadow-2xs"
+                            : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/60 text-slate-800 dark:text-slate-200 hover:bg-sky-100/70"
+                        )}
+                      >
+                        <span>Discip.</span>
+                        <span className="font-mono text-[11px] font-extrabold" style={{ color: activeHealthCategory === "discipline" ? "#ffffff" : "#0089FF" }}>98</span>
+                      </button>
+                    </div>
+
+                    {/* 3. Details Content Section (Matching reference images 1 to 5) */}
+                    <div className="p-2 space-y-2">
+                      {/* Top Header Card */}
+                      {activeHealthCategory === "safety" && (
+                        <div className="px-2.5 py-2 rounded-xl border border-[#10B981] bg-[#EBF9F0] dark:bg-emerald-950/40 flex items-center justify-between shadow-2xs">
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-[#065F46] dark:text-emerald-300">
+                            <ShieldCheck className="h-4 w-4 text-[#10B981] stroke-[2.5]" />
+                            <span>Safety Score</span>
+                          </div>
+                          <span className="text-base font-extrabold font-mono text-[#10B981]">85</span>
+                        </div>
+                      )}
+
+                      {activeHealthCategory === "efficiency" && (
+                        <div className="px-2.5 py-2 rounded-xl border border-[#D97706] bg-[#FFFBEB] dark:bg-amber-950/40 flex items-center justify-between shadow-2xs">
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-[#92400E] dark:text-amber-300">
+                            <Timer className="h-4 w-4 text-[#D97706] stroke-[2.2]" />
+                            <span>Efficiency Score</span>
+                          </div>
+                          <span className="text-base font-extrabold font-mono text-[#D97706]">72</span>
+                        </div>
+                      )}
+
+                      {activeHealthCategory === "risk" && (
+                        <div className="px-2.5 py-2 rounded-xl border border-[#EF4444] bg-[#FEF2F2] dark:bg-rose-950/40 flex items-center justify-between shadow-2xs">
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-[#991B1B] dark:text-rose-300">
+                            <AlertTriangle className="h-4 w-4 text-[#EF4444] stroke-[2.2]" />
+                            <span>Risk Score</span>
+                          </div>
+                          <span className="text-base font-extrabold font-mono text-[#EF4444]">15</span>
+                        </div>
+                      )}
+
+                      {activeHealthCategory === "discipline" && (
+                        <div className="px-2.5 py-2 rounded-xl border border-[#0089FF] bg-[#F0F9FF] dark:bg-sky-950/40 flex items-center justify-between shadow-2xs">
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-[#075985] dark:text-sky-300">
+                            <ThumbsUp className="h-4 w-4 text-[#0089FF] fill-current" />
+                            <span>Discipline Score</span>
+                          </div>
+                          <span className="text-base font-extrabold font-mono text-[#0089FF]">98</span>
+                        </div>
+                      )}
+
+                      {/* Distance Driven & Confidence Level Row Cards */}
+                      {activeHealthCategory !== "efficiency" && (
+                        <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                            <Activity className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
+                            <span>Confidence Level</span>
+                          </div>
+                          <span className={cn(
+                            "font-bold font-mono text-[11px]",
+                            activeHealthCategory === "risk" ? "text-[#10B981]" :
+                            activeHealthCategory === "efficiency" ? "text-[#D97706]" :
+                            "text-[#EF4444]"
+                          )}>
+                            {activeHealthCategory === "risk" ? "75% (High)" : activeHealthCategory === "efficiency" ? "74% (Medium)" : "39% (Low)"}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                          <MapPin className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
+                          <span>Distance Driven</span>
+                        </div>
+                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans text-[11px]">
+                          1250 km
+                        </span>
+                      </div>
+
+                      {activeHealthCategory === "efficiency" && (
+                        <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                            <Activity className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
+                            <span>Confidence Level</span>
+                          </div>
+                          <span className="font-bold font-mono text-[11px] text-[#D97706]">
+                            74% (Medium)
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Events Table */}
+                      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden text-[10.5px]">
+                        {/* Header */}
+                        <div className="grid grid-cols-[1fr_55px_50px] bg-slate-100/90 dark:bg-slate-800/90 px-2 py-1 font-bold text-slate-600 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800">
+                          <span>Events</span>
+                          <span className="text-center">Current</span>
+                          <span className="text-right">Average</span>
+                        </div>
+
+                        {/* Body Rows */}
+                        <div className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
+                          {activeHealthCategory === "safety" && [
+                            { name: "Speed", cur: "12/100 mile", avg: "8/100 mi", curAlert: true },
+                            { name: "Harsh Acceleration", cur: "3/100 mile", avg: "6/100 mi" },
+                            { name: "Harsh Braking", cur: "3/100 mile", avg: "6/100 mi" },
+                            { name: "DMS Events", cur: "2/100 mile", avg: "2/100 mi" },
+                            { name: "ADAS Events", cur: "1/100 mile", avg: "1/100 mi" },
+                          ].map((r, idx) => (
+                            <div key={idx} className="grid grid-cols-[1fr_55px_50px] px-2 py-1 text-slate-700 dark:text-slate-300">
+                              <span className="truncate font-medium">{r.name}</span>
+                              <span className={cn("text-center font-mono font-semibold", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
+                              <span className="text-right font-mono text-slate-400">{r.avg}</span>
+                            </div>
+                          ))}
+
+                          {activeHealthCategory === "efficiency" && [
+                            { name: "Idling", cur: "4%", avg: "8%", curAlert: true },
+                          ].map((r, idx) => (
+                            <div key={idx} className="grid grid-cols-[1fr_55px_50px] px-2 py-1 text-slate-700 dark:text-slate-300">
+                              <span className="truncate font-medium">{r.name}</span>
+                              <span className={cn("text-center font-mono font-semibold", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
+                              <span className="text-right font-mono text-slate-400">{r.avg}</span>
+                            </div>
+                          ))}
+
+                          {activeHealthCategory === "risk" && [
+                            { name: "Collision", cur: "4/100 km", avg: "84/100 km" },
+                            { name: "Forward Collision Warning", cur: "4/100 km", avg: "84/100 km" },
+                            { name: "Fatigue", cur: "4/100 km", avg: "84/100 km" },
+                            { name: "Eye Closed", cur: "4/100 km", avg: "84/100 km" },
+                            { name: "Fuel Drop", cur: "4/100 km", avg: "84/100 km" },
+                            { name: "Lane Departure", cur: "4/100 km", avg: "84/100 km" },
+                            { name: "HMW", cur: "4/100 km", avg: "84/100 km" },
+                            { name: "Seatbelt", cur: "4/100 km", avg: "84/100 km" },
+                            { name: "Phone", cur: "4/100 km", avg: "84/100 km" },
+                            { name: "Device Inactive", cur: "4 %", avg: "8 %" },
+                          ].map((r, idx) => (
+                            <div key={idx} className="grid grid-cols-[1fr_55px_50px] px-2 py-1 text-slate-700 dark:text-slate-300">
+                              <span className="truncate font-medium">{r.name}</span>
+                              <span className="text-center font-mono font-semibold text-slate-800 dark:text-slate-200">{r.cur}</span>
+                              <span className="text-right font-mono text-slate-400">{r.avg}</span>
+                            </div>
+                          ))}
+
+                          {activeHealthCategory === "discipline" && [
+                            { name: "Route Deviation", cur: "4 %", avg: "80 %" },
+                            { name: "Late Start", cur: "4 min", avg: "80 min" },
+                            { name: "Unauthorized Stop", cur: "4 %", avg: "80 %" },
+                            { name: "Late End", cur: "4 min", avg: "80 min" },
+                            { name: "Off-Hour Movement", cur: "4 %", avg: "80 %" },
+                            { name: "Stay Away Zone", cur: "4 %", avg: "80 %" },
+                            { name: "Risk zone", cur: "4 %", avg: "80 %" },
+                            { name: "Stop Rate", cur: "4 %", avg: "80 %" },
+                            { name: "Running Rate", cur: "4 %", avg: "80 %" },
+                            { name: "Late Work Start", cur: "4 min", avg: "80 min" },
+                          ].map((r, idx) => (
+                            <div key={idx} className="grid grid-cols-[1fr_55px_50px] px-2 py-1 text-slate-700 dark:text-slate-300">
+                              <span className="truncate font-medium">{r.name}</span>
+                              <span className="text-center font-mono font-semibold text-slate-800 dark:text-slate-200">{r.cur}</span>
+                              <span className="text-right font-mono text-slate-400">{r.avg}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Footer Calculation Note */}
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500 pt-0.5">
+                        <Clock className="h-3 w-3 stroke-[2] shrink-0" />
+                        <span>Score calculation runs every 30 minutes</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+
               case "vehicle_main":
                 return (
                   <div key={cardId} {...dragProps} className={cardWrapperClass}>
@@ -318,21 +591,17 @@ export function VehicleTelemetryDrawer({
                       <div className="flex items-center gap-[2px] shrink-0">
                         <button
                           type="button"
-                          onClick={() => handleRefreshCard(vehicle.name || "Vehicle Card", cardId)}
-                          className="w-[22px] h-[22px] p-1 flex items-center justify-center rounded-[6px] text-[#90A1B9] hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          title="Refresh widget"
-                        >
-                          <RefreshCw className={cn("h-[14px] w-[14px] transition-transform", isRefreshingThis && "animate-spin text-[#0089FF]")} />
-                        </button>
-                        <button
-                          type="button"
                           onClick={() => toast.info(`Vehicle Specs: ${vehicle.name} (${vehicle.imei || "IMEI 8610760861"})`)}
                           className="w-[22px] h-[22px] p-1 flex items-center justify-center rounded-full text-[#62748E] hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                           title="Vehicle Info"
                         >
                           <Info className="h-[14px] w-[14px] stroke-[1.8]" />
                         </button>
-                        <GripVertical className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-0.5" />
+                        <WidgetActionButton
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard(vehicle.name || "Vehicle Card", cardId)}
+                          cardName={vehicle.name || "Vehicle Card"}
+                        />
                       </div>
                     </div>
 
@@ -418,90 +687,236 @@ export function VehicleTelemetryDrawer({
 
                     {/* 4. Action Toolbar Row (Figma: 218px x 34px, padding 0px 8px, background #F4F5F7) */}
                     <div className="bg-[#F4F5F7] dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 px-[8px] h-[34px] flex items-center justify-around text-[#45556C] dark:text-slate-400 rounded-b-[10px]">
-                      <TooltipProvider delayDuration={150}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={() => toast.success(`Following ${vehicle.name} live on map`)}
-                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
-                            >
-                              <Target className="h-4 w-4 stroke-[1.8]" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            Follow
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <button
+                        type="button"
+                        title="Follow"
+                        onClick={() => toast.success(`Following ${vehicle.name} live on map`)}
+                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                      >
+                        <Target className="h-4 w-4 stroke-[1.8]" />
+                      </button>
 
-                      <TooltipProvider delayDuration={150}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={() => toast.info(`Navigating to ${vehicle.name}`)}
-                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
-                            >
-                              <Navigation className="h-4 w-4 stroke-[1.8]" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            Navigate
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <button
+                        type="button"
+                        title="Navigate"
+                        onClick={() => toast.info(`Navigating to ${vehicle.name}`)}
+                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                      >
+                        <Navigation className="h-4 w-4 stroke-[1.8]" />
+                      </button>
 
-                      <TooltipProvider delayDuration={150}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={handleShare}
-                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
-                            >
-                              <Share2 className="h-4 w-4 stroke-[1.8]" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            Share
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <button
+                        type="button"
+                        title="Share"
+                        onClick={handleShare}
+                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                      >
+                        <Share2 className="h-4 w-4 stroke-[1.8]" />
+                      </button>
 
-                      <TooltipProvider delayDuration={150}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={() => toast.info(`Searching points of interest near ${vehicle.name}`)}
-                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
-                            >
-                              <MapPin className="h-4 w-4 stroke-[1.8]" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            Find Near By
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <button
+                        type="button"
+                        title="Find Near By"
+                        onClick={() => toast.info(`Searching points of interest near ${vehicle.name}`)}
+                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                      >
+                        <MapPin className="h-4 w-4 stroke-[1.8]" />
+                      </button>
 
-                      <TooltipProvider delayDuration={150}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={() => toast.info(`Changing display mode for ${vehicle.name}`)}
-                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
-                            >
-                              <SlidersHorizontal className="h-4 w-4 stroke-[1.8]" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            Change Mode
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <button
+                        type="button"
+                        title="Change Mode"
+                        onClick={() => toast.info(`Changing display mode for ${vehicle.name}`)}
+                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                      >
+                        <SlidersHorizontal className="h-4 w-4 stroke-[1.8]" />
+                      </button>
+                    </div>
+                  </div>
+                );
+
+              case "driver_info":
+                return (
+                  <div key={cardId} {...dragProps} className={cardWrapperClass}>
+                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <User className="h-4 w-4 text-[#1D293D] dark:text-slate-200 stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
+                          Driver Information
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <WidgetActionButton
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Driver Information", cardId)}
+                          cardName="Driver Information"
+                        />
+                      </div>
+                    </div>
+
+                    {/* 2. Main Data Content Area (Theme Key-Value Rows) */}
+                    <div className="px-[12px] py-[8px] space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Driver Number</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate font-sans">
+                          21
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Age</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate font-sans">
+                          34
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Driving Experience</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate font-sans">
+                          2
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">License Available</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                          Yes
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">License To Drive</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                          Yes
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">License Expiry</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate font-sans">
+                          2032
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Life Ins. Expiry</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate font-sans">
+                          2035
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Mediclaim Expiry</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                          NA
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 3. Action Toolbar Footer Row (#F4F5F7) */}
+                    <div className="bg-[#F4F5F7] dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 px-[8px] h-[34px] flex items-center justify-center rounded-b-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => toast.info("Edit Driver Information modal opened")}
+                        className="w-full h-[26px] rounded-lg text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5 font-semibold text-xs text-[#0089FF]"
+                      >
+                        <SquarePen className="h-3.5 w-3.5 stroke-[1.8]" />
+                        <span>Edit</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+
+              case "documents":
+                return (
+                  <div key={cardId} {...dragProps} className={cardWrapperClass}>
+                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <FileText className="h-4 w-4 text-[#1D293D] dark:text-slate-200 stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
+                          Documents
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <WidgetActionButton
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Documents", cardId)}
+                          cardName="Documents"
+                        />
+                      </div>
+                    </div>
+
+                    {/* 2. Main Data Content Area (PDF Badges & File details) */}
+                    <div className="px-[12px] py-[8px] space-y-2">
+                      {/* Document Item 1: Insurance */}
+                      <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-[#FAFAFA] dark:bg-slate-800/40 border border-[#F1F5F9] dark:border-slate-800">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          {/* Red PDF Icon Badge */}
+                          <div className="w-8 h-9 rounded bg-[#EF4444] text-white flex flex-col items-center justify-center shrink-0 shadow-2xs font-bold leading-none">
+                            <FileText className="h-3.5 w-3.5 stroke-[2]" />
+                            <span className="text-[7.5px] uppercase tracking-tighter mt-0.5 font-sans">PDF</span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 leading-[16px] truncate">
+                              Insurance
+                            </h4>
+                            <p className="text-[11px] font-normal text-[#62748E] dark:text-slate-400 font-sans leading-[14px]">
+                              Exp. 11/11/2027
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => toast.success("Downloading Insurance document...")}
+                          className="p-1 rounded text-slate-400 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                          title="Download document"
+                        >
+                          <Download className="h-3.5 w-3.5 stroke-[1.8]" />
+                        </button>
+                      </div>
+
+                      {/* Document Item 2: Permit & Fitness */}
+                      <div className="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-[#FAFAFA] dark:bg-slate-800/40 border border-[#F1F5F9] dark:border-slate-800">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          {/* Red PDF Icon Badge */}
+                          <div className="w-8 h-9 rounded bg-[#EF4444] text-white flex flex-col items-center justify-center shrink-0 shadow-2xs font-bold leading-none">
+                            <FileText className="h-3.5 w-3.5 stroke-[2]" />
+                            <span className="text-[7.5px] uppercase tracking-tighter mt-0.5 font-sans">PDF</span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 leading-[16px] truncate">
+                              Permit & Fitness
+                            </h4>
+                            <p className="text-[11px] font-normal text-[#62748E] dark:text-slate-400 font-sans leading-[14px]">
+                              Exp. 24/05/2028
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => toast.success("Downloading Permit document...")}
+                          className="p-1 rounded text-slate-400 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                          title="Download document"
+                        >
+                          <Download className="h-3.5 w-3.5 stroke-[1.8]" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 3. Action Toolbar Footer Row (#F4F5F7) */}
+                    <div className="bg-[#F4F5F7] dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 px-[8px] h-[34px] flex items-center justify-center rounded-b-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => toast.info("Upload Document modal opened")}
+                        className="w-full h-[26px] rounded-lg text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5 font-bold text-xs"
+                      >
+                        <Plus className="h-4 w-4 stroke-[1.8]" />
+                        <span>Documents</span>
+                      </button>
                     </div>
                   </div>
                 );
@@ -520,24 +935,20 @@ export function VehicleTelemetryDrawer({
 
                 return (
                   <div key={cardId} {...dragProps} className={cardWrapperClass}>
-                    {/* 1. Header Row */}
-                    <div className="flex items-center justify-between px-2.5 py-2 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <Compass className="h-4 w-4 text-slate-800 dark:text-slate-200 stroke-[1.8] shrink-0" />
-                        <h3 className="text-[13px] font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <Compass className="h-4 w-4 text-[#1D293D] dark:text-slate-200 stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
                           Today's Activity
                         </h3>
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
-                        <button
-                          type="button"
+                        <WidgetActionButton
+                          isRefreshing={isRefreshingThis}
                           onClick={() => handleRefreshCard("Today's Activity", cardId)}
-                          className="p-1 rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          title="Refresh widget"
-                        >
-                          <RefreshCw className={cn("h-3.5 w-3.5 transition-transform", isRefreshingThis && "animate-spin text-[#0089FF]")} />
-                        </button>
-                        <GripVertical className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-0.5" />
+                          cardName="Today's Activity"
+                        />
                       </div>
                     </div>
 
@@ -554,10 +965,10 @@ export function VehicleTelemetryDrawer({
                           </div>
 
                           <div className="relative z-10 bg-white dark:bg-slate-900 px-2 flex items-baseline gap-1">
-                            <span className="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-sans">
+                            <span className="text-[13px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-tight font-sans">
                               {vehicle.currentTrip ?? "331.4"}
                             </span>
-                            <span className="text-xs font-semibold text-slate-500">km</span>
+                            <span className="text-[11px] font-normal text-[#45556C]">km</span>
                           </div>
 
                           <div className="relative z-10 h-6 w-6 rounded-full bg-[#E0F2FE] dark:bg-blue-950 flex items-center justify-center text-[#0089FF] shrink-0 shadow-2xs">
@@ -568,39 +979,43 @@ export function VehicleTelemetryDrawer({
                     )}
 
                     {/* 3. Status Time Breakdown Rows */}
-                    <div className="px-3 py-1 space-y-1">
+                    <div className="px-[12px] py-[8px] space-y-1.5">
                       {isEnabled("running") && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11.5px] font-normal text-slate-600 dark:text-slate-400">Running</span>
-                          <span className="text-[11.5px] font-bold text-[#16A34A] dark:text-emerald-400 font-sans">
-                            {vehicle.runningTime || "09:16 hrs"}
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Running</span>
+                          <span className="text-[12px] font-semibold text-[#16A34A] dark:text-emerald-400 text-right leading-[16px] truncate">
+                            {(vehicle.runningTime || "09:16").replace(/\s*hrs$/i, "").trim()}{" "}
+                            <span className="font-normal text-[11px]">hrs</span>
                           </span>
                         </div>
                       )}
 
                       {isEnabled("stop") && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11.5px] font-normal text-slate-600 dark:text-slate-400">Stop</span>
-                          <span className="text-[11.5px] font-bold text-[#DC2626] dark:text-rose-400 font-sans">
-                            {vehicle.stopTime || "01:30 hrs"}
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Stop</span>
+                          <span className="text-[12px] font-semibold text-[#DC2626] dark:text-rose-400 text-right leading-[16px] truncate">
+                            {(vehicle.stopTime || "01:30").replace(/\s*hrs$/i, "").trim()}{" "}
+                            <span className="font-normal text-[11px]">hrs</span>
                           </span>
                         </div>
                       )}
 
                       {isEnabled("idle") && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11.5px] font-normal text-slate-600 dark:text-slate-400">Idle</span>
-                          <span className="text-[11.5px] font-bold text-[#D97706] dark:text-amber-400 font-sans">
-                            {vehicle.idleTime || "09:16 hrs"}
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Idle</span>
+                          <span className="text-[12px] font-semibold text-[#D97706] dark:text-amber-400 text-right leading-[16px] truncate">
+                            {(vehicle.idleTime || "09:16").replace(/\s*hrs$/i, "").trim()}{" "}
+                            <span className="font-normal text-[11px]">hrs</span>
                           </span>
                         </div>
                       )}
 
                       {isEnabled("inactive") && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11.5px] font-normal text-slate-600 dark:text-slate-400">Inactive</span>
-                          <span className="text-[11.5px] font-bold text-[#2563EB] dark:text-blue-400 font-sans">
-                            {vehicle.inactiveTime || "01:30 hrs"}
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Inactive</span>
+                          <span className="text-[12px] font-semibold text-[#2563EB] dark:text-blue-400 text-right leading-[16px] truncate">
+                            {(vehicle.inactiveTime || "01:30").replace(/\s*hrs$/i, "").trim()}{" "}
+                            <span className="font-normal text-[11px]">hrs</span>
                           </span>
                         </div>
                       )}
@@ -608,8 +1023,8 @@ export function VehicleTelemetryDrawer({
 
                     {/* 4. Journey Log Section (Timeline) */}
                     {(isEnabled("working_start") || isEnabled("last_stop")) && (
-                      <div className="px-3 pt-2 pb-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
-                        <h4 className="text-[11.5px] font-semibold text-slate-600 dark:text-slate-400">
+                      <div className="px-[12px] pt-2 pb-2 border-t border-[#F1F5F9] dark:border-slate-800 space-y-1.5">
+                        <h4 className="text-[11px] font-semibold text-[#0F172B] dark:text-slate-200 leading-[15px]">
                           Journey Log
                         </h4>
 
@@ -620,12 +1035,12 @@ export function VehicleTelemetryDrawer({
                             <div className="relative">
                               <div className="absolute -left-[19px] top-0.5 h-3 w-3 rounded-full bg-[#22AD00] ring-3 ring-emerald-100 dark:ring-emerald-950/70" />
                               <div className="flex items-center justify-between gap-2">
-                                <span className="text-[11.5px] font-bold text-slate-900 dark:text-slate-100">Start</span>
+                                <span className="text-[11px] font-semibold text-[#0F172B] dark:text-slate-100">Start</span>
                                 <span className="bg-[#E6F4EA] dark:bg-emerald-950/60 text-[#16A34A] dark:text-emerald-400 px-1.5 py-0.5 rounded-md text-[10.5px] font-bold font-sans">
                                   {vehicle.workingStart || "12:00 AM"}
                                 </span>
                               </div>
-                              <p className="text-[10.5px] font-normal text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+                              <p className="text-[10.5px] font-normal text-[#62748E] dark:text-slate-400 leading-tight mt-0.5">
                                 Talodo, Southeast Sulawesi, Indonesia (SW)
                               </p>
                             </div>
@@ -635,12 +1050,12 @@ export function VehicleTelemetryDrawer({
                             <div className="relative">
                               <div className="absolute -left-[19px] top-0.5 h-3 w-3 rounded-full bg-[#DC2626] ring-3 ring-rose-100 dark:ring-rose-950/70" />
                               <div className="flex items-center justify-between gap-2">
-                                <span className="text-[11.5px] font-bold text-slate-900 dark:text-slate-100">Last Stop</span>
+                                <span className="text-[11px] font-semibold text-[#0F172B] dark:text-slate-100">Last Stop</span>
                                 <span className="bg-[#FEE2E2] dark:bg-rose-950/60 text-[#DC2626] dark:text-rose-400 px-1.5 py-0.5 rounded-md text-[10.5px] font-bold font-sans">
                                   03:34 PM
                                 </span>
                               </div>
-                              <p className="text-[10.5px] font-normal text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+                              <p className="text-[10.5px] font-normal text-[#62748E] dark:text-slate-400 leading-tight mt-0.5">
                                 3.22km from Tongampadaaha, Southeast Sulawesi, Indonesia (SW)
                               </p>
                             </div>
@@ -663,6 +1078,102 @@ export function VehicleTelemetryDrawer({
                   </div>
                 );
 
+              case "location":
+                return (
+                  <div key={cardId} {...dragProps} className={cardWrapperClass}>
+                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <MapPin className="h-4 w-4 text-[#1D293D] dark:text-slate-200 stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
+                          Location
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <WidgetActionButton
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Location", cardId)}
+                          cardName="Location"
+                        />
+                      </div>
+                    </div>
+
+                    {/* 2. Main Data Content Area (Figma: padding 8px 12px) */}
+                    <div className="px-[12px] py-[8px] space-y-2">
+                      {/* Address & Coordinates Combined Block */}
+                      <div className="flex items-start justify-between gap-1.5">
+                        <div className="space-y-0.5 flex-1 min-w-0">
+                          <p className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 leading-[16px] text-left select-text">
+                            {vehicle.address || "Towamelewe, Southeast Sulawesi, Indonesia (NE)"}
+                          </p>
+                          <p className="text-[11px] font-normal text-[#62748E] dark:text-slate-400 leading-[15px] font-sans select-text text-left">
+                            ({vehicle.lat && vehicle.lng ? `${vehicle.lat.toFixed(6)}, ${vehicle.lng.toFixed(6)}` : "-3.970000, 122.580000"})
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const addr = vehicle.address || "Towamelewe, Southeast Sulawesi, Indonesia (NE)";
+                            const coords = vehicle.lat && vehicle.lng ? `${vehicle.lat.toFixed(6)}, ${vehicle.lng.toFixed(6)}` : "-3.970000, 122.580000";
+                            navigator.clipboard.writeText(`${addr} (${coords})`);
+                            toast.success("Location & coordinates copied to clipboard!");
+                          }}
+                          className="p-1 rounded text-slate-400 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0 mt-0.5"
+                          title="Copy location and coordinates"
+                        >
+                          <Copy className="h-3.5 w-3.5 stroke-[1.8]" />
+                        </button>
+                      </div>
+
+                      {/* Geofence Row */}
+                      <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/60">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Geofence</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                          HP Geofence 17
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 3. Action Toolbar Footer Row (Identical to vehicle_main action bar) */}
+                    <div className="bg-[#F4F5F7] dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 px-[8px] h-[34px] flex items-center justify-around text-[#45556C] dark:text-slate-400 rounded-b-[10px]">
+                      <button
+                        type="button"
+                        title="Add POI"
+                        onClick={() => toast.success("POI creation tool opened")}
+                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                      >
+                        <MapPinPlus className="h-4 w-4 stroke-[1.8]" />
+                      </button>
+
+                      <button
+                        type="button"
+                        title="Add Geofence"
+                        onClick={() => toast.success("Geofence creation tool opened")}
+                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                      >
+                        <svg viewBox="0 0 24 24" className="h-4 w-4 stroke-[1.8] fill-none stroke-current" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" strokeDasharray="2.5 2" />
+                          <path d="M12 9v6M9 12h6" />
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        title="Download KML"
+                        onClick={() => toast.success("Downloading Location KML file...")}
+                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                      >
+                        <svg viewBox="0 0 24 24" className="h-4 w-4 stroke-[1.8] fill-none stroke-current" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 18l-6 3V6l6-3 6 3 6-3v7.5" />
+                          <path d="M9 3v15" />
+                          <path d="M15 6v6.5" />
+                          <path d="M19 13v7M16 17l3 3 3-3" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+
               case "fuel":
                 if (
                   !isEnabled("fuel_level") &&
@@ -674,24 +1185,20 @@ export function VehicleTelemetryDrawer({
 
                 return (
                   <div key={cardId} {...dragProps} className={cardWrapperClass}>
-                    {/* 1. Header Row */}
-                    <div className="flex items-center justify-between px-2.5 py-2 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <Droplet className="h-4 w-4 text-slate-800 dark:text-slate-200 stroke-[1.8] shrink-0" />
-                        <h3 className="text-[13px] font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <Droplet className="h-4 w-4 text-[#1D293D] dark:text-slate-200 stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
                           Fuel
                         </h3>
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
-                        <button
-                          type="button"
+                        <WidgetActionButton
+                          isRefreshing={isRefreshingThis}
                           onClick={() => handleRefreshCard("Fuel Widget", cardId)}
-                          className="p-1 rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          title="Refresh widget"
-                        >
-                          <RefreshCw className={cn("h-3.5 w-3.5 transition-transform", isRefreshingThis && "animate-spin text-[#0089FF]")} />
-                        </button>
-                        <GripVertical className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-0.5" />
+                          cardName="Fuel Widget"
+                        />
                       </div>
                     </div>
 
@@ -716,27 +1223,20 @@ export function VehicleTelemetryDrawer({
                           {Array.from({ length: 12 }, (_, i) => i + 1).map((sNum) => {
                             const isSelected = selectedTank === sNum;
                             return (
-                              <TooltipProvider key={sNum} delayDuration={150}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      type="button"
-                                      onClick={() => setSelectedTank(sNum)}
-                                      className={cn(
-                                        "p-1.5 rounded-lg text-xs font-semibold flex items-center justify-center transition-all cursor-pointer shrink-0 active:scale-95",
-                                        isSelected
-                                          ? "bg-[#0089FF] text-white shadow-2xs font-bold ring-1 ring-sky-300 dark:ring-sky-800"
-                                          : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border border-slate-200/60 dark:border-slate-800"
-                                      )}
-                                    >
-                                      <Radio className="h-3.5 w-3.5 stroke-[2] shrink-0" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="text-xs">
-                                    Fuel Sensor {sNum}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                              <button
+                                key={sNum}
+                                type="button"
+                                title={`Fuel Sensor ${sNum}`}
+                                onClick={() => setSelectedTank(sNum)}
+                                className={cn(
+                                  "p-1.5 rounded-lg text-xs font-semibold flex items-center justify-center transition-all cursor-pointer shrink-0 active:scale-95",
+                                  isSelected
+                                    ? "bg-[#0089FF] text-white shadow-2xs font-bold ring-1 ring-sky-300 dark:ring-sky-800"
+                                    : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border border-slate-200/60 dark:border-slate-800"
+                                )}
+                              >
+                                <Radio className="h-3.5 w-3.5 stroke-[2] shrink-0" />
+                              </button>
                             );
                           })}
                         </div>
@@ -806,29 +1306,29 @@ export function VehicleTelemetryDrawer({
                               </div>
                             </div>
 
-                            {/* Right Column: Key Metrics Readout Card (Formatting matched 1:1 with Today's Activity readout) */}
-                            <div className="flex-1 flex flex-col justify-center gap-2 border-l border-slate-200 dark:border-slate-700/80 pl-3 min-w-0">
+                            {/* Right Column: Key Metrics Readout Card */}
+                            <div className="flex-1 flex flex-col justify-center gap-2 border-l border-[#F1F5F9] dark:border-slate-800 pl-3 min-w-0">
                               <div>
-                                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 block leading-tight">
-                                  Current Level
+                                <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 block leading-tight">
+                                  CURRENT LEVEL
                                 </span>
                                 <div className="flex items-baseline gap-1 mt-0.5">
-                                  <span className="text-base font-extrabold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
+                                  <span className="text-[13px] font-semibold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight">
                                     300
                                   </span>
-                                  <span className="text-xs font-semibold text-slate-500">ltr</span>
+                                  <span className="text-[11px] font-normal text-[#45556C]">ltr</span>
                                 </div>
                               </div>
 
-                              <div className="pt-2 border-t border-slate-200/70 dark:border-slate-800">
-                                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 block leading-tight">
-                                  Max Capacity
+                              <div className="pt-2 border-t border-[#F1F5F9] dark:border-slate-800">
+                                <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 block leading-tight">
+                                  MAX CAPACITY
                                 </span>
                                 <div className="flex items-baseline gap-1 mt-0.5">
-                                  <span className="text-base font-extrabold text-slate-900 dark:text-slate-100 font-sans tracking-tight">
+                                  <span className="text-[13px] font-semibold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight">
                                     2000
                                   </span>
-                                  <span className="text-xs font-semibold text-slate-500">ltr</span>
+                                  <span className="text-[11px] font-normal text-[#45556C]">ltr</span>
                                 </div>
                               </div>
                             </div>
@@ -836,29 +1336,33 @@ export function VehicleTelemetryDrawer({
                         )}
 
                         {/* 4. Tanks Summary Section */}
-                        <div className="px-3 py-2 space-y-1.5 border-t border-slate-100 dark:border-slate-800">
+                        <div className="px-[12px] py-[8px] space-y-1.5 border-t border-[#F1F5F9] dark:border-slate-800">
                           {isEnabled("number_of_tank") && (
-                            <div className="flex items-center justify-between text-[11.5px]">
-                              <span className="font-semibold text-[#0089FF]">Tanks</span>
-                              <span className="font-bold text-[#0089FF] font-sans">5</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[11px] font-semibold text-[#0089FF]">Tanks</span>
+                              <span className="text-[12px] font-semibold text-[#0089FF] font-sans">5</span>
                             </div>
                           )}
 
                           {isEnabled("refill_and_drain") && (
                             <>
-                              <div className="flex items-center justify-between text-[11.5px]">
-                                <span className="text-slate-600 dark:text-slate-400">Refill</span>
-                                <div className="flex items-center gap-2 font-sans">
-                                  <span className="text-[10.5px] italic text-slate-500">5 times</span>
-                                  <span className="font-bold text-[#16A34A] dark:text-emerald-400">50 ltr</span>
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Refill</span>
+                                <div className="flex items-center gap-2 text-right">
+                                  <span className="text-[10.5px] italic text-[#62748E]">5 times</span>
+                                  <span className="text-[12px] font-semibold text-[#16A34A] dark:text-emerald-400">
+                                    50 <span className="font-normal text-[#45556C] text-[11px]">ltr</span>
+                                  </span>
                                 </div>
                               </div>
 
-                              <div className="flex items-center justify-between text-[11.5px]">
-                                <span className="text-slate-600 dark:text-slate-400">Drain</span>
-                                <div className="flex items-center gap-2 font-sans">
-                                  <span className="text-[10.5px] italic text-slate-500">2 times</span>
-                                  <span className="font-bold text-[#D97706] dark:text-amber-400">2 ltr</span>
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Drain</span>
+                                <div className="flex items-center gap-2 text-right">
+                                  <span className="text-[10.5px] italic text-[#62748E]">2 times</span>
+                                  <span className="text-[12px] font-semibold text-[#D97706] dark:text-amber-400">
+                                    2 <span className="font-normal text-[#45556C] text-[11px]">ltr</span>
+                                  </span>
                                 </div>
                               </div>
                             </>
@@ -866,100 +1370,104 @@ export function VehicleTelemetryDrawer({
                         </div>
 
                         {/* 5. Consumption Section */}
-                        <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
-                          <span className="text-[11.5px] font-semibold text-slate-700 dark:text-slate-300 block">
+                        <div className="px-[12px] py-[8px] border-t border-[#F1F5F9] dark:border-slate-800 space-y-1.5">
+                          <span className="text-[11px] font-semibold text-[#0F172B] dark:text-slate-200 leading-[15px] block">
                             Consumption
                           </span>
-                          <div className="space-y-1 text-[11.5px] pl-0">
-                            <div className="flex items-center justify-between">
-                              <span className="text-slate-500 dark:text-slate-400 font-normal">Sensor</span>
-                              <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">2 ltr.</span>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Sensor</span>
+                              <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                                2 <span className="font-normal text-[#45556C] text-[11px]">ltr.</span>
+                              </span>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-slate-500 dark:text-slate-400 font-normal">CAN</span>
-                              <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">4 ltr</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">CAN</span>
+                              <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                                4 <span className="font-normal text-[#45556C] text-[11px]">ltr</span>
+                              </span>
                             </div>
                           </div>
                         </div>
 
                         {/* 6. Carbon Emission Section */}
-                        <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
-                          <span className="text-[11.5px] font-semibold text-slate-700 dark:text-slate-300 block">
+                        <div className="px-[12px] py-[8px] border-t border-[#F1F5F9] dark:border-slate-800 space-y-1.5">
+                          <span className="text-[11px] font-semibold text-[#0F172B] dark:text-slate-200 leading-[15px] block">
                             Carbon emission
                           </span>
-                          <div className="space-y-1 text-[11.5px] pl-0">
-                            <div className="flex items-center justify-between">
-                              <span className="text-slate-500 dark:text-slate-400 font-normal">Sensor</span>
-                              <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">NA</span>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Sensor</span>
+                              <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">NA</span>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-slate-500 dark:text-slate-400 font-normal">CAN</span>
-                              <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">NA</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">CAN</span>
+                              <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">NA</span>
                             </div>
                           </div>
                         </div>
 
                         {/* 7. Mileage Based On Section */}
-                        <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
-                          <span className="text-[11.5px] font-semibold text-slate-700 dark:text-slate-300 block">
+                        <div className="px-[12px] py-[8px] border-t border-[#F1F5F9] dark:border-slate-800 space-y-1.5">
+                          <span className="text-[11px] font-semibold text-[#0F172B] dark:text-slate-200 leading-[15px] block">
                             Mileage based on
                           </span>
-                          <div className="space-y-1 text-[11.5px] pl-0">
-                            <div className="flex items-center justify-between">
-                              <span className="text-slate-500 dark:text-slate-400 font-normal">Distance</span>
-                              <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">2.5 km/ltr</span>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Distance</span>
+                              <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                                2.5 <span className="font-normal text-[#45556C] text-[11px]">km/ltr</span>
+                              </span>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-slate-500 dark:text-slate-400 font-normal">Duration</span>
-                              <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">2.5 ltr/hr</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Duration</span>
+                              <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                                2.5 <span className="font-normal text-[#45556C] text-[11px]">ltr/hr</span>
+                              </span>
                             </div>
                           </div>
                         </div>
 
                         {/* 8. Waste Section */}
-                        <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
+                        <div className="px-[12px] py-[8px] border-t border-[#F1F5F9] dark:border-slate-800 space-y-1.5">
                           <div className="flex items-center gap-1">
-                            <span className="text-[11.5px] font-semibold text-slate-700 dark:text-slate-300">
+                            <span className="text-[11px] font-semibold text-[#0F172B] dark:text-slate-200 leading-[15px]">
                               Waste
                             </span>
-                            <TooltipProvider delayDuration={150}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Info className="h-3 w-3 text-slate-400 cursor-pointer hover:text-slate-600" />
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="text-xs">
-                                  Fuel wasted during idling
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <Info title="Fuel wasted during idling" className="h-3 w-3 text-[#62748E] cursor-pointer hover:text-[#0F172B]" />
                           </div>
-                          <div className="space-y-1 text-[11.5px] pl-0">
-                            <div className="flex items-center justify-between">
-                              <span className="text-slate-500 dark:text-slate-400 font-normal">Pre-defined</span>
-                              <span className="font-bold text-[#DC2626] dark:text-rose-400 font-sans">2.5 ltr</span>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Pre-defined</span>
+                              <span className="text-[12px] font-semibold text-[#DC2626] dark:text-rose-400 text-right leading-[16px] truncate">
+                                2.5 <span className="font-normal text-[#45556C] text-[11px]">ltr</span>
+                              </span>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-slate-500 dark:text-slate-400 font-normal">CAN</span>
-                              <span className="font-bold text-[#DC2626] dark:text-rose-400 font-sans">2.5 ltr</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">CAN</span>
+                              <span className="text-[12px] font-semibold text-[#DC2626] dark:text-rose-400 text-right leading-[16px] truncate">
+                                2.5 <span className="font-normal text-[#45556C] text-[11px]">ltr</span>
+                              </span>
                             </div>
-                            <p className="text-[10.5px] italic text-slate-500 dark:text-slate-400 pt-0.5">
+                            <p className="text-[10.5px] italic text-[#62748E] dark:text-slate-400 pt-0.5 leading-tight">
                               Due to 1 hr 43min idling
                             </p>
                           </div>
                         </div>
 
                         {/* 9. Remaining & Updated Footer Section */}
-                        <div className="px-3 py-2 border-t border-slate-200/80 dark:border-slate-800 space-y-1 bg-[#F4F5F7]/60 dark:bg-slate-800/30 rounded-b-xl">
-                          <div className="flex items-center justify-between text-[11.5px]">
-                            <span className="text-slate-600 dark:text-slate-400">Remaining</span>
-                            <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">06 km</span>
+                        <div className="px-[12px] py-[8px] border-t border-[#F1F5F9] dark:border-slate-800 space-y-1 bg-[#F4F5F7]/60 dark:bg-slate-800/30 rounded-b-xl">
+                          <div className="flex items-center justify-between gap-2 text-[11px]">
+                            <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400">Remaining</span>
+                            <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100">
+                              06 <span className="font-normal text-[#45556C] text-[11px]">km</span>
+                            </span>
                           </div>
-                          <div className="flex items-start justify-between text-[11.5px]">
-                            <span className="text-slate-600 dark:text-slate-400">Updated</span>
-                            <div className="text-right font-bold text-slate-900 dark:text-slate-100 font-sans text-[11px] leading-tight">
-                              <div>06-07-2026</div>
-                              <div>10:01 PM</div>
-                            </div>
+                          <div className="flex items-center justify-between gap-2 text-[11px]">
+                            <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0">Updated</span>
+                            <span className="text-[11.5px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate font-sans">
+                              06-07-2026 10:01 PM
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -971,126 +1479,55 @@ export function VehicleTelemetryDrawer({
                 if (!isEnabled("consumption")) return null;
 
                 return (
-                  <div key={cardId} {...dragProps} className={cn(cardWrapperClass, "p-3 space-y-2")}>
-                    {/* Header */}
-                    <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-slate-800/70 pb-1.5">
-                      <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-slate-100 min-w-0">
-                        <Droplet className="h-4 w-4 text-[#D97706] shrink-0" />
-                        <span className="truncate">Fuel Consumption</span>
+                  <div key={cardId} {...dragProps} className={cardWrapperClass}>
+                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <Droplet className="h-4 w-4 text-[#1D293D] dark:text-slate-200 stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
+                          Fuel Consumption
+                        </h3>
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleRefreshCard("Fuel Consumption Widget", cardId)}
-                          className="p-1 rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          title="Refresh widget"
-                        >
-                          <RefreshCw className={cn("h-3.5 w-3.5 transition-transform", isRefreshingThis && "animate-spin text-[#0089FF]")} />
-                        </button>
-                        <GripVertical className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-0.5" />
+                        <WidgetActionButton
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Fuel Consumption", cardId)}
+                          cardName="Fuel Consumption"
+                        />
                       </div>
                     </div>
 
-                    {/* Creative Graphic: Radial Fuel Meter Gauge */}
-                    <div className="pt-0.5 pb-1 flex justify-center">
-                      <svg viewBox="0 0 120 68" className="w-34 h-19 shrink-0">
-                        <defs>
-                          <linearGradient id="fuelGaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#10B981" />
-                            <stop offset="65%" stopColor="#F59E0B" />
-                            <stop offset="100%" stopColor="#EF4444" />
-                          </linearGradient>
-                        </defs>
-
-                        {/* Background Track Arc */}
-                        <path
-                          d="M 15 58 A 45 45 0 0 1 105 58"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="6"
-                          strokeLinecap="round"
-                          className="text-slate-200/80 dark:text-slate-800"
-                        />
-
-                        {/* Active Gradient Arc Track */}
-                        <path
-                          d="M 15 58 A 45 45 0 0 1 105 58"
-                          fill="none"
-                          stroke="url(#fuelGaugeGrad)"
-                          strokeWidth="6"
-                          strokeLinecap="round"
-                          strokeDasharray="141.37"
-                          strokeDashoffset="24"
-                        />
-
-                        {/* Center Droplet Graphic */}
-                        <g transform="translate(60, 44)">
-                          <circle r="12" fill="#F59E0B" fillOpacity="0.15" />
-                          <path
-                            d="M 0 -6 C 0 -6 -4.5 0 -4.5 3.5 A 4.5 4.5 0 0 0 4.5 3.5 C 4.5 0 0 -6 0 -6 Z"
-                            fill="#D97706"
-                          />
-                        </g>
-
-                        {/* Fuel Type Label */}
-                        <text
-                          x="60"
-                          y="65"
-                          textAnchor="middle"
-                          className="fill-slate-800 dark:fill-slate-200 font-bold text-[10px]"
-                        >
-                          Petrol
-                        </text>
-                      </svg>
-                    </div>
-
-                    {/* Clean Icon-Bulleted Metric List */}
-                    <div className="space-y-1.5 text-[11.5px] pt-0.5 border-t border-slate-100 dark:border-slate-800/80">
-                      {/* Distance Row */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                          <div className="w-5 h-5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                            <Navigation className="w-3 h-3" />
-                          </div>
-                          <span className="font-normal">Distance</span>
-                        </div>
-                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">10 ltr</span>
+                    {/* 2. Main Data Content Area (Figma: padding 8px 12px) */}
+                    <div className="px-[12px] py-[8px] space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Distance</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                          10 <span className="font-normal text-[#45556C] text-[11px]">ltr</span>
+                        </span>
                       </div>
 
-                      {/* Duration Row */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                          <div className="w-5 h-5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                            <Clock className="w-3 h-3" />
-                          </div>
-                          <span className="font-normal">Duration</span>
-                        </div>
-                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">10 ltr</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Duration</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                          10 <span className="font-normal text-[#45556C] text-[11px]">ltr</span>
+                        </span>
                       </div>
 
-                      {/* CO₂ Emission Row */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                          <div className="w-5 h-5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                            <Leaf className="w-3 h-3" />
-                          </div>
-                          <span className="font-normal">CO₂ Emission</span>
-                        </div>
-                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">10 kg</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">CO₂ Emission</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                          10 <span className="font-normal text-[#45556C] text-[11px]">kg</span>
+                        </span>
                       </div>
 
-                      {/* Waste Row & Subtext */}
-                      <div className="space-y-0.5 pt-0.5">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                            <div className="w-5 h-5 rounded-md bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-                              <AlertTriangle className="w-3 h-3" />
-                            </div>
-                            <span className="font-semibold text-rose-600 dark:text-rose-400">Waste</span>
-                          </div>
-                          <span className="font-extrabold text-[#DC2626] dark:text-rose-400 font-sans">05 ltr</span>
+                      <div className="border-t border-[#F1F5F9] dark:border-slate-800 pt-1.5 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-semibold text-[#0F172B] dark:text-slate-200 shrink-0 leading-[15px]">Waste</span>
+                          <span className="text-[12px] font-semibold text-[#DC2626] dark:text-rose-400 text-right leading-[16px] truncate">
+                            05 <span className="font-normal text-[#45556C] text-[11px]">ltr</span>
+                          </span>
                         </div>
-                        <p className="text-[10px] italic text-rose-500/90 dark:text-rose-400/90 pl-6.5 font-normal">
+                        <p className="text-[10.5px] italic text-[#62748E] dark:text-slate-400 leading-tight">
                           Due to 2 hrs idling
                         </p>
                       </div>
@@ -1100,40 +1537,49 @@ export function VehicleTelemetryDrawer({
 
               case "temperature":
                 return (
-                  <div key={cardId} {...dragProps} className={cn(cardWrapperClass, "p-3 space-y-1.5")}>
-                    <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-slate-800/70 pb-1.5">
-                      <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-slate-100 min-w-0">
-                        <Thermometer className="h-4 w-4 text-rose-500 shrink-0" />
-                        <span className="truncate"># Temperature & Sensors</span>
+                  <div key={cardId} {...dragProps} className={cardWrapperClass}>
+                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <Thermometer className="h-4 w-4 text-[#1D293D] dark:text-slate-200 stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
+                          Temperature & Sensors
+                        </h3>
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
-                        <button
-                          type="button"
+                        <WidgetActionButton
+                          isRefreshing={isRefreshingThis}
                           onClick={() => handleRefreshCard("Temperature & Sensors", cardId)}
-                          className="p-1 rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          title="Refresh widget"
-                        >
-                          <RefreshCw className={cn("h-3.5 w-3.5 transition-transform", isRefreshingThis && "animate-spin text-[#0089FF]")} />
-                        </button>
-                        <GripVertical className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ml-0.5" />
+                          cardName="Temperature & Sensors"
+                        />
                       </div>
                     </div>
-                    <div className="space-y-1 text-[11px] pt-0.5">
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Engine Temp:</span>
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">88 °C (Normal)</span>
+
+                    {/* 2. Main Data Content Area */}
+                    <div className="px-[12px] py-[8px] space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Engine Temp</span>
+                        <span className="text-[12px] font-semibold text-[#16A34A] dark:text-emerald-400 text-right leading-[16px] truncate">
+                          88 <span className="font-normal text-[#45556C] text-[11px]">°C (Normal)</span>
+                        </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Chamber Temp:</span>
-                        <span className="font-bold text-[#0089FF] font-mono">18.2 °C (Chilled)</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Chamber Temp</span>
+                        <span className="text-[12px] font-semibold text-[#0089FF] dark:text-blue-400 text-right leading-[16px] truncate">
+                          18.2 <span className="font-normal text-[#45556C] text-[11px]">°C (Chilled)</span>
+                        </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Battery Voltage:</span>
-                        <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">24.2 V (Healthy)</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Battery Voltage</span>
+                        <span className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 text-right leading-[16px] truncate">
+                          24.2 <span className="font-normal text-[#45556C] text-[11px]">V (Healthy)</span>
+                        </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Ignition Status:</span>
-                        <span className="font-bold text-emerald-600 font-mono">ON</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-normal text-[#45556C] dark:text-slate-400 shrink-0 leading-[15px]">Ignition Status</span>
+                        <span className="text-[12px] font-semibold text-[#16A34A] dark:text-emerald-400 text-right leading-[16px] truncate">
+                          ON
+                        </span>
                       </div>
                     </div>
                   </div>

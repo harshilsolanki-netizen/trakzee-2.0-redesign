@@ -180,7 +180,7 @@ export function LiveTrackingMap({
   onSelectVehicle,
   className,
 }: {
-  selectedVehicle: FleetObject;
+  selectedVehicle: FleetObject | null;
   checkedVehicles: FleetObject[];
   onOpenPlayback: () => void;
   isLeftPanelOpen?: boolean;
@@ -515,32 +515,34 @@ export function LiveTrackingMap({
       )}
 
       {/* 3. Selected Active Vehicle Marker Pin + Ultra Minimal Vehicle Label */}
-      <div
-        style={
-          activeVehicleCoord
-            ? { left: `${activeVehicleCoord.x}px`, top: `${activeVehicleCoord.y}px` }
-            : { left: "58%", top: "52.3%" }
-        }
-        className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 cursor-pointer animate-in zoom-in-50 duration-300"
-      >
-        {/* Minimal Vehicle Direction Pin */}
-        <div className="relative flex items-center justify-center">
-          <div className="absolute w-6 h-6 rounded-md bg-emerald-500/25 animate-ping" />
-          <div className="h-6 w-6 rounded-md bg-[#10B981] border-2 border-white text-white flex items-center justify-center shadow-md">
-            <Navigation className="h-3 w-3 fill-current rotate-[35deg]" />
+      {selectedVehicle && (
+        <div
+          style={
+            activeVehicleCoord
+              ? { left: `${activeVehicleCoord.x}px`, top: `${activeVehicleCoord.y}px` }
+              : { left: "58%", top: "52.3%" }
+          }
+          className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-20 cursor-pointer animate-in zoom-in-50 duration-300"
+        >
+          {/* Minimal Vehicle Direction Pin */}
+          <div className="relative flex items-center justify-center">
+            <div className="absolute w-6 h-6 rounded-md bg-emerald-500/25 animate-ping" />
+            <div className="h-6 w-6 rounded-md bg-[#10B981] border-2 border-white text-white flex items-center justify-center shadow-md">
+              <Navigation className="h-3 w-3 fill-current rotate-[35deg]" />
+            </div>
           </div>
-        </div>
 
-        {/* Ultra Minimal Compact Floating Vehicle Label */}
-        {showLabels && (
-          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 h-5 rounded-full bg-white/95 dark:bg-slate-900/95 border border-[#DFE3EB] dark:border-slate-800 shadow-xs backdrop-blur-xs select-none">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap leading-none">
-              {selectedVehicle?.name || "Fuel - 1001"}
-            </span>
-          </div>
-        )}
-      </div>
+          {/* Ultra Minimal Compact Floating Vehicle Label */}
+          {showLabels && (
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 h-5 rounded-full bg-white/95 dark:bg-slate-900/95 border border-[#DFE3EB] dark:border-slate-800 shadow-xs backdrop-blur-xs select-none">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap leading-none">
+                {selectedVehicle.name}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 2. Top Center Floating Playback & Health Scores Dock Bar (Dynamic Map Canvas Fit) */}
       <div
@@ -551,125 +553,49 @@ export function LiveTrackingMap({
         }}
       >
         <div className="pointer-events-auto flex items-center gap-2.5 max-w-full overflow-x-auto no-scrollbar py-0.5 px-1">
-          {/* Standalone Playback Button Card */}
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={onOpenPlayback}
-                  className="h-11 w-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md flex items-center justify-center text-[#0089FF] hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer shrink-0 active:scale-95"
-                >
-                  <Play className="h-4 w-4 fill-[#0089FF] text-[#0089FF] ml-0.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Playback</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          {/* Health Score Dock Bar Container (Matching media_1790248530674.png) */}
-          <div className="h-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md p-1 flex items-center gap-1 text-xs font-semibold shrink-0">
-            {/* Safety */}
+          {/* Creative Expanding Playback Button Card (Only visible when a single vehicle is selected) */}
+          {selectedVehicle && (
             <button
               type="button"
-              onClick={() => {
-                setActiveHealthTab("safety");
-                toast.info("Safety Index: 85/100");
-              }}
-              className={cn(
-                "px-3.5 py-1.5 rounded-xl flex items-center gap-2.5 transition-all duration-200 cursor-pointer shrink-0",
-                activeHealthTab === "safety"
-                  ? "bg-[#EBF9F0] dark:bg-emerald-950/50 text-slate-900 dark:text-slate-100 font-bold"
-                  : "bg-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium",
-              )}
+              onClick={onOpenPlayback}
+              className="group relative h-11 w-11 hover:w-[118px] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:border-[#0089FF] hover:shadow-[0_0_16px_rgba(0,137,255,0.35)] transition-all duration-300 ease-out flex items-center justify-start px-3.5 cursor-pointer shrink-0 active:scale-95 overflow-hidden"
             >
-              <div className="h-5 w-5 rounded-full bg-[#10B981] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                <ShieldCheck className="h-3 w-3 stroke-[3]" />
-              </div>
-              <span className="text-xs">Safety</span>
-              <span className="font-extrabold text-[#10B981] text-xs font-mono ml-0.5">85</span>
-            </button>
+              {/* Soft Subtle Inner Highlight */}
+              <span className="absolute inset-0 rounded-2xl bg-[#0089FF]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-            {/* Efficiency */}
-            <button
-              type="button"
-              onClick={() => {
-                setActiveHealthTab("efficiency");
-                toast.info("Efficiency Index: 72/100");
-              }}
-              className={cn(
-                "px-3.5 py-1.5 rounded-xl flex items-center gap-2.5 transition-all duration-200 cursor-pointer shrink-0",
-                activeHealthTab === "efficiency"
-                  ? "bg-[#FFFBEB] dark:bg-amber-950/50 text-slate-900 dark:text-slate-100 font-bold"
-                  : "bg-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium",
-              )}
-            >
-              <Timer className="h-4.5 w-4.5 text-[#D97706] shrink-0 stroke-[2.2]" />
-              <span className="text-xs">Efficiency</span>
-              <span className="font-extrabold text-[#D97706] text-xs font-mono ml-0.5">72</span>
-            </button>
+              {/* Play Icon */}
+              <Play className="relative z-10 h-4 w-4 fill-[#0089FF] text-[#0089FF] shrink-0 transition-colors duration-300" />
 
-            {/* Risk */}
-            <button
-              type="button"
-              onClick={() => {
-                setActiveHealthTab("risk");
-                toast.info("Risk Level: 15 (Low Risk)");
-              }}
-              className={cn(
-                "px-3.5 py-1.5 rounded-xl flex items-center gap-2.5 transition-all duration-200 cursor-pointer shrink-0",
-                activeHealthTab === "risk"
-                  ? "bg-[#FEF2F2] dark:bg-rose-950/50 text-slate-900 dark:text-slate-100 font-bold"
-                  : "bg-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium",
-              )}
-            >
-              <AlertTriangle className="h-4.5 w-4.5 text-[#EF4444] fill-[#EF4444] stroke-white shrink-0" />
-              <span className="text-xs">Risk</span>
-              <span className="font-extrabold text-[#EF4444] text-xs font-mono ml-0.5">15</span>
+              {/* Smooth Expanding Text Label "Playback" Inside Button on Hover */}
+              <span className="relative z-10 ml-2 font-bold text-xs text-[#0089FF] dark:text-slate-100 opacity-0 max-w-0 translate-x-1 group-hover:opacity-100 group-hover:max-w-[70px] group-hover:translate-x-0 transition-all duration-300 ease-out whitespace-nowrap overflow-hidden">
+                Playback
+              </span>
             </button>
-
-            {/* Discipline */}
-            <button
-              type="button"
-              onClick={() => {
-                setActiveHealthTab("discipline");
-                toast.info("Route Discipline: 98/100");
-              }}
-              className={cn(
-                "px-3.5 py-1.5 rounded-xl flex items-center gap-2.5 transition-all duration-200 cursor-pointer shrink-0",
-                activeHealthTab === "discipline"
-                  ? "bg-[#F0F9FF] dark:bg-sky-950/50 text-slate-900 dark:text-slate-100 font-bold"
-                  : "bg-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium",
-              )}
-            >
-              <ThumbsUp className="h-4.5 w-4.5 text-[#0089FF] fill-[#0089FF] shrink-0" />
-              <span className="text-xs">Discipline</span>
-              <span className="font-extrabold text-[#0089FF] text-xs font-mono ml-0.5">98</span>
-            </button>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* 3. Right Floating Map Controls Vertical Toolbar (14 GIS Tools in Exact Specified Order) */}
-      <div
-        className={cn(
-          "w-[35px] absolute top-2.5 z-20 flex flex-col items-center gap-0.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-xl transition-all duration-200 overflow-hidden select-none",
-          isTelemetryDrawerOpen ? "right-[246px]" : "right-2.5",
-        )}
-      >
+      {/* 3. Right Floating Map Controls Vertical Stack (Hidden when telemetry drawer is open) */}
+      {!isTelemetryDrawerOpen && (
+        <div
+          className={cn(
+            "absolute top-2.5 z-20 flex flex-col items-center gap-2 transition-all duration-200 select-none",
+            isTelemetryDrawerOpen ? "right-[368px]" : "right-2.5",
+          )}
+        >
+        {/* 1. Top Card: Telemetry Drawer Toggle Chevron Button (Matching Reference Image 1:1: 44px Light Sky-Blue Card with Blue Chevron) */}
         <TooltipProvider delayDuration={150}>
-          {/* Telemetry Drawer Toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
                 onClick={onToggleTelemetryDrawer}
-                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center bg-[#0089FF] text-white shadow-xs hover:bg-[#0070d6] active:scale-95 transition-all cursor-pointer shrink-0"
+                className="w-[44px] h-[44px] rounded-2xl bg-[#EAF4FF] dark:bg-sky-950/80 border border-sky-100 dark:border-slate-800 shadow-md flex items-center justify-center text-[#0089FF] hover:bg-sky-100/80 dark:hover:bg-sky-900/80 active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 {isTelemetryDrawerOpen ? (
-                  <ChevronRight className="h-4 w-4 stroke-[2.5]" />
+                  <ChevronRight className="h-5 w-5 stroke-[2.5] text-[#0089FF]" />
                 ) : (
-                  <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
+                  <ChevronLeft className="h-5 w-5 stroke-[2.5] text-[#0089FF]" />
                 )}
               </button>
             </TooltipTrigger>
@@ -677,267 +603,274 @@ export function LiveTrackingMap({
               {isTelemetryDrawerOpen ? "Close Telemetry Panel" : "Open Telemetry Panel"}
             </TooltipContent>
           </Tooltip>
-
-          <div className="w-4 my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
-
-          {/* 1. Select Map */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() =>
-                  setMapStyle((s) => (s === "streets" ? "satellite" : s === "satellite" ? "dark" : "streets"))
-                }
-                className={cn(
-                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
-                  mapStyle !== "streets"
-                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
-                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
-                )}
-              >
-                <Layers className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Select Map ({mapStyle.toUpperCase()})</TooltipContent>
-          </Tooltip>
-
-          {/* 2. Remove Cluster */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowClusters((prev) => !prev);
-                  toast.info(showClusters ? "Clusters hidden" : "Clusters visible");
-                }}
-                className={cn(
-                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
-                  !showClusters
-                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
-                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
-                )}
-              >
-                <CircleDot className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Remove Cluster</TooltipContent>
-          </Tooltip>
-
-          {/* 3. Object with path */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowObjectPath((prev) => !prev);
-                  toast.info(showObjectPath ? "Vehicle path hidden" : "Vehicle path visible");
-                }}
-                className={cn(
-                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
-                  showObjectPath
-                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
-                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
-                )}
-              >
-                <Route className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Object with path</TooltipContent>
-          </Tooltip>
-
-          {/* 4. Show label */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowLabels((prev) => !prev);
-                  toast.info(showLabels ? "Labels hidden" : "Labels visible");
-                }}
-                className={cn(
-                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
-                  showLabels
-                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
-                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
-                )}
-              >
-                <Tag className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Show label</TooltipContent>
-          </Tooltip>
-
-          {/* 5. Share Live location */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => toast.success("Live tracking link copied to clipboard!")}
-                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
-              >
-                <Share2 className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Share Live location</TooltipContent>
-          </Tooltip>
-
-          {/* 6. Find Near By */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => toast.info("Searching nearby assets & places...")}
-                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
-              >
-                <Compass className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Find Near By</TooltipContent>
-          </Tooltip>
-
-          {/* 7. Single Object Mode */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => {
-                  setSingleObjectMode((prev) => !prev);
-                  toast.info(singleObjectMode ? "Exited Single Object Mode" : "Entered Single Object Mode");
-                }}
-                className={cn(
-                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
-                  singleObjectMode
-                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
-                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
-                )}
-              >
-                <Target className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Single Object Mode</TooltipContent>
-          </Tooltip>
-
-          {/* 8. Area Measurement */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => {
-                  setAreaMeasurementActive((prev) => !prev);
-                  toast.info(areaMeasurementActive ? "Area measurement closed" : "Click map points to measure area");
-                }}
-                className={cn(
-                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
-                  areaMeasurementActive
-                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
-                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
-                )}
-              >
-                <Ruler className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Area Measurement</TooltipContent>
-          </Tooltip>
-
-          {/* 9. Add Address and Geofence */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => toast.info("Click map location to add Geofence or Custom Address")}
-                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
-              >
-                <MapPinPlus className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Add Address and Geofence</TooltipContent>
-          </Tooltip>
-
-          {/* 10. Re-center */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={handleRecenter}
-                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
-              >
-                <LocateFixed className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Re-center</TooltipContent>
-          </Tooltip>
-
-          {/* 11. Compare path */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => toast.info("Comparing historical vehicle paths...")}
-                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
-              >
-                <GitCompare className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Compare path</TooltipContent>
-          </Tooltip>
-
-          {/* 12. Taxi meter */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => {
-                  setTaxiMeterActive((prev) => !prev);
-                  toast.info(taxiMeterActive ? "Taxi meter stopped" : "Taxi meter activated");
-                }}
-                className={cn(
-                  "w-[27px] h-[27px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
-                  taxiMeterActive
-                    ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
-                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
-                )}
-              >
-                <Gauge className="h-4 w-4 stroke-[2.2]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Taxi meter</TooltipContent>
-          </Tooltip>
-
-          <div className="w-4 my-0.5 border-t border-[#DFE3EB] dark:border-slate-800" />
-
-          {/* 13. Zoom in */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={handleZoomIn}
-                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
-              >
-                <Plus className="h-4 w-4 stroke-[2.5]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Zoom in</TooltipContent>
-          </Tooltip>
-
-          {/* 14. Zoom out */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={handleZoomOut}
-                className="w-[27px] h-[27px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
-              >
-                <Minus className="h-4 w-4 stroke-[2.5]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left">Zoom out</TooltipContent>
-          </Tooltip>
         </TooltipProvider>
+
+        {/* 2. Middle Card: GIS Tools Toolbar (44px Width) */}
+        <div className="w-[44px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-xl flex flex-col items-center gap-1 shrink-0 overflow-hidden">
+          <TooltipProvider delayDuration={150}>
+            {/* 1. Select Map */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setMapStyle((s) => (s === "streets" ? "satellite" : s === "satellite" ? "dark" : "streets"))
+                  }
+                  className={cn(
+                    "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                    mapStyle !== "streets"
+                      ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+                  )}
+                >
+                  <Layers className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Select Map ({mapStyle.toUpperCase()})</TooltipContent>
+            </Tooltip>
+
+            {/* 2. Remove Cluster */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowClusters((prev) => !prev);
+                    toast.info(showClusters ? "Clusters hidden" : "Clusters visible");
+                  }}
+                  className={cn(
+                    "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                    !showClusters
+                      ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+                  )}
+                >
+                  <CircleDot className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Remove Cluster</TooltipContent>
+            </Tooltip>
+
+            {/* 3. Object with path */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowObjectPath((prev) => !prev);
+                    toast.info(showObjectPath ? "Vehicle path hidden" : "Vehicle path visible");
+                  }}
+                  className={cn(
+                    "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                    showObjectPath
+                      ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+                  )}
+                >
+                  <Route className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Object with path</TooltipContent>
+            </Tooltip>
+
+            {/* 4. Show label */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLabels((prev) => !prev);
+                    toast.info(showLabels ? "Labels hidden" : "Labels visible");
+                  }}
+                  className={cn(
+                    "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                    showLabels
+                      ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+                  )}
+                >
+                  <Tag className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Show label</TooltipContent>
+            </Tooltip>
+
+            {/* 5. Share Live location */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => toast.success("Live tracking link copied to clipboard!")}
+                  className="w-[36px] h-[36px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                >
+                  <Share2 className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Share Live location</TooltipContent>
+            </Tooltip>
+
+            {/* 6. Find Near By */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => toast.info("Searching nearby assets & places...")}
+                  className="w-[36px] h-[36px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                >
+                  <Compass className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Find Near By</TooltipContent>
+            </Tooltip>
+
+            {/* 7. Single Object Mode */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSingleObjectMode((prev) => !prev);
+                    toast.info(singleObjectMode ? "Exited Single Object Mode" : "Entered Single Object Mode");
+                  }}
+                  className={cn(
+                    "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                    singleObjectMode
+                      ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+                  )}
+                >
+                  <Target className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Single Object Mode</TooltipContent>
+            </Tooltip>
+
+            {/* 8. Area Measurement */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAreaMeasurementActive((prev) => !prev);
+                    toast.info(areaMeasurementActive ? "Area measurement closed" : "Click map points to measure area");
+                  }}
+                  className={cn(
+                    "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                    areaMeasurementActive
+                      ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+                  )}
+                >
+                  <Ruler className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Area Measurement</TooltipContent>
+            </Tooltip>
+
+            {/* 9. Add Address and Geofence */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => toast.info("Click map location to add Geofence or Custom Address")}
+                  className="w-[36px] h-[36px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                >
+                  <MapPinPlus className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Add Address and Geofence</TooltipContent>
+            </Tooltip>
+
+            {/* 10. Re-center */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={handleRecenter}
+                  className="w-[36px] h-[36px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                >
+                  <LocateFixed className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Re-center</TooltipContent>
+            </Tooltip>
+
+            {/* 11. Compare path */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => toast.info("Comparing historical vehicle paths...")}
+                  className="w-[36px] h-[36px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                >
+                  <GitCompare className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Compare path</TooltipContent>
+            </Tooltip>
+
+            {/* 12. Taxi meter */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTaxiMeterActive((prev) => !prev);
+                    toast.info(taxiMeterActive ? "Taxi meter stopped" : "Taxi meter activated");
+                  }}
+                  className={cn(
+                    "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                    taxiMeterActive
+                      ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+                  )}
+                >
+                  <Gauge className="h-4.5 w-4.5 stroke-[2]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Taxi meter</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        {/* 3. Bottom Card: Zoom In & Zoom Out Controls (44px Width) */}
+        <div className="w-[44px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-xl flex flex-col items-center gap-1 shrink-0 overflow-hidden">
+          <TooltipProvider delayDuration={150}>
+            {/* Zoom in */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={handleZoomIn}
+                  className="w-[36px] h-[36px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                >
+                  <Plus className="h-4.5 w-4.5 stroke-[2.5]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Zoom in</TooltipContent>
+            </Tooltip>
+
+            {/* Zoom out */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={handleZoomOut}
+                  className="w-[36px] h-[36px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
+                >
+                  <Minus className="h-4.5 w-4.5 stroke-[2.5]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">Zoom out</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
+      )}
 
       {/* 4. Bottom Map Scale & Coordinates */}
       <div
-        style={{ right: isTelemetryDrawerOpen ? "246px" : "10px" }}
+        style={{ right: isTelemetryDrawerOpen ? "248px" : "10px" }}
         className="absolute bottom-3 z-10 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3 py-1 rounded-xl border border-[#DFE3EB] dark:border-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 transition-all duration-300 shadow-sm"
       >
         <span>0.05 km</span>
