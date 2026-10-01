@@ -182,7 +182,7 @@ export function LiveTrackingMap({
 }: {
   selectedVehicle: FleetObject | null;
   checkedVehicles: FleetObject[];
-  onOpenPlayback: () => void;
+  onOpenPlayback: (timeframe?: string) => void;
   isLeftPanelOpen?: boolean;
   leftPanelWidth?: number;
   isTelemetryDrawerOpen: boolean;
@@ -221,10 +221,15 @@ export function LiveTrackingMap({
     if (!mapElementRef.current || mapInstanceRef.current) return;
 
     const map = L.map(mapElementRef.current, {
-      center: [15.8700, 95.0000],
-      zoom: 4,
+      center: [45.0000, 71.0000],
+      zoom: 5,
       zoomControl: false,
       attributionControl: false,
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      touchZoom: true,
+      boxZoom: true,
+      keyboard: true,
     });
 
     mapInstanceRef.current = map;
@@ -247,6 +252,34 @@ export function LiveTrackingMap({
     return () => {
       map.remove();
       mapInstanceRef.current = null;
+    };
+  }, []);
+
+  // Listen for global map zoom and route fit events
+  useEffect(() => {
+    const handleZoomInEvent = () => mapInstanceRef.current?.zoomIn();
+    const handleZoomOutEvent = () => mapInstanceRef.current?.zoomOut();
+    const handleFitRouteEvent = () => {
+      try {
+        if (polylineRef.current && mapInstanceRef.current) {
+          const bounds = polylineRef.current.getBounds();
+          if (bounds && bounds.isValid()) {
+            mapInstanceRef.current.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+          }
+        }
+      } catch (err) {
+        console.warn("Safely caught map-fit-route error:", err);
+      }
+    };
+
+    window.addEventListener("map-zoom-in", handleZoomInEvent);
+    window.addEventListener("map-zoom-out", handleZoomOutEvent);
+    window.addEventListener("map-fit-route", handleFitRouteEvent);
+
+    return () => {
+      window.removeEventListener("map-zoom-in", handleZoomInEvent);
+      window.removeEventListener("map-zoom-out", handleZoomOutEvent);
+      window.removeEventListener("map-fit-route", handleFitRouteEvent);
     };
   }, []);
 
@@ -300,19 +333,29 @@ export function LiveTrackingMap({
 
     if (showObjectPath) {
       const routePoints: [number, number][] = [
-        [19.0760, 72.8777],
-        [19.0820, 72.8850],
-        [19.0910, 72.8940],
-        [19.1020, 72.9030],
-        [19.1150, 72.9150],
+        [51.1693, 71.4491],
+        [49.8019, 73.1021],
+        [44.8528, 65.5092],
+        [43.2389, 76.8897],
+        [42.8746, 74.5698],
+        [41.2995, 69.2401],
+        [38.5598, 68.7870],
       ];
       const polyline = L.polyline(routePoints, {
         color: "#0089FF",
-        weight: 4,
-        dashArray: "6, 8",
+        weight: 5,
         opacity: 0.9,
       }).addTo(mapInstanceRef.current);
       polylineRef.current = polyline;
+
+      try {
+        const bounds = polyline.getBounds();
+        if (bounds && bounds.isValid() && mapInstanceRef.current) {
+          mapInstanceRef.current.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+        }
+      } catch (err) {
+        console.warn("Safely caught map fitBounds error:", err);
+      }
     }
   }, [showObjectPath]);
 
@@ -552,25 +595,54 @@ export function LiveTrackingMap({
           right: isTelemetryDrawerOpen ? "288px" : "46px",
         }}
       >
-        <div className="pointer-events-auto flex items-center gap-2.5 max-w-full overflow-x-auto no-scrollbar py-0.5 px-1">
-          {/* Creative Expanding Playback Button Card (Only visible when a single vehicle is selected) */}
+        <div className="pointer-events-auto flex items-center gap-2.5 py-0.5 px-1">
+          {/* Playback CTA Button & Hover Dropdown Overlay (Exact Same Width Alignment 1:1) */}
           {selectedVehicle && (
-            <button
-              type="button"
-              onClick={onOpenPlayback}
-              className="group relative h-11 w-11 hover:w-[118px] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:border-[#0089FF] hover:shadow-[0_0_16px_rgba(0,137,255,0.35)] transition-all duration-300 ease-out flex items-center justify-start px-3.5 cursor-pointer shrink-0 active:scale-95 overflow-hidden"
-            >
-              {/* Soft Subtle Inner Highlight */}
-              <span className="absolute inset-0 rounded-2xl bg-[#0089FF]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            <div className="relative w-[136px] group/playback">
+              {/* Reference-Matched Playback CTA Button (Full Container Width) */}
+              <button
+                type="button"
+                onClick={() => onOpenPlayback("Today")}
+                className="w-full h-10 px-3 rounded-2xl bg-white dark:bg-slate-900 border-2 border-[#0089FF] shadow-md hover:shadow-lg hover:shadow-[#0089FF]/20 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 group/btn"
+              >
+                {/* Solid Blue Play Icon */}
+                <Play className="h-4 w-4 fill-[#0089FF] text-[#0089FF] shrink-0" />
 
-              {/* Play Icon */}
-              <Play className="relative z-10 h-4 w-4 fill-[#0089FF] text-[#0089FF] shrink-0 transition-colors duration-300" />
+                {/* Bold Blue Text "Playback" */}
+                <span className="font-bold text-xs text-[#0089FF] dark:text-[#0089FF] leading-none whitespace-nowrap">
+                  Playback
+                </span>
+              </button>
 
-              {/* Smooth Expanding Text Label "Playback" Inside Button on Hover */}
-              <span className="relative z-10 ml-2 font-bold text-xs text-[#0089FF] dark:text-slate-100 opacity-0 max-w-0 translate-x-1 group-hover:opacity-100 group-hover:max-w-[70px] group-hover:translate-x-0 transition-all duration-300 ease-out whitespace-nowrap overflow-hidden">
-                Playback
-              </span>
-            </button>
+              {/* Timeframe Selector Overlay Menu on Hover (Exact Same Width as CTA Button) */}
+              <div className="absolute top-full left-0 pt-1.5 w-full z-50 opacity-0 pointer-events-none group-hover/playback:opacity-100 group-hover/playback:pointer-events-auto transition-all duration-200 ease-out transform translate-y-1 group-hover/playback:translate-y-0">
+                <div className="w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl shadow-2xl p-1.5 flex flex-col space-y-0.5">
+                  {[
+                    "Today",
+                    "Last 24 Hour",
+                    "Yesterday",
+                    "This Week",
+                    "Last Week",
+                    "This Month",
+                    "Last Month",
+                    "Custom",
+                  ].map((tf) => (
+                    <button
+                      key={tf}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenPlayback(tf);
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#0089FF]/10 hover:text-[#0089FF] dark:hover:bg-[#0089FF]/20 dark:hover:text-sky-300 transition-colors duration-150 cursor-pointer flex items-center justify-between group/item"
+                    >
+                      <span className="truncate">{tf}</span>
+                      <ChevronRight className="h-3 w-3 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0 text-[#0089FF] ml-1" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

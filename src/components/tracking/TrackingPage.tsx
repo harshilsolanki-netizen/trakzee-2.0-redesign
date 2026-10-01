@@ -32,6 +32,7 @@ export function TrackingPage() {
   const [isTelemetryDrawerOpen, setIsTelemetryDrawerOpen] = useState(false);
   const [isHealthTelemetryOnly, setIsHealthTelemetryOnly] = useState(false);
   const [playbackOpen, setPlaybackOpen] = useState(false);
+  const [playbackTimeframe, setPlaybackTimeframe] = useState("Today");
   const [dashcamVehicle, setDashcamVehicle] = useState<FleetObject | null>(
     null,
   );
@@ -111,6 +112,21 @@ export function TrackingPage() {
     };
   }, [isResizing]);
 
+  const handleOpenPlayback = (tf?: string) => {
+    if (tf) setPlaybackTimeframe(tf);
+    if (!selectedVehicleId && vehiclesList.length > 0) {
+      setSelectedVehicleIdState(vehiclesList[0].id);
+    }
+    setPlaybackOpen(true);
+    setIsLeftPanelOpen(false);
+    setIsTelemetryDrawerOpen(false);
+  };
+
+  const handleClosePlayback = () => {
+    setPlaybackOpen(false);
+    setIsLeftPanelOpen(true);
+  };
+
   if (isAddVehicleOpen) {
     return (
       <AddVehiclePage
@@ -131,7 +147,7 @@ export function TrackingPage() {
         <LiveTrackingMap
           selectedVehicle={selectedVehicle}
           checkedVehicles={checkedVehicles}
-          onOpenPlayback={() => setPlaybackOpen(true)}
+          onOpenPlayback={handleOpenPlayback}
           isLeftPanelOpen={isLeftPanelOpen}
           leftPanelWidth={panelWidth}
           isTelemetryDrawerOpen={isTelemetryDrawerOpen}
@@ -197,21 +213,22 @@ export function TrackingPage() {
             onClose={() => setIsTelemetryDrawerOpen(false)}
             onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
             allVehicles={fleetObjects}
-            onOpenPlayback={() => setPlaybackOpen(true)}
+            onOpenPlayback={() => handleOpenPlayback()}
             isHealthOnly={isHealthTelemetryOnly}
-            className="w-[350px] sm:w-[350px] h-full pointer-events-auto bg-transparent border-0 shadow-none"
+            className="w-[220px] sm:w-[220px] h-full pointer-events-auto bg-transparent border-0 shadow-none"
           />
         </div>
       )}
 
       {/* 4. Floating Route Playback Bar (when active) */}
       {playbackOpen && selectedVehicle && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-full max-w-2xl px-4 pointer-events-auto animate-in slide-in-from-bottom-4 duration-200">
-          <RoutePlaybackBar
-            vehicle={selectedVehicle}
-            onClose={() => setPlaybackOpen(false)}
-          />
-        </div>
+        <RoutePlaybackBar
+          vehicle={selectedVehicle}
+          allVehicles={fleetObjects}
+          timeframe={playbackTimeframe}
+          onSelectVehicle={(v) => setSelectedVehicleIdState(v.id)}
+          onClose={handleClosePlayback}
+        />
       )}
 
       {/* 5. Live Multi-Channel Dashcam Video Streaming Modal */}

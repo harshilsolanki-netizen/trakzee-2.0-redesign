@@ -3,18 +3,23 @@ import {
   AlertTriangle,
   ArrowUpDown,
   Bell,
+  Box,
   Briefcase,
   Calendar,
+  Caravan,
   Camera,
   Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Compass,
   Eye,
+  FileSpreadsheet,
   FileText,
   Filter,
   Flame,
+  Hash,
   Info,
   Key,
   Layers,
@@ -23,6 +28,8 @@ import {
   Mic,
   MoreVertical,
   Navigation,
+  Package,
+  Paperclip,
   Phone,
   Play,
   Plus,
@@ -31,8 +38,11 @@ import {
   Radio,
   RotateCcw,
   RotateCw,
+  Route,
+  Scale,
   Search,
   Settings,
+  Share2,
   Shield,
   ShieldAlert,
   ShieldCheck,
@@ -43,7 +53,9 @@ import {
   TrendingUp,
   Truck,
   User,
+  UserCheck,
   Video,
+  Weight,
   Wifi,
   Wrench,
   X,
@@ -127,6 +139,7 @@ export function FleetExplorerPanel({
   const [activeTab, setActiveTab] = useState<TrackingTab>("object");
   const [query, setQuery] = useState("");
   const [activeStatus, setActiveStatus] = useState<ObjectStatus | "all">("all");
+  const [activeDriverStatus, setActiveDriverStatus] = useState<string>("all");
   const [selectedHealthCategory, setSelectedHealthCategory] = useState<
     "all" | "safety" | "efficiency" | "risk" | "discipline"
   >("all");
@@ -142,6 +155,384 @@ export function FleetExplorerPanel({
     Ruptela: false,
     "Shivam Test": false,
   });
+
+  // Driver Tab collapse & action menu states
+  const [collapsedDriverBranches, setCollapsedDriverBranches] = useState<Record<string, boolean>>({});
+  const [collapsedDriverSubgroups, setCollapsedDriverSubgroups] = useState<Record<string, boolean>>({});
+  const [openDriverMenuId, setOpenDriverMenuId] = useState<string | null>(null);
+  const [openStatusSubmenuId, setOpenStatusSubmenuId] = useState<string | null>(null);
+
+  // Job Tab collapse & expand details states
+  const [activeJobStatus, setActiveJobStatus] = useState<string>("all");
+  const [collapsedJobBranches, setCollapsedJobBranches] = useState<Record<string, boolean>>({});
+  const [collapsedJobSubgroups, setCollapsedJobSubgroups] = useState<Record<string, boolean>>({});
+  const [expandedJobIds, setExpandedJobIds] = useState<Record<string, boolean>>({});
+
+  // Dynamic Job Dataset state (8 Total Jobs & 96 Checkpoints matching reference image 1:1)
+  const [jobData, setJobData] = useState([
+    {
+      branch: "HP Company",
+      count: 8,
+      visitedCount: 32,
+      upcomingCount: 47,
+      missedCount: 17,
+      totalCount: 96,
+      subgroups: [
+        {
+          name: "HP Branch 1",
+          count: 8,
+          jobs: [
+            {
+              id: "j-50284",
+              code: "#50284",
+              title: "TEST SCM",
+              status: "Completed With Error",
+              statusType: "completed",
+              object: "Test SCM Object",
+              objectState: "Unloaded",
+              quantity: 0,
+              weight: 0,
+              violation: 0,
+              convoy: "--",
+              route: "Route 1",
+              rep: "John Doe",
+              repCount: 1,
+              representatives: [{ name: "John Doe", phone: "+91 98765 43210" }],
+              verified: true,
+              details: {
+                shipmentNo: "SHP-50284-A",
+                invoiceNo: "INV-99201",
+                consigneeNo: "CNS-10482",
+                quantity: "120 Units",
+                product: "Test SCM Material",
+              },
+            },
+            {
+              id: "j-50285",
+              code: "#50285",
+              title: "Test SCM job",
+              status: "Failed",
+              statusType: "fail",
+              object: "Test SCM Object",
+              objectState: "Unloaded",
+              quantity: 0,
+              weight: 0,
+              violation: 0,
+              convoy: "--",
+              route: "Route 2",
+              rep: "Alex Vance",
+              repCount: 1,
+              representatives: [{ name: "Alex Vance", phone: "+91 98123 45678" }],
+              verified: false,
+              details: {
+                shipmentNo: "SHP-50285-B",
+                invoiceNo: "INV-99202",
+                consigneeNo: "CNS-10483",
+                quantity: "80 Units",
+                product: "SCM Industrial Batch",
+              },
+            },
+            {
+              id: "j-50286",
+              code: "#50286",
+              title: "Test scm job",
+              status: "Completed With Error",
+              statusType: "completed",
+              object: "Test SCM Object",
+              objectState: "Loaded",
+              quantity: 0,
+              weight: 0,
+              violation: 0,
+              convoy: "--",
+              route: "Route 1",
+              rep: "Sarah Smith",
+              repCount: 2,
+              representatives: [
+                { name: "Sarah Smith", phone: "+91 98765 43210" },
+                { name: "Alex Vance", phone: "+91 98123 45678" },
+              ],
+              verified: true,
+              details: {
+                shipmentNo: "SHP-50286-C",
+                invoiceNo: "INV-99203",
+                consigneeNo: "CNS-10484",
+                quantity: "200 Units",
+                product: "Petroleum Drums",
+              },
+            },
+            {
+              id: "j-50287",
+              code: "#50287",
+              title: "TEST SCM 001",
+              status: "Completed With Error",
+              statusType: "completed",
+              object: "Test SCM Object",
+              objectState: "Loaded",
+              quantity: 0,
+              weight: 0,
+              violation: 0,
+              convoy: "--",
+              route: "Route 3",
+              rep: "Mike Johnson",
+              repCount: 3,
+              representatives: [
+                { name: "Mike Johnson", phone: "+91 97654 32109" },
+                { name: "John Doe", phone: "+91 98765 43210" },
+                { name: "Sarah Smith", phone: "+91 98123 45678" },
+              ],
+              verified: true,
+              details: {
+                shipmentNo: "SHP-50287-D",
+                invoiceNo: "INV-99204",
+                consigneeNo: "CNS-10485",
+                quantity: "150 Units",
+                product: "SCM Component A",
+              },
+            },
+            {
+              id: "j-50288",
+              code: "#50288",
+              title: "Patch 210 Address Test",
+              status: "Running",
+              statusType: "running",
+              object: "HP Object 11",
+              objectState: "In Transit",
+              quantity: 0,
+              weight: 0,
+              violation: 0,
+              convoy: "--",
+              route: "Route 4",
+              rep: "David Miller",
+              repCount: 1,
+              representatives: [{ name: "David Miller", phone: "+91 99887 76655" }],
+              verified: true,
+              details: {
+                shipmentNo: "SHP-50288-E",
+                invoiceNo: "INV-99205",
+                consigneeNo: "CNS-10486",
+                quantity: "300 Units",
+                product: "High-value Freight",
+              },
+            },
+            {
+              id: "j-50265",
+              code: "#50265",
+              title: "HP All Day Automatic Dispatch",
+              status: "Running",
+              statusType: "running",
+              object: "HP Object 4",
+              objectState: "In Transit",
+              quantity: 0,
+              weight: 0,
+              violation: 0,
+              convoy: "--",
+              route: "Route 1",
+              rep: "Emily Davis",
+              repCount: 2,
+              representatives: [
+                { name: "Emily Davis", phone: "+91 96543 21098" },
+                { name: "Chris Taylor", phone: "+91 95432 10987" },
+              ],
+              verified: true,
+              details: {
+                shipmentNo: "SHP-50265-F",
+                invoiceNo: "INV-99206",
+                consigneeNo: "CNS-10487",
+                quantity: "500 Units",
+                product: "Automated Parcel Freight",
+              },
+            },
+            {
+              id: "j-50264",
+              code: "#50264",
+              title: "HP All Day Automatic Route",
+              status: "Running",
+              statusType: "running",
+              object: "HP Object 3",
+              objectState: "In Transit",
+              quantity: 0,
+              weight: 0,
+              violation: 0,
+              convoy: "HP",
+              route: "Route 2",
+              rep: "Robert Wilson",
+              repCount: 3,
+              representatives: [
+                { name: "Robert Wilson", phone: "+91 94321 09876" },
+                { name: "David Miller", phone: "+91 99887 76655" },
+                { name: "Emily Davis", phone: "+91 96543 21098" },
+              ],
+              verified: true,
+              details: {
+                shipmentNo: "SHP-50264-G",
+                invoiceNo: "INV-99207",
+                consigneeNo: "CNS-10488",
+                quantity: "410 Units",
+                product: "HP Standard Cargo",
+              },
+            },
+            {
+              id: "j-50262",
+              code: "#50262",
+              title: "HP All Day Weekly Maintenance",
+              status: "Upcoming",
+              statusType: "upcoming",
+              object: "HP Object 2",
+              objectState: "Loaded",
+              quantity: 0,
+              weight: 0,
+              violation: 0,
+              convoy: "HP",
+              route: "Route 5",
+              rep: "Chris Taylor",
+              repCount: 1,
+              representatives: [{ name: "Chris Taylor", phone: "+91 95432 10987" }],
+              verified: false,
+              details: {
+                shipmentNo: "SHP-50262-H",
+                invoiceNo: "INV-99208",
+                consigneeNo: "CNS-10489",
+                quantity: "90 Units",
+                product: "Maintenance Equipment",
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  // Compute dynamic Job status counts
+  const jobCounts = useMemo(() => {
+    let running = 0;
+    let completed = 0;
+    let upcoming = 0;
+    let fail = 0;
+    let total = 0;
+
+    for (const grp of jobData) {
+      for (const sub of grp.subgroups) {
+        for (const j of sub.jobs) {
+          total++;
+          if (j.statusType === "running") running++;
+          else if (j.statusType === "completed") completed++;
+          else if (j.statusType === "upcoming") upcoming++;
+          else if (j.statusType === "fail") fail++;
+        }
+      }
+    }
+
+    return { running, completed, upcoming, fail, total };
+  }, [jobData]);
+
+  // Handler to toggle job verification state
+  const toggleVerifyJob = (id: string) => {
+    setJobData((prev) =>
+      prev.map((grp) => ({
+        ...grp,
+        subgroups: grp.subgroups.map((sub) => ({
+          ...sub,
+          jobs: sub.jobs.map((j) => {
+            if (j.id === id) {
+              const nextStatus = !j.verified;
+              toast.success(nextStatus ? `Job ${j.code} Verified` : `Job ${j.code} marked for verification review`);
+              return { ...j, verified: nextStatus };
+            }
+            return j;
+          }),
+        })),
+      })),
+    );
+  };
+
+  // Dynamic Driver Dataset state
+  const [driverData, setDriverData] = useState([
+    {
+      branch: "Surya Travels",
+      count: 5,
+      subgroups: [
+        {
+          name: "Kalwa",
+          count: 5,
+          drivers: [
+            { id: "d-1", name: "Prabhu Jadhav", vehicle: "MH 14 KQ 4446", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: true },
+            { id: "d-2", name: "Shrikant Waghmare", vehicle: "MH 14 KA 6985", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: true },
+            { id: "d-3", name: "Vishal Gaikwad", vehicle: "MH 14 KA 9125", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
+            { id: "d-4", name: "Kiran Ghodke", vehicle: "MH 12 QW 5286", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
+            { id: "d-5", name: "Ajinkya Bharge", vehicle: "MH 14 HU 4181", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
+          ],
+        },
+      ],
+    },
+    {
+      branch: "Abhay Travels",
+      count: 5,
+      subgroups: [
+        {
+          name: "Bhatrai",
+          count: 5,
+          drivers: [
+            { id: "d-6", name: "Shivaji Yadav", vehicle: "GJ 05 CU 1936", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: true },
+            { id: "d-7", name: "Raymal Vasawa", vehicle: "GJ 21 OP 5624", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
+            { id: "d-8", name: "Dilip Nayak", vehicle: "GJ 18 MP 8823", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
+            { id: "d-9", name: "Hitesh Rathod", vehicle: "Unassigned", status: "Not Allocated", type: "Default", driverStatus: "Not available", allocated: false, isRunning: false },
+            { id: "d-10", name: "Pushpendra Kushwa", vehicle: "Unassigned", status: "Not Allocated", type: "Default", driverStatus: "On Leave", allocated: false, isRunning: false },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  // Compute dynamic Driver status counts
+  const driverCounts = useMemo(() => {
+    let available = 0;
+    let notAvailable = 0;
+    let onLeave = 0;
+    let allocated = 0;
+    let notAllocated = 0;
+    let total = 0;
+
+    for (const grp of driverData) {
+      for (const sub of grp.subgroups) {
+        for (const drv of sub.drivers) {
+          total++;
+          if (drv.driverStatus === "Available") available++;
+          if (drv.driverStatus === "Not available") notAvailable++;
+          if (drv.driverStatus === "On Leave") onLeave++;
+          if (drv.allocated) allocated++;
+          else notAllocated++;
+        }
+      }
+    }
+
+    return { available, notAvailable, onLeave, allocated, notAllocated, total };
+  }, [driverData]);
+
+  // Handler to update a driver's status
+  const updateDriverStatus = (id: string, newStatus: string) => {
+    setDriverData((prev) =>
+      prev.map((grp) => ({
+        ...grp,
+        subgroups: grp.subgroups.map((sub) => ({
+          ...sub,
+          drivers: sub.drivers.map((drv) => {
+            if (drv.id === id) {
+              const isAlloc = newStatus === "Available";
+              return {
+                ...drv,
+                driverStatus: newStatus,
+                allocated: isAlloc,
+                status: isAlloc ? "Allocated Via" : "Not Allocated",
+                vehicle: isAlloc ? (drv.vehicle === "Unassigned" ? "GJ 01 XX 9999" : drv.vehicle) : "Unassigned",
+              };
+            }
+            return drv;
+          }),
+        })),
+      })),
+    );
+    toast.success(`Driver status updated to "${newStatus}"`);
+  };
 
   // Local vehicles state
   const [localVehicles, setLocalVehicles] = useState<FleetObject[]>(vehicles);
@@ -368,75 +759,92 @@ export function FleetExplorerPanel({
     >
       {/* 1. Top Modern Tab Bar Header (Trakzee 2.0 Style) */}
       <div className="flex h-11 items-center justify-between bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 select-none rounded-t-2xl">
-        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth flex-1 min-w-0 pr-1">
-          {[
-            { id: "object", label: "Object", icon: Navigation },
-            { id: "jobs", label: "Jobs", icon: Briefcase },
-            { id: "driver", label: "Driver", icon: User },
-            { id: "address", label: "Address", icon: MapPin },
-            { id: "geofence", label: "Geofence", icon: Shield },
-            { id: "health", label: "Health Score", icon: ShieldCheck },
-            { id: "trailer", label: "Trailer", icon: Truck },
-            { id: "beacon", label: "Beacon", icon: Radio },
-            { id: "video_telematics", label: "Video Telematics", icon: Video },
-          ].map((tab) => {
-            const isActive = activeTab === tab.id;
-            const IconComp = tab.icon;
+        {activeTab === "health" ? (
+          /* Textual Back Button with Chevron ONLY when in Health Score mode */
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <button
+              type="button"
+              onClick={() => setActiveTab("object")}
+              className="flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:text-[#0089FF] dark:hover:text-[#0089FF] text-xs font-bold transition-colors cursor-pointer shrink-0 active:scale-95 py-1 px-1"
+              title="Back to Fleet Explorer"
+            >
+              <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
+              <span>Back</span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth flex-1 min-w-0 pr-1">
+            {[
+              { id: "object", label: "Object", icon: Navigation },
+              { id: "jobs", label: "Jobs", icon: Briefcase },
+              { id: "driver", label: "Driver", icon: User },
+              { id: "address", label: "Address", icon: MapPin },
+              { id: "geofence", label: "Geofence", icon: Shield },
+              { id: "health", label: "Health Score", icon: ShieldCheck },
+              { id: "trailer", label: "Trailer", icon: Truck },
+              { id: "beacon", label: "Beacon", icon: Radio },
+              { id: "video_telematics", label: "Video Telematics", icon: Video },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              const IconComp = tab.icon;
 
-            if (isActive) {
+              if (isActive) {
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id as TrackingTab)}
+                    className="h-8 flex items-center gap-1.5 px-3 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] text-white text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-98"
+                  >
+                    <IconComp className="h-3.5 w-3.5 stroke-[2.2] fill-current shrink-0" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              }
+
               return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as TrackingTab)}
-                  className="h-8 flex items-center gap-1.5 px-3 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] text-white text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-98"
-                >
-                  <IconComp className="h-3.5 w-3.5 stroke-[2.2] fill-current shrink-0" />
-                  <span>{tab.label}</span>
-                </button>
+                <TooltipProvider key={tab.id} delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab(tab.id as TrackingTab)}
+                        className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer shrink-0"
+                      >
+                        <IconComp className="h-4 w-4 stroke-[2]" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">
+                      {tab.label}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               );
-            }
+            })}
+          </div>
+        )}
 
-            return (
-              <TooltipProvider key={tab.id} delayDuration={150}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab(tab.id as TrackingTab)}
-                      className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer shrink-0"
-                    >
-                      <IconComp className="h-4 w-4 stroke-[2]" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs">
-                    {tab.label}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            );
-          })}
-        </div>
-
-        {/* Right Action Buttons (Object & Column Settings) */}
-        <div className="flex items-center gap-0.5">
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={onOpenSettings}
-                  className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-colors cursor-pointer"
-                >
-                  <Settings className="h-4 w-4 stroke-[2.2]" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" align="end">
-                Object & Column Settings
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        {/* Right Action Buttons (Object & Column Settings) - Hidden when on Health tab */}
+        {activeTab !== "health" && (
+          <div className="flex items-center gap-0.5">
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={onOpenSettings}
+                    className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-colors cursor-pointer"
+                  >
+                    <Settings className="h-4 w-4 stroke-[2.2]" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="end">
+                  Object & Column Settings
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
       </div>
 
       {/* Sleek Floating Right-Edge Collapse Handle (Centered vertically with the top 44px tab header bar) */}
@@ -477,8 +885,448 @@ export function FleetExplorerPanel({
         </div>
       )}
 
-      {/* 2. Trendy Minimal Soft Tint Segmented KPI Status Counter Bar */}
-      {activeTab !== "health" && (
+      {/* 2. Segmented Status KPI Counter Bars */}
+      {activeTab === "jobs" ? (
+        <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0">
+          <div className="grid grid-cols-5 gap-1.5">
+            {/* Running */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveJobStatus(
+                  activeJobStatus === "running" ? "all" : "running",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "running"
+                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
+                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeJobStatus === "running"
+                      ? "bg-white animate-pulse"
+                      : "bg-emerald-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {jobCounts.running}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeJobStatus === "running"
+                    ? "text-emerald-100"
+                    : "text-emerald-700/80 dark:text-emerald-400/80",
+                )}
+              >
+                Running
+              </span>
+            </button>
+
+            {/* Completed */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveJobStatus(
+                  activeJobStatus === "completed" ? "all" : "completed",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "completed"
+                  ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/25 font-bold scale-[1.02]"
+                  : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-sky-800 dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeJobStatus === "completed"
+                      ? "bg-white"
+                      : "bg-[#0089FF]",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {jobCounts.completed}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeJobStatus === "completed"
+                    ? "text-sky-100"
+                    : "text-sky-700/80 dark:text-sky-400/80",
+                )}
+              >
+                Completed
+              </span>
+            </button>
+
+            {/* Upcoming */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveJobStatus(
+                  activeJobStatus === "upcoming" ? "all" : "upcoming",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "upcoming"
+                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
+                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeJobStatus === "upcoming"
+                      ? "bg-white"
+                      : "bg-amber-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {jobCounts.upcoming}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeJobStatus === "upcoming"
+                    ? "text-amber-100"
+                    : "text-amber-700/80 dark:text-amber-400/80",
+                )}
+              >
+                Upcoming
+              </span>
+            </button>
+
+            {/* Fail */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveJobStatus(
+                  activeJobStatus === "fail" ? "all" : "fail",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "fail"
+                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
+                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeJobStatus === "fail" ? "bg-white" : "bg-rose-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {jobCounts.fail}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeJobStatus === "fail"
+                    ? "text-rose-100"
+                    : "text-rose-700/80 dark:text-rose-400/80",
+                )}
+              >
+                Fail
+              </span>
+            </button>
+
+            {/* Total */}
+            <button
+              type="button"
+              onClick={() => setActiveJobStatus("all")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "all"
+                  ? "bg-slate-700 text-white border-slate-800 shadow-md shadow-slate-700/25 font-bold scale-[1.02]"
+                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeJobStatus === "all" ? "bg-white" : "bg-slate-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {jobCounts.total}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeJobStatus === "all"
+                    ? "text-slate-200"
+                    : "text-slate-600 dark:text-slate-400",
+                )}
+              >
+                Total
+              </span>
+            </button>
+          </div>
+        </div>
+      ) : activeTab === "driver" ? (
+        <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0">
+          <div className="grid grid-cols-6 gap-1.5">
+            {/* Allocated */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveDriverStatus(
+                  activeDriverStatus === "allocated" ? "all" : "allocated",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeDriverStatus === "allocated"
+                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
+                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeDriverStatus === "allocated"
+                      ? "bg-white"
+                      : "bg-emerald-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {driverCounts.allocated}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeDriverStatus === "allocated"
+                    ? "text-emerald-100"
+                    : "text-emerald-700/80 dark:text-emerald-400/80",
+                )}
+              >
+                Allocated
+              </span>
+            </button>
+
+            {/* Not Allocated */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveDriverStatus(
+                  activeDriverStatus === "not_allocated"
+                    ? "all"
+                    : "not_allocated",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeDriverStatus === "not_allocated"
+                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
+                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeDriverStatus === "not_allocated"
+                      ? "bg-white"
+                      : "bg-rose-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {driverCounts.notAllocated}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeDriverStatus === "not_allocated"
+                    ? "text-rose-100"
+                    : "text-rose-700/80 dark:text-rose-400/80",
+                )}
+              >
+                Not Alloc
+              </span>
+            </button>
+
+            {/* Available */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveDriverStatus(
+                  activeDriverStatus === "available" ? "all" : "available",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeDriverStatus === "available"
+                  ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/25 font-bold scale-[1.02]"
+                  : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-sky-800 dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeDriverStatus === "available"
+                      ? "bg-white"
+                      : "bg-[#0089FF]",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {driverCounts.available}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeDriverStatus === "available"
+                    ? "text-sky-100"
+                    : "text-sky-700/80 dark:text-sky-400/80",
+                )}
+              >
+                Available
+              </span>
+            </button>
+
+            {/* Not Available */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveDriverStatus(
+                  activeDriverStatus === "not_available"
+                    ? "all"
+                    : "not_available",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeDriverStatus === "not_available"
+                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
+                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeDriverStatus === "not_available"
+                      ? "bg-white"
+                      : "bg-amber-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {driverCounts.notAvailable}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeDriverStatus === "not_available"
+                    ? "text-amber-100"
+                    : "text-amber-700/80 dark:text-amber-400/80",
+                )}
+              >
+                Not Avail
+              </span>
+            </button>
+
+            {/* On Leave */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveDriverStatus(
+                  activeDriverStatus === "on_leave" ? "all" : "on_leave",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeDriverStatus === "on_leave"
+                  ? "bg-purple-600 text-white border-purple-700 shadow-md shadow-purple-500/25 font-bold scale-[1.02]"
+                  : "bg-purple-50/70 dark:bg-purple-950/30 border-purple-200/60 dark:border-purple-800/40 text-purple-800 dark:text-purple-300 hover:bg-purple-100/80 dark:hover:bg-purple-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeDriverStatus === "on_leave"
+                      ? "bg-white"
+                      : "bg-purple-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {driverCounts.onLeave}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeDriverStatus === "on_leave"
+                    ? "text-purple-100"
+                    : "text-purple-700/80 dark:text-purple-400/80",
+                )}
+              >
+                On Leave
+              </span>
+            </button>
+
+            {/* Total */}
+            <button
+              type="button"
+              onClick={() => setActiveDriverStatus("all")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeDriverStatus === "all"
+                  ? "bg-slate-700 text-white border-slate-800 shadow-md shadow-slate-700/25 font-bold scale-[1.02]"
+                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeDriverStatus === "all"
+                      ? "bg-white"
+                      : "bg-slate-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {driverCounts.total}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeDriverStatus === "all"
+                    ? "text-slate-200"
+                    : "text-slate-600 dark:text-slate-400",
+                )}
+              >
+                Total
+              </span>
+            </button>
+          </div>
+        </div>
+      ) : activeTab === "object" ? (
         <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0">
           <div className="grid grid-cols-6 gap-1.5">
             {/* Running */}
@@ -488,7 +1336,7 @@ export function FleetExplorerPanel({
                 setActiveStatus(activeStatus === "running" ? "all" : "running")
               }
               className={cn(
-                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
                 activeStatus === "running"
                   ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
                   : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
@@ -512,7 +1360,7 @@ export function FleetExplorerPanel({
                 setActiveStatus(activeStatus === "idle" ? "all" : "idle")
               }
               className={cn(
-                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
                 activeStatus === "idle"
                   ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
                   : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
@@ -536,7 +1384,7 @@ export function FleetExplorerPanel({
                 setActiveStatus(activeStatus === "stopped" ? "all" : "stopped")
               }
               className={cn(
-                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
                 activeStatus === "stopped"
                   ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
                   : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
@@ -560,7 +1408,7 @@ export function FleetExplorerPanel({
                 setActiveStatus(activeStatus === "inactive" ? "all" : "inactive")
               }
               className={cn(
-                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
                 activeStatus === "inactive"
                   ? "bg-indigo-500 text-white border-indigo-600 shadow-md shadow-indigo-500/25 font-bold scale-[1.02]"
                   : "bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200/60 dark:border-indigo-800/40 text-indigo-800 dark:text-indigo-300 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/50",
@@ -584,7 +1432,7 @@ export function FleetExplorerPanel({
                 setActiveStatus(activeStatus === "nodata" ? "all" : "nodata")
               }
               className={cn(
-                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
                 activeStatus === "nodata"
                   ? "bg-slate-600 text-white border-slate-700 shadow-md shadow-slate-600/25 font-bold scale-[1.02]"
                   : "bg-slate-100/80 dark:bg-slate-800/40 border-slate-200/70 dark:border-slate-700/40 text-slate-700 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700/50",
@@ -606,7 +1454,7 @@ export function FleetExplorerPanel({
               type="button"
               onClick={() => setActiveStatus("all")}
               className={cn(
-                "flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
                 activeStatus === "all"
                   ? "bg-[#0089FF] text-white border-[#0070d6] shadow-md shadow-[#0089FF]/25 font-bold scale-[1.02]"
                   : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-[#0089FF] dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
@@ -623,13 +1471,13 @@ export function FleetExplorerPanel({
             </button>
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* 3. Search & Action Toolbar */}
       {activeTab !== "health" && (
         <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 p-2 bg-white dark:bg-slate-900 shrink-0">
-        {/* Select All Checkbox (Hidden on Health tab) */}
-        {activeTab !== "health" && (
+        {/* Select All Checkbox (Hidden on Health, Driver, and Jobs tabs) */}
+        {activeTab !== "health" && activeTab !== "driver" && activeTab !== "jobs" && (
           <input
             type="checkbox"
             checked={allChecked}
@@ -695,23 +1543,25 @@ export function FleetExplorerPanel({
             </Tooltip>
           </TooltipProvider>
 
-          {/* 2. Add Object Button */}
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (onOpenAddVehicle) onOpenAddVehicle();
-                  }}
-                  className="h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
-                >
-                  <PlusCircle className="h-3.5 w-3.5 stroke-[2.2]" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Add New Object Page</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {/* 2. Add Object Button (Hidden on Driver and Jobs tabs) */}
+          {activeTab !== "driver" && activeTab !== "jobs" && (
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onOpenAddVehicle) onOpenAddVehicle();
+                    }}
+                    className="h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
+                  >
+                    <PlusCircle className="h-3.5 w-3.5 stroke-[2.2]" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Add New Object Page</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
 
           {/* 3. Filter Popover (2-Tier Cascading Flyout Menu matching media_1789991076156.png & Report Overlay media_1789989587865.png) */}
           <Popover open={filterOpen} onOpenChange={setFilterOpen}>
@@ -916,21 +1766,39 @@ export function FleetExplorerPanel({
             </PopoverContent>
           </Popover>
 
-          {/* 4. Sorting Popover (2-Tier Cascading Flyout Menu matching media_1789988763799.png) */}
-          <Popover open={sortOpen} onOpenChange={setSortOpen}>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className={cn(
-                  "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
-                  sortOpen
-                    ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
-                    : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
-                )}
-              >
-                <ArrowUpDown className="h-3.5 w-3.5 stroke-[2.2]" />
-              </button>
-            </PopoverTrigger>
+          {/* 4. Calendar Action (Jobs Tab) / Sorting Popover (Object Tab) */}
+          {activeTab === "jobs" ? (
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => toast.info("Opening Date Range Picker...")}
+                    className="h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
+                  >
+                    <Calendar className="h-3.5 w-3.5 stroke-[2.2]" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs font-semibold">
+                  Select Date Range / Calendar
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : activeTab !== "driver" && (
+            <Popover open={sortOpen} onOpenChange={setSortOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
+                    sortOpen
+                      ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
+                      : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
+                  )}
+                >
+                  <ArrowUpDown className="h-3.5 w-3.5 stroke-[2.2]" />
+                </button>
+              </PopoverTrigger>
             <PopoverContent
               align="end"
               sideOffset={6}
@@ -1080,6 +1948,7 @@ export function FleetExplorerPanel({
               </div>
             </PopoverContent>
           </Popover>
+          )}
           </div>
         )}
       </div>
@@ -1201,7 +2070,7 @@ export function FleetExplorerPanel({
                               className={cn(
                                 "flex items-center gap-2 px-3 py-2 text-xs transition-colors cursor-pointer select-none min-h-[46px] overflow-hidden",
                                 isSelected
-                                  ? "bg-sky-50/90 dark:bg-sky-950/50 border-l-3 border-[#0089FF]"
+                                  ? "bg-sky-50/90 dark:bg-sky-950/50"
                                   : "hover:bg-slate-50 dark:hover:bg-slate-800/50",
                               )}
                             >
@@ -1234,14 +2103,7 @@ export function FleetExplorerPanel({
 
                                 {/* Name & Timestamp */}
                                 <div className="flex flex-col min-w-0 truncate">
-                                  <span
-                                    className={cn(
-                                      "truncate text-xs font-semibold leading-tight",
-                                      isSelected
-                                        ? "text-[#0089FF]"
-                                        : "text-slate-900 dark:text-slate-100",
-                                    )}
-                                  >
+                                  <span className="truncate text-xs font-semibold leading-tight text-slate-900 dark:text-slate-100">
                                     {v.name}
                                   </span>
                                   {selectedColumns.includes("last_updated") && (
@@ -1395,48 +2257,826 @@ export function FleetExplorerPanel({
           </div>
         )}
 
-        {/* Drivers Tab View */}
-        {activeTab === "driver" && (
-          <div className="p-3 space-y-2">
-            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-              <span>All Active Drivers ({filteredVehicles.filter((v) => v.driver).length})</span>
-              <span className="text-[10px] text-[#0089FF] font-mono">Duty Roster</span>
+        {/* Reference-Matched Job Tab View (1:1 with media_1790838640694.png & media_1790838732991.png) */}
+        {activeTab === "jobs" && (
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            {/* Sleek Sub-KPI Summary Bar (Visited: 32, Upcoming: 47, Missed: 17, Total: 96) */}
+            <div className="shrink-0 px-3 py-1.5 bg-slate-100/80 dark:bg-slate-900/60 border-b border-slate-200/70 dark:border-slate-800/70 flex items-center justify-between text-xs select-none">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-emerald-600 dark:text-emerald-400">32</span>
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Visited</span>
+              </div>
+              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-700" />
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-amber-600 dark:text-amber-400">47</span>
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Upcoming</span>
+              </div>
+              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-700" />
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-rose-600 dark:text-rose-400">17</span>
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Missed</span>
+              </div>
+              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-700" />
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-slate-800 dark:text-slate-200">96</span>
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Total</span>
+              </div>
             </div>
-            <div className="divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60">
-              {filteredVehicles
-                .filter((v) => v.driver)
-                .map((v) => (
-                  <div
-                    key={v.id}
-                    onClick={() => {
-                      onSelectVehicle(v.id);
-                      onOpenTelemetry(v);
-                    }}
-                    className="p-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-[#0089FF]/10 text-[#0089FF] flex items-center justify-center font-bold text-xs shrink-0 border border-[#0089FF]/20">
-                        <User className="h-4 w-4" />
+
+            {/* Column Icon Header Bar - Perfectly Aligned 1:1 with Data Columns below */}
+            <div className="shrink-0 px-3 py-1.5 bg-slate-200/70 dark:bg-slate-800/70 border-b border-slate-300/60 dark:border-slate-700/60 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 select-none">
+              <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-extrabold flex-1 min-w-0 pr-2">
+                <Briefcase className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
+                <span className="truncate">Job</span>
+              </div>
+
+              <div className="flex items-center shrink-0">
+                <div className="w-[48px] flex items-center justify-center shrink-0" title="Representative">
+                  <User className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
+                </div>
+
+                <div className="w-[130px] flex items-center gap-1 shrink-0" title="Object & State">
+                  <Truck className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 shrink-0" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">Object & State</span>
+                </div>
+
+                <div className="w-[40px] flex items-center justify-center shrink-0" title="Quantity (Packages/Units)">
+                  <Package className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 stroke-[2.2]" />
+                </div>
+
+                <div className="w-[40px] flex items-center justify-center shrink-0" title="Weight (Tons/kg)">
+                  <Weight className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 stroke-[2.2]" />
+                </div>
+
+                <div className="w-[40px] flex items-center justify-center shrink-0" title="Violations & Alerts">
+                  <ShieldAlert className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 stroke-[2.2]" />
+                </div>
+
+                <div className="w-[42px] flex items-center justify-center shrink-0" title="Convoy Group">
+                  <Caravan className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 stroke-[2.2]" />
+                </div>
+
+                <div className="w-[125px] flex items-center justify-end shrink-0 gap-1 pr-1" title="Actions (Route, Attachment, Share)">
+                  <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Actions</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Jobs Tree List */}
+            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-200/60 dark:divide-slate-800/60 select-none">
+              {jobData.map((group) => {
+                const isBranchCollapsed = collapsedJobBranches[group.branch];
+
+                const filteredSubgroups = group.subgroups
+                  .map((sub) => {
+                    const filteredJobs = sub.jobs.filter((j) => {
+                      let matchesStatus = true;
+                      if (activeJobStatus === "running") matchesStatus = j.statusType === "running";
+                      else if (activeJobStatus === "completed") matchesStatus = j.statusType === "completed";
+                      else if (activeJobStatus === "upcoming") matchesStatus = j.statusType === "upcoming";
+                      else if (activeJobStatus === "fail") matchesStatus = j.statusType === "fail";
+
+                      const q = query.trim().toLowerCase();
+                      const matchesQuery =
+                        q === "" ||
+                        j.code.toLowerCase().includes(q) ||
+                        j.title.toLowerCase().includes(q) ||
+                        j.object.toLowerCase().includes(q) ||
+                        j.rep.toLowerCase().includes(q);
+
+                      return matchesStatus && matchesQuery;
+                    });
+
+                    return { ...sub, jobs: filteredJobs };
+                  })
+                  .filter((sub) => sub.jobs.length > 0);
+
+                if (filteredSubgroups.length === 0) return null;
+
+                const branchTotalCount = filteredSubgroups.reduce(
+                  (acc, sub) => acc + sub.jobs.length,
+                  0,
+                );
+
+                return (
+                  <div key={group.branch}>
+                    {/* Level 1: Branch Header with Chevron Expand/Collapse */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCollapsedJobBranches((prev) => ({
+                          ...prev,
+                          [group.branch]: !prev[group.branch],
+                        }))
+                      }
+                      className="w-full flex items-center justify-between px-3 py-1.5 bg-slate-200/80 dark:bg-slate-800/80 border-b border-slate-300/60 dark:border-slate-700/60 text-xs font-extrabold text-slate-800 dark:text-slate-200 hover:bg-slate-300/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer text-left"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <ChevronDown
+                          className={cn(
+                            "h-3.5 w-3.5 text-slate-600 dark:text-slate-300 transition-transform duration-200",
+                            isBranchCollapsed && "-rotate-90",
+                          )}
+                        />
+                        <span>{group.branch}</span>
                       </div>
-                      <div>
-                        <div className="font-semibold text-slate-900 dark:text-slate-100 text-xs">
-                          {v.driver}
-                        </div>
-                        <div className="flex items-center gap-2 text-[10px] text-slate-500 font-mono mt-0.5">
-                          <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                            <Phone className="h-2.5 w-2.5" />
-                            {v.driverPhone || "+91 98765 43210"}
-                          </span>
-                          <span>•</span>
-                          <span>{v.name}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-500/20">
-                      On Duty
-                    </span>
+                      <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400">
+                        [{branchTotalCount}]
+                      </span>
+                    </button>
+
+                    {/* Level 2: Subgroups */}
+                    {!isBranchCollapsed &&
+                      filteredSubgroups.map((sub) => {
+                        const isSubCollapsed = collapsedJobSubgroups[sub.name];
+
+                        return (
+                          <div key={sub.name}>
+                            {/* Subgroup Header with Chevron Expand/Collapse */}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCollapsedJobSubgroups((prev) => ({
+                                  ...prev,
+                                  [sub.name]: !prev[sub.name],
+                                }))
+                              }
+                              className="w-full flex items-center justify-between px-4 py-1.5 bg-slate-100/70 dark:bg-slate-900/60 border-b border-slate-200/50 dark:border-slate-800/50 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer text-left"
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <ChevronDown
+                                  className={cn(
+                                    "h-3 w-3 text-slate-500 transition-transform duration-200",
+                                    isSubCollapsed && "-rotate-90",
+                                  )}
+                                />
+                                <span>{sub.name}</span>
+                              </div>
+                              <span className="text-[10px] font-mono text-slate-500">
+                                [{sub.jobs.length}]
+                              </span>
+                            </button>
+
+                            {/* Job Item Rows - Matching Object Panel Layout & Font Size 1:1 */}
+                            {!isSubCollapsed && (
+                              <div className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                                {sub.jobs.map((job) => {
+                                  const isExpanded = expandedJobIds[job.id];
+
+                                  return (
+                                    <div key={job.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                      <div className="flex items-center justify-between px-3 py-2.5 text-xs min-h-[46px]">
+                                        {/* Col 1: Job Code, Title & Status Pill */}
+                                        <div className="flex flex-col min-w-0 flex-1 pr-2">
+                                          <div className="flex items-center gap-1.5">
+                                            <span className="font-mono text-xs font-bold text-slate-500">{job.code}</span>
+                                            <span className="font-semibold text-xs text-slate-900 dark:text-slate-100 truncate">{job.title}</span>
+                                          </div>
+                                          <div className="mt-0.5 flex items-center gap-1.5">
+                                            <span
+                                              className={cn(
+                                                "text-[10px] font-bold px-1.5 py-0.5 rounded border leading-none",
+                                                job.statusType === "running"
+                                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800"
+                                                  : job.statusType === "completed"
+                                                    ? "bg-sky-50 text-[#0089FF] border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800"
+                                                    : job.statusType === "fail"
+                                                      ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800"
+                                                      : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800"
+                                              )}
+                                            >
+                                              {job.status}
+                                            </span>
+                                          </div>
+                                        </div>
+
+                                        {/* Grid Columns Aligned 1:1 with Header Icons */}
+                                        <div className="flex items-center shrink-0">
+                                          {/* Col 2: Representative Icon & Count Popover Flyout */}
+                                          <div className="w-[48px] flex justify-center shrink-0">
+                                            <Popover>
+                                              <PopoverTrigger asChild>
+                                                <button
+                                                  type="button"
+                                                  onClick={(e) => e.stopPropagation()}
+                                                  className="flex items-center justify-center gap-1.5 px-1.5 py-1 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-all cursor-pointer group active:scale-95"
+                                                  title={`Click to view ${job.representatives?.length || job.repCount || 1} assigned representatives`}
+                                                >
+                                                  <UserCheck
+                                                    className={cn(
+                                                      "h-3.5 w-3.5 stroke-[2.2] shrink-0 transition-transform group-hover:scale-110",
+                                                      job.statusType === "fail"
+                                                        ? "text-rose-600 dark:text-rose-400"
+                                                        : "text-emerald-600 dark:text-emerald-400"
+                                                    )}
+                                                  />
+                                                  <span
+                                                    className={cn(
+                                                      "text-xs font-extrabold font-mono leading-none",
+                                                      job.statusType === "fail"
+                                                        ? "text-rose-600 dark:text-rose-400"
+                                                        : "text-emerald-600 dark:text-emerald-400"
+                                                    )}
+                                                  >
+                                                    {job.representatives?.length || job.repCount || 1}
+                                                  </span>
+                                                </button>
+                                              </PopoverTrigger>
+                                              <PopoverContent
+                                                align="center"
+                                                side="bottom"
+                                                sideOffset={6}
+                                                className="w-56 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-xl text-xs select-none z-50 animate-in fade-in-50 zoom-in-95"
+                                              >
+                                                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-1.5 px-1 mb-1.5">
+                                                  <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                                                    <UserCheck className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
+                                                    <span>Representative</span>
+                                                  </div>
+                                                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800">
+                                                    [{job.representatives?.length || job.repCount || 1}]
+                                                  </span>
+                                                </div>
+                                                <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar">
+                                                  {(job.representatives || [{ name: job.rep, phone: "+91 98765 43210" }]).map((repObj, idx) => {
+                                                    const repName = typeof repObj === "string" ? repObj : repObj.name;
+                                                    const repPhone = typeof repObj === "string" ? "+91 98765 43210" : repObj.phone;
+                                                    const initials = repName
+                                                      .split(" ")
+                                                      .map((n) => n[0])
+                                                      .join("");
+
+                                                    return (
+                                                      <div
+                                                        key={idx}
+                                                        className="flex items-center gap-2 px-1 py-1.5 rounded-md hover:bg-slate-100/70 dark:hover:bg-slate-800/50 transition-colors"
+                                                      >
+                                                        <div className="h-7 w-7 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center shrink-0 font-extrabold text-xs">
+                                                          {initials}
+                                                        </div>
+                                                        <div className="flex flex-col min-w-0 flex-1">
+                                                          <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate leading-tight">
+                                                            {repName}
+                                                          </span>
+                                                          <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 font-mono font-medium truncate leading-none mt-0.5">
+                                                            <Phone className="h-3 w-3 text-emerald-600 dark:text-emerald-400 stroke-[2] shrink-0" />
+                                                            <span className="truncate">{repPhone}</span>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    );
+                                                  })}
+                                                </div>
+                                              </PopoverContent>
+                                            </Popover>
+                                          </div>
+
+                                          {/* Col 3: Object Name & State (4: Loaded, Unloaded, In Transit) */}
+                                          <div className="w-[130px] flex flex-col justify-center min-w-0 shrink-0 pr-1">
+                                            <div className="flex items-center gap-1.5 min-w-0">
+                                              <span className="h-2 w-2 rounded-full shrink-0 bg-emerald-500 ring-2 ring-emerald-500/20" />
+                                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate leading-tight">
+                                                {job.object}
+                                              </span>
+                                            </div>
+                                            <div className="pl-3.5 mt-0.5">
+                                              <span
+                                                className={cn(
+                                                  "text-[9.5px] font-bold px-1 py-0.2 rounded leading-none inline-block",
+                                                  job.objectState === "Loaded"
+                                                    ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60"
+                                                    : job.objectState === "Unloaded"
+                                                    ? "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/60"
+                                                    : "text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/60"
+                                                )}
+                                              >
+                                                {job.objectState || "Unloaded"}
+                                              </span>
+                                            </div>
+                                          </div>
+
+                                          {/* Col 4: Quantity (Packages / Units) */}
+                                          <div className="w-[40px] text-center text-xs font-mono font-bold text-slate-700 dark:text-slate-300 shrink-0">
+                                            {job.quantity}
+                                          </div>
+
+                                          {/* Col 5: Weight (Tons / kg) */}
+                                          <div className="w-[40px] text-center text-xs font-mono font-bold text-slate-700 dark:text-slate-300 shrink-0">
+                                            {job.weight}
+                                          </div>
+
+                                          {/* Col 6: Violation */}
+                                          <div className={cn("w-[40px] text-center text-xs font-mono font-bold shrink-0", job.violation > 0 ? "text-rose-600 font-extrabold" : "text-slate-700 dark:text-slate-300")}>
+                                            {job.violation}
+                                          </div>
+
+                                          {/* Col 7: Convoy */}
+                                          <div className="w-[42px] text-center text-xs font-mono font-bold text-slate-700 dark:text-slate-300 shrink-0">
+                                            {job.convoy}
+                                          </div>
+
+                                          {/* Col 8: Actions (9: Route, 10: Attachment, 11: Share, Expand) */}
+                                          <div className="w-[125px] flex items-center justify-end shrink-0 gap-1 pr-1">
+                                            {/* Route Action (9) */}
+                                            <button
+                                              type="button"
+                                              onClick={() => toast.info(`Viewing route info for ${job.code} (${job.route})`)}
+                                              className="p-1 hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer text-slate-500 hover:text-[#0089FF] dark:hover:text-sky-400"
+                                              title={`Route Info: ${job.route}`}
+                                            >
+                                              <Route className="h-3.5 w-3.5 stroke-[2.2]" />
+                                            </button>
+
+                                            {/* Attachment Action (10) */}
+                                            <button
+                                              type="button"
+                                              onClick={() => toast.success(`Attachment downloaded for ${job.code}`)}
+                                              className="p-1 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400"
+                                              title="Download Attachment Document"
+                                            >
+                                              <Paperclip className="h-3.5 w-3.5 stroke-[2.2]" />
+                                            </button>
+
+                                            {/* Share Job Action (11) */}
+                                            <button
+                                              type="button"
+                                              onClick={() => toast.success(`Job ${job.code} link copied to clipboard!`)}
+                                              className="p-1 hover:bg-purple-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer text-slate-500 hover:text-purple-600 dark:hover:text-purple-400"
+                                              title="Share Job"
+                                            >
+                                              <Share2 className="h-3.5 w-3.5 stroke-[2.2]" />
+                                            </button>
+
+                                            {/* Expand Drawer Button */}
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                setExpandedJobIds((prev) => ({
+                                                  ...prev,
+                                                  [job.id]: !prev[job.id],
+                                                }))
+                                              }
+                                              className="flex items-center gap-0.5 px-1 py-0.5 text-xs font-bold text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer ml-0.5"
+                                            >
+                                              <span>{isExpanded ? "Less" : "More"}</span>
+                                              {isExpanded ? (
+                                                <ChevronUp className="h-3 w-3 stroke-[2.5]" />
+                                              ) : (
+                                                <ChevronDown className="h-3 w-3 stroke-[2.5]" />
+                                              )}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* Expandable Details Drawer */}
+                                      {isExpanded && (
+                                        <div className="px-4 py-3 bg-slate-50/90 dark:bg-slate-900/80 border-t border-slate-200/60 dark:border-slate-800/60 text-xs select-none">
+                                          <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200/50 dark:border-slate-800/50">
+                                            <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200 text-xs">
+                                              <FileText className="h-3.5 w-3.5 text-[#0089FF]" />
+                                              <span>Shipment & Verification Documents</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <span
+                                                className={cn(
+                                                  "text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1",
+                                                  job.verified !== false
+                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+                                                    : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
+                                                )}
+                                              >
+                                                <Check className="h-3 w-3 stroke-[3]" />
+                                                <span>{job.verified !== false ? "Verified" : "Pending Verification"}</span>
+                                              </span>
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  toggleVerifyJob(job.id);
+                                                }}
+                                                className="px-2.5 py-1 rounded bg-[#0089FF] text-white text-[10px] font-bold hover:bg-[#0070d6] transition-colors cursor-pointer active:scale-95 shadow-2xs"
+                                              >
+                                                {job.verified !== false ? "Re-Verify" : "Verify Job"}
+                                              </button>
+                                            </div>
+                                          </div>
+
+                                          <div className="grid grid-cols-2 gap-2">
+                                            <div className="flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
+                                              <span className="text-slate-500 font-medium">Shipment No:</span>
+                                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{job.details.shipmentNo}</span>
+                                            </div>
+
+                                            <div className="flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
+                                              <span className="text-slate-500 font-medium">Invoice No:</span>
+                                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{job.details.invoiceNo}</span>
+                                            </div>
+
+                                            <div className="flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
+                                              <span className="text-slate-500 font-medium">Consignee No:</span>
+                                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{job.details.consigneeNo}</span>
+                                            </div>
+
+                                            <div className="flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
+                                              <span className="text-slate-500 font-medium">Cargo Quantity:</span>
+                                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{job.details.quantity}</span>
+                                            </div>
+
+                                            <div className="col-span-2 flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
+                                              <span className="text-slate-500 font-medium">Product / Material:</span>
+                                              <span className="font-bold text-[#0089FF] dark:text-sky-400">{job.details.product}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
-                ))}
+                );
+              })}
+            </div>
+
+            {/* Clean Export Action Footer Bar */}
+            <div className="shrink-0 p-2.5 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2 select-none">
+              <button
+                type="button"
+                onClick={() =>
+                  toast.success("Exporting Job List to XLS (.xlsx)...", {
+                    description: `${jobCounts.total} total jobs generated.`,
+                  })
+                }
+                className="h-8 px-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+              >
+                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
+                <span>XLS</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  toast.success("Exporting Job List to PDF...", {
+                    description: "Printable job status report generated.",
+                  })
+                }
+                className="h-8 px-4 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-200/80 dark:border-rose-800/60 hover:border-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+              >
+                <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 group-hover:text-white transition-colors" />
+                <span>PDF</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Reference-Matched Driver Tab View (1:1 with media_1790833871737.png & media_1790835635015.png) */}
+        {activeTab === "driver" && (
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            {/* Drivers Tree List */}
+            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none">
+              {driverData.map((group) => {
+                const isBranchCollapsed = collapsedDriverBranches[group.branch];
+
+                // Filter subgroups and drivers based on active status & query search
+                const filteredSubgroups = group.subgroups
+                  .map((sub) => {
+                    const filteredDrivers = sub.drivers.filter((drv) => {
+                      // Filter by status button
+                      let matchesStatus = true;
+                      if (activeDriverStatus === "available") matchesStatus = drv.driverStatus === "Available";
+                      else if (activeDriverStatus === "not_available") matchesStatus = drv.driverStatus === "Not available";
+                      else if (activeDriverStatus === "on_leave") matchesStatus = drv.driverStatus === "On Leave";
+                      else if (activeDriverStatus === "allocated") matchesStatus = drv.allocated;
+                      else if (activeDriverStatus === "not_allocated") matchesStatus = !drv.allocated;
+                      else if (activeDriverStatus === "running") matchesStatus = drv.isRunning;
+
+                      // Filter by query search
+                      const q = query.trim().toLowerCase();
+                      const matchesQuery =
+                        q === "" ||
+                        drv.name.toLowerCase().includes(q) ||
+                        drv.vehicle.toLowerCase().includes(q) ||
+                        group.branch.toLowerCase().includes(q) ||
+                        sub.name.toLowerCase().includes(q);
+
+                      return matchesStatus && matchesQuery;
+                    });
+
+                    return { ...sub, drivers: filteredDrivers };
+                  })
+                  .filter((sub) => sub.drivers.length > 0);
+
+                if (filteredSubgroups.length === 0) return null;
+
+                const branchTotalCount = filteredSubgroups.reduce(
+                  (acc, sub) => acc + sub.drivers.length,
+                  0,
+                );
+
+                return (
+                  <div key={group.branch}>
+                    {/* Level 1: Branch Header with Chevron Expand/Collapse */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCollapsedDriverBranches((prev) => ({
+                          ...prev,
+                          [group.branch]: !prev[group.branch],
+                        }))
+                      }
+                      className="w-full flex items-center justify-between px-3 py-1.5 bg-slate-200/80 dark:bg-slate-800/80 border-b border-slate-300/60 dark:border-slate-700/60 text-xs font-extrabold text-slate-800 dark:text-slate-200 hover:bg-slate-300/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer text-left"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <ChevronDown
+                          className={cn(
+                            "h-3.5 w-3.5 text-slate-600 dark:text-slate-300 transition-transform duration-200",
+                            isBranchCollapsed && "-rotate-90",
+                          )}
+                        />
+                        <span>{group.branch}</span>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400">
+                        [{branchTotalCount}]
+                      </span>
+                    </button>
+
+                    {/* Level 2: Subgroups */}
+                    {!isBranchCollapsed &&
+                      filteredSubgroups.map((sub) => {
+                        const isSubCollapsed = collapsedDriverSubgroups[sub.name];
+
+                        return (
+                          <div key={sub.name}>
+                            {/* Subgroup Header with Chevron Expand/Collapse */}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCollapsedDriverSubgroups((prev) => ({
+                                  ...prev,
+                                  [sub.name]: !prev[sub.name],
+                                }))
+                              }
+                              className="w-full flex items-center justify-between px-4 py-1.5 bg-slate-100/70 dark:bg-slate-900/60 border-b border-slate-200/50 dark:border-slate-800/50 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer text-left"
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <ChevronDown
+                                  className={cn(
+                                    "h-3 w-3 text-slate-500 transition-transform duration-200",
+                                    isSubCollapsed && "-rotate-90",
+                                  )}
+                                />
+                                <span>{sub.name}</span>
+                              </div>
+                              <span className="text-[10px] font-mono text-slate-500">
+                                [{sub.drivers.length}]
+                              </span>
+                            </button>
+
+                            {/* Driver Rows */}
+                            {!isSubCollapsed && (
+                              <div className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                                {sub.drivers.map((drv) => {
+                                  // Determine status dot & name color based on selected tab or driver status
+                                  let ringColor = "ring-2 ring-emerald-500/20";
+                                  let dotColor = "bg-emerald-500";
+                                  let nameColor = "text-[#0089FF] dark:text-sky-400";
+
+                                  if (activeDriverStatus === "allocated") {
+                                    ringColor = "ring-2 ring-emerald-500/20";
+                                    dotColor = "bg-emerald-500";
+                                    nameColor = "text-emerald-600 dark:text-emerald-400";
+                                  } else if (activeDriverStatus === "not_allocated") {
+                                    ringColor = "ring-2 ring-rose-500/20";
+                                    dotColor = "bg-rose-500";
+                                    nameColor = "text-rose-600 dark:text-rose-400";
+                                  } else if (activeDriverStatus === "available") {
+                                    ringColor = "ring-2 ring-sky-500/20";
+                                    dotColor = "bg-[#0089FF]";
+                                    nameColor = "text-[#0089FF] dark:text-sky-400";
+                                  } else if (activeDriverStatus === "not_available") {
+                                    ringColor = "ring-2 ring-amber-500/20";
+                                    dotColor = "bg-amber-500";
+                                    nameColor = "text-amber-600 dark:text-amber-400";
+                                  } else if (activeDriverStatus === "on_leave") {
+                                    ringColor = "ring-2 ring-purple-500/20";
+                                    dotColor = "bg-purple-600";
+                                    nameColor = "text-purple-600 dark:text-purple-400";
+                                  } else {
+                                    if (drv.allocated) {
+                                      ringColor = "ring-2 ring-emerald-500/20";
+                                      dotColor = "bg-emerald-500";
+                                      nameColor = "text-emerald-600 dark:text-emerald-400";
+                                    } else if (drv.driverStatus === "Not available") {
+                                      ringColor = "ring-2 ring-amber-500/20";
+                                      dotColor = "bg-amber-500";
+                                      nameColor = "text-amber-600 dark:text-amber-400";
+                                    } else if (drv.driverStatus === "On Leave") {
+                                      ringColor = "ring-2 ring-purple-500/20";
+                                      dotColor = "bg-purple-600";
+                                      nameColor = "text-purple-600 dark:text-purple-400";
+                                    } else {
+                                      ringColor = "ring-2 ring-rose-500/20";
+                                      dotColor = "bg-rose-500";
+                                      nameColor = "text-rose-600 dark:text-rose-400";
+                                    }
+                                  }
+
+                                  return (
+                                    <div
+                                      key={drv.id}
+                                      className="flex items-center justify-between px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer select-none"
+                                    >
+                                      {/* Col 1: Status Dot (Identical size & styling to Object Panel) + Name & Plate */}
+                                      <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                                        <span
+                                          className={cn(
+                                            "h-2 w-2 rounded-full shrink-0 mt-1 shadow-2xs",
+                                            ringColor,
+                                            dotColor,
+                                          )}
+                                        />
+                                        <div className="flex flex-col min-w-0 truncate">
+                                          <span className={cn("font-bold text-xs truncate leading-tight", nameColor)}>
+                                            {drv.name}
+                                          </span>
+                                          <span className="text-[10px] font-mono font-extrabold text-slate-700 dark:text-slate-300 truncate leading-none mt-1">
+                                            {drv.vehicle}
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                    {/* Col 2: Allocation Status */}
+                                    <div className="w-28 text-center text-xs text-slate-700 dark:text-slate-300 font-medium shrink-0">
+                                      {drv.status}
+                                    </div>
+
+                                    {/* Col 3: Type */}
+                                    <div className="w-20 text-center text-xs text-slate-700 dark:text-slate-300 font-medium shrink-0">
+                                      {drv.type}
+                                    </div>
+
+                                    {/* Col 4: Action 3 Dots Icon Menu (Matching media_1790835635015.png 1:1) */}
+                                    <div className="w-8 flex justify-end shrink-0 relative">
+                                      <Popover
+                                        open={openDriverMenuId === drv.id}
+                                        onOpenChange={(open) => {
+                                          if (!open) {
+                                            setOpenDriverMenuId(null);
+                                            setOpenStatusSubmenuId(null);
+                                          } else {
+                                            setOpenDriverMenuId(drv.id);
+                                          }
+                                        }}
+                                      >
+                                        <PopoverTrigger asChild>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="p-1 rounded text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                                          >
+                                            <MoreVertical className="h-4 w-4" />
+                                          </button>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                          align="end"
+                                          sideOffset={4}
+                                          className="w-40 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-xl text-xs z-50 select-none"
+                                        >
+                                          {/* Allocate Option */}
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setOpenDriverMenuId(null);
+                                              toast.success(`Allocating ${drv.name}...`, {
+                                                description: `Vehicle: ${drv.vehicle}`,
+                                              });
+                                            }}
+                                            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] font-medium transition-colors cursor-pointer"
+                                          >
+                                            <span>Allocate</span>
+                                          </button>
+
+                                          {/* Change Status Option (Matching media_1790835635015.png) */}
+                                          <div className="relative">
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenStatusSubmenuId(
+                                                  openStatusSubmenuId === drv.id ? null : drv.id,
+                                                );
+                                              }}
+                                              onMouseEnter={() => setOpenStatusSubmenuId(drv.id)}
+                                              className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] font-medium transition-colors cursor-pointer"
+                                            >
+                                              <span>Change Status</span>
+                                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                                            </button>
+
+                                            {/* Submenu Popover Flyout (Available, Not available, On Leave) */}
+                                            {openStatusSubmenuId === drv.id && (
+                                              <div className="absolute left-full top-0 ml-1 w-36 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-xl text-xs z-50 space-y-0.5">
+                                                {/* Available */}
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    updateDriverStatus(drv.id, "Available");
+                                                    setOpenDriverMenuId(null);
+                                                    setOpenStatusSubmenuId(null);
+                                                  }}
+                                                  className={cn(
+                                                    "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] font-medium transition-colors cursor-pointer",
+                                                    drv.driverStatus === "Available" && "bg-sky-50 dark:bg-slate-800 text-[#0089FF] font-bold",
+                                                  )}
+                                                >
+                                                  <span className="h-2 w-2 rounded-full bg-[#0089FF] shrink-0" />
+                                                  <span>Available</span>
+                                                </button>
+
+                                                {/* Not available */}
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    updateDriverStatus(drv.id, "Not available");
+                                                    setOpenDriverMenuId(null);
+                                                    setOpenStatusSubmenuId(null);
+                                                  }}
+                                                  className={cn(
+                                                    "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-600 font-medium transition-colors cursor-pointer",
+                                                    drv.driverStatus === "Not available" && "bg-amber-50 dark:bg-slate-800 text-amber-600 font-bold",
+                                                  )}
+                                                >
+                                                  <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                                                  <span>Not available</span>
+                                                </button>
+
+                                                {/* On Leave */}
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    updateDriverStatus(drv.id, "On Leave");
+                                                    setOpenDriverMenuId(null);
+                                                    setOpenStatusSubmenuId(null);
+                                                  }}
+                                                  className={cn(
+                                                    "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-800 hover:text-purple-600 font-medium transition-colors cursor-pointer",
+                                                    drv.driverStatus === "On Leave" && "bg-purple-50 dark:bg-slate-800 text-purple-600 font-bold",
+                                                  )}
+                                                >
+                                                  <span className="h-2 w-2 rounded-full bg-purple-600 shrink-0" />
+                                                  <span>On Leave</span>
+                                                </button>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </PopoverContent>
+                                      </Popover>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Clean Export Action Footer Bar (Without "Export Report:" Label, as requested) */}
+            <div className="shrink-0 p-2.5 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2 select-none">
+              <button
+                type="button"
+                onClick={() =>
+                  toast.success("Exporting Driver List to XLS (.xlsx)...", {
+                    description: `${driverCounts.allocated} allocated drivers generated.`,
+                  })
+                }
+                className="h-8 px-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+              >
+                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
+                <span>XLS</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  toast.success("Exporting Driver List to PDF...", {
+                    description: "Printable driver allocation report generated.",
+                  })
+                }
+                className="h-8 px-4 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-200/80 dark:border-rose-800/60 hover:border-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+              >
+                <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 group-hover:text-white transition-colors" />
+                <span>PDF</span>
+              </button>
             </div>
           </div>
         )}
@@ -1747,7 +3387,7 @@ export function FleetExplorerPanel({
                     }}
                     className={cn(
                       "flex items-center justify-between px-3.5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer select-none",
-                      isSelected && "bg-sky-50/80 dark:bg-sky-950/40 border-l-3 border-[#0089FF]"
+                      isSelected && "bg-sky-50/80 dark:bg-sky-950/40"
                     )}
                   >
                     {/* Left: Status dot + Name & IMEI */}
@@ -1798,9 +3438,9 @@ export function FleetExplorerPanel({
         )}
       </div>
 
-      {/* Pinned Bottom Vehicle Health Scores Footer Bar (Hidden when on Health tab) */}
-      {activeTab !== "health" && (
-        <div className="shrink-0 border-t border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-2 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar select-none rounded-b-2xl">
+      {/* Pinned Bottom Vehicle Health Scores Footer Bar (Visible ONLY on Object tab) */}
+      {activeTab === "object" && (
+        <div className="shrink-0 border-t border-[#DFE3EB] dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 px-2 py-1.5 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar select-none rounded-b-2xl">
           {/* Safety Score */}
           <button
             type="button"
@@ -1809,7 +3449,7 @@ export function FleetExplorerPanel({
               setSelectedHealthCategory("safety");
             }}
             className={cn(
-              "flex-1 min-w-[76px] py-1.5 px-2 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+              "flex-1 min-w-[76px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
               activeTab === "health" && selectedHealthCategory === "safety"
                 ? "bg-[#10B981] text-white border-emerald-600 shadow-md shadow-emerald-500/20 font-bold"
                 : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-800/50 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/50"
@@ -1831,7 +3471,7 @@ export function FleetExplorerPanel({
               setSelectedHealthCategory("efficiency");
             }}
             className={cn(
-              "flex-1 min-w-[82px] py-1.5 px-2 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+              "flex-1 min-w-[82px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
               activeTab === "health" && selectedHealthCategory === "efficiency"
                 ? "bg-[#D97706] text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold"
                 : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/50 hover:bg-amber-100/70 dark:hover:bg-amber-900/50"
@@ -1851,7 +3491,7 @@ export function FleetExplorerPanel({
               setSelectedHealthCategory("risk");
             }}
             className={cn(
-              "flex-1 min-w-[68px] py-1.5 px-2 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+              "flex-1 min-w-[68px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
               activeTab === "health" && selectedHealthCategory === "risk"
                 ? "bg-[#EF4444] text-white border-rose-600 shadow-md shadow-rose-500/20 font-bold"
                 : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/60 dark:border-rose-800/50 hover:bg-rose-100/70 dark:hover:bg-rose-900/50"
@@ -1871,7 +3511,7 @@ export function FleetExplorerPanel({
               setSelectedHealthCategory("discipline");
             }}
             className={cn(
-              "flex-1 min-w-[88px] py-1.5 px-2 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+              "flex-1 min-w-[88px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
               activeTab === "health" && selectedHealthCategory === "discipline"
                 ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/20 font-bold"
                 : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/60 dark:border-sky-800/50 hover:bg-sky-100/70 dark:hover:bg-sky-900/50"
