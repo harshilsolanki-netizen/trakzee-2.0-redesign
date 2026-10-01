@@ -162,6 +162,100 @@ export function FleetExplorerPanel({
   const [openDriverMenuId, setOpenDriverMenuId] = useState<string | null>(null);
   const [openStatusSubmenuId, setOpenStatusSubmenuId] = useState<string | null>(null);
 
+  // Job & Checkpoint Left Panel Detail View state
+  const [selectedJobDetail, setSelectedJobDetail] = useState<{
+    id: string;
+    code: string;
+    title: string;
+    status: string;
+    statusType: string;
+    object: string;
+    objectState?: string;
+    driver?: string;
+    rep?: string;
+    route?: string;
+    estimatedStart?: string;
+    actualStart?: string;
+    estimatedEnd?: string;
+    actualEnd?: string;
+    checkpoints?: Array<{
+      index: number;
+      status: "Visited" | "Upcoming" | "Missed";
+      type: string;
+      vehicle: string;
+      estArrival: string;
+      actArrival: string;
+      checkpointName: string;
+      address: string;
+      collector: string;
+      qty?: string;
+      weight?: string;
+    }>;
+  } | null>(null);
+
+  const [checkpointSearch, setCheckpointSearch] = useState("");
+  const [activeCheckpointFilter, setActiveCheckpointFilter] = useState<"all" | "visited" | "upcoming" | "missed">("all");
+
+  const getJobCheckpoints = (item: any) => {
+    if (item.checkpoints && item.checkpoints.length > 0) return item.checkpoints;
+    const vehicleName = item.object || item.code || "Test SCM Object";
+    const driverName = item.rep || item.driver || "Sukesh Gupta";
+    return [
+      {
+        index: 1,
+        status: "Visited" as const,
+        type: "Planned",
+        vehicle: vehicleName,
+        estArrival: "30/09/2026 11:03 PM",
+        actArrival: "28/09/2026 01:13 PM",
+        checkpointName: "Pune Checkpoint",
+        address: "SHRI SOMESHWAR S.S.K. LTD(81), Pune",
+        collector: driverName,
+        qty: "120 Units",
+        weight: "4.5 T",
+      },
+      {
+        index: 2,
+        status: "Missed" as const,
+        type: "Planned",
+        vehicle: vehicleName,
+        estArrival: "30/09/2026 11:40 PM",
+        actArrival: "01/10/2026 12:40 AM",
+        checkpointName: "Solapur Plant",
+        address: "VISHNU LAXMI CO-OP GRAPE DISTILLERY LTD., Solapur",
+        collector: driverName,
+        qty: "80 Units",
+        weight: "3.2 T",
+      },
+      {
+        index: 3,
+        status: "Upcoming" as const,
+        type: "Planned",
+        vehicle: vehicleName,
+        estArrival: "01/10/2026 03:00 PM",
+        actArrival: "01/10/2026 03:15 PM",
+        checkpointName: "Dharampur Depot",
+        address: "Dharampur Rd, opp. S.T. Workshop, Abrama, Valsad, Gujarat 396002",
+        collector: "Sukesh Gupta",
+        qty: "50 Units",
+        weight: "2.0 T",
+      },
+      {
+        index: 4,
+        status: "Upcoming" as const,
+        type: "Planned",
+        vehicle: vehicleName,
+        estArrival: "01/10/2026 06:00 PM",
+        actArrival: "--",
+        checkpointName: "Surat Logistics Hub",
+        address: "Plot 42, GIDC Industrial Estate, Surat, Gujarat 395008",
+        collector: "John Doe",
+        qty: "150 Units",
+        weight: "5.8 T",
+      },
+    ];
+  };
+
   // Job Tab collapse & expand details states
   const [activeJobStatus, setActiveJobStatus] = useState<string>("all");
   const [collapsedJobBranches, setCollapsedJobBranches] = useState<Record<string, boolean>>({});
@@ -759,7 +853,48 @@ export function FleetExplorerPanel({
     >
       {/* 1. Top Modern Tab Bar Header (Trakzee 2.0 Style) */}
       <div className="flex h-11 items-center justify-between bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 select-none rounded-t-2xl">
-        {activeTab === "health" ? (
+        {selectedJobDetail ? (
+          <div className="flex items-center justify-between w-full min-w-0">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={() => setSelectedJobDetail(null)}
+                className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-[#0089FF] dark:hover:text-[#0089FF] text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95 py-1 px-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
+                title="Back to Explorer List"
+              >
+                <ChevronLeft className="h-4 w-4 stroke-[2.5] text-[#0089FF]" />
+                <span className="font-mono text-xs font-extrabold text-[#0089FF]">{selectedJobDetail.code}</span>
+                <span className="truncate max-w-[180px] font-bold text-slate-900 dark:text-slate-100">{selectedJobDetail.title}</span>
+              </button>
+
+              <span
+                className={cn(
+                  "text-[10px] font-extrabold px-2 py-0.5 rounded-full border leading-none shrink-0",
+                  selectedJobDetail.statusType === "running"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+                    : selectedJobDetail.statusType === "completed"
+                      ? "bg-sky-50 text-[#0089FF] border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800"
+                      : selectedJobDetail.statusType === "fail"
+                        ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800"
+                        : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
+                )}
+              >
+                {selectedJobDetail.status}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0 ml-2">
+              <button
+                type="button"
+                onClick={onOpenSettings}
+                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-colors cursor-pointer"
+                title="Settings"
+              >
+                <Settings className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </div>
+          </div>
+        ) : activeTab === "health" ? (
           /* Textual Back Button with Chevron ONLY when in Health Score mode */
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <button
@@ -2065,7 +2200,23 @@ export function FleetExplorerPanel({
                               key={v.id}
                               onClick={() => {
                                 onSelectVehicle(v.id);
-                                onOpenTelemetry(v);
+                                setSelectedJobDetail({
+                                  id: v.id,
+                                  code: v.name,
+                                  title: `${v.name} - Job & Checkpoint Details`,
+                                  status: v.status === "running" ? "In Transit" : v.status === "idle" ? "Idle" : "Stopped",
+                                  statusType: v.status === "running" ? "running" : v.status === "idle" ? "upcoming" : "fail",
+                                  object: v.name,
+                                  objectState: "Loaded",
+                                  driver: v.driver || "Sukesh Gupta",
+                                  rep: v.driver || "Sukesh Gupta",
+                                  route: v.branch,
+                                  estimatedStart: "30/09/2026 11:03:00 PM",
+                                  actualStart: "28/09/2026 01:13:54 PM",
+                                  estimatedEnd: "30/09/2026 11:40:00 PM",
+                                  actualEnd: "01/10/2026 12:40:00 AM",
+                                  checkpoints: getJobCheckpoints({ object: v.name, driver: v.driver }),
+                                });
                               }}
                               className={cn(
                                 "flex items-center gap-2 px-3 py-2 text-xs transition-colors cursor-pointer select-none min-h-[46px] overflow-hidden",
@@ -2424,7 +2575,7 @@ export function FleetExplorerPanel({
                                   const isExpanded = expandedJobIds[job.id];
 
                                   return (
-                                    <div key={job.id} className="mx-2 my-1.5 p-3 rounded-xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-xs hover:border-[#0089FF]/40 transition-all select-none space-y-2.5">
+                                    <div key={job.id} onClick={() => setSelectedJobDetail({ ...job, checkpoints: getJobCheckpoints(job) })} className="mx-2 my-1.5 p-3 rounded-xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-xs hover:border-[#0089FF]/40 transition-all select-none space-y-2.5 cursor-pointer">
                                       {/* SECTION 1: JOB INFORMATION */}
                                       <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80 gap-2">
                                         {/* Left: Job Code, Title & Status */}
