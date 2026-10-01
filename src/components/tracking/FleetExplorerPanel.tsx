@@ -2424,160 +2424,110 @@ export function FleetExplorerPanel({
                                   const isExpanded = expandedJobIds[job.id];
 
                                   return (
-                                    <div key={job.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                      <div className="flex items-center justify-between px-3 py-2.5 text-xs min-h-[46px]">
-                                        {/* Col 1: Job Code, Title & Status Pill */}
-                                        <div className="flex flex-col min-w-0 flex-1 pr-2">
-                                          <div className="flex items-center gap-1.5">
-                                            <span className="font-mono text-xs font-bold text-slate-500">{job.code}</span>
-                                            <span className="font-semibold text-xs text-slate-900 dark:text-slate-100 truncate">{job.title}</span>
-                                          </div>
-                                          <div className="mt-0.5 flex items-center gap-1.5">
-                                            <span
-                                              className={cn(
-                                                "text-[10px] font-bold px-1.5 py-0.5 rounded border leading-none",
-                                                job.statusType === "running"
-                                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800"
-                                                  : job.statusType === "completed"
-                                                    ? "bg-sky-50 text-[#0089FF] border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800"
-                                                    : job.statusType === "fail"
-                                                      ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800"
-                                                      : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800"
-                                              )}
-                                            >
-                                              {job.status}
-                                            </span>
-                                          </div>
+                                    <div key={job.id} className="mx-2 my-1.5 p-3 rounded-xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-xs hover:border-[#0089FF]/40 transition-all select-none space-y-2.5">
+                                      {/* SECTION 1: JOB INFORMATION */}
+                                      <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80 gap-2">
+                                        {/* Left: Job Code, Title & Status */}
+                                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                                          <span className="text-[9.5px] font-black uppercase px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800/80 shrink-0 tracking-wider">
+                                            JOB
+                                          </span>
+                                          <span className="font-mono text-xs font-bold text-slate-500 shrink-0">
+                                            {job.code}
+                                          </span>
+                                          <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate">
+                                            {job.title}
+                                          </span>
+                                          <span
+                                            className={cn(
+                                              "text-[10px] font-extrabold px-1.5 py-0.5 rounded border leading-none shrink-0",
+                                              job.statusType === "running"
+                                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800"
+                                                : job.statusType === "completed"
+                                                  ? "bg-sky-50 text-[#0089FF] border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800"
+                                                  : job.statusType === "fail"
+                                                    ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800"
+                                                    : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800"
+                                            )}
+                                          >
+                                            {job.status}
+                                          </span>
                                         </div>
 
-                                        {/* Grid Columns Aligned 1:1 with Header Icons */}
-                                        <div className="flex items-center shrink-0">
-                                          {/* Col 2: Representative Icon & Count Popover Flyout */}
-                                          <div className="w-[48px] flex justify-center shrink-0">
-                                            <Popover>
-                                              <PopoverTrigger asChild>
-                                                <button
-                                                  type="button"
-                                                  onClick={(e) => e.stopPropagation()}
-                                                  className="flex items-center justify-center gap-1.5 px-1.5 py-1 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-all cursor-pointer group active:scale-95"
-                                                  title={`Click to view ${job.representatives?.length || job.repCount || 1} assigned representatives`}
-                                                >
-                                                  <UserCheck
-                                                    className={cn(
-                                                      "h-3.5 w-3.5 stroke-[2.2] shrink-0 transition-transform group-hover:scale-110",
-                                                      job.statusType === "fail"
-                                                        ? "text-rose-600 dark:text-rose-400"
-                                                        : "text-emerald-600 dark:text-emerald-400"
-                                                    )}
-                                                  />
-                                                  <span
-                                                    className={cn(
-                                                      "text-xs font-extrabold font-mono leading-none",
-                                                      job.statusType === "fail"
-                                                        ? "text-rose-600 dark:text-rose-400"
-                                                        : "text-emerald-600 dark:text-emerald-400"
-                                                    )}
-                                                  >
-                                                    {job.representatives?.length || job.repCount || 1}
-                                                  </span>
-                                                </button>
-                                              </PopoverTrigger>
-                                              <PopoverContent
-                                                align="center"
-                                                side="bottom"
-                                                sideOffset={6}
-                                                className="w-56 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-xl text-xs select-none z-50 animate-in fade-in-50 zoom-in-95"
+                                        {/* Right: Representative Popover & Actions */}
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                          {/* Representative Popover Button */}
+                                          <Popover>
+                                            <PopoverTrigger asChild>
+                                              <button
+                                                type="button"
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700 transition-all cursor-pointer group border border-slate-200/60 dark:border-slate-700/60"
+                                                title={`Click to view ${job.representatives?.length || job.repCount || 1} assigned representatives`}
                                               >
-                                                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-1.5 px-1 mb-1.5">
-                                                  <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-slate-200 text-xs">
-                                                    <UserCheck className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-                                                    <span>Representative</span>
-                                                  </div>
-                                                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800">
-                                                    [{job.representatives?.length || job.repCount || 1}]
-                                                  </span>
+                                                <UserCheck
+                                                  className={cn(
+                                                    "h-3.5 w-3.5 stroke-[2.2] shrink-0",
+                                                    job.statusType === "fail"
+                                                      ? "text-rose-600 dark:text-rose-400"
+                                                      : "text-emerald-600 dark:text-emerald-400"
+                                                  )}
+                                                />
+                                                <span className="text-[11px] font-extrabold font-mono text-slate-700 dark:text-slate-300">
+                                                  {job.representatives?.length || job.repCount || 1}
+                                                </span>
+                                              </button>
+                                            </PopoverTrigger>
+                                            <PopoverContent
+                                              align="end"
+                                              side="bottom"
+                                              sideOffset={6}
+                                              className="w-56 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-xl text-xs select-none z-50 animate-in fade-in-50 zoom-in-95"
+                                            >
+                                              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-1.5 px-1 mb-1.5">
+                                                <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                                                  <UserCheck className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
+                                                  <span>Representative</span>
                                                 </div>
-                                                <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar">
-                                                  {(job.representatives || [{ name: job.rep, phone: "+91 98765 43210" }]).map((repObj, idx) => {
-                                                    const repName = typeof repObj === "string" ? repObj : repObj.name;
-                                                    const repPhone = typeof repObj === "string" ? "+91 98765 43210" : repObj.phone;
-                                                    const initials = repName
-                                                      .split(" ")
-                                                      .map((n) => n[0])
-                                                      .join("");
+                                                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800">
+                                                  [{job.representatives?.length || job.repCount || 1}]
+                                                </span>
+                                              </div>
+                                              <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar">
+                                                {(job.representatives || [{ name: job.rep, phone: "+91 98765 43210" }]).map((repObj, idx) => {
+                                                  const repName = typeof repObj === "string" ? repObj : repObj.name;
+                                                  const repPhone = typeof repObj === "string" ? "+91 98765 43210" : repObj.phone;
+                                                  const initials = repName
+                                                    .split(" ")
+                                                    .map((n) => n[0])
+                                                    .join("");
 
-                                                    return (
-                                                      <div
-                                                        key={idx}
-                                                        className="flex items-center gap-2 px-1 py-1.5 rounded-md hover:bg-slate-100/70 dark:hover:bg-slate-800/50 transition-colors"
-                                                      >
-                                                        <div className="h-7 w-7 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center shrink-0 font-extrabold text-xs">
-                                                          {initials}
-                                                        </div>
-                                                        <div className="flex flex-col min-w-0 flex-1">
-                                                          <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate leading-tight">
-                                                            {repName}
-                                                          </span>
-                                                          <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 font-mono font-medium truncate leading-none mt-0.5">
-                                                            <Phone className="h-3 w-3 text-emerald-600 dark:text-emerald-400 stroke-[2] shrink-0" />
-                                                            <span className="truncate">{repPhone}</span>
-                                                          </div>
+                                                  return (
+                                                    <div
+                                                      key={idx}
+                                                      className="flex items-center gap-2 px-1 py-1.5 rounded-md hover:bg-slate-100/70 dark:hover:bg-slate-800/50 transition-colors"
+                                                    >
+                                                      <div className="h-7 w-7 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center shrink-0 font-extrabold text-xs">
+                                                        {initials}
+                                                      </div>
+                                                      <div className="flex flex-col min-w-0 flex-1">
+                                                        <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate leading-tight">
+                                                          {repName}
+                                                        </span>
+                                                        <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 font-mono font-medium truncate leading-none mt-0.5">
+                                                          <Phone className="h-3 w-3 text-emerald-600 dark:text-emerald-400 stroke-[2] shrink-0" />
+                                                          <span className="truncate">{repPhone}</span>
                                                         </div>
                                                       </div>
-                                                    );
-                                                  })}
-                                                </div>
-                                              </PopoverContent>
-                                            </Popover>
-                                          </div>
+                                                    </div>
+                                                  );
+                                                })}
+                                              </div>
+                                            </PopoverContent>
+                                          </Popover>
 
-                                          {/* Col 3: Object Name & State (4: Loaded, Unloaded, In Transit) */}
-                                          <div className="w-[130px] flex flex-col justify-center min-w-0 shrink-0 pr-1">
-                                            <div className="flex items-center gap-1.5 min-w-0">
-                                              <span className="h-2 w-2 rounded-full shrink-0 bg-emerald-500 ring-2 ring-emerald-500/20" />
-                                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate leading-tight">
-                                                {job.object}
-                                              </span>
-                                            </div>
-                                            <div className="pl-3.5 mt-0.5">
-                                              <span
-                                                className={cn(
-                                                  "text-[9.5px] font-bold px-1 py-0.2 rounded leading-none inline-block",
-                                                  job.objectState === "Loaded"
-                                                    ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60"
-                                                    : job.objectState === "Unloaded"
-                                                    ? "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/60"
-                                                    : "text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/60"
-                                                )}
-                                              >
-                                                {job.objectState || "Unloaded"}
-                                              </span>
-                                            </div>
-                                          </div>
-
-                                          {/* Col 4: Quantity (Packages / Units) */}
-                                          <div className="w-[40px] text-center text-xs font-mono font-bold text-slate-700 dark:text-slate-300 shrink-0">
-                                            {job.quantity}
-                                          </div>
-
-                                          {/* Col 5: Weight (Tons / kg) */}
-                                          <div className="w-[40px] text-center text-xs font-mono font-bold text-slate-700 dark:text-slate-300 shrink-0">
-                                            {job.weight}
-                                          </div>
-
-                                          {/* Col 6: Violation */}
-                                          <div className={cn("w-[40px] text-center text-xs font-mono font-bold shrink-0", job.violation > 0 ? "text-rose-600 font-extrabold" : "text-slate-700 dark:text-slate-300")}>
-                                            {job.violation}
-                                          </div>
-
-                                          {/* Col 7: Convoy */}
-                                          <div className="w-[42px] text-center text-xs font-mono font-bold text-slate-700 dark:text-slate-300 shrink-0">
-                                            {job.convoy}
-                                          </div>
-
-                                          {/* Col 8: Actions (9: Route, 10: Attachment, 11: Share, Expand) */}
-                                          <div className="w-[125px] flex items-center justify-end shrink-0 gap-1 pr-1">
-                                            {/* Route Action (9) */}
+                                          {/* Actions (Route, Attachment, Share) */}
+                                          <div className="flex items-center gap-1 pl-1 border-l border-slate-200 dark:border-slate-800">
                                             <button
                                               type="button"
                                               onClick={() => toast.info(`Viewing route info for ${job.code} (${job.route})`)}
@@ -2586,8 +2536,6 @@ export function FleetExplorerPanel({
                                             >
                                               <Route className="h-3.5 w-3.5 stroke-[2.2]" />
                                             </button>
-
-                                            {/* Attachment Action (10) */}
                                             <button
                                               type="button"
                                               onClick={() => toast.success(`Attachment downloaded for ${job.code}`)}
@@ -2596,8 +2544,6 @@ export function FleetExplorerPanel({
                                             >
                                               <Paperclip className="h-3.5 w-3.5 stroke-[2.2]" />
                                             </button>
-
-                                            {/* Share Job Action (11) */}
                                             <button
                                               type="button"
                                               onClick={() => toast.success(`Job ${job.code} link copied to clipboard!`)}
@@ -2606,29 +2552,84 @@ export function FleetExplorerPanel({
                                             >
                                               <Share2 className="h-3.5 w-3.5 stroke-[2.2]" />
                                             </button>
-
-                                            {/* Expand Drawer Button */}
-                                            <button
-                                              type="button"
-                                              onClick={() =>
-                                                setExpandedJobIds((prev) => ({
-                                                  ...prev,
-                                                  [job.id]: !prev[job.id],
-                                                }))
-                                              }
-                                              className="flex items-center gap-0.5 px-1 py-0.5 text-xs font-bold text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer ml-0.5"
-                                            >
-                                              <span>{isExpanded ? "Less" : "More"}</span>
-                                              {isExpanded ? (
-                                                <ChevronUp className="h-3 w-3 stroke-[2.5]" />
-                                              ) : (
-                                                <ChevronDown className="h-3 w-3 stroke-[2.5]" />
-                                              )}
-                                            </button>
                                           </div>
                                         </div>
                                       </div>
 
+                                      {/* SECTION 2: VEHICLE & CARGO INFORMATION */}
+                                      <div className="flex items-center justify-between pt-0.5 gap-2">
+                                        {/* Left: Vehicle Name & Object State */}
+                                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                                          <span className="text-[9.5px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 shrink-0 tracking-wider">
+                                            VEHICLE
+                                          </span>
+                                          <div className="flex items-center gap-1.5 min-w-0">
+                                            <span className="h-2 w-2 rounded-full shrink-0 bg-emerald-500 ring-2 ring-emerald-500/20" />
+                                            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate">
+                                              {job.object}
+                                            </span>
+                                          </div>
+                                          <span
+                                            className={cn(
+                                              "text-[9.5px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0",
+                                              job.objectState === "Loaded"
+                                                ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60"
+                                                : job.objectState === "Unloaded"
+                                                  ? "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/60"
+                                                  : "text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/60"
+                                            )}
+                                          >
+                                            {job.objectState || "Unloaded"}
+                                          </span>
+                                        </div>
+
+                                        {/* Right: Quantity, Weight, Violation, Convoy Metrics + Expand Drawer Button */}
+                                        <div className="flex items-center gap-2 shrink-0">
+                                          <div className="flex items-center gap-2 text-xs font-mono font-bold bg-slate-50 dark:bg-slate-800/60 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-slate-700/60">
+                                            <div className="flex items-center gap-1" title="Quantity">
+                                              <Package className="h-3 w-3 text-slate-500 stroke-[2.2]" />
+                                              <span className="text-slate-700 dark:text-slate-300">{job.quantity}</span>
+                                            </div>
+                                            <span className="text-slate-300 dark:text-slate-700">|</span>
+                                            <div className="flex items-center gap-1" title="Weight">
+                                              <Weight className="h-3 w-3 text-slate-500 stroke-[2.2]" />
+                                              <span className="text-slate-700 dark:text-slate-300">{job.weight}</span>
+                                            </div>
+                                            <span className="text-slate-300 dark:text-slate-700">|</span>
+                                            <div className="flex items-center gap-1" title="Violations & Alerts">
+                                              <ShieldAlert className="h-3 w-3 text-rose-500 stroke-[2.2]" />
+                                              <span className={cn(job.violation > 0 ? "text-rose-600 font-black" : "text-slate-700 dark:text-slate-300")}>
+                                                {job.violation}
+                                              </span>
+                                            </div>
+                                            <span className="text-slate-300 dark:text-slate-700">|</span>
+                                            <div className="flex items-center gap-1" title="Convoy Group">
+                                              <Caravan className="h-3 w-3 text-slate-500 stroke-[2.2]" />
+                                              <span className="text-slate-700 dark:text-slate-300">{job.convoy}</span>
+                                            </div>
+                                          </div>
+
+                                          {/* Expand Drawer Button */}
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              setExpandedJobIds((prev) => ({
+                                                ...prev,
+                                                [job.id]: !prev[job.id],
+                                              }))
+                                            }
+                                            className="flex items-center gap-0.5 px-2 py-0.5 text-xs font-bold text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer border border-sky-200/70 dark:border-sky-800/70"
+                                          >
+                                            <span>{isExpanded ? "Less" : "More"}</span>
+                                            {isExpanded ? (
+                                              <ChevronUp className="h-3 w-3 stroke-[2.5]" />
+                                            ) : (
+                                              <ChevronDown className="h-3 w-3 stroke-[2.5]" />
+                                            )}
+                                          </button>
+                                        </div>
+                                      </div>
+                                      
                                       {/* Expandable Details Drawer */}
                                       {isExpanded && (
                                         <div className="px-4 py-3 bg-slate-50/90 dark:bg-slate-900/80 border-t border-slate-200/60 dark:border-slate-800/60 text-xs select-none">
