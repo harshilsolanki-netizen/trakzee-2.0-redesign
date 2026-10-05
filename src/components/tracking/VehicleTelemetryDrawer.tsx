@@ -496,35 +496,35 @@ export function VehicleTelemetryDrawer({
                       {/* Events Table */}
                       <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden text-[10.5px]">
                         {/* Header */}
-                        <div className="grid grid-cols-[1fr_55px_50px] bg-slate-100/90 dark:bg-slate-800/90 px-2 py-1 font-bold text-slate-600 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800">
+                        <div className="grid grid-cols-[1fr_auto_auto] gap-3 bg-slate-100/90 dark:bg-slate-800/90 px-2 py-1 font-bold text-slate-600 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800">
                           <span>Events</span>
-                          <span className="text-center">Current</span>
-                          <span className="text-right">Average</span>
+                          <span className="text-center whitespace-nowrap min-w-[65px]">Current</span>
+                          <span className="text-right whitespace-nowrap min-w-[55px]">Average</span>
                         </div>
 
                         {/* Body Rows */}
                         <div className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
                           {activeHealthCategory === "safety" && [
-                            { name: "Speed", cur: "12/100 mile", avg: "8/100 mi", curAlert: true },
-                            { name: "Harsh Acceleration", cur: "3/100 mile", avg: "6/100 mi" },
-                            { name: "Harsh Braking", cur: "3/100 mile", avg: "6/100 mi" },
-                            { name: "DMS Events", cur: "2/100 mile", avg: "2/100 mi" },
-                            { name: "ADAS Events", cur: "1/100 mile", avg: "1/100 mi" },
+                            { name: "Speed", cur: "12/100 mi", avg: "8/100 mi", curAlert: true },
+                            { name: "Harsh Acceleration", cur: "3/100 mi", avg: "6/100 mi" },
+                            { name: "Harsh Braking", cur: "3/100 mi", avg: "6/100 mi" },
+                            { name: "DMS Events", cur: "2/100 mi", avg: "2/100 mi" },
+                            { name: "ADAS Events", cur: "1/100 mi", avg: "1/100 mi" },
                           ].map((r, idx) => (
-                            <div key={idx} className="grid grid-cols-[1fr_55px_50px] px-2 py-1 text-slate-700 dark:text-slate-300">
+                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
                               <span className="truncate font-medium">{r.name}</span>
-                              <span className={cn("text-center font-mono font-semibold", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
-                              <span className="text-right font-mono text-slate-400">{r.avg}</span>
+                              <span className={cn("text-center font-mono font-semibold whitespace-nowrap min-w-[65px]", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
+                              <span className="text-right font-mono text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
                             </div>
                           ))}
 
                           {activeHealthCategory === "efficiency" && [
                             { name: "Idling", cur: "4%", avg: "8%", curAlert: true },
                           ].map((r, idx) => (
-                            <div key={idx} className="grid grid-cols-[1fr_55px_50px] px-2 py-1 text-slate-700 dark:text-slate-300">
+                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
                               <span className="truncate font-medium">{r.name}</span>
-                              <span className={cn("text-center font-mono font-semibold", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
-                              <span className="text-right font-mono text-slate-400">{r.avg}</span>
+                              <span className={cn("text-center font-mono font-semibold whitespace-nowrap min-w-[65px]", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
+                              <span className="text-right font-mono text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
                             </div>
                           ))}
 
@@ -540,10 +540,10 @@ export function VehicleTelemetryDrawer({
                             { name: "Phone", cur: "4/100 km", avg: "84/100 km" },
                             { name: "Device Inactive", cur: "4 %", avg: "8 %" },
                           ].map((r, idx) => (
-                            <div key={idx} className="grid grid-cols-[1fr_55px_50px] px-2 py-1 text-slate-700 dark:text-slate-300">
+                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
                               <span className="truncate font-medium">{r.name}</span>
-                              <span className="text-center font-mono font-semibold text-slate-800 dark:text-slate-200">{r.cur}</span>
-                              <span className="text-right font-mono text-slate-400">{r.avg}</span>
+                              <span className="text-center font-mono font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[65px]">{r.cur}</span>
+                              <span className="text-right font-mono text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
                             </div>
                           ))}
 
@@ -559,10 +559,10 @@ export function VehicleTelemetryDrawer({
                             { name: "Running Rate", cur: "4 %", avg: "80 %" },
                             { name: "Late Work Start", cur: "4 min", avg: "80 min" },
                           ].map((r, idx) => (
-                            <div key={idx} className="grid grid-cols-[1fr_55px_50px] px-2 py-1 text-slate-700 dark:text-slate-300">
+                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
                               <span className="truncate font-medium">{r.name}</span>
-                              <span className="text-center font-mono font-semibold text-slate-800 dark:text-slate-200">{r.cur}</span>
-                              <span className="text-right font-mono text-slate-400">{r.avg}</span>
+                              <span className="text-center font-mono font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[65px]">{r.cur}</span>
+                              <span className="text-right font-mono text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
                             </div>
                           ))}
                         </div>
