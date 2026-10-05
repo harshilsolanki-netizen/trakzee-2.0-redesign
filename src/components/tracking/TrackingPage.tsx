@@ -215,7 +215,10 @@ export function TrackingPage() {
             allVehicles={fleetObjects}
             onOpenPlayback={() => handleOpenPlayback()}
             isHealthOnly={isHealthTelemetryOnly}
-            className="w-[300px] sm:w-[300px] h-full pointer-events-auto bg-transparent border-0 shadow-none"
+            className={cn(
+              isHealthTelemetryOnly ? "w-[300px] sm:w-[300px]" : "w-[220px] sm:w-[220px]",
+              "h-full pointer-events-auto bg-transparent border-0 shadow-none",
+            )}
           />
         </div>
       )}
