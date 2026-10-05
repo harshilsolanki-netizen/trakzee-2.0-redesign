@@ -99,6 +99,7 @@ export function FleetExplorerPanel({
   onOpenDashcam,
   onOpenSettings,
   onOpenTelemetry,
+  onCloseTelemetry,
   onTraceVehicle,
   onOpenAddVehicle,
   onToggleCollapse,
@@ -127,6 +128,7 @@ export function FleetExplorerPanel({
   onOpenDashcam: (vehicle: FleetObject) => void;
   onOpenSettings: () => void;
   onOpenTelemetry: (vehicle: FleetObject, isHealthOnly?: boolean) => void;
+  onCloseTelemetry?: () => void;
   onTraceVehicle: (vehicle: FleetObject) => void;
   onOpenAddVehicle?: () => void;
   onToggleCollapse?: () => void;
@@ -3379,7 +3381,10 @@ export function FleetExplorerPanel({
               {/* Safety */}
               <button
                 type="button"
-                onClick={() => setSelectedHealthCategory(selectedHealthCategory === "safety" ? "all" : "safety")}
+                onClick={() => {
+                  setSelectedHealthCategory(selectedHealthCategory === "safety" ? "all" : "safety");
+                  if (onCloseTelemetry) onCloseTelemetry();
+                }}
                 className={cn(
                   "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
                   selectedHealthCategory === "safety"
@@ -3399,7 +3404,10 @@ export function FleetExplorerPanel({
               {/* Efficiency */}
               <button
                 type="button"
-                onClick={() => setSelectedHealthCategory(selectedHealthCategory === "efficiency" ? "all" : "efficiency")}
+                onClick={() => {
+                  setSelectedHealthCategory(selectedHealthCategory === "efficiency" ? "all" : "efficiency");
+                  if (onCloseTelemetry) onCloseTelemetry();
+                }}
                 className={cn(
                   "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
                   selectedHealthCategory === "efficiency"
@@ -3417,7 +3425,10 @@ export function FleetExplorerPanel({
               {/* Risk */}
               <button
                 type="button"
-                onClick={() => setSelectedHealthCategory(selectedHealthCategory === "risk" ? "all" : "risk")}
+                onClick={() => {
+                  setSelectedHealthCategory(selectedHealthCategory === "risk" ? "all" : "risk");
+                  if (onCloseTelemetry) onCloseTelemetry();
+                }}
                 className={cn(
                   "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
                   selectedHealthCategory === "risk"
@@ -3435,7 +3446,10 @@ export function FleetExplorerPanel({
               {/* Discipline */}
               <button
                 type="button"
-                onClick={() => setSelectedHealthCategory(selectedHealthCategory === "discipline" ? "all" : "discipline")}
+                onClick={() => {
+                  setSelectedHealthCategory(selectedHealthCategory === "discipline" ? "all" : "discipline");
+                  if (onCloseTelemetry) onCloseTelemetry();
+                }}
                 className={cn(
                   "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
                   selectedHealthCategory === "discipline"
@@ -3583,6 +3597,7 @@ export function FleetExplorerPanel({
             onClick={() => {
               setActiveTab("health");
               setSelectedHealthCategory("safety");
+              if (onCloseTelemetry) onCloseTelemetry();
             }}
             className={cn(
               "flex-1 min-w-[76px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
@@ -3605,6 +3620,7 @@ export function FleetExplorerPanel({
             onClick={() => {
               setActiveTab("health");
               setSelectedHealthCategory("efficiency");
+              if (onCloseTelemetry) onCloseTelemetry();
             }}
             className={cn(
               "flex-1 min-w-[82px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
@@ -3625,6 +3641,7 @@ export function FleetExplorerPanel({
             onClick={() => {
               setActiveTab("health");
               setSelectedHealthCategory("risk");
+              if (onCloseTelemetry) onCloseTelemetry();
             }}
             className={cn(
               "flex-1 min-w-[68px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
@@ -3645,6 +3662,7 @@ export function FleetExplorerPanel({
             onClick={() => {
               setActiveTab("health");
               setSelectedHealthCategory("discipline");
+              if (onCloseTelemetry) onCloseTelemetry();
             }}
             className={cn(
               "flex-1 min-w-[88px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",

@@ -177,6 +177,7 @@ export function TrackingPage() {
               setIsHealthTelemetryOnly(!!isHealthOnly);
               setIsTelemetryDrawerOpen(true);
             }}
+            onCloseTelemetry={() => setIsTelemetryDrawerOpen(false)}
             onTraceVehicle={handleTraceVehicle}
             onOpenAddVehicle={() => navigate({ to: "/setting", search: { action: "add" } })}
             onToggleCollapse={() => setIsLeftPanelOpen(false)}
