@@ -357,56 +357,56 @@ export function VehicleTelemetryDrawer({
                         type="button"
                         onClick={() => setActiveHealthCategory("safety")}
                         className={cn(
-                          "py-1 px-1 rounded-lg text-[10px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
+                          "py-1 px-1 rounded-lg text-[11px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
                           activeHealthCategory === "safety"
                             ? "bg-[#10B981] text-white border-emerald-600 shadow-2xs"
                             : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/60 text-slate-800 dark:text-slate-200 hover:bg-emerald-100/70"
                         )}
                       >
                         <span>Safety</span>
-                        <span className="font-mono text-[11px] font-extrabold" style={{ color: activeHealthCategory === "safety" ? "#ffffff" : "#10B981" }}>85</span>
+                        <span className="font-mono text-[12px] font-extrabold" style={{ color: activeHealthCategory === "safety" ? "#ffffff" : "#10B981" }}>85</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setActiveHealthCategory("efficiency")}
                         className={cn(
-                          "py-1 px-1 rounded-lg text-[10px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
+                          "py-1 px-1 rounded-lg text-[11px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
                           activeHealthCategory === "efficiency"
                             ? "bg-[#D97706] text-white border-amber-600 shadow-2xs"
                             : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/60 text-slate-800 dark:text-slate-200 hover:bg-amber-100/70"
                         )}
                       >
                         <span>Effic.</span>
-                        <span className="font-mono text-[11px] font-extrabold" style={{ color: activeHealthCategory === "efficiency" ? "#ffffff" : "#D97706" }}>72</span>
+                        <span className="font-mono text-[12px] font-extrabold" style={{ color: activeHealthCategory === "efficiency" ? "#ffffff" : "#D97706" }}>72</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setActiveHealthCategory("risk")}
                         className={cn(
-                          "py-1 px-1 rounded-lg text-[10px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
+                          "py-1 px-1 rounded-lg text-[11px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
                           activeHealthCategory === "risk"
                             ? "bg-[#EF4444] text-white border-rose-600 shadow-2xs"
                             : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/60 text-slate-800 dark:text-slate-200 hover:bg-rose-100/70"
                         )}
                       >
                         <span>Risk</span>
-                        <span className="font-mono text-[11px] font-extrabold" style={{ color: activeHealthCategory === "risk" ? "#ffffff" : "#EF4444" }}>15</span>
+                        <span className="font-mono text-[12px] font-extrabold" style={{ color: activeHealthCategory === "risk" ? "#ffffff" : "#EF4444" }}>15</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setActiveHealthCategory("discipline")}
                         className={cn(
-                          "py-1 px-1 rounded-lg text-[10px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
+                          "py-1 px-1 rounded-lg text-[11px] font-bold flex flex-col items-center justify-center transition-all cursor-pointer border select-none",
                           activeHealthCategory === "discipline"
                             ? "bg-[#0089FF] text-white border-sky-600 shadow-2xs"
                             : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/60 text-slate-800 dark:text-slate-200 hover:bg-sky-100/70"
                         )}
                       >
                         <span>Discip.</span>
-                        <span className="font-mono text-[11px] font-extrabold" style={{ color: activeHealthCategory === "discipline" ? "#ffffff" : "#0089FF" }}>98</span>
+                        <span className="font-mono text-[12px] font-extrabold" style={{ color: activeHealthCategory === "discipline" ? "#ffffff" : "#0089FF" }}>98</span>
                       </button>
                     </div>
 
@@ -414,54 +414,54 @@ export function VehicleTelemetryDrawer({
                     <div className="p-2 space-y-2">
                       {/* Top Header Card */}
                       {activeHealthCategory === "safety" && (
-                        <div className="px-2.5 py-2 rounded-xl border border-[#10B981] bg-[#EBF9F0] dark:bg-emerald-950/40 flex items-center justify-between shadow-2xs">
-                          <div className="flex items-center gap-1.5 font-bold text-xs text-[#065F46] dark:text-emerald-300">
+                        <div className="px-2.5 py-1.5 rounded-xl border border-[#10B981] bg-[#EBF9F0] dark:bg-emerald-950/40 flex items-center justify-between shadow-2xs">
+                          <div className="flex items-center gap-1.5 font-bold text-[11px] text-[#065F46] dark:text-emerald-300">
                             <ShieldCheck className="h-4 w-4 text-[#10B981] stroke-[2.5]" />
                             <span>Safety Score</span>
                           </div>
-                          <span className="text-base font-extrabold font-mono text-[#10B981]">85</span>
+                          <span className="text-[12px] font-extrabold font-mono text-[#10B981]">85</span>
                         </div>
                       )}
 
                       {activeHealthCategory === "efficiency" && (
-                        <div className="px-2.5 py-2 rounded-xl border border-[#D97706] bg-[#FFFBEB] dark:bg-amber-950/40 flex items-center justify-between shadow-2xs">
-                          <div className="flex items-center gap-1.5 font-bold text-xs text-[#92400E] dark:text-amber-300">
+                        <div className="px-2.5 py-1.5 rounded-xl border border-[#D97706] bg-[#FFFBEB] dark:bg-amber-950/40 flex items-center justify-between shadow-2xs">
+                          <div className="flex items-center gap-1.5 font-bold text-[11px] text-[#92400E] dark:text-amber-300">
                             <Timer className="h-4 w-4 text-[#D97706] stroke-[2.2]" />
                             <span>Efficiency Score</span>
                           </div>
-                          <span className="text-base font-extrabold font-mono text-[#D97706]">72</span>
+                          <span className="text-[12px] font-extrabold font-mono text-[#D97706]">72</span>
                         </div>
                       )}
 
                       {activeHealthCategory === "risk" && (
-                        <div className="px-2.5 py-2 rounded-xl border border-[#EF4444] bg-[#FEF2F2] dark:bg-rose-950/40 flex items-center justify-between shadow-2xs">
-                          <div className="flex items-center gap-1.5 font-bold text-xs text-[#991B1B] dark:text-rose-300">
+                        <div className="px-2.5 py-1.5 rounded-xl border border-[#EF4444] bg-[#FEF2F2] dark:bg-rose-950/40 flex items-center justify-between shadow-2xs">
+                          <div className="flex items-center gap-1.5 font-bold text-[11px] text-[#991B1B] dark:text-rose-300">
                             <AlertTriangle className="h-4 w-4 text-[#EF4444] stroke-[2.2]" />
                             <span>Risk Score</span>
                           </div>
-                          <span className="text-base font-extrabold font-mono text-[#EF4444]">15</span>
+                          <span className="text-[12px] font-extrabold font-mono text-[#EF4444]">15</span>
                         </div>
                       )}
 
                       {activeHealthCategory === "discipline" && (
-                        <div className="px-2.5 py-2 rounded-xl border border-[#0089FF] bg-[#F0F9FF] dark:bg-sky-950/40 flex items-center justify-between shadow-2xs">
-                          <div className="flex items-center gap-1.5 font-bold text-xs text-[#075985] dark:text-sky-300">
+                        <div className="px-2.5 py-1.5 rounded-xl border border-[#0089FF] bg-[#F0F9FF] dark:bg-sky-950/40 flex items-center justify-between shadow-2xs">
+                          <div className="flex items-center gap-1.5 font-bold text-[11px] text-[#075985] dark:text-sky-300">
                             <ThumbsUp className="h-4 w-4 text-[#0089FF] fill-current" />
                             <span>Discipline Score</span>
                           </div>
-                          <span className="text-base font-extrabold font-mono text-[#0089FF]">98</span>
+                          <span className="text-[12px] font-extrabold font-mono text-[#0089FF]">98</span>
                         </div>
                       )}
 
                       {/* Distance Driven & Confidence Level Row Cards */}
                       {activeHealthCategory !== "efficiency" && (
-                        <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-[11px]">
-                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                        <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 text-[11px] font-medium">
                             <Activity className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
                             <span>Confidence Level</span>
                           </div>
                           <span className={cn(
-                            "font-bold font-mono text-[11px]",
+                            "font-bold font-mono text-[12px]",
                             activeHealthCategory === "risk" ? "text-[#10B981]" :
                             activeHealthCategory === "efficiency" ? "text-[#D97706]" :
                             "text-[#EF4444]"
@@ -471,32 +471,32 @@ export function VehicleTelemetryDrawer({
                         </div>
                       )}
 
-                      <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-[11px]">
-                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                      <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 text-[11px] font-medium">
                           <MapPin className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
                           <span>Distance Driven</span>
                         </div>
-                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans text-[11px]">
+                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans text-[12px]">
                           1250 km
                         </span>
                       </div>
 
                       {activeHealthCategory === "efficiency" && (
-                        <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-[11px]">
-                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                        <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 text-[11px] font-medium">
                             <Activity className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
                             <span>Confidence Level</span>
                           </div>
-                          <span className="font-bold font-mono text-[11px] text-[#D97706]">
+                          <span className="font-bold font-mono text-[12px] text-[#D97706]">
                             74% (Medium)
                           </span>
                         </div>
                       )}
 
                       {/* Events Table */}
-                      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden text-[10.5px]">
+                      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden text-[11px]">
                         {/* Header */}
-                        <div className="grid grid-cols-[1fr_auto_auto] gap-3 bg-slate-100/90 dark:bg-slate-800/90 px-2 py-1 font-bold text-slate-600 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800">
+                        <div className="grid grid-cols-[1fr_auto_auto] gap-3 bg-slate-100/90 dark:bg-slate-800/90 px-2 py-1 font-bold text-slate-600 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800 text-[11px]">
                           <span>Events</span>
                           <span className="text-center whitespace-nowrap min-w-[65px]">Current</span>
                           <span className="text-right whitespace-nowrap min-w-[55px]">Average</span>
@@ -512,9 +512,9 @@ export function VehicleTelemetryDrawer({
                             { name: "ADAS Events", cur: "1/100 mi", avg: "1/100 mi" },
                           ].map((r, idx) => (
                             <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
-                              <span className="truncate font-medium">{r.name}</span>
-                              <span className={cn("text-center font-mono font-semibold whitespace-nowrap min-w-[65px]", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
-                              <span className="text-right font-mono text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
+                              <span className="truncate font-medium text-[11px]">{r.name}</span>
+                              <span className={cn("text-center font-mono font-bold text-[12px] whitespace-nowrap min-w-[65px]", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
+                              <span className="text-right font-mono text-[12px] font-bold text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
                             </div>
                           ))}
 
@@ -522,9 +522,9 @@ export function VehicleTelemetryDrawer({
                             { name: "Idling", cur: "4%", avg: "8%", curAlert: true },
                           ].map((r, idx) => (
                             <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
-                              <span className="truncate font-medium">{r.name}</span>
-                              <span className={cn("text-center font-mono font-semibold whitespace-nowrap min-w-[65px]", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
-                              <span className="text-right font-mono text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
+                              <span className="truncate font-medium text-[11px]">{r.name}</span>
+                              <span className={cn("text-center font-mono font-bold text-[12px] whitespace-nowrap min-w-[65px]", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
+                              <span className="text-right font-mono text-[12px] font-bold text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
                             </div>
                           ))}
 
@@ -541,9 +541,9 @@ export function VehicleTelemetryDrawer({
                             { name: "Device Inactive", cur: "4 %", avg: "8 %" },
                           ].map((r, idx) => (
                             <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
-                              <span className="truncate font-medium">{r.name}</span>
-                              <span className="text-center font-mono font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[65px]">{r.cur}</span>
-                              <span className="text-right font-mono text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
+                              <span className="truncate font-medium text-[11px]">{r.name}</span>
+                              <span className="text-center font-mono font-bold text-[12px] text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[65px]">{r.cur}</span>
+                              <span className="text-right font-mono text-[12px] font-bold text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
                             </div>
                           ))}
 
@@ -560,16 +560,16 @@ export function VehicleTelemetryDrawer({
                             { name: "Late Work Start", cur: "4 min", avg: "80 min" },
                           ].map((r, idx) => (
                             <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
-                              <span className="truncate font-medium">{r.name}</span>
-                              <span className="text-center font-mono font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[65px]">{r.cur}</span>
-                              <span className="text-right font-mono text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
+                              <span className="truncate font-medium text-[11px]">{r.name}</span>
+                              <span className="text-center font-mono font-bold text-[12px] text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[65px]">{r.cur}</span>
+                              <span className="text-right font-mono text-[12px] font-bold text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
                             </div>
                           ))}
                         </div>
                       </div>
 
                       {/* Footer Calculation Note */}
-                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500 pt-0.5">
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500 pt-0.5">
                         <Clock className="h-3 w-3 stroke-[2] shrink-0" />
                         <span>Score calculation runs every 30 minutes</span>
                       </div>
