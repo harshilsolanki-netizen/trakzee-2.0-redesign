@@ -2200,23 +2200,7 @@ export function FleetExplorerPanel({
                               key={v.id}
                               onClick={() => {
                                 onSelectVehicle(v.id);
-                                setSelectedJobDetail({
-                                  id: v.id,
-                                  code: v.name,
-                                  title: `${v.name} - Job & Checkpoint Details`,
-                                  status: v.status === "running" ? "In Transit" : v.status === "idle" ? "Idle" : "Stopped",
-                                  statusType: v.status === "running" ? "running" : v.status === "idle" ? "upcoming" : "fail",
-                                  object: v.name,
-                                  objectState: "Loaded",
-                                  driver: v.driver || "Sukesh Gupta",
-                                  rep: v.driver || "Sukesh Gupta",
-                                  route: v.branch,
-                                  estimatedStart: "30/09/2026 11:03:00 PM",
-                                  actualStart: "28/09/2026 01:13:54 PM",
-                                  estimatedEnd: "30/09/2026 11:40:00 PM",
-                                  actualEnd: "01/10/2026 12:40:00 AM",
-                                  checkpoints: getJobCheckpoints({ object: v.name, driver: v.driver }),
-                                });
+                                onOpenTelemetry(v);
                               }}
                               className={cn(
                                 "flex items-center gap-2 px-3 py-2 text-xs transition-colors cursor-pointer select-none min-h-[46px] overflow-hidden",
