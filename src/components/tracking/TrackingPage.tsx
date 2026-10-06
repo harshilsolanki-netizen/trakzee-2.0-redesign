@@ -9,6 +9,8 @@ import {
   ObjectColumnSettingsModal,
   DEFAULT_COLUMNS,
 } from "@/components/tracking/ObjectColumnSettingsModal";
+import { AddAddressModal, type AddressFormData } from "@/components/tracking/AddAddressModal";
+import { UploadAddressModal } from "@/components/tracking/UploadAddressModal";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
 import { useZio } from "@/zio/ZioContext";
 import { cn } from "@/lib/utils";
@@ -28,9 +30,32 @@ export function TrackingPage() {
   const [checkedVehicleIds, setCheckedVehicleIds] = useState<string[]>(
     fleetObjects.map((v) => v.id),
   );
+  const [checkedGeofenceIds, setCheckedGeofenceIds] = useState<string[]>([
+    "g-1", "g-2", "g-3", "g-4", "g-5",
+  ]);
+  const [selectedGeofenceId, setSelectedGeofenceId] = useState<string | null>(null);
+
+  const handleToggleCheckGeofence = (id: string) => {
+    setCheckedGeofenceIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const handleToggleCheckAllGeofences = (checked: boolean) => {
+    if (checked) {
+      setCheckedGeofenceIds([
+        "g-1", "g-2", "g-3", "g-4", "g-5", "g-6", "g-7", "g-8", "g-9", "g-10",
+        "g-11", "g-12", "g-13", "g-14", "g-15", "g-16", "g-17", "g-18", "g-19", "g-20", "g-21",
+      ]);
+    } else {
+      setCheckedGeofenceIds([]);
+    }
+  };
+
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
   const [isTelemetryDrawerOpen, setIsTelemetryDrawerOpen] = useState(false);
   const [isHealthTelemetryOnly, setIsHealthTelemetryOnly] = useState(false);
+  const [selectedJobForDrawer, setSelectedJobForDrawer] = useState<any | null>(null);
   const [playbackOpen, setPlaybackOpen] = useState(false);
   const [playbackTimeframe, setPlaybackTimeframe] = useState("Today");
   const [dashcamVehicle, setDashcamVehicle] = useState<FleetObject | null>(
@@ -38,6 +63,15 @@ export function TrackingPage() {
   );
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(DEFAULT_COLUMNS);
+
+  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
+  const [isUploadAddressModalOpen, setIsUploadAddressModalOpen] = useState(false);
+  const [editingAddressData, setEditingAddressData] = useState<AddressFormData | null>(null);
+
+  const handleOpenAddAddress = (initialData?: AddressFormData) => {
+    setEditingAddressData(initialData || null);
+    setIsAddAddressModalOpen(true);
+  };
 
   const { setSelectedVehicleId } = useZio();
 
@@ -147,6 +181,8 @@ export function TrackingPage() {
         <LiveTrackingMap
           selectedVehicle={selectedVehicle}
           checkedVehicles={checkedVehicles}
+          checkedGeofenceIds={checkedGeofenceIds}
+          selectedGeofenceId={selectedGeofenceId}
           onOpenPlayback={handleOpenPlayback}
           isLeftPanelOpen={isLeftPanelOpen}
           leftPanelWidth={panelWidth}
@@ -170,16 +206,24 @@ export function TrackingPage() {
             onToggleCheckVehicle={handleToggleCheckVehicle}
             onToggleCheckGroup={handleToggleCheckGroup}
             onToggleCheckAll={handleToggleCheckAll}
+            checkedGeofenceIds={checkedGeofenceIds}
+            onToggleCheckGeofence={handleToggleCheckGeofence}
+            onToggleCheckAllGeofences={handleToggleCheckAllGeofences}
+            selectedGeofenceId={selectedGeofenceId}
+            onSelectGeofence={(id) => setSelectedGeofenceId(id)}
             onOpenDashcam={(v) => setDashcamVehicle(v)}
             onOpenSettings={() => setSettingsModalOpen(true)}
-            onOpenTelemetry={(v, isHealthOnly) => {
+            onOpenTelemetry={(v, isHealthOnly, job) => {
               setSelectedVehicleIdState(v.id);
               setIsHealthTelemetryOnly(!!isHealthOnly);
+              setSelectedJobForDrawer(job || null);
               setIsTelemetryDrawerOpen(true);
             }}
             onCloseTelemetry={() => setIsTelemetryDrawerOpen(false)}
             onTraceVehicle={handleTraceVehicle}
             onOpenAddVehicle={() => navigate({ to: "/setting", search: { action: "add" } })}
+            onOpenAddAddress={handleOpenAddAddress}
+            onOpenUploadAddress={() => setIsUploadAddressModalOpen(true)}
             onToggleCollapse={() => setIsLeftPanelOpen(false)}
             selectedColumns={selectedColumns}
             onStartResize={() => setIsResizing(true)}
@@ -216,6 +260,7 @@ export function TrackingPage() {
             allVehicles={fleetObjects}
             onOpenPlayback={() => handleOpenPlayback()}
             isHealthOnly={isHealthTelemetryOnly}
+            selectedJob={selectedJobForDrawer}
             className={cn(
               isHealthTelemetryOnly ? "w-[300px] sm:w-[300px]" : "w-[220px] sm:w-[220px]",
               "h-full pointer-events-auto bg-transparent border-0 shadow-none",
@@ -249,6 +294,22 @@ export function TrackingPage() {
         onClose={() => setSettingsModalOpen(false)}
         selectedColumns={selectedColumns}
         onSaveColumns={setSelectedColumns}
+      />
+
+      {/* 7. Modern Theme-Consistent Add Address Modal */}
+      <AddAddressModal
+        open={isAddAddressModalOpen}
+        onClose={() => setIsAddAddressModalOpen(false)}
+        onSaveAddress={(addressData) => {
+          // Address saved callback
+        }}
+        initialData={editingAddressData}
+      />
+
+      {/* 8. Modern Theme-Consistent Upload Address Modal */}
+      <UploadAddressModal
+        open={isUploadAddressModalOpen}
+        onClose={() => setIsUploadAddressModalOpen(false)}
       />
     </div>
   );

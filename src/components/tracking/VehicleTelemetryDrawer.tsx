@@ -2,6 +2,7 @@ import {
   Activity,
   AlertTriangle,
   Battery,
+  Briefcase,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -67,6 +68,7 @@ import {
   DEFAULT_ENABLED_WIDGETS,
   TooltipWidgetSettingsModal,
 } from "./TooltipWidgetSettingsModal";
+import { AddItemModal } from "./AddItemModal";
 
 const DRAWER_TABS = [
   { id: "details", label: "Details", icon: MapPin },
@@ -93,11 +95,9 @@ function formatDuration(raw?: string): string {
 }
 
 function WidgetActionButton({
-  isRefreshing,
   onClick,
   cardName,
 }: {
-  isRefreshing: boolean;
   onClick: () => void;
   cardName: string;
 }) {
@@ -105,21 +105,12 @@ function WidgetActionButton({
     <button
       type="button"
       onClick={onClick}
-      className="group/btn relative w-6 h-6 flex items-center justify-center rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 transition-all duration-200 cursor-pointer active:scale-90 shrink-0"
-      title={`Refresh ${cardName}`}
+      className="group/btn relative w-6 h-6 flex items-center justify-center rounded-md text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-all duration-200 cursor-pointer active:scale-90 shrink-0"
+      title={`Close ${cardName}`}
     >
-      {isRefreshing && (
-        <span className="absolute inset-0 rounded-md bg-[#0089FF]/30 animate-ping pointer-events-none" />
-      )}
       <div className="relative w-3.5 h-3.5 flex items-center justify-center">
-        {isRefreshing ? (
-          <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#0089FF]" />
-        ) : (
-          <>
-            <GripVertical className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400 group-hover/btn:opacity-0 group-hover/btn:scale-75 transition-all duration-200 absolute" />
-            <RefreshCw className="h-3.5 w-3.5 text-[#0089FF] opacity-0 scale-75 group-hover/btn:opacity-100 group-hover/btn:scale-100 group-hover/btn:rotate-180 transition-all duration-300 absolute" />
-          </>
-        )}
+        <GripVertical className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400 group-hover/btn:opacity-0 group-hover/btn:scale-75 transition-all duration-200 absolute" />
+        <X className="h-3.5 w-3.5 text-rose-500 opacity-0 scale-75 group-hover/btn:opacity-100 group-hover/btn:scale-100 transition-all duration-200 absolute stroke-[2.5]" />
       </div>
     </button>
   );
@@ -132,6 +123,7 @@ export function VehicleTelemetryDrawer({
   allVehicles,
   onOpenPlayback,
   isHealthOnly = false,
+  selectedJob = null,
   className,
 }: {
   vehicle: FleetObject;
@@ -140,10 +132,22 @@ export function VehicleTelemetryDrawer({
   allVehicles: FleetObject[];
   onOpenPlayback?: () => void;
   isHealthOnly?: boolean;
+  selectedJob?: {
+    id?: string;
+    code?: string;
+    title?: string;
+    status?: string;
+    shipmentNo?: string;
+    invoiceNo?: string;
+    consigneeNo?: string;
+    quantity?: string;
+    product?: string;
+  } | null;
   className?: string;
 }) {
   const [activeDrawerTab, setActiveDrawerTab] = useState<"details" | "telemetry" | "settings">("details");
   const [showWidgetSettings, setShowWidgetSettings] = useState(false);
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [enabledWidgets, setEnabledWidgets] = useState<string[]>(DEFAULT_ENABLED_WIDGETS);
   const [selectedDriverModal, setSelectedDriverModal] = useState<{
     name: string;
@@ -159,6 +163,7 @@ export function VehicleTelemetryDrawer({
   >("safety");
 
   const [cardsOrder, setCardsOrder] = useState<string[]>([
+    "job_info",
     "health_score",
     "vehicle_main",
     "driver_info",
@@ -269,8 +274,8 @@ export function VehicleTelemetryDrawer({
           className,
         )}
       >
-        {/* 1. Header Card (Hidden when isHealthOnly is true) */}
-        {!isHealthOnly && (
+        {/* 1. Header Card (Hidden when isHealthOnly or selectedJob is true) */}
+        {!isHealthOnly && !selectedJob && (
           <div className="flex h-11 w-full items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 select-none rounded-2xl shadow-md shrink-0 pointer-events-auto">
             <div className="flex items-center gap-1 min-w-0">
               {DRAWER_TABS.map((tab) => {
@@ -314,7 +319,11 @@ export function VehicleTelemetryDrawer({
         <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar py-0.5 pr-1 pointer-events-auto">
           {(isHealthOnly
             ? ["health_score"]
-            : cardsOrder.filter((id) => id !== "health_score")
+            : selectedJob
+              ? selectedJob.isObjectHalt
+                ? ["object_halt_info"]
+                : ["job_info"]
+              : cardsOrder.filter((id) => id !== "health_score" && id !== "job_info" && id !== "object_halt_info")
           ).map((cardId) => {
             const isDraggingThis = draggedCardId === cardId;
             const isRefreshingThis = refreshingCardId === cardId;
@@ -331,6 +340,201 @@ export function VehicleTelemetryDrawer({
             };
 
             switch (cardId) {
+              case "object_halt_info":
+                const haltInfo = selectedJob || {
+                  title: "Lorem Ipsum",
+                  qrCode: "1111146456",
+                  itemQuantity: "100",
+                  weight: "1000 tn",
+                  load: "1000",
+                  permissibleHalt: "10 min",
+                  actualHalt: "15 min",
+                };
+
+                return (
+                  <div key={cardId} {...dragProps} className={cardWrapperClass}>
+                    {/* Header Row */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <SquarePen className="h-4 w-4 text-[#0089FF] stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
+                          {haltInfo.title || "Lorem Ipsum"}
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <WidgetActionButton
+                          onClick={onClose}
+                          cardName={haltInfo.title || "Lorem Ipsum"}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Main Content Area matching media_1791260756455.png 1:1 */}
+                    <div className="p-[10px] bg-[#FAFAFA]/70 dark:bg-slate-900/60 space-y-2 select-none">
+                      {/* QR Code */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          QR Code
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-mono tracking-tight text-right truncate">
+                          {haltInfo.qrCode || "1111146456"}
+                        </span>
+                      </div>
+
+                      {/* Item Quantity */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Item Quantity
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
+                          {haltInfo.itemQuantity || "100"}
+                        </span>
+                      </div>
+
+                      {/* Weight */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Weight
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
+                          {haltInfo.weight || "1000 tn"}
+                        </span>
+                      </div>
+
+                      {/* Load */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Load
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
+                          {haltInfo.load || "1000"}
+                        </span>
+                      </div>
+
+                      {/* Inset Light Separator Line */}
+                      <div className="border-t border-[#E2E8F0] dark:border-slate-800 my-2" />
+
+                      {/* Permissible Halt */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Permissible Halt
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
+                          {haltInfo.permissibleHalt || "10 min"}
+                        </span>
+                      </div>
+
+                      {/* Actual Halt */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Actual Halt
+                        </span>
+                        <span className="text-[12px] font-bold text-rose-500 font-sans tracking-tight text-right truncate">
+                          {haltInfo.actualHalt || "15 min"}
+                        </span>
+                      </div>
+
+                    </div>
+
+                    {/* Bottom Action CTA Bar (#F4F5F7) - Identical Component & Styling to Object Panel Tooltip */}
+                    <div className="bg-[#F4F5F7] dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 px-1.5 h-[34px] flex items-center justify-center rounded-b-xl">
+                      <button
+                        type="button"
+                        onClick={() => setShowAddItemModal(true)}
+                        className="w-full h-[26px] rounded-lg text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2 font-bold text-xs"
+                      >
+                        <FileText className="h-4 w-4 stroke-[1.8]" />
+                        <span>Item</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+
+              case "job_info":
+                const jobInfo = selectedJob || {
+                  shipmentNo: "SHP-50284-A",
+                  invoiceNo: "INV-99201",
+                  consigneeNo: "CNS-10482",
+                  quantity: "120 Units",
+                  product: "Test SCM Material",
+                };
+
+                return (
+                  <div key={cardId} {...dragProps} className={cardWrapperClass}>
+                    {/* Header Row */}
+                    <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
+                      <div className="flex items-center gap-[6px] min-w-0">
+                        <Briefcase className="h-4 w-4 text-[#0089FF] stroke-[1.8] shrink-0" />
+                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
+                          Job Information
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <WidgetActionButton
+                          onClick={onClose}
+                          cardName="Job Information"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Main Content Area matching media_1791182432263.png 1:1 */}
+                    <div className="p-[10px] bg-[#FAFAFA]/70 dark:bg-slate-900/60 space-y-2 select-none">
+                      {/* Shipment No */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Shipment No:
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
+                          {jobInfo.shipmentNo || "SHP-50284-A"}
+                        </span>
+                      </div>
+
+                      {/* Invoice No */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Invoice No:
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
+                          {jobInfo.invoiceNo || "INV-99201"}
+                        </span>
+                      </div>
+
+                      {/* Consignee No */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Consignee No:
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
+                          {jobInfo.consigneeNo || "CNS-10482"}
+                        </span>
+                      </div>
+
+                      {/* Quantity */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px]">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Quantity:
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
+                          {jobInfo.quantity || "120 Units"}
+                        </span>
+                      </div>
+
+                      {/* Inset Light Separator Line */}
+                      <div className="border-t border-[#E2E8F0] dark:border-slate-800 my-2" />
+
+                      {/* Product */}
+                      <div className="flex items-center justify-between gap-2 leading-[16px] pt-0.5">
+                        <span className="text-[11px] font-normal text-[#64748B] dark:text-slate-400 shrink-0">
+                          Product:
+                        </span>
+                        <span className="text-[12px] font-bold text-[#0089FF] hover:underline cursor-pointer font-sans text-right truncate">
+                          {jobInfo.product || "Test SCM Material"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+
               case "health_score":
                 return (
                   <div key={cardId} {...dragProps} className={cardWrapperClass}>
@@ -344,8 +548,7 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          isRefreshing={isRefreshingThis}
-                          onClick={() => handleRefreshCard("Health Score Details", cardId)}
+                          onClick={onClose}
                           cardName="Health Score Details"
                         />
                       </div>
@@ -410,93 +613,48 @@ export function VehicleTelemetryDrawer({
                       </button>
                     </div>
 
-                    {/* 3. Details Content Section (Matching reference images 1 to 5) */}
-                    <div className="p-2 space-y-2">
-                      {/* Top Header Card */}
-                      {activeHealthCategory === "safety" && (
-                        <div className="px-2.5 py-1.5 rounded-xl border border-[#10B981] bg-[#EBF9F0] dark:bg-emerald-950/40 flex items-center justify-between shadow-2xs">
-                          <div className="flex items-center gap-1.5 font-bold text-[11px] text-[#065F46] dark:text-emerald-300">
-                            <ShieldCheck className="h-4 w-4 text-[#10B981] stroke-[2.5]" />
-                            <span>Safety Score</span>
-                          </div>
-                          <span className="text-[12px] font-extrabold font-mono text-[#10B981]">85</span>
-                        </div>
-                      )}
-
-                      {activeHealthCategory === "efficiency" && (
-                        <div className="px-2.5 py-1.5 rounded-xl border border-[#D97706] bg-[#FFFBEB] dark:bg-amber-950/40 flex items-center justify-between shadow-2xs">
-                          <div className="flex items-center gap-1.5 font-bold text-[11px] text-[#92400E] dark:text-amber-300">
-                            <Timer className="h-4 w-4 text-[#D97706] stroke-[2.2]" />
-                            <span>Efficiency Score</span>
-                          </div>
-                          <span className="text-[12px] font-extrabold font-mono text-[#D97706]">72</span>
-                        </div>
-                      )}
-
-                      {activeHealthCategory === "risk" && (
-                        <div className="px-2.5 py-1.5 rounded-xl border border-[#EF4444] bg-[#FEF2F2] dark:bg-rose-950/40 flex items-center justify-between shadow-2xs">
-                          <div className="flex items-center gap-1.5 font-bold text-[11px] text-[#991B1B] dark:text-rose-300">
-                            <AlertTriangle className="h-4 w-4 text-[#EF4444] stroke-[2.2]" />
-                            <span>Risk Score</span>
-                          </div>
-                          <span className="text-[12px] font-extrabold font-mono text-[#EF4444]">15</span>
-                        </div>
-                      )}
-
-                      {activeHealthCategory === "discipline" && (
-                        <div className="px-2.5 py-1.5 rounded-xl border border-[#0089FF] bg-[#F0F9FF] dark:bg-sky-950/40 flex items-center justify-between shadow-2xs">
-                          <div className="flex items-center gap-1.5 font-bold text-[11px] text-[#075985] dark:text-sky-300">
-                            <ThumbsUp className="h-4 w-4 text-[#0089FF] fill-current" />
-                            <span>Discipline Score</span>
-                          </div>
-                          <span className="text-[12px] font-extrabold font-mono text-[#0089FF]">98</span>
-                        </div>
-                      )}
-
-                      {/* Distance Driven & Confidence Level Row Cards */}
-                      {activeHealthCategory !== "efficiency" && (
-                        <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 text-[11px] font-medium">
-                            <Activity className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
+                    {/* 3. Details Content Section (Confidence Level & Distance Driven + Events Table) */}
+                    <div className="p-2 space-y-2 text-[11px]">
+                      {/* Summary Card for Confidence Level & Distance Driven */}
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 grid grid-cols-2 gap-2 text-[11px]">
+                        <div>
+                          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium text-[11px]">
+                            <Activity className="h-3.5 w-3.5 text-[#0089FF] stroke-[2] shrink-0" />
                             <span>Confidence Level</span>
                           </div>
-                          <span className={cn(
-                            "font-bold font-mono text-[12px]",
-                            activeHealthCategory === "risk" ? "text-[#10B981]" :
-                            activeHealthCategory === "efficiency" ? "text-[#D97706]" :
-                            "text-[#EF4444]"
-                          )}>
-                            {activeHealthCategory === "risk" ? "75% (High)" : activeHealthCategory === "efficiency" ? "74% (Medium)" : "39% (Low)"}
+                          <span
+                            className={cn(
+                              "font-bold font-mono text-[12px] block mt-0.5",
+                              activeHealthCategory === "risk"
+                                ? "text-[#10B981]"
+                                : activeHealthCategory === "efficiency"
+                                ? "text-[#D97706]"
+                                : "text-[#EF4444]"
+                            )}
+                          >
+                            {activeHealthCategory === "risk"
+                              ? "75% (High)"
+                              : activeHealthCategory === "efficiency"
+                              ? "74% (Medium)"
+                              : "39% (Low)"}
                           </span>
                         </div>
-                      )}
 
-                      <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 text-[11px] font-medium">
-                          <MapPin className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
-                          <span>Distance Driven</span>
+                        <div>
+                          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium text-[11px]">
+                            <MapPin className="h-3.5 w-3.5 text-[#0089FF] stroke-[2] shrink-0" />
+                            <span>Distance Driven</span>
+                          </div>
+                          <span className="font-bold text-slate-900 dark:text-slate-100 font-sans text-[12px] block mt-0.5">
+                            1250 km
+                          </span>
                         </div>
-                        <span className="font-bold text-slate-900 dark:text-slate-100 font-sans text-[12px]">
-                          1250 km
-                        </span>
                       </div>
 
-                      {activeHealthCategory === "efficiency" && (
-                        <div className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 text-[11px] font-medium">
-                            <Activity className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
-                            <span>Confidence Level</span>
-                          </div>
-                          <span className="font-bold font-mono text-[12px] text-[#D97706]">
-                            74% (Medium)
-                          </span>
-                        </div>
-                      )}
-
                       {/* Events Table */}
-                      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden text-[11px]">
+                      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden text-[11px] mt-2">
                         {/* Header */}
-                        <div className="grid grid-cols-[1fr_auto_auto] gap-3 bg-slate-100/90 dark:bg-slate-800/90 px-2 py-1 font-bold text-slate-600 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800 text-[11px]">
+                        <div className="grid grid-cols-[1fr_auto_auto] gap-3 bg-slate-50 dark:bg-slate-800/60 px-3 py-1.5 font-bold text-slate-600 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800 text-[11px]">
                           <span>Events</span>
                           <span className="text-center whitespace-nowrap min-w-[65px]">Current</span>
                           <span className="text-right whitespace-nowrap min-w-[55px]">Average</span>
@@ -511,7 +669,7 @@ export function VehicleTelemetryDrawer({
                             { name: "DMS Events", cur: "2/100 mi", avg: "2/100 mi" },
                             { name: "ADAS Events", cur: "1/100 mi", avg: "1/100 mi" },
                           ].map((r, idx) => (
-                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
+                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-3 py-1.5 text-slate-700 dark:text-slate-300 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                               <span className="truncate font-medium text-[11px]">{r.name}</span>
                               <span className={cn("text-center font-mono font-bold text-[12px] whitespace-nowrap min-w-[65px]", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
                               <span className="text-right font-mono text-[12px] font-bold text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
@@ -521,7 +679,7 @@ export function VehicleTelemetryDrawer({
                           {activeHealthCategory === "efficiency" && [
                             { name: "Idling", cur: "4%", avg: "8%", curAlert: true },
                           ].map((r, idx) => (
-                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
+                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-3 py-1.5 text-slate-700 dark:text-slate-300 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                               <span className="truncate font-medium text-[11px]">{r.name}</span>
                               <span className={cn("text-center font-mono font-bold text-[12px] whitespace-nowrap min-w-[65px]", r.curAlert ? "text-[#EF4444]" : "text-slate-800 dark:text-slate-200")}>{r.cur}</span>
                               <span className="text-right font-mono text-[12px] font-bold text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
@@ -540,7 +698,7 @@ export function VehicleTelemetryDrawer({
                             { name: "Phone", cur: "4/100 km", avg: "84/100 km" },
                             { name: "Device Inactive", cur: "4 %", avg: "8 %" },
                           ].map((r, idx) => (
-                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
+                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-3 py-1.5 text-slate-700 dark:text-slate-300 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                               <span className="truncate font-medium text-[11px]">{r.name}</span>
                               <span className="text-center font-mono font-bold text-[12px] text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[65px]">{r.cur}</span>
                               <span className="text-right font-mono text-[12px] font-bold text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
@@ -559,7 +717,7 @@ export function VehicleTelemetryDrawer({
                             { name: "Running Rate", cur: "4 %", avg: "80 %" },
                             { name: "Late Work Start", cur: "4 min", avg: "80 min" },
                           ].map((r, idx) => (
-                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-2 py-1 text-slate-700 dark:text-slate-300 items-center">
+                            <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-3 px-3 py-1.5 text-slate-700 dark:text-slate-300 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                               <span className="truncate font-medium text-[11px]">{r.name}</span>
                               <span className="text-center font-mono font-bold text-[12px] text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[65px]">{r.cur}</span>
                               <span className="text-right font-mono text-[12px] font-bold text-slate-400 whitespace-nowrap min-w-[55px]">{r.avg}</span>
@@ -569,7 +727,7 @@ export function VehicleTelemetryDrawer({
                       </div>
 
                       {/* Footer Calculation Note */}
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500 pt-0.5">
+                      <div className="flex items-center gap-1.5 px-3 py-2 text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                         <Clock className="h-3 w-3 stroke-[2] shrink-0" />
                         <span>Score calculation runs every 30 minutes</span>
                       </div>
@@ -598,8 +756,7 @@ export function VehicleTelemetryDrawer({
                           <Info className="h-[14px] w-[14px] stroke-[1.8]" />
                         </button>
                         <WidgetActionButton
-                          isRefreshing={isRefreshingThis}
-                          onClick={() => handleRefreshCard(vehicle.name || "Vehicle Card", cardId)}
+                          onClick={onClose}
                           cardName={vehicle.name || "Vehicle Card"}
                         />
                       </div>
@@ -841,8 +998,7 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          isRefreshing={isRefreshingThis}
-                          onClick={() => handleRefreshCard("Documents", cardId)}
+                          onClick={onClose}
                           cardName="Documents"
                         />
                       </div>
@@ -1091,8 +1247,7 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          isRefreshing={isRefreshingThis}
-                          onClick={() => handleRefreshCard("Location", cardId)}
+                          onClick={onClose}
                           cardName="Location"
                         />
                       </div>
@@ -1195,8 +1350,7 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          isRefreshing={isRefreshingThis}
-                          onClick={() => handleRefreshCard("Fuel Widget", cardId)}
+                          onClick={onClose}
                           cardName="Fuel Widget"
                         />
                       </div>
@@ -1490,8 +1644,7 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          isRefreshing={isRefreshingThis}
-                          onClick={() => handleRefreshCard("Fuel Consumption", cardId)}
+                          onClick={onClose}
                           cardName="Fuel Consumption"
                         />
                       </div>
@@ -1548,8 +1701,7 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          isRefreshing={isRefreshingThis}
-                          onClick={() => handleRefreshCard("Temperature & Sensors", cardId)}
+                          onClick={onClose}
                           cardName="Temperature & Sensors"
                         />
                       </div>
@@ -1598,6 +1750,13 @@ export function VehicleTelemetryDrawer({
         onClose={() => setShowWidgetSettings(false)}
         enabledWidgets={enabledWidgets}
         onApply={(updated) => setEnabledWidgets(updated)}
+      />
+
+      {/* Add Item Modal (Matching Reference Screenshot media_1791274007892.png 1:1) */}
+      <AddItemModal
+        open={showAddItemModal}
+        onClose={() => setShowAddItemModal(false)}
+        jobTitle={selectedJob?.title || "Add Item"}
       />
 
       {/* Driver Details Modal (Matching Image 2 Reference 1:1) */}

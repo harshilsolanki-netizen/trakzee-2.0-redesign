@@ -13,7 +13,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  Clock,
   Compass,
+  Edit3,
   Eye,
   FileSpreadsheet,
   FileText,
@@ -50,8 +52,10 @@ import {
   Target,
   ThumbsUp,
   Timer,
+  Trash2,
   TrendingUp,
   Truck,
+  Upload,
   User,
   UserCheck,
   Video,
@@ -96,12 +100,19 @@ export function FleetExplorerPanel({
   onToggleCheckVehicle,
   onToggleCheckGroup,
   onToggleCheckAll,
+  checkedGeofenceIds = ["g-1", "g-2", "g-3", "g-4", "g-5"],
+  onToggleCheckGeofence,
+  onToggleCheckAllGeofences,
+  selectedGeofenceId,
+  onSelectGeofence,
   onOpenDashcam,
   onOpenSettings,
   onOpenTelemetry,
   onCloseTelemetry,
   onTraceVehicle,
   onOpenAddVehicle,
+  onOpenAddAddress,
+  onOpenUploadAddress,
   onToggleCollapse,
   selectedColumns = [
     "ignition",
@@ -125,12 +136,19 @@ export function FleetExplorerPanel({
   onToggleCheckVehicle: (id: string) => void;
   onToggleCheckGroup: (ids: string[]) => void;
   onToggleCheckAll: () => void;
+  checkedGeofenceIds?: string[];
+  onToggleCheckGeofence?: (id: string) => void;
+  onToggleCheckAllGeofences?: (checked: boolean) => void;
+  selectedGeofenceId?: string | null;
+  onSelectGeofence?: (id: string) => void;
   onOpenDashcam: (vehicle: FleetObject) => void;
   onOpenSettings: () => void;
-  onOpenTelemetry: (vehicle: FleetObject, isHealthOnly?: boolean) => void;
+  onOpenTelemetry: (vehicle: FleetObject, isHealthOnly?: boolean, selectedJob?: any) => void;
   onCloseTelemetry?: () => void;
   onTraceVehicle: (vehicle: FleetObject) => void;
   onOpenAddVehicle?: () => void;
+  onOpenAddAddress?: (initialData?: any) => void;
+  onOpenUploadAddress?: () => void;
   onToggleCollapse?: () => void;
   selectedColumns?: string[];
   onStartResize?: () => void;
@@ -142,6 +160,7 @@ export function FleetExplorerPanel({
   const [query, setQuery] = useState("");
   const [activeStatus, setActiveStatus] = useState<ObjectStatus | "all">("all");
   const [activeDriverStatus, setActiveDriverStatus] = useState<string>("all");
+  const [activeJobStatus, setActiveJobStatus] = useState<string>("all");
   const [selectedHealthCategory, setSelectedHealthCategory] = useState<
     "all" | "safety" | "efficiency" | "risk" | "discipline"
   >("all");
@@ -259,7 +278,6 @@ export function FleetExplorerPanel({
   };
 
   // Job Tab collapse & expand details states
-  const [activeJobStatus, setActiveJobStatus] = useState<string>("all");
   const [collapsedJobBranches, setCollapsedJobBranches] = useState<Record<string, boolean>>({});
   const [collapsedJobSubgroups, setCollapsedJobSubgroups] = useState<Record<string, boolean>>({});
   const [expandedJobIds, setExpandedJobIds] = useState<Record<string, boolean>>({});
@@ -630,6 +648,120 @@ export function FleetExplorerPanel({
     toast.success(`Driver status updated to "${newStatus}"`);
   };
 
+  // Dynamic Address Dataset state (1:1 with reference screenshot media_1791281186715.png)
+  const [addressData, setAddressData] = useState([
+    {
+      group: "Ha Company",
+      checked: true,
+      subgroups: [
+        {
+          name: "HS - Bank Branch",
+          checked: true,
+          addresses: [
+            { id: "a-1", name: "HS - Bank", checked: true, category: "Financial / Bank" },
+            { id: "a-2", name: "Zin - AI Studio", checked: true, category: "Tech Hub" },
+            { id: "a-3", name: "Vortex - Safety Operations Hub", checked: false, category: "Safety" },
+            { id: "a-4", name: "Aegis - Security Assessment Area", checked: false, category: "Security" },
+            { id: "a-5", name: "Sentinel - Emergency Response Zone", checked: false, category: "Emergency" },
+            { id: "a-6", name: "Fortress - Threat Analysis Division", checked: false, category: "Analysis" },
+            { id: "a-7", name: "Haven - Cautionary Measures Facility", checked: false, category: "Facility" },
+            { id: "a-8", name: "Outpost - Hazard Evaluation Grounds", checked: false, category: "Evaluation" },
+            { id: "a-9", name: "Nexus - High-Risk Operations Center", checked: false, category: "High-Risk" },
+            { id: "a-10", name: "Bastion - Vulnerability Assessment Zone", checked: false, category: "Assessment" },
+            { id: "a-11", name: "Beacon - Warning Response Area", checked: false, category: "Warning" },
+            { id: "a-12", name: "Pinnacle - Alert Management Zone", checked: false, category: "Alert" },
+            { id: "a-13", name: "Horizon - Unsafe Assessment Grounds", checked: false, category: "Grounds" },
+            { id: "a-14", name: "Elysium - Threat Monitoring Area", checked: false, category: "Monitoring" },
+            { id: "a-15", name: "Apex - Risk Evaluation Zone", checked: false, category: "Risk" },
+            { id: "a-16", name: "Citadel - Dangerous Territory Hub", checked: false, category: "Territory" },
+            { id: "a-17", name: "Crisis Point - Emergency Zone", checked: false, category: "Emergency" },
+            { id: "a-18", name: "Peril Point - Risk Assessment Zone", checked: false, category: "Assessment" },
+            { id: "a-19", name: "Hazard Haven - Safety Zone", checked: false, category: "Safety" },
+            { id: "a-20", name: "Unsafe Haven - Risk Management Zone", checked: false, category: "Management" },
+            { id: "a-21", name: "Alpha Base - Danger Zone", checked: false, category: "Base" },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  const [collapsedAddressGroups, setCollapsedAddressGroups] = useState<Record<string, boolean>>({});
+
+  const isAddressAllChecked = useMemo(() => {
+    return addressData.every((g) =>
+      g.subgroups.every((s) => s.addresses.every((item) => item.checked)),
+    );
+  }, [addressData]);
+
+  const toggleAllAddresses = (checked: boolean) => {
+    setAddressData((prev) =>
+      prev.map((g) => ({
+        ...g,
+        subgroups: g.subgroups.map((s) => ({
+          ...s,
+          addresses: s.addresses.map((item) => ({ ...item, checked })),
+        })),
+      })),
+    );
+  };
+
+  // Dynamic Geofence Dataset state (1:1 with reference screenshot media_1791282117663.png)
+  const [geofenceData, setGeofenceData] = useState([
+    {
+      group: "Ha Company",
+      checked: true,
+      subgroups: [
+        {
+          name: "Ha Company Geofences",
+          checked: true,
+          geofences: [
+            { id: "g-1", name: "HS - Bank", checked: true, category: "Financial / Bank", type: "Polygon Zone" },
+            { id: "g-2", name: "Zin - AI Studio", checked: true, category: "Tech Hub", type: "Circular Zone" },
+            { id: "g-3", name: "Vortex - Safety Operations Hub", checked: true, category: "Safety Operations", type: "Polygon Zone" },
+            { id: "g-4", name: "Aegis - Security Assessment Area", checked: true, category: "Security Area", type: "Polygon Zone" },
+            { id: "g-5", name: "Sentinel - Emergency Response Zone", checked: true, category: "Emergency Response", type: "Circular Zone" },
+            { id: "g-6", name: "Fortress - Threat Analysis Division", checked: false, category: "Threat Analysis", type: "Polygon Zone" },
+            { id: "g-7", name: "Haven - Cautionary Measures Facility", checked: false, category: "Cautionary Facility", type: "Circular Zone" },
+            { id: "g-8", name: "Outpost - Hazard Evaluation Grounds", checked: false, category: "Hazard Evaluation", type: "Polygon Zone" },
+            { id: "g-9", name: "Nexus - High-Risk Operations Center", checked: false, category: "Operations Center", type: "Polygon Zone" },
+            { id: "g-10", name: "Bastion - Vulnerability Assessment Zone", checked: false, category: "Vulnerability Zone", type: "Circular Zone" },
+            { id: "g-11", name: "Beacon - Warning Response Area", checked: false, category: "Warning Response", type: "Polygon Zone" },
+            { id: "g-12", name: "Pinnacle - Alert Management Zone", checked: false, category: "Alert Management", type: "Circular Zone" },
+            { id: "g-13", name: "Horizon - Unsafe Assessment Grounds", checked: false, category: "Assessment Grounds", type: "Polygon Zone" },
+            { id: "g-14", name: "Elysium - Threat Monitoring Area", checked: false, category: "Threat Monitoring", type: "Polygon Zone" },
+            { id: "g-15", name: "Apex - Risk Evaluation Zone", checked: false, category: "Risk Evaluation", type: "Circular Zone" },
+            { id: "g-16", name: "Citadel - Dangerous Territory Hub", checked: false, category: "Dangerous Hub", type: "Polygon Zone" },
+            { id: "g-17", name: "Crisis Point - Emergency Zone", checked: false, category: "Emergency Zone", type: "Circular Zone" },
+            { id: "g-18", name: "Peril Point - Risk Assessment Zone", checked: false, category: "Risk Assessment", type: "Polygon Zone" },
+            { id: "g-19", name: "Hazard Haven - Safety Zone", checked: false, category: "Safety Zone", type: "Polygon Zone" },
+            { id: "g-20", name: "Unsafe Haven - Risk Management Zone", checked: false, category: "Risk Management", type: "Circular Zone" },
+            { id: "g-21", name: "Alpha Base - Danger Zone", checked: false, category: "Danger Zone", type: "Polygon Zone" },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  const [collapsedGeofenceGroups, setCollapsedGeofenceGroups] = useState<Record<string, boolean>>({});
+
+  const isGeofenceAllChecked = useMemo(() => {
+    return geofenceData.every((g) =>
+      g.subgroups.every((s) => s.geofences.every((item) => item.checked)),
+    );
+  }, [geofenceData]);
+
+  const toggleAllGeofences = (checked: boolean) => {
+    setGeofenceData((prev) =>
+      prev.map((g) => ({
+        ...g,
+        subgroups: g.subgroups.map((s) => ({
+          ...s,
+          geofences: s.geofences.map((item) => ({ ...item, checked })),
+        })),
+      })),
+    );
+  };
+
   // Local vehicles state
   const [localVehicles, setLocalVehicles] = useState<FleetObject[]>(vehicles);
   useEffect(() => {
@@ -689,6 +821,41 @@ export function FleetExplorerPanel({
   const [activeFilterCategory, setActiveFilterCategory] = useState<string>("Group(s)");
   const [selectedGroups, setSelectedGroups] = useState<string[]>(["All"]);
   const [tempSelectedGroups, setTempSelectedGroups] = useState<string[]>([]);
+
+  const ALL_ADDRESS_CATEGORIES = [
+    "Airport",
+    "ATM",
+    "Bank",
+    "Bus Stop",
+    "Collection Address",
+    "Construction Site",
+    "Customer Address",
+    "Embassy",
+    "Financial / Bank",
+    "Ground",
+    "Logistics Hub",
+    "Safety Zone",
+    "Tech Hub",
+    "Warehouse / Plant",
+  ];
+
+  const [selectedAddressCategories, setSelectedAddressCategories] = useState<string[]>([
+    "Airport",
+    "ATM",
+    "Bank",
+    "Bus Stop",
+    "Collection Address",
+    "Construction Site",
+    "Customer Address",
+    "Embassy",
+    "Financial / Bank",
+    "Ground",
+    "Logistics Hub",
+    "Safety Zone",
+    "Tech Hub",
+    "Warehouse / Plant",
+  ]);
+  const [addressCategorySearch, setAddressCategorySearch] = useState("");
 
   // Sync draft filter when filter popover opens
   useEffect(() => {
@@ -861,27 +1028,15 @@ export function FleetExplorerPanel({
               <button
                 type="button"
                 onClick={() => setSelectedJobDetail(null)}
-                className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-[#0089FF] dark:hover:text-[#0089FF] text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95 py-1 px-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
-                title="Back to Explorer List"
+                className="flex items-center gap-1.5 text-slate-800 dark:text-slate-100 hover:text-[#0089FF] dark:hover:text-[#0089FF] text-xs font-extrabold transition-all cursor-pointer shrink-0 active:scale-95 py-1 uppercase tracking-wide"
+                title="Back to Jobs List"
               >
-                <ChevronLeft className="h-4 w-4 stroke-[2.5] text-[#0089FF]" />
-                <span className="font-mono text-xs font-extrabold text-[#0089FF]">{selectedJobDetail.code}</span>
-                <span className="truncate max-w-[180px] font-bold text-slate-900 dark:text-slate-100">{selectedJobDetail.title}</span>
+                <ChevronLeft className="h-4 w-4 stroke-[2.5] text-slate-600 dark:text-slate-400" />
+                <span>{selectedJobDetail.object || "TEST SCM OBJECT"}</span>
               </button>
 
-              <span
-                className={cn(
-                  "text-[10px] font-extrabold px-2 py-0.5 rounded-full border leading-none shrink-0",
-                  selectedJobDetail.statusType === "running"
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
-                    : selectedJobDetail.statusType === "completed"
-                      ? "bg-sky-50 text-[#0089FF] border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800"
-                      : selectedJobDetail.statusType === "fail"
-                        ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800"
-                        : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
-                )}
-              >
-                {selectedJobDetail.status}
+              <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border leading-none shrink-0 bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+                Running since . 8 hrs 22 min
               </span>
             </div>
 
@@ -917,7 +1072,6 @@ export function FleetExplorerPanel({
               { id: "driver", label: "Driver", icon: User },
               { id: "address", label: "Address", icon: MapPin },
               { id: "geofence", label: "Geofence", icon: Shield },
-              { id: "health", label: "Health Score", icon: ShieldCheck },
               { id: "trailer", label: "Trailer", icon: Truck },
               { id: "beacon", label: "Beacon", icon: Radio },
               { id: "video_telematics", label: "Video Telematics", icon: Video },
@@ -1023,7 +1177,7 @@ export function FleetExplorerPanel({
       )}
 
       {/* 2. Segmented Status KPI Counter Bars */}
-      {activeTab === "jobs" ? (
+      {(activeTab === "jobs" && !selectedJobDetail) ? (
         <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0">
           <div className="grid grid-cols-5 gap-1.5">
             {/* Running */}
@@ -1463,6 +1617,110 @@ export function FleetExplorerPanel({
             </button>
           </div>
         </div>
+      ) : (activeTab === "jobs" && !selectedJobDetail) ? (
+        <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div className="grid grid-cols-5 gap-1.5">
+            {/* Running */}
+            <button
+              type="button"
+              onClick={() => setActiveJobStatus(activeJobStatus === "running" ? "all" : "running")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "running"
+                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
+                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "running" ? "bg-white animate-pulse" : "bg-emerald-500")} />
+                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.running}</span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "running" ? "text-emerald-100" : "text-emerald-700/80 dark:text-emerald-400/80")}>
+                Running
+              </span>
+            </button>
+
+            {/* Completed */}
+            <button
+              type="button"
+              onClick={() => setActiveJobStatus(activeJobStatus === "completed" ? "all" : "completed")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "completed"
+                  ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/25 font-bold scale-[1.02]"
+                  : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-sky-800 dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "completed" ? "bg-white" : "bg-[#0089FF]")} />
+                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.completed}</span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "completed" ? "text-sky-100" : "text-sky-700/80 dark:text-sky-400/80")}>
+                Completed
+              </span>
+            </button>
+
+            {/* Upcoming */}
+            <button
+              type="button"
+              onClick={() => setActiveJobStatus(activeJobStatus === "upcoming" ? "all" : "upcoming")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "upcoming"
+                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
+                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "upcoming" ? "bg-white" : "bg-amber-500")} />
+                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.upcoming}</span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "upcoming" ? "text-amber-100" : "text-amber-700/80 dark:text-amber-400/80")}>
+                Upcoming
+              </span>
+            </button>
+
+            {/* Fail */}
+            <button
+              type="button"
+              onClick={() => setActiveJobStatus(activeJobStatus === "fail" ? "all" : "fail")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "fail"
+                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
+                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "fail" ? "bg-white" : "bg-rose-500")} />
+                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.fail}</span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "fail" ? "text-rose-100" : "text-rose-700/80 dark:text-rose-400/80")}>
+                Fail
+              </span>
+            </button>
+
+            {/* Total */}
+            <button
+              type="button"
+              onClick={() => setActiveJobStatus("all")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeJobStatus === "all"
+                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
+                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "all" ? "bg-white" : "bg-slate-400")} />
+                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.total}</span>
+              </div>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "all" ? "text-slate-200" : "text-slate-600 dark:text-slate-400")}>
+                Total
+              </span>
+            </button>
+          </div>
+        </div>
       ) : activeTab === "object" ? (
         <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0">
           <div className="grid grid-cols-6 gap-1.5">
@@ -1611,15 +1869,35 @@ export function FleetExplorerPanel({
       ) : null}
 
       {/* 3. Search & Action Toolbar */}
-      {activeTab !== "health" && (
+      {activeTab !== "health" && !(activeTab === "jobs" && selectedJobDetail) && (
         <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 p-2 bg-white dark:bg-slate-900 shrink-0">
         {/* Select All Checkbox (Hidden on Health, Driver, and Jobs tabs) */}
         {activeTab !== "health" && activeTab !== "driver" && activeTab !== "jobs" && (
           <input
             type="checkbox"
-            checked={allChecked}
-            onChange={onToggleCheckAll}
-            title="Select / Deselect all vehicles on map"
+            checked={
+              activeTab === "geofence"
+                ? isGeofenceAllChecked
+                : activeTab === "address"
+                ? isAddressAllChecked
+                : allChecked
+            }
+            onChange={(e) => {
+              if (activeTab === "geofence") {
+                toggleAllGeofences(e.target.checked);
+              } else if (activeTab === "address") {
+                toggleAllAddresses(e.target.checked);
+              } else if (onToggleCheckAll) {
+                onToggleCheckAll(e);
+              }
+            }}
+            title={
+              activeTab === "geofence"
+                ? "Select / Deselect all geofences on map"
+                : activeTab === "address"
+                ? "Select / Deselect all addresses on map"
+                : "Select / Deselect all vehicles on map"
+            }
             className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0 ml-0.5"
           />
         )}
@@ -1630,7 +1908,13 @@ export function FleetExplorerPanel({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by IMEI, VIN, Registration, Object Model, SIM Number, etc."
+            placeholder={
+              activeTab === "geofence"
+                ? "Search by Geofence Name, Zone, Group, etc."
+                : activeTab === "address"
+                ? "Search by Address Name, Category, Group, etc."
+                : "Search by IMEI, VIN, Registration, Object Model, SIM Number, etc."
+            }
             className="h-8 w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-950/40 pl-3 pr-8 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#0089FF] focus:bg-white dark:focus:bg-slate-900 transition-colors"
           />
           {query ? (
@@ -1655,7 +1939,15 @@ export function FleetExplorerPanel({
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  onClick={handleReload}
+                  onClick={() => {
+                    if (activeTab === "geofence") {
+                      toast.success("Geofences reloaded successfully");
+                    } else if (activeTab === "address") {
+                      toast.success("Addresses reloaded successfully");
+                    } else {
+                      handleReload();
+                    }
+                  }}
                   className={cn(
                     "group relative h-8 w-8 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/50 transition-all duration-300 shadow-2xs cursor-pointer active:scale-90 toolbar-action-btn overflow-hidden",
                     isRefreshing && "bg-sky-50 dark:bg-sky-950/70 text-[#0089FF] border-[#0089FF] shadow-[0_0_12px_rgba(0,137,255,0.35)]",
@@ -1675,12 +1967,12 @@ export function FleetExplorerPanel({
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="font-semibold text-xs bg-slate-900 text-white border-slate-800">
-                Refresh Live Telemetry
+                {activeTab === "geofence" ? "Reload / Refresh Geofence List" : activeTab === "address" ? "Reload / Refresh Address List" : "Refresh Live Telemetry"}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
-          {/* 2. Add Object Button (Hidden on Driver and Jobs tabs) */}
+          {/* 2. Add Object / Add Address / Add Geofence Button (Hidden on Driver and Jobs tabs) */}
           {activeTab !== "driver" && activeTab !== "jobs" && (
             <TooltipProvider delayDuration={150}>
               <Tooltip>
@@ -1688,39 +1980,193 @@ export function FleetExplorerPanel({
                   <button
                     type="button"
                     onClick={() => {
-                      if (onOpenAddVehicle) onOpenAddVehicle();
+                      if (activeTab === "geofence") {
+                        toast.info("Opening Add Geofence modal...");
+                      } else if (activeTab === "address") {
+                        if (onOpenAddAddress) onOpenAddAddress();
+                        else toast.info("Opening Add Address modal...");
+                      } else if (onOpenAddVehicle) {
+                        onOpenAddVehicle();
+                      }
                     }}
                     className="h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
                   >
                     <PlusCircle className="h-3.5 w-3.5 stroke-[2.2]" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>Add New Object Page</TooltipContent>
+                <TooltipContent side="bottom" className="font-semibold text-xs bg-slate-900 text-white border-slate-800">
+                  {activeTab === "geofence" ? "Add Geofence" : activeTab === "address" ? "Add Address" : "Add New Object Page"}
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
 
-          {/* 3. Filter Popover (2-Tier Cascading Flyout Menu matching media_1789991076156.png & Report Overlay media_1789989587865.png) */}
+          {/* 3. Upload Address Button (Address Tab) */}
+          {activeTab === "address" && (
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onOpenUploadAddress) onOpenUploadAddress();
+                      else toast.info("Opening Upload Address (CSV/XLS)...");
+                    }}
+                    className="h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
+                  >
+                    <Upload className="h-3.5 w-3.5 stroke-[2.2]" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="font-semibold text-xs bg-slate-900 text-white border-slate-800">
+                  Upload Address
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          {/* 4. Filter Popover (2-Tier Cascading Flyout Menu matching media_1789991076156.png & Report Overlay media_1789989587865.png) */}
           <Popover open={filterOpen} onOpenChange={setFilterOpen}>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className={cn(
-                  "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
-                  filterOpen
-                    ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
-                    : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
-                )}
-              >
-                <Filter className="h-3.5 w-3.5 stroke-[2.2]" />
-              </button>
-            </PopoverTrigger>
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(
+                        "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
+                        filterOpen
+                          ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
+                          : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
+                      )}
+                    >
+                      <Filter className="h-3.5 w-3.5 stroke-[2.2]" />
+                    </button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="font-semibold text-xs bg-slate-900 text-white border-slate-800">
+                  {activeTab === "geofence" ? "Geofence Filter" : activeTab === "address" ? "Filter Address" : "Filter Options"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <PopoverContent
               align="end"
               sideOffset={6}
               className="w-auto p-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl text-xs z-50 select-none overflow-hidden"
             >
-              <div className="flex divide-x divide-[#DFE3EB] dark:divide-slate-800">
+              {activeTab === "address" ? (
+                <div className="w-72 p-3.5 bg-white dark:bg-slate-900 flex flex-col gap-3 shrink-0">
+                  {/* Header Title & Selected Count Badge */}
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                    <span className="font-bold text-slate-900 dark:text-slate-100 text-xs">
+                      Select Address
+                    </span>
+                    <span className="text-[10px] font-bold text-[#0089FF] bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 px-2 py-0.5 rounded-full">
+                      {selectedAddressCategories.length} selected
+                    </span>
+                  </div>
+
+                  {/* Search Input Bar */}
+                  <div className="relative flex items-center">
+                    <Search className="h-3.5 w-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={addressCategorySearch}
+                      onChange={(e) => setAddressCategorySearch(e.target.value)}
+                      placeholder="Search categories..."
+                      className="w-full h-8 pl-8 pr-3 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#0089FF]"
+                    />
+                    {addressCategorySearch && (
+                      <button
+                        type="button"
+                        onClick={() => setAddressCategorySearch("")}
+                        className="absolute right-2 p-0.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Scrollable Checkboxes List */}
+                  <div className="space-y-0.5 max-h-56 overflow-y-auto custom-scrollbar pr-1">
+                    {/* Select All Checkbox */}
+                    <label className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer text-slate-800 dark:text-slate-200 text-xs font-semibold select-none">
+                      <input
+                        type="checkbox"
+                        checked={selectedAddressCategories.length === ALL_ADDRESS_CATEGORIES.length}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedAddressCategories([...ALL_ADDRESS_CATEGORIES]);
+                          } else {
+                            setSelectedAddressCategories([]);
+                          }
+                        }}
+                        className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                      />
+                      <span>Select All</span>
+                    </label>
+
+                    <div className="border-t border-slate-200/80 dark:border-slate-800 my-1" />
+
+                    {/* Filtered Category Checkboxes */}
+                    {ALL_ADDRESS_CATEGORIES
+                      .filter((cat) => cat.toLowerCase().includes(addressCategorySearch.toLowerCase()))
+                      .map((cat) => {
+                        const isChecked = selectedAddressCategories.includes(cat);
+                        return (
+                          <label
+                            key={cat}
+                            className={cn(
+                              "flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer text-xs select-none transition-colors",
+                              isChecked
+                                ? "text-[#0089FF] font-semibold bg-sky-50/60 dark:bg-sky-950/40"
+                                : "text-slate-700 dark:text-slate-300"
+                            )}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedAddressCategories((prev) => [...prev, cat]);
+                                } else {
+                                  setSelectedAddressCategories((prev) => prev.filter((c) => c !== cat));
+                                }
+                              }}
+                              className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                            />
+                            <span>{cat}</span>
+                          </label>
+                        );
+                      })}
+                  </div>
+
+                  {/* Footer Action Buttons Bar: Save & Reset */}
+                  <div className="flex items-center justify-between pt-2.5 border-t border-slate-200 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedAddressCategories([...ALL_ADDRESS_CATEGORIES]);
+                        toast.info("Reset address category filter");
+                      }}
+                      className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl transition-all cursor-pointer"
+                    >
+                      Reset
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFilterOpen(false);
+                        toast.success(`Address filter updated (${selectedAddressCategories.length} categories)`);
+                      }}
+                      className="px-4 py-1.5 text-xs font-bold text-white bg-[#0089FF] hover:bg-[#0070d6] rounded-xl shadow-md shadow-[#0089FF]/20 transition-all cursor-pointer active:scale-95"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex divide-x divide-[#DFE3EB] dark:divide-slate-800">
                 {/* Primary Category List (Left Panel) */}
                 <div className="w-48 p-2 space-y-0.5 bg-slate-50/70 dark:bg-slate-950/60 shrink-0">
                   {[
@@ -1900,7 +2346,8 @@ export function FleetExplorerPanel({
                   </div>
                 </div>
               </div>
-            </PopoverContent>
+            )}
+          </PopoverContent>
           </Popover>
 
           {/* 4. Calendar Action (Jobs Tab) / Sorting Popover (Object Tab) */}
@@ -1921,21 +2368,30 @@ export function FleetExplorerPanel({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          ) : activeTab !== "driver" && (
+          ) : activeTab !== "driver" && activeTab !== "address" && (
             <Popover open={sortOpen} onOpenChange={setSortOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
-                    sortOpen
-                      ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
-                      : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
-                  )}
-                >
-                  <ArrowUpDown className="h-3.5 w-3.5 stroke-[2.2]" />
-                </button>
-              </PopoverTrigger>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className={cn(
+                          "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
+                          sortOpen
+                            ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
+                            : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
+                        )}
+                      >
+                        <ArrowUpDown className="h-3.5 w-3.5 stroke-[2.2]" />
+                      </button>
+                    </PopoverTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="font-semibold text-xs bg-slate-900 text-white border-slate-800">
+                    {activeTab === "geofence" ? "Sorting" : "Sorting / Order"}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             <PopoverContent
               align="end"
               sideOffset={6}
@@ -2394,485 +2850,588 @@ export function FleetExplorerPanel({
           </div>
         )}
 
-        {/* Reference-Matched Job Tab View (1:1 with media_1790838640694.png & media_1790838732991.png) */}
+        {/* Reference-Matched Job Tab View (1:1 with media_1791178558557.png & 3D Page Flip Animation) */}
         {activeTab === "jobs" && (
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-            {/* Sleek Sub-KPI Summary Bar (Visited: 32, Upcoming: 47, Missed: 17, Total: 96) */}
-            <div className="shrink-0 px-3 py-1.5 bg-slate-100/80 dark:bg-slate-900/60 border-b border-slate-200/70 dark:border-slate-800/70 flex items-center justify-between text-xs select-none">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-emerald-600 dark:text-emerald-400">32</span>
-                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Visited</span>
+          <div className="flex-1 min-h-0 relative [perspective:1200px] bg-white dark:bg-slate-900 overflow-hidden">
+            <div
+              className={cn(
+                "w-full h-full relative transition-transform duration-700 ease-in-out [transform-style:preserve-3d]",
+                selectedJobDetail ? "[transform:rotateY(-180deg)]" : "[transform:rotateY(0deg)]"
+              )}
+            >
+              {/* FRONT FACE: Default Jobs List View */}
+              <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden]">
+                {/* Jobs Tree List */}
+                <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-200/60 dark:divide-slate-800/60 select-none">
+                  {jobData.map((group) => {
+                    const isBranchCollapsed = collapsedJobBranches[group.branch];
+
+                    const filteredSubgroups = group.subgroups
+                      .map((sub) => {
+                        const filteredJobs = sub.jobs.filter((j) => {
+                          let matchesStatus = true;
+                          if (activeJobStatus === "running") matchesStatus = j.statusType === "running";
+                          else if (activeJobStatus === "completed") matchesStatus = j.statusType === "completed";
+                          else if (activeJobStatus === "upcoming") matchesStatus = j.statusType === "upcoming";
+                          else if (activeJobStatus === "fail") matchesStatus = j.statusType === "fail";
+
+                          const q = query.trim().toLowerCase();
+                          const matchesQuery =
+                            q === "" ||
+                            j.code.toLowerCase().includes(q) ||
+                            j.title.toLowerCase().includes(q) ||
+                            j.object.toLowerCase().includes(q) ||
+                            j.rep.toLowerCase().includes(q);
+
+                          return matchesStatus && matchesQuery;
+                        });
+
+                        return { ...sub, jobs: filteredJobs };
+                      })
+                      .filter((sub) => sub.jobs.length > 0);
+
+                    if (filteredSubgroups.length === 0) return null;
+
+                    const branchTotalCount = filteredSubgroups.reduce(
+                      (acc, sub) => acc + sub.jobs.length,
+                      0,
+                    );
+
+                    return (
+                      <div key={group.branch}>
+                        {/* Level 1: Branch Header with Chevron Expand/Collapse */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCollapsedJobBranches((prev) => ({
+                              ...prev,
+                              [group.branch]: !prev[group.branch],
+                            }))
+                          }
+                          className="w-full flex items-center justify-between px-3 py-1.5 bg-slate-200/80 dark:bg-slate-800/80 border-b border-slate-300/60 dark:border-slate-700/60 text-xs font-extrabold text-slate-800 dark:text-slate-200 hover:bg-slate-300/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer text-left"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <ChevronDown
+                              className={cn(
+                                "h-3.5 w-3.5 text-slate-600 dark:text-slate-300 transition-transform duration-200",
+                                isBranchCollapsed && "-rotate-90",
+                              )}
+                            />
+                            <span>{group.branch}</span>
+                          </div>
+                          <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400">
+                            [{branchTotalCount}]
+                          </span>
+                        </button>
+
+                        {/* Level 2: Subgroups */}
+                        {!isBranchCollapsed &&
+                          filteredSubgroups.map((sub) => {
+                            const isSubCollapsed = collapsedJobSubgroups[sub.name];
+
+                            return (
+                              <div key={sub.name}>
+                                {/* Subgroup Header with Chevron Expand/Collapse */}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCollapsedJobSubgroups((prev) => ({
+                                      ...prev,
+                                      [sub.name]: !prev[sub.name],
+                                    }))
+                                  }
+                                  className="w-full flex items-center justify-between px-4 py-1.5 bg-slate-100/70 dark:bg-slate-900/60 border-b border-slate-200/50 dark:border-slate-800/50 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer text-left"
+                                >
+                                  <div className="flex items-center gap-1.5">
+                                    <ChevronDown
+                                      className={cn(
+                                        "h-3 w-3 text-slate-500 transition-transform duration-200",
+                                        isSubCollapsed && "-rotate-90",
+                                      )}
+                                    />
+                                    <span>{sub.name}</span>
+                                  </div>
+                                  <span className="text-[10px] font-mono text-slate-500">
+                                    [{sub.jobs.length}]
+                                  </span>
+                                </button>
+
+                                {/* Job Item Rows - Matching Reference Image media_1791178558557.png 1:1 */}
+                                {!isSubCollapsed && (
+                                  <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    {sub.jobs.map((job) => {
+                                      const matchedVehicle = vehicles.find(
+                                        (v) =>
+                                          v.name.toLowerCase() === job.object.toLowerCase() ||
+                                          v.name.toLowerCase().includes(job.object.toLowerCase()) ||
+                                          job.object.toLowerCase().includes(v.name.toLowerCase())
+                                      ) || vehicles[0];
+
+                                      return (
+                                        <div
+                                          key={job.id}
+                                          className="mx-2 my-2 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs overflow-hidden select-none transition-all"
+                                        >
+                                          {/* LINE 1: JOB INFORMATION */}
+                                          <div
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setSelectedJobDetail(null);
+                                              if (onOpenTelemetry && matchedVehicle) {
+                                                onOpenTelemetry(matchedVehicle, false, {
+                                                  id: job.id,
+                                                  code: job.code,
+                                                  title: job.title,
+                                                  status: job.status,
+                                                  shipmentNo: `SHP-${job.code.replace("#", "")}-A`,
+                                                  invoiceNo: "INV-99201",
+                                                  consigneeNo: "CNS-10482",
+                                                  quantity: `${job.quantity || 120} Units`,
+                                                  product: "Test SCM Material",
+                                                  isObjectHalt: false,
+                                                });
+                                              }
+                                            }}
+                                            className="px-3 py-2 bg-slate-50/90 dark:bg-slate-800/60 border-b border-slate-200/70 dark:border-slate-800/60 flex items-center justify-between gap-2 cursor-pointer hover:bg-sky-50/60 dark:hover:bg-sky-950/30 transition-colors group/job"
+                                          >
+                                            {/* Left: Job Title, Code & Status */}
+                                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                                              <span className="font-semibold text-xs text-slate-900 dark:text-slate-100 truncate">
+                                                {job.title}
+                                              </span>
+                                              <span className="font-mono text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
+                                                {job.code}
+                                              </span>
+                                              <span
+                                                className={cn(
+                                                  "text-[10px] font-extrabold px-2 py-0.5 rounded-md border leading-none shrink-0",
+                                                  job.status.toLowerCase().includes("completed")
+                                                    ? "bg-sky-50 text-[#0089FF] border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800"
+                                                    : job.statusType === "running"
+                                                      ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+                                                      : job.statusType === "fail"
+                                                        ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800"
+                                                        : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
+                                                )}
+                                              >
+                                                {job.status}
+                                              </span>
+                                            </div>
+
+                                            {/* Right: Representative Popover & Actions */}
+                                            <div className="flex items-center gap-2 shrink-0">
+                                              <Popover>
+                                                <PopoverTrigger asChild>
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="flex items-center gap-1 px-1 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer text-slate-700 dark:text-slate-300"
+                                                    title={`Click to view ${job.representatives?.length || job.repCount || 1} assigned representatives`}
+                                                  >
+                                                    <User
+                                                      className="h-3.5 w-3.5 stroke-[2.2] text-emerald-600 dark:text-emerald-400 shrink-0"
+                                                    />
+                                                    <span className="text-[11px] font-extrabold font-mono text-slate-700 dark:text-slate-300">
+                                                      {job.representatives?.length || job.repCount || 1}
+                                                    </span>
+                                                  </button>
+                                                </PopoverTrigger>
+                                                <PopoverContent
+                                                  align="end"
+                                                  side="bottom"
+                                                  sideOffset={6}
+                                                  className="w-56 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-xl text-xs select-none z-50 animate-in fade-in-50 zoom-in-95"
+                                                >
+                                                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-1.5 px-1 mb-1.5">
+                                                    <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                                                      <User className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
+                                                      <span>Representative</span>
+                                                    </div>
+                                                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800">
+                                                      [{job.representatives?.length || job.repCount || 1}]
+                                                    </span>
+                                                  </div>
+                                                  <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar">
+                                                    {(job.representatives || [{ name: job.rep, phone: "+91 98765 43210" }]).map((repObj, idx) => {
+                                                      const repName = typeof repObj === "string" ? repObj : repObj.name;
+                                                      const repPhone = typeof repObj === "string" ? "+91 98765 43210" : repObj.phone;
+                                                      const initials = repName
+                                                        .split(" ")
+                                                        .map((n) => n[0])
+                                                        .join("");
+
+                                                      return (
+                                                        <div
+                                                          key={idx}
+                                                          className="flex items-center gap-2 px-1 py-1.5 rounded-md hover:bg-slate-100/70 dark:hover:bg-slate-800/50 transition-colors"
+                                                        >
+                                                          <div className="h-7 w-7 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center shrink-0 font-extrabold text-xs">
+                                                            {initials}
+                                                          </div>
+                                                          <div className="flex flex-col min-w-0 flex-1">
+                                                            <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate leading-tight">
+                                                              {repName}
+                                                            </span>
+                                                            <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 font-mono font-medium truncate leading-none mt-0.5">
+                                                              <Phone className="h-3 w-3 text-emerald-600 dark:text-emerald-400 stroke-[2] shrink-0" />
+                                                              <span className="truncate">{repPhone}</span>
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                      );
+                                                    })}
+                                                  </div>
+                                                </PopoverContent>
+                                              </Popover>
+
+                                              <div className="flex items-center gap-1 text-slate-400">
+                                                <button
+                                                  type="button"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toast.info(`Configuring route for ${job.code}`);
+                                                  }}
+                                                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer hover:text-slate-700 dark:hover:text-slate-200"
+                                                  title="Job Route & Configuration"
+                                                >
+                                                  <SlidersHorizontal className="h-3.5 w-3.5 stroke-[2]" />
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toast.success(`Attachment downloaded for ${job.code}`);
+                                                  }}
+                                                  className="p-1 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400"
+                                                  title="Download Attachment Document"
+                                                >
+                                                  <Paperclip className="h-3.5 w-3.5 stroke-[2]" />
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toast.success(`Job ${job.code} link copied to clipboard!`);
+                                                  }}
+                                                  className="p-1 hover:bg-purple-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer hover:text-purple-600 dark:hover:text-purple-400"
+                                                  title="Share Job"
+                                                >
+                                                  <Share2 className="h-3.5 w-3.5 stroke-[2]" />
+                                                </button>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          {/* Light Inset Separator Line (10px Left & Right Margin) */}
+                                          
+
+                                          {/* LINE 2: VEHICLE & OBJECT INFORMATION */}
+                                          <div
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setSelectedJobDetail({
+                                                id: job.id,
+                                                code: job.code,
+                                                title: job.title,
+                                                object: job.object,
+                                                status: job.status,
+                                              });
+                                              if (onOpenTelemetry && matchedVehicle) {
+                                                onOpenTelemetry(matchedVehicle, false, {
+                                                  id: job.id,
+                                                  code: job.code,
+                                                  title: job.title,
+                                                  object: job.object,
+                                                  isObjectHalt: true,
+                                                  qrCode: "QR-8849201",
+                                                  itemQuantity: `${job.quantity || 120} Pcs`,
+                                                  weight: job.weight || "2.4 Ton",
+                                                  load: "92% Capacity",
+                                                  permissibleHalt: "02:00:00",
+                                                  actualHalt: "03:45:12",
+                                                });
+                                              } else if (matchedVehicle) {
+                                                onSelectVehicle(matchedVehicle.id);
+                                              }
+                                            }}
+                                            className="px-3 py-2 flex items-center justify-between gap-2 cursor-pointer group/veh hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 transition-colors"
+                                            title={`Click to view object checkpoints and halt details for ${job.object}`}
+                                          >
+                                            {/* Left: Vehicle Dot, Name & Object State */}
+                                            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                              <span className="h-2 w-2 rounded-full shrink-0 bg-emerald-500 ring-2 ring-emerald-500/20" />
+                                              <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 group-hover/veh:text-[#0089FF] dark:group-hover/veh:text-sky-400 transition-colors truncate">
+                                                {job.object}
+                                              </span>
+                                              <span
+                                                className={cn(
+                                                  "text-[9.5px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0",
+                                                  job.objectState === "Loaded"
+                                                    ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60"
+                                                    : job.objectState === "Unloaded"
+                                                      ? "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/60"
+                                                      : "text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/60"
+                                                )}
+                                              >
+                                                {job.objectState || "Unloaded"}
+                                              </span>
+                                            </div>
+
+                                            {/* Right: Quantity, Weight, Violation, Convoy Icons Pill Container */}
+                                            <div className="flex items-center gap-2 text-xs font-mono font-medium text-slate-600 dark:text-slate-300 shrink-0 select-none">
+                                              <div className="flex items-center gap-1" title="Quantity">
+                                                <Package className="h-3.5 w-3.5 text-slate-400 stroke-[2]" />
+                                                <span className="text-[11px] font-bold">{job.quantity}</span>
+                                              </div>
+                                              <span className="text-slate-300 dark:text-slate-700 font-normal">|</span>
+                                              <div className="flex items-center gap-1" title="Weight">
+                                                <Weight className="h-3.5 w-3.5 text-slate-400 stroke-[2]" />
+                                                <span className="text-[11px] font-bold">{job.weight}</span>
+                                              </div>
+                                              <span className="text-slate-300 dark:text-slate-700 font-normal">|</span>
+                                              <div className="flex items-center gap-1" title="Violations & Alerts">
+                                                <ShieldAlert className={cn("h-3.5 w-3.5 stroke-[2]", job.violation > 0 ? "text-rose-500" : "text-rose-500/80")} />
+                                                <span className={cn("text-[11px] font-bold", job.violation > 0 ? "text-rose-600" : "text-slate-600 dark:text-slate-300")}>
+                                                  {job.violation}
+                                                </span>
+                                              </div>
+                                              <span className="text-slate-300 dark:text-slate-700 font-normal">|</span>
+                                              <div className="flex items-center gap-1" title="Convoy Group">
+                                                <Caravan className="h-3.5 w-3.5 text-slate-400 stroke-[2]" />
+                                                <span className="text-[11px] font-bold">{job.convoy}</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-700" />
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-amber-600 dark:text-amber-400">47</span>
-                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Upcoming</span>
-              </div>
-              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-700" />
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-rose-600 dark:text-rose-400">17</span>
-                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Missed</span>
-              </div>
-              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-700" />
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-slate-800 dark:text-slate-200">96</span>
-                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Total</span>
-              </div>
-            </div>
 
-            {/* Column Icon Header Bar - Perfectly Aligned 1:1 with Data Columns below */}
-            <div className="shrink-0 px-3 py-1.5 bg-slate-200/70 dark:bg-slate-800/70 border-b border-slate-300/60 dark:border-slate-700/60 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 select-none">
-              <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-extrabold flex-1 min-w-0 pr-2">
-                <Briefcase className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-                <span className="truncate">Job</span>
-              </div>
-
-              <div className="flex items-center shrink-0">
-                <div className="w-[48px] flex items-center justify-center shrink-0" title="Representative">
-                  <User className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
-                </div>
-
-                <div className="w-[130px] flex items-center gap-1 shrink-0" title="Object & State">
-                  <Truck className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 shrink-0" />
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">Object & State</span>
-                </div>
-
-                <div className="w-[40px] flex items-center justify-center shrink-0" title="Quantity (Packages/Units)">
-                  <Package className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 stroke-[2.2]" />
-                </div>
-
-                <div className="w-[40px] flex items-center justify-center shrink-0" title="Weight (Tons/kg)">
-                  <Weight className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 stroke-[2.2]" />
-                </div>
-
-                <div className="w-[40px] flex items-center justify-center shrink-0" title="Violations & Alerts">
-                  <ShieldAlert className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 stroke-[2.2]" />
-                </div>
-
-                <div className="w-[42px] flex items-center justify-center shrink-0" title="Convoy Group">
-                  <Caravan className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400 stroke-[2.2]" />
-                </div>
-
-                <div className="w-[125px] flex items-center justify-end shrink-0 gap-1 pr-1" title="Actions (Route, Attachment, Share)">
-                  <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Actions</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Jobs Tree List */}
-            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-200/60 dark:divide-slate-800/60 select-none">
-              {jobData.map((group) => {
-                const isBranchCollapsed = collapsedJobBranches[group.branch];
-
-                const filteredSubgroups = group.subgroups
-                  .map((sub) => {
-                    const filteredJobs = sub.jobs.filter((j) => {
-                      let matchesStatus = true;
-                      if (activeJobStatus === "running") matchesStatus = j.statusType === "running";
-                      else if (activeJobStatus === "completed") matchesStatus = j.statusType === "completed";
-                      else if (activeJobStatus === "upcoming") matchesStatus = j.statusType === "upcoming";
-                      else if (activeJobStatus === "fail") matchesStatus = j.statusType === "fail";
-
-                      const q = query.trim().toLowerCase();
-                      const matchesQuery =
-                        q === "" ||
-                        j.code.toLowerCase().includes(q) ||
-                        j.title.toLowerCase().includes(q) ||
-                        j.object.toLowerCase().includes(q) ||
-                        j.rep.toLowerCase().includes(q);
-
-                      return matchesStatus && matchesQuery;
-                    });
-
-                    return { ...sub, jobs: filteredJobs };
-                  })
-                  .filter((sub) => sub.jobs.length > 0);
-
-                if (filteredSubgroups.length === 0) return null;
-
-                const branchTotalCount = filteredSubgroups.reduce(
-                  (acc, sub) => acc + sub.jobs.length,
-                  0,
-                );
-
-                return (
-                  <div key={group.branch}>
-                    {/* Level 1: Branch Header with Chevron Expand/Collapse */}
+              {/* BACK FACE: Flipped Object Checkpoint Details View (1:1 with media_1791279242339.png) */}
+              <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                {/* 1. Status KPI Pills Summary Bar (Standard Application Component: h-[39.25px] 2-tier Grid Tabs) */}
+                <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0 border-b border-slate-200/60 dark:border-slate-800/60">
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {/* 1 UPCOMING */}
                     <button
                       type="button"
-                      onClick={() =>
-                        setCollapsedJobBranches((prev) => ({
-                          ...prev,
-                          [group.branch]: !prev[group.branch],
-                        }))
-                      }
-                      className="w-full flex items-center justify-between px-3 py-1.5 bg-slate-200/80 dark:bg-slate-800/80 border-b border-slate-300/60 dark:border-slate-700/60 text-xs font-extrabold text-slate-800 dark:text-slate-200 hover:bg-slate-300/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer text-left"
+                      onClick={() => {
+                        setSelectedJobDetail(null);
+                        setActiveJobStatus("upcoming");
+                      }}
+                      className="flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50"
                     >
-                      <div className="flex items-center gap-1.5">
-                        <ChevronDown
-                          className={cn(
-                            "h-3.5 w-3.5 text-slate-600 dark:text-slate-300 transition-transform duration-200",
-                            isBranchCollapsed && "-rotate-90",
-                          )}
-                        />
-                        <span>{group.branch}</span>
+                      <div className="flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                        <span className="text-xs font-black tabular-nums leading-none">1</span>
                       </div>
-                      <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400">
-                        [{branchTotalCount}]
+                      <span className="text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5 text-amber-700/80 dark:text-amber-400/80">
+                        Upcoming
                       </span>
                     </button>
 
-                    {/* Level 2: Subgroups */}
-                    {!isBranchCollapsed &&
-                      filteredSubgroups.map((sub) => {
-                        const isSubCollapsed = collapsedJobSubgroups[sub.name];
+                    {/* 3 RUNNING */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedJobDetail(null);
+                        setActiveJobStatus("running");
+                      }}
+                      className="flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-xs font-black tabular-nums leading-none">3</span>
+                      </div>
+                      <span className="text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5 text-emerald-700/80 dark:text-emerald-400/80">
+                        Running
+                      </span>
+                    </button>
 
-                        return (
-                          <div key={sub.name}>
-                            {/* Subgroup Header with Chevron Expand/Collapse */}
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setCollapsedJobSubgroups((prev) => ({
-                                  ...prev,
-                                  [sub.name]: !prev[sub.name],
-                                }))
-                              }
-                              className="w-full flex items-center justify-between px-4 py-1.5 bg-slate-100/70 dark:bg-slate-900/60 border-b border-slate-200/50 dark:border-slate-800/50 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer text-left"
-                            >
-                              <div className="flex items-center gap-1.5">
-                                <ChevronDown
-                                  className={cn(
-                                    "h-3 w-3 text-slate-500 transition-transform duration-200",
-                                    isSubCollapsed && "-rotate-90",
-                                  )}
-                                />
-                                <span>{sub.name}</span>
-                              </div>
-                              <span className="text-[10px] font-mono text-slate-500">
-                                [{sub.jobs.length}]
-                              </span>
-                            </button>
+                    {/* 1 MISSED */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedJobDetail(null);
+                        setActiveJobStatus("fail");
+                      }}
+                      className="flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                        <span className="text-xs font-black tabular-nums leading-none">1</span>
+                      </div>
+                      <span className="text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5 text-rose-700/80 dark:text-rose-400/80">
+                        Missed
+                      </span>
+                    </button>
 
-                            {/* Job Item Rows - Matching Object Panel Layout & Font Size 1:1 */}
-                            {!isSubCollapsed && (
-                              <div className="divide-y divide-slate-100 dark:divide-slate-800/40">
-                                {sub.jobs.map((job) => {
-                                  const isExpanded = expandedJobIds[job.id];
-
-                                  return (
-                                    <div key={job.id} onClick={() => setSelectedJobDetail({ ...job, checkpoints: getJobCheckpoints(job) })} className="mx-2 my-1.5 p-3 rounded-xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-xs hover:border-[#0089FF]/40 transition-all select-none space-y-2.5 cursor-pointer">
-                                      {/* SECTION 1: JOB INFORMATION */}
-                                      <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80 gap-2">
-                                        {/* Left: Job Code, Title & Status */}
-                                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                                          <span className="text-[9.5px] font-black uppercase px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800/80 shrink-0 tracking-wider">
-                                            JOB
-                                          </span>
-                                          <span className="font-mono text-xs font-bold text-slate-500 shrink-0">
-                                            {job.code}
-                                          </span>
-                                          <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate">
-                                            {job.title}
-                                          </span>
-                                          <span
-                                            className={cn(
-                                              "text-[10px] font-extrabold px-1.5 py-0.5 rounded border leading-none shrink-0",
-                                              job.statusType === "running"
-                                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800"
-                                                : job.statusType === "completed"
-                                                  ? "bg-sky-50 text-[#0089FF] border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800"
-                                                  : job.statusType === "fail"
-                                                    ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800"
-                                                    : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800"
-                                            )}
-                                          >
-                                            {job.status}
-                                          </span>
-                                        </div>
-
-                                        {/* Right: Representative Popover & Actions */}
-                                        <div className="flex items-center gap-1.5 shrink-0">
-                                          {/* Representative Popover Button */}
-                                          <Popover>
-                                            <PopoverTrigger asChild>
-                                              <button
-                                                type="button"
-                                                onClick={(e) => e.stopPropagation()}
-                                                className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700 transition-all cursor-pointer group border border-slate-200/60 dark:border-slate-700/60"
-                                                title={`Click to view ${job.representatives?.length || job.repCount || 1} assigned representatives`}
-                                              >
-                                                <UserCheck
-                                                  className={cn(
-                                                    "h-3.5 w-3.5 stroke-[2.2] shrink-0",
-                                                    job.statusType === "fail"
-                                                      ? "text-rose-600 dark:text-rose-400"
-                                                      : "text-emerald-600 dark:text-emerald-400"
-                                                  )}
-                                                />
-                                                <span className="text-[11px] font-extrabold font-mono text-slate-700 dark:text-slate-300">
-                                                  {job.representatives?.length || job.repCount || 1}
-                                                </span>
-                                              </button>
-                                            </PopoverTrigger>
-                                            <PopoverContent
-                                              align="end"
-                                              side="bottom"
-                                              sideOffset={6}
-                                              className="w-56 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-xl text-xs select-none z-50 animate-in fade-in-50 zoom-in-95"
-                                            >
-                                              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-1.5 px-1 mb-1.5">
-                                                <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-slate-200 text-xs">
-                                                  <UserCheck className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-                                                  <span>Representative</span>
-                                                </div>
-                                                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800">
-                                                  [{job.representatives?.length || job.repCount || 1}]
-                                                </span>
-                                              </div>
-                                              <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar">
-                                                {(job.representatives || [{ name: job.rep, phone: "+91 98765 43210" }]).map((repObj, idx) => {
-                                                  const repName = typeof repObj === "string" ? repObj : repObj.name;
-                                                  const repPhone = typeof repObj === "string" ? "+91 98765 43210" : repObj.phone;
-                                                  const initials = repName
-                                                    .split(" ")
-                                                    .map((n) => n[0])
-                                                    .join("");
-
-                                                  return (
-                                                    <div
-                                                      key={idx}
-                                                      className="flex items-center gap-2 px-1 py-1.5 rounded-md hover:bg-slate-100/70 dark:hover:bg-slate-800/50 transition-colors"
-                                                    >
-                                                      <div className="h-7 w-7 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center shrink-0 font-extrabold text-xs">
-                                                        {initials}
-                                                      </div>
-                                                      <div className="flex flex-col min-w-0 flex-1">
-                                                        <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate leading-tight">
-                                                          {repName}
-                                                        </span>
-                                                        <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 font-mono font-medium truncate leading-none mt-0.5">
-                                                          <Phone className="h-3 w-3 text-emerald-600 dark:text-emerald-400 stroke-[2] shrink-0" />
-                                                          <span className="truncate">{repPhone}</span>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  );
-                                                })}
-                                              </div>
-                                            </PopoverContent>
-                                          </Popover>
-
-                                          {/* Actions (Route, Attachment, Share) */}
-                                          <div className="flex items-center gap-1 pl-1 border-l border-slate-200 dark:border-slate-800">
-                                            <button
-                                              type="button"
-                                              onClick={() => toast.info(`Viewing route info for ${job.code} (${job.route})`)}
-                                              className="p-1 hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer text-slate-500 hover:text-[#0089FF] dark:hover:text-sky-400"
-                                              title={`Route Info: ${job.route}`}
-                                            >
-                                              <Route className="h-3.5 w-3.5 stroke-[2.2]" />
-                                            </button>
-                                            <button
-                                              type="button"
-                                              onClick={() => toast.success(`Attachment downloaded for ${job.code}`)}
-                                              className="p-1 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400"
-                                              title="Download Attachment Document"
-                                            >
-                                              <Paperclip className="h-3.5 w-3.5 stroke-[2.2]" />
-                                            </button>
-                                            <button
-                                              type="button"
-                                              onClick={() => toast.success(`Job ${job.code} link copied to clipboard!`)}
-                                              className="p-1 hover:bg-purple-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer text-slate-500 hover:text-purple-600 dark:hover:text-purple-400"
-                                              title="Share Job"
-                                            >
-                                              <Share2 className="h-3.5 w-3.5 stroke-[2.2]" />
-                                            </button>
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                      {/* SECTION 2: VEHICLE & CARGO INFORMATION */}
-                                      <div className="flex items-center justify-between pt-0.5 gap-2">
-                                        {/* Left: Vehicle Name & Object State */}
-                                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                                          <span className="text-[9.5px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 shrink-0 tracking-wider">
-                                            VEHICLE
-                                          </span>
-                                          <div className="flex items-center gap-1.5 min-w-0">
-                                            <span className="h-2 w-2 rounded-full shrink-0 bg-emerald-500 ring-2 ring-emerald-500/20" />
-                                            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate">
-                                              {job.object}
-                                            </span>
-                                          </div>
-                                          <span
-                                            className={cn(
-                                              "text-[9.5px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0",
-                                              job.objectState === "Loaded"
-                                                ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60"
-                                                : job.objectState === "Unloaded"
-                                                  ? "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/60"
-                                                  : "text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/60"
-                                            )}
-                                          >
-                                            {job.objectState || "Unloaded"}
-                                          </span>
-                                        </div>
-
-                                        {/* Right: Quantity, Weight, Violation, Convoy Metrics + Expand Drawer Button */}
-                                        <div className="flex items-center gap-2 shrink-0">
-                                          <div className="flex items-center gap-2 text-xs font-mono font-bold bg-slate-50 dark:bg-slate-800/60 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-slate-700/60">
-                                            <div className="flex items-center gap-1" title="Quantity">
-                                              <Package className="h-3 w-3 text-slate-500 stroke-[2.2]" />
-                                              <span className="text-slate-700 dark:text-slate-300">{job.quantity}</span>
-                                            </div>
-                                            <span className="text-slate-300 dark:text-slate-700">|</span>
-                                            <div className="flex items-center gap-1" title="Weight">
-                                              <Weight className="h-3 w-3 text-slate-500 stroke-[2.2]" />
-                                              <span className="text-slate-700 dark:text-slate-300">{job.weight}</span>
-                                            </div>
-                                            <span className="text-slate-300 dark:text-slate-700">|</span>
-                                            <div className="flex items-center gap-1" title="Violations & Alerts">
-                                              <ShieldAlert className="h-3 w-3 text-rose-500 stroke-[2.2]" />
-                                              <span className={cn(job.violation > 0 ? "text-rose-600 font-black" : "text-slate-700 dark:text-slate-300")}>
-                                                {job.violation}
-                                              </span>
-                                            </div>
-                                            <span className="text-slate-300 dark:text-slate-700">|</span>
-                                            <div className="flex items-center gap-1" title="Convoy Group">
-                                              <Caravan className="h-3 w-3 text-slate-500 stroke-[2.2]" />
-                                              <span className="text-slate-700 dark:text-slate-300">{job.convoy}</span>
-                                            </div>
-                                          </div>
-
-                                          {/* Expand Drawer Button */}
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              setExpandedJobIds((prev) => ({
-                                                ...prev,
-                                                [job.id]: !prev[job.id],
-                                              }))
-                                            }
-                                            className="flex items-center gap-0.5 px-2 py-0.5 text-xs font-bold text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer border border-sky-200/70 dark:border-sky-800/70"
-                                          >
-                                            <span>{isExpanded ? "Less" : "More"}</span>
-                                            {isExpanded ? (
-                                              <ChevronUp className="h-3 w-3 stroke-[2.5]" />
-                                            ) : (
-                                              <ChevronDown className="h-3 w-3 stroke-[2.5]" />
-                                            )}
-                                          </button>
-                                        </div>
-                                      </div>
-                                      
-                                      {/* Expandable Details Drawer */}
-                                      {isExpanded && (
-                                        <div className="px-4 py-3 bg-slate-50/90 dark:bg-slate-900/80 border-t border-slate-200/60 dark:border-slate-800/60 text-xs select-none">
-                                          <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200/50 dark:border-slate-800/50">
-                                            <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200 text-xs">
-                                              <FileText className="h-3.5 w-3.5 text-[#0089FF]" />
-                                              <span>Shipment & Verification Documents</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                              <span
-                                                className={cn(
-                                                  "text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1",
-                                                  job.verified !== false
-                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
-                                                    : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
-                                                )}
-                                              >
-                                                <Check className="h-3 w-3 stroke-[3]" />
-                                                <span>{job.verified !== false ? "Verified" : "Pending Verification"}</span>
-                                              </span>
-                                              <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  toggleVerifyJob(job.id);
-                                                }}
-                                                className="px-2.5 py-1 rounded bg-[#0089FF] text-white text-[10px] font-bold hover:bg-[#0070d6] transition-colors cursor-pointer active:scale-95 shadow-2xs"
-                                              >
-                                                {job.verified !== false ? "Re-Verify" : "Verify Job"}
-                                              </button>
-                                            </div>
-                                          </div>
-
-                                          <div className="grid grid-cols-2 gap-2">
-                                            <div className="flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
-                                              <span className="text-slate-500 font-medium">Shipment No:</span>
-                                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{job.details.shipmentNo}</span>
-                                            </div>
-
-                                            <div className="flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
-                                              <span className="text-slate-500 font-medium">Invoice No:</span>
-                                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{job.details.invoiceNo}</span>
-                                            </div>
-
-                                            <div className="flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
-                                              <span className="text-slate-500 font-medium">Consignee No:</span>
-                                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{job.details.consigneeNo}</span>
-                                            </div>
-
-                                            <div className="flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
-                                              <span className="text-slate-500 font-medium">Cargo Quantity:</span>
-                                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{job.details.quantity}</span>
-                                            </div>
-
-                                            <div className="col-span-2 flex items-center justify-between bg-white dark:bg-slate-800/50 p-2 rounded-lg border border-slate-200/60 dark:border-slate-800/60">
-                                              <span className="text-slate-500 font-medium">Product / Material:</span>
-                                              <span className="font-bold text-[#0089FF] dark:text-sky-400">{job.details.product}</span>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                    {/* 8 CHECKPOINTS */}
+                    <button
+                      type="button"
+                      className="flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                        <span className="text-xs font-black tabular-nums leading-none">8</span>
+                      </div>
+                      <span className="text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5 text-slate-200">
+                        Checkpoints
+                      </span>
+                    </button>
                   </div>
-                );
-              })}
-            </div>
+                </div>
 
-            {/* Clean Export Action Footer Bar */}
-            <div className="shrink-0 p-2.5 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2 select-none">
-              <button
-                type="button"
-                onClick={() =>
-                  toast.success("Exporting Job List to XLS (.xlsx)...", {
-                    description: `${jobCounts.total} total jobs generated.`,
-                  })
-                }
-                className="h-8 px-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
-              >
-                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
-                <span>XLS</span>
-              </button>
+                {/* 2. Search Bar (Matching Reference Screenshot media_1791277916068.png 1:1) */}
+                <div className="px-3 py-2 border-b border-slate-200/60 dark:border-slate-800/60 bg-white dark:bg-slate-900 shrink-0">
+                  <div className="relative flex items-center">
+                    <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-400 stroke-[2]" />
+                    <input
+                      type="text"
+                      placeholder="Search by IMEI, VIN, Registration, Object Mode, SIM Number, etc."
+                      className="w-full pl-8 pr-3 py-1.5 bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0089FF]"
+                    />
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={() =>
-                  toast.success("Exporting Job List to PDF...", {
-                    description: "Printable job status report generated.",
-                  })
-                }
-                className="h-8 px-4 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-200/80 dark:border-rose-800/60 hover:border-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
-              >
-                <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 group-hover:text-white transition-colors" />
-                <span>PDF</span>
-              </button>
+                {/* 3. Time Info Block Frame & Separate Distance/Duration Bar (1:1 matching media_1791280229928.png) */}
+                <div className="px-3 py-2 bg-white dark:bg-slate-900 shrink-0 space-y-2">
+                  {/* Top Block Frame: Actual & Estimated Start/End Grid inside Frame */}
+                  <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/30 p-2.5 shadow-2xs">
+                    <div className="grid grid-cols-2 gap-4 text-xs">
+                      {/* Left Side: Actual Start & End */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500 font-medium flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                            Actual Start
+                          </span>
+                          <span className="font-bold text-[#223344] dark:text-slate-200 font-mono">05-11-2025 08:00 AM</span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500 font-medium flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-slate-400 shrink-0" />
+                            Actual End
+                          </span>
+                          <span className="font-bold text-[#223344] dark:text-slate-200 font-mono">--</span>
+                        </div>
+                      </div>
+
+                      {/* Right Side: Estimated Start & End */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500 font-medium flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#0089FF] shrink-0" />
+                            Estimated Start
+                          </span>
+                          <span className="font-bold text-[#223344] dark:text-slate-200 font-mono">05-11-2025 08:00 AM</span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500 font-medium flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#0089FF] shrink-0" />
+                            Estimated End
+                          </span>
+                          <span className="font-bold text-[#223344] dark:text-slate-200 font-mono">05-11-2025 06:00 PM</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Separate Distance & Duration Pill Bar */}
+                  <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 text-xs text-slate-700 dark:text-slate-300 font-semibold">
+                    <div className="flex items-center gap-1.5">
+                      <Truck className="h-3.5 w-3.5 text-[#0089FF] stroke-[2]" />
+                      <span>1000 km - 88%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 font-mono">
+                      <Clock className="h-3.5 w-3.5 text-slate-400 stroke-[2]" />
+                      <span>12 hrs 22 min</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Table of Checkpoints inside Dedicated Card Frame (1:1 matching media_1791280487243.png) */}
+                <div className="flex-1 min-h-0 px-3 pb-3">
+                  <div className="h-full rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden flex flex-col shadow-2xs">
+                    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                      <table className="w-full text-left text-[11px] select-none border-collapse">
+                        <thead className="sticky top-0 bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider z-10 backdrop-blur-xs">
+                          <tr>
+                            <th className="py-2 px-2.5">Index</th>
+                            <th className="py-2 px-2">Status</th>
+                            <th className="py-2 px-2">Type</th>
+                            <th className="py-2 px-2">Est. Arrival</th>
+                            <th className="py-2 px-2">Act. Arrival</th>
+                            <th className="py-2 px-2">Checkpoint</th>
+                            <th className="py-2 px-2">Address</th>
+                            <th className="py-2 px-2.5">Driver</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
+                          {[
+                            { idx: "01", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "02", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "03", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "04", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "05", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "06", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "07", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "08", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "09", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "10", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "11", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "12", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "13", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                          ].map((r, i) => (
+                            <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors border-b border-slate-100 dark:border-slate-800/40">
+                              <td className="py-1.5 px-2.5 font-mono font-bold text-slate-700 dark:text-slate-300 align-top">{r.idx}</td>
+                              <td className="py-1.5 px-2 align-top">
+                                <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
+                                  {r.status}
+                                </span>
+                              </td>
+                              <td className="py-1.5 px-2 text-slate-500 align-top">{r.type}</td>
+                              <td className="py-1.5 px-2 font-mono text-[10.5px] text-slate-600 dark:text-slate-400 leading-tight align-top">
+                                <div>{r.estDate}</div>
+                                <div>{r.estTime}</div>
+                              </td>
+                              <td className="py-1.5 px-2 font-mono text-[10.5px] text-slate-600 dark:text-slate-400 leading-tight align-top">
+                                <div>{r.actDate}</div>
+                                <div>{r.actTime}</div>
+                              </td>
+                              <td className="py-1.5 px-2 font-bold text-[11px] text-slate-800 dark:text-slate-200 leading-tight align-top">
+                                <div>{r.chkLine1}</div>
+                                <div>{r.chkLine2}</div>
+                              </td>
+                              <td className="py-1.5 px-2 text-slate-500 text-[10.5px] leading-tight truncate max-w-[130px] align-top" title={r.addr}>
+                                {r.addr}
+                              </td>
+                              <td className="py-1.5 px-2.5 font-medium text-[11px] text-slate-700 dark:text-slate-300 leading-tight align-top">
+                                <div>{r.drvLine1}</div>
+                                <div>{r.drvLine2}</div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Reference-Matched Driver Tab View (1:1 with media_1790833871737.png & media_1790835635015.png) */}
+                {/* Reference-Matched Driver Tab View (1:1 with media_1790833871737.png & media_1790835635015.png) */}
         {activeTab === "driver" && (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {/* Drivers Tree List */}
@@ -3219,34 +3778,460 @@ export function FleetExplorerPanel({
           </div>
         )}
 
-        {/* Geofences Tab View */}
-        {activeTab === "geofence" && (
-          <div className="p-3 space-y-2">
-            <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-              <span>Geofences & Zones (4)</span>
-              <span className="text-[10px] text-[#0089FF]">GIS Layer</span>
+        {/* Reference-Matched Address Tab View (1:1 with media_1791281186715.png) */}
+        {activeTab === "address" && (
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-slate-900">
+            {/* Address Tree List */}
+            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none custom-scrollbar">
+              {addressData.map((group) => {
+                const isGroupCollapsed = collapsedAddressGroups[group.group];
+
+                const filteredSubgroups = group.subgroups
+                  .map((sub) => {
+                    const filteredAddresses = sub.addresses.filter((addr) => {
+                      const q = query.trim().toLowerCase();
+                      const matchesQuery =
+                        q === "" ||
+                        addr.name.toLowerCase().includes(q) ||
+                        addr.category.toLowerCase().includes(q) ||
+                        group.group.toLowerCase().includes(q);
+                      const matchesCategory =
+                        selectedAddressCategories.length === ALL_ADDRESS_CATEGORIES.length ||
+                        selectedAddressCategories.some(
+                          (cat) =>
+                            cat.toLowerCase() === addr.category.toLowerCase() ||
+                            (cat.includes("Bank") && addr.category.includes("Bank")),
+                        );
+                      return matchesQuery && matchesCategory;
+                    });
+                    return { ...sub, addresses: filteredAddresses };
+                  })
+                  .filter((sub) => sub.addresses.length > 0);
+
+                if (filteredSubgroups.length === 0) return null;
+
+                const groupTotalCount = filteredSubgroups.reduce(
+                  (acc, sub) => acc + sub.addresses.length,
+                  0,
+                );
+
+                const isAllGroupChecked = filteredSubgroups.every((sub) =>
+                  sub.addresses.every((a) => a.checked),
+                );
+
+                return (
+                  <div key={group.group}>
+                    {/* Group Header Row */}
+                    <div className="flex items-center justify-between px-3 py-1.5 bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200/70 dark:border-slate-700/60 text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={isAllGroupChecked}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setAddressData((prev) =>
+                              prev.map((g) => {
+                                if (g.group === group.group) {
+                                  return {
+                                    ...g,
+                                    checked,
+                                    subgroups: g.subgroups.map((sub) => ({
+                                      ...sub,
+                                      checked,
+                                      addresses: sub.addresses.map((a) => ({
+                                        ...a,
+                                        checked,
+                                      })),
+                                    })),
+                                  };
+                                }
+                                return g;
+                              }),
+                            );
+                          }}
+                          className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCollapsedAddressGroups((prev) => ({
+                              ...prev,
+                              [group.group]: !prev[group.group],
+                            }))
+                          }
+                          className="flex items-center gap-1.5 cursor-pointer hover:text-[#0089FF] transition-colors"
+                        >
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
+                              isGroupCollapsed && "-rotate-90",
+                            )}
+                          />
+                          <span>{group.group}</span>
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400">
+                          [{groupTotalCount}]
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCollapsedAddressGroups((prev) => ({
+                              ...prev,
+                              [group.group]: !prev[group.group],
+                            }))
+                          }
+                          className="p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                        >
+                          {isGroupCollapsed ? <Plus className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Address Items */}
+                    {!isGroupCollapsed &&
+                      filteredSubgroups.map((sub) => (
+                        <div key={sub.name} className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                          {sub.addresses.map((addr) => (
+                            <div
+                              key={addr.id}
+                              className={cn(
+                                "flex items-center justify-between px-3 py-1.5 text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 group/addr select-none",
+                                addr.checked && "bg-sky-50/40 dark:bg-sky-950/20"
+                              )}
+                            >
+                              {/* Left: Checkbox + Dot/Pin Icon + Name */}
+                              <div className="flex items-center gap-2 min-w-0 flex-1 pl-1">
+                                <input
+                                  type="checkbox"
+                                  checked={addr.checked}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    setAddressData((prev) =>
+                                      prev.map((g) => ({
+                                        ...g,
+                                        subgroups: g.subgroups.map((s) => ({
+                                          ...s,
+                                          addresses: s.addresses.map((a) =>
+                                            a.id === addr.id ? { ...a, checked } : a,
+                                          ),
+                                        })),
+                                      })),
+                                    );
+                                  }}
+                                  className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                />
+
+                                <span
+                                  className={cn(
+                                    "h-2 w-2 rounded-full shrink-0",
+                                    addr.checked ? "bg-[#0089FF] ring-2 ring-sky-500/20" : "bg-slate-400"
+                                  )}
+                                />
+
+                                <span
+                                  className={cn(
+                                    "truncate font-medium text-xs",
+                                    addr.checked
+                                      ? "text-[#0089FF] dark:text-sky-400 font-semibold"
+                                      : "text-slate-800 dark:text-slate-200"
+                                  )}
+                                  title={addr.name}
+                                >
+                                  {addr.name}
+                                </span>
+                              </div>
+
+                              {/* Right Actions: Locate Pin, Edit Pencil, Delete Trash */}
+                              <div className="flex items-center gap-2 shrink-0 text-slate-400">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast.info(`Locating address "${addr.name}" on map...`);
+                                  }}
+                                  className="p-1 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                  title="Locate Address on Map"
+                                >
+                                  <MapPin className="h-3.5 w-3.5 stroke-[2]" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onOpenAddAddress) {
+                                      onOpenAddAddress({
+                                        id: addr.id,
+                                        reseller: "Device Integration Testing",
+                                        company: "Ha Company",
+                                        name: addr.name,
+                                        addressType: addr.category || "Financial / Bank",
+                                        tolerance: 200,
+                                        description: "Configured custom address location",
+                                        lat: 21.1702,
+                                        lng: 72.8311,
+                                      });
+                                    } else {
+                                      toast.success(`Editing address configuration for "${addr.name}"`);
+                                    }
+                                  }}
+                                  className="p-1 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                  title="Edit Address"
+                                >
+                                  <Edit3 className="h-3.5 w-3.5 stroke-[2]" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setAddressData((prev) =>
+                                      prev.map((g) => ({
+                                        ...g,
+                                        subgroups: g.subgroups.map((s) => ({
+                                          ...s,
+                                          addresses: s.addresses.filter((a) => a.id !== addr.id),
+                                        })),
+                                      })),
+                                    );
+                                    toast.error(`Address "${addr.name}" deleted`);
+                                  }}
+                                  className="p-1 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                  title="Delete Address"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 stroke-[2]" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                  </div>
+                );
+              })}
             </div>
-            {[
-              { name: "Valsad Industrial Hub", type: "Polygon Zone", count: 12, speedLimit: "40 km/h" },
-              { name: "Jakarta Main Logistics Depot", type: "Circular Zone (2 km)", count: 8, speedLimit: "30 km/h" },
-              { name: "Bangkok Terminal 2", type: "Polygon Zone", count: 5, speedLimit: "50 km/h" },
-              { name: "Surat Port Yard", type: "Circular Zone (5 km)", count: 18, speedLimit: "25 km/h" },
-            ].map((g, i) => (
-              <div key={i} className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between hover:border-[#0089FF] cursor-pointer transition-all">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-md bg-sky-50 text-[#0089FF] dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800">
-                    <Layers className="h-4 w-4" />
+          </div>
+        )}
+
+        {/* Geofences Tab View (1:1 with reference screenshot media_1791282117663.png) */}
+        {activeTab === "geofence" && (
+          <div className="py-1">
+            <div className="divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 select-none">
+              {geofenceData.map((groupData) => {
+                const isGroupCollapsed = collapsedGeofenceGroups[groupData.group] ?? false;
+                const filteredSubgroups = groupData.subgroups
+                  .map((sub) => ({
+                    ...sub,
+                    geofences: sub.geofences.filter(
+                      (g) =>
+                        query.trim() === "" ||
+                        g.name.toLowerCase().includes(query.trim().toLowerCase()) ||
+                        g.category.toLowerCase().includes(query.trim().toLowerCase()) ||
+                        g.type.toLowerCase().includes(query.trim().toLowerCase()),
+                    ),
+                  }))
+                  .filter((sub) => sub.geofences.length > 0);
+
+                const totalGeofencesInGroup = groupData.subgroups.reduce(
+                  (acc, sub) => acc + sub.geofences.length,
+                  0,
+                );
+
+                const allGeofencesChecked = groupData.subgroups.every((sub) =>
+                  sub.geofences.every((g) => g.checked),
+                );
+                const someGeofencesChecked =
+                  groupData.subgroups.some((sub) =>
+                    sub.geofences.some((g) => g.checked),
+                  ) && !allGeofencesChecked;
+
+                return (
+                  <div key={groupData.group} className="divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40">
+                    {/* Top Level Branch Header */}
+                    <div className="flex items-center justify-between pl-2.5 pr-3 py-1.5 bg-slate-50/80 dark:bg-slate-900/60 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-colors">
+                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={allGeofencesChecked}
+                          ref={(el) => {
+                            if (el) el.indeterminate = someGeofencesChecked;
+                          }}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setGeofenceData((prev) =>
+                              prev.map((g) =>
+                                g.group === groupData.group
+                                  ? {
+                                      ...g,
+                                      subgroups: g.subgroups.map((s) => ({
+                                        ...s,
+                                        geofences: s.geofences.map((item) => ({
+                                          ...item,
+                                          checked,
+                                        })),
+                                      })),
+                                    }
+                                  : g,
+                              ),
+                            );
+                          }}
+                          className="h-[12px] w-[12px] rounded border-slate-300 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCollapsedGeofenceGroups((prev) => ({
+                              ...prev,
+                              [groupData.group]: !prev[groupData.group],
+                            }))
+                          }
+                          className="flex items-center gap-1 text-left text-xs font-semibold text-slate-800 dark:text-slate-200 hover:text-[#0089FF] cursor-pointer flex-1 truncate"
+                        >
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-150",
+                              isGroupCollapsed && "-rotate-90",
+                            )}
+                          />
+                          <span className="truncate">{groupData.group}</span>
+                        </button>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
+                        [{totalGeofencesInGroup}]
+                      </span>
+                    </div>
+
+                    {/* Geofence Items */}
+                    {!isGroupCollapsed &&
+                      filteredSubgroups.map((sub) => (
+                        <div key={sub.name} className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                          {sub.geofences.map((geo) => {
+                            const isChecked = checkedGeofenceIds.includes(geo.id);
+
+                            return (
+                              <div
+                                key={geo.id}
+                                className={cn(
+                                  "flex items-center justify-between px-3 py-1.5 text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 group/geo select-none min-h-[36px]",
+                                  isChecked && "bg-sky-50/40 dark:bg-sky-950/20",
+                                )}
+                              >
+                                {/* Left: Checkbox + Status Dot + Name */}
+                                <div className="flex items-center gap-2 min-w-0 flex-1 pl-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => {
+                                      if (onToggleCheckGeofence) {
+                                        onToggleCheckGeofence(geo.id);
+                                      }
+                                      setGeofenceData((prev) =>
+                                        prev.map((g) => ({
+                                          ...g,
+                                          subgroups: g.subgroups.map((s) => ({
+                                            ...s,
+                                            geofences: s.geofences.map((item) =>
+                                              item.id === geo.id ? { ...item, checked: !isChecked } : item,
+                                            ),
+                                          })),
+                                        })),
+                                      );
+                                    }}
+                                    className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                  />
+
+                                  <span
+                                    className={cn(
+                                      "h-2 w-2 rounded-full shrink-0 transition-all",
+                                      isChecked
+                                        ? "bg-[#0089FF] ring-2 ring-sky-500/20 shadow-xs"
+                                        : "border border-slate-400 bg-transparent dark:border-slate-500",
+                                    )}
+                                  />
+
+                                  <span
+                                    className={cn(
+                                      "truncate text-xs transition-colors cursor-pointer",
+                                      isChecked
+                                        ? "text-[#0089FF] dark:text-sky-400 font-bold"
+                                        : "text-slate-700 dark:text-slate-300 font-medium",
+                                    )}
+                                    title={geo.name}
+                                    onClick={() => {
+                                      if (!isChecked && onToggleCheckGeofence) {
+                                        onToggleCheckGeofence(geo.id);
+                                      }
+                                      if (onSelectGeofence) {
+                                        onSelectGeofence(geo.id);
+                                      }
+                                      toast.info(`Focusing map on geofence "${geo.name}"`);
+                                    }}
+                                  >
+                                    {geo.name}
+                                  </span>
+                                </div>
+
+                                {/* Right Actions: Locate Pin, Edit Pencil, Delete Trash */}
+                                <div className="flex items-center gap-2 shrink-0 text-slate-400">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (!isChecked && onToggleCheckGeofence) {
+                                        onToggleCheckGeofence(geo.id);
+                                      }
+                                      if (onSelectGeofence) {
+                                        onSelectGeofence(geo.id);
+                                      }
+                                      toast.info(`Focusing map on geofence "${geo.name}"`);
+                                    }}
+                                    className="p-1 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                    title="Locate Geofence on Map"
+                                  >
+                                    <MapPin className="h-3.5 w-3.5 stroke-[2]" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toast.success(`Editing geofence configuration for "${geo.name}"`);
+                                    }}
+                                    className="p-1 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                    title="Edit Geofence"
+                                  >
+                                    <Edit3 className="h-3.5 w-3.5 stroke-[2]" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setGeofenceData((prev) =>
+                                        prev.map((g) => ({
+                                          ...g,
+                                          subgroups: g.subgroups.map((s) => ({
+                                            ...s,
+                                            geofences: s.geofences.filter((item) => item.id !== geo.id),
+                                          })),
+                                        })),
+                                      );
+                                      toast.error(`Geofence "${geo.name}" deleted`);
+                                    }}
+                                    className="p-1 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                    title="Delete Geofence"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5 stroke-[2]" />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
                   </div>
-                  <div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs">{g.name}</div>
-                    <div className="text-[10px] text-slate-500">{g.type} · Max {g.speedLimit}</div>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold">
-                  {g.count} Vehicles
-                </span>
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
         )}
 

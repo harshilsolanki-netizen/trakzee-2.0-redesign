@@ -15,7 +15,7 @@ import {
   ListFilter,
   Locate,
   LocateFixed,
-  Map,
+  Map as MapIcon,
   MapPin,
   MapPinPlus,
   Maximize2,
@@ -46,6 +46,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { toast } from "sonner";
 import { type FleetObject, STATUS_META } from "@/data/fleet";
+import { GEOFENCES_DATA } from "@/data/geofences";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -172,6 +173,8 @@ export const CLUSTERS_DATA = [
 export function LiveTrackingMap({
   selectedVehicle,
   checkedVehicles,
+  checkedGeofenceIds,
+  selectedGeofenceId,
   onOpenPlayback,
   isLeftPanelOpen = true,
   leftPanelWidth = 630,
@@ -182,6 +185,8 @@ export function LiveTrackingMap({
 }: {
   selectedVehicle: FleetObject | null;
   checkedVehicles: FleetObject[];
+  checkedGeofenceIds?: string[];
+  selectedGeofenceId?: string | null;
   onOpenPlayback: (timeframe?: string) => void;
   isLeftPanelOpen?: boolean;
   leftPanelWidth?: number;
@@ -358,6 +363,87 @@ export function LiveTrackingMap({
       }
     }
   }, [showObjectPath]);
+
+  const geofenceLayersRef = useRef<Map<string, L.Layer>>(new Map());
+
+  // Render Leaflet Polygons / Circles dynamically for all checked geofence items
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    const map = mapInstanceRef.current;
+
+    // Clear old layers
+    geofenceLayersRef.current.forEach((layer) => {
+      map.removeLayer(layer);
+    });
+    geofenceLayersRef.current.clear();
+
+    if (!showGeofences || !checkedGeofenceIds || checkedGeofenceIds.length === 0) return;
+
+    checkedGeofenceIds.forEach((id) => {
+      const geo = GEOFENCES_DATA.find((g) => g.id === id);
+      if (!geo) return;
+
+      let layer: L.Layer;
+
+      if (geo.type === "polygon" && geo.coordinates) {
+        layer = L.polygon(geo.coordinates, {
+          color: geo.color || "#0089FF",
+          fillColor: geo.color || "#0089FF",
+          fillOpacity: 0.25,
+          weight: 2.5,
+          dashArray: "4, 4",
+        });
+      } else if (geo.type === "circle" && geo.center && geo.radius) {
+        layer = L.circle(geo.center, {
+          radius: geo.radius,
+          color: geo.color || "#8B5CF6",
+          fillColor: geo.color || "#8B5CF6",
+          fillOpacity: 0.25,
+          weight: 2.5,
+        });
+      } else {
+        return;
+      }
+
+      layer.bindTooltip(
+        `<div style="font-weight: 700; font-size: 11px; color: ${geo.color}">${geo.name}</div><div style="font-size: 10px; opacity: 0.8; font-weight: 500">${geo.category}</div>`,
+        { permanent: false, direction: "top" },
+      );
+
+      layer.addTo(map);
+      geofenceLayersRef.current.set(id, layer);
+    });
+
+    // If a specific geofence was selected/focused via locate pin click, fly/fit map to focus on it
+    if (selectedGeofenceId) {
+      const targetLayer = geofenceLayersRef.current.get(selectedGeofenceId);
+      if (targetLayer) {
+        try {
+          if ("getBounds" in targetLayer && typeof targetLayer.getBounds === "function") {
+            const bounds = (targetLayer as L.Polygon).getBounds();
+            if (bounds && bounds.isValid()) {
+              map.fitBounds(bounds, { padding: [100, 100], maxZoom: 14 });
+            }
+          } else if ("getLatLng" in targetLayer && typeof targetLayer.getLatLng === "function") {
+            const center = (targetLayer as L.Circle).getLatLng();
+            map.flyTo(center, 13);
+          }
+        } catch (err) {
+          console.warn("Safely caught geofence map focus error:", err);
+        }
+      } else {
+        const targetGeo = GEOFENCES_DATA.find((g) => g.id === selectedGeofenceId);
+        if (targetGeo) {
+          if (targetGeo.type === "polygon" && targetGeo.coordinates) {
+            const poly = L.polygon(targetGeo.coordinates);
+            map.fitBounds(poly.getBounds(), { padding: [100, 100], maxZoom: 14 });
+          } else if (targetGeo.type === "circle" && targetGeo.center) {
+            map.flyTo(targetGeo.center, 13);
+          }
+        }
+      }
+    }
+  }, [checkedGeofenceIds, selectedGeofenceId, showGeofences]);
 
   // Toggle fullscreen
   const toggleFullscreen = () => {
