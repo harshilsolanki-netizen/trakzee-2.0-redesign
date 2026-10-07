@@ -4,6 +4,7 @@ import { LiveTrackingMap } from "@/components/tracking/LiveTrackingMap";
 import { VehicleTelemetryDrawer } from "@/components/tracking/VehicleTelemetryDrawer";
 import { RoutePlaybackBar } from "@/components/tracking/RoutePlaybackBar";
 import { LiveDashcamModal } from "@/components/tracking/LiveDashcamModal";
+import { MapVideoPanel, type VideoChannelFeed } from "@/components/tracking/MapVideoPanel";
 import { AddVehiclePage } from "@/components/tracking/AddVehiclePage";
 import {
   ObjectColumnSettingsModal,
@@ -11,6 +12,7 @@ import {
 } from "@/components/tracking/ObjectColumnSettingsModal";
 import { AddAddressModal, type AddressFormData } from "@/components/tracking/AddAddressModal";
 import { UploadAddressModal } from "@/components/tracking/UploadAddressModal";
+import { AddGeofenceModal, type GeofenceFormData } from "@/components/tracking/AddGeofenceModal";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
 import { useZio } from "@/zio/ZioContext";
 import { cn } from "@/lib/utils";
@@ -33,6 +35,7 @@ export function TrackingPage() {
   const [checkedGeofenceIds, setCheckedGeofenceIds] = useState<string[]>([
     "g-1", "g-2", "g-3", "g-4", "g-5",
   ]);
+  const [activeTab, setActiveTab] = useState<string>("object");
   const [selectedGeofenceId, setSelectedGeofenceId] = useState<string | null>(null);
 
   const handleToggleCheckGeofence = (id: string) => {
@@ -68,9 +71,99 @@ export function TrackingPage() {
   const [isUploadAddressModalOpen, setIsUploadAddressModalOpen] = useState(false);
   const [editingAddressData, setEditingAddressData] = useState<AddressFormData | null>(null);
 
+  const [isAddGeofenceModalOpen, setIsAddGeofenceModalOpen] = useState(false);
+  const [editingGeofenceData, setEditingGeofenceData] = useState<GeofenceFormData | null>(null);
+
+  // Map + Video Right Panel Camera Feeds state
+  const [activeVideoFeeds, setActiveVideoFeeds] = useState<VideoChannelFeed[]>([
+    {
+      id: "v-1",
+      deviceName: "H20P TRACKNOW",
+      channelName: "Main Cabin View",
+      location: "At Uffizio - Head Office",
+      status: "Active",
+      fps: 25,
+      dataUsed: "3.39 MB",
+      bitrate: "1/40.34 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594165N 72.938700E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/driver_cabin_2.png",
+    },
+    {
+      id: "v-2",
+      deviceName: "H20P TRACKNOW",
+      channelName: "CH2",
+      location: "At Uffizio - Head Office",
+      status: "Active",
+      fps: 25,
+      dataUsed: "3.39 MB",
+      bitrate: "1/40.34 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/driver_fatigue.png",
+    },
+    {
+      id: "v-3",
+      deviceName: "H20P TRACKNOW",
+      channelName: "CH5",
+      location: "At Uffizio - Head Office",
+      status: "Active",
+      fps: 25,
+      dataUsed: "3.39 MB",
+      bitrate: "1/40.34 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/cargo_hold.png",
+    },
+    {
+      id: "v-4",
+      deviceName: "HP Bonga Stream...",
+      channelName: "CH1",
+      location: "At Uffizio - Head Office",
+      status: "Active",
+      fps: 25,
+      dataUsed: "3.39 MB",
+      bitrate: "1/40.34 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/driver_cabin_1.jpg",
+    },
+    {
+      id: "v-5",
+      deviceName: "HP Bonga Stream...",
+      channelName: "CH2",
+      location: "At Uffizio - Head Office",
+      status: "Active",
+      fps: 25,
+      dataUsed: "3.39 MB",
+      bitrate: "1/40.34 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/driver_phone_distraction.png",
+    },
+  ]);
+  const [isVideoMatrixMode, setIsVideoMatrixMode] = useState(false);
+
+  const handleOpenVideoChannel = (feed: VideoChannelFeed) => {
+    setActiveVideoFeeds((prev) => {
+      const exists = prev.some((c) => c.id === feed.id);
+      if (exists) {
+        toast.info(`${feed.deviceName} (${feed.channelName}) is already active`);
+        return prev;
+      }
+      toast.success(`Added ${feed.deviceName} (${feed.channelName}) to video panel`);
+      return [...prev, feed];
+    });
+  };
+
   const handleOpenAddAddress = (initialData?: AddressFormData) => {
     setEditingAddressData(initialData || null);
     setIsAddAddressModalOpen(true);
+  };
+
+  const handleOpenAddGeofence = (initialData?: GeofenceFormData) => {
+    setEditingGeofenceData(initialData || null);
+    setIsAddGeofenceModalOpen(true);
   };
 
   const { setSelectedVehicleId } = useZio();
@@ -190,6 +283,7 @@ export function TrackingPage() {
           onToggleTelemetryDrawer={() =>
             setIsTelemetryDrawerOpen((prev) => !prev)
           }
+          activeTab={activeTab}
           onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
           className="h-full w-full rounded-none border-0 shadow-none"
         />
@@ -224,10 +318,14 @@ export function TrackingPage() {
             onOpenAddVehicle={() => navigate({ to: "/setting", search: { action: "add" } })}
             onOpenAddAddress={handleOpenAddAddress}
             onOpenUploadAddress={() => setIsUploadAddressModalOpen(true)}
+            onOpenAddGeofence={handleOpenAddGeofence}
             onToggleCollapse={() => setIsLeftPanelOpen(false)}
             selectedColumns={selectedColumns}
             onStartResize={() => setIsResizing(true)}
             onResetWidth={() => setCustomWidth(null)}
+            activeTab={activeTab as any}
+            onTabChange={(tab) => setActiveTab(tab)}
+            onOpenVideoChannel={handleOpenVideoChannel}
             style={{ width: `${panelWidth}px` }}
             className={cn(
               "relative h-full shadow-2xl pointer-events-auto border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl animate-in slide-in-from-left-4 duration-200",
@@ -250,7 +348,34 @@ export function TrackingPage() {
         </div>
       )}
 
-      {/* 3. Right Floating Vehicle Telemetry & Diagnostics Drawer */}
+      {/* 3. Right Floating Map + Video Live Camera Feeds Panel */}
+      {activeVideoFeeds.length > 0 && (
+        <div
+          className={cn(
+            "absolute top-2.5 bottom-2.5 z-20 flex flex-col pointer-events-none animate-in slide-in-from-right-4 duration-200",
+            isVideoMatrixMode ? "right-2.5" : "right-2.5 w-[398px]"
+          )}
+          style={
+            isVideoMatrixMode
+              ? {
+                  left: isLeftPanelOpen ? `${panelWidth + 20}px` : "32px",
+                }
+              : undefined
+          }
+        >
+          <MapVideoPanel
+            channels={activeVideoFeeds}
+            onCloseChannel={(id) =>
+              setActiveVideoFeeds((prev) => prev.filter((c) => c.id !== id))
+            }
+            onCloseAll={() => setActiveVideoFeeds([])}
+            isMatrixMode={isVideoMatrixMode}
+            onToggleMatrixMode={(enabled) => setIsVideoMatrixMode(enabled)}
+          />
+        </div>
+      )}
+
+      {/* 4. Right Floating Vehicle Telemetry & Diagnostics Drawer */}
       {isTelemetryDrawerOpen && selectedVehicle && (
         <div className="absolute top-2.5 bottom-2.5 right-2.5 z-10 flex flex-col pointer-events-none animate-in slide-in-from-right-4 duration-200">
           <VehicleTelemetryDrawer
@@ -310,6 +435,16 @@ export function TrackingPage() {
       <UploadAddressModal
         open={isUploadAddressModalOpen}
         onClose={() => setIsUploadAddressModalOpen(false)}
+      />
+
+      {/* 9. Modern Theme-Consistent Add Geofence Modal */}
+      <AddGeofenceModal
+        open={isAddGeofenceModalOpen}
+        onClose={() => setIsAddGeofenceModalOpen(false)}
+        onSaveGeofence={(geofenceData) => {
+          // Geofence saved callback
+        }}
+        initialData={editingGeofenceData}
       />
     </div>
   );

@@ -26,8 +26,10 @@ import {
   Key,
   Layers,
   Lock,
+  Link2,
   MapPin,
   Mic,
+  Minus,
   MoreVertical,
   Navigation,
   Package,
@@ -68,6 +70,8 @@ import {
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { STATUS_META, type FleetObject, type ObjectStatus } from "@/data/fleet";
+import { EditTrailerModal, type TrailerItem } from "./EditTrailerModal";
+import { AllocateVehicleModal } from "./AllocateVehicleModal";
 import { cn } from "@/lib/utils";
 import {
   Popover,
@@ -113,6 +117,7 @@ export function FleetExplorerPanel({
   onOpenAddVehicle,
   onOpenAddAddress,
   onOpenUploadAddress,
+  onOpenAddGeofence,
   onToggleCollapse,
   selectedColumns = [
     "ignition",
@@ -126,6 +131,9 @@ export function FleetExplorerPanel({
   ],
   onStartResize,
   onResetWidth,
+  activeTab: propActiveTab,
+  onTabChange,
+  onOpenVideoChannel,
   style,
   className,
 }: {
@@ -149,18 +157,29 @@ export function FleetExplorerPanel({
   onOpenAddVehicle?: () => void;
   onOpenAddAddress?: (initialData?: any) => void;
   onOpenUploadAddress?: () => void;
+  onOpenAddGeofence?: (initialData?: any) => void;
   onToggleCollapse?: () => void;
   selectedColumns?: string[];
   onStartResize?: () => void;
   onResetWidth?: () => void;
+  activeTab?: TrackingTab;
+  onTabChange?: (tab: TrackingTab) => void;
+  onOpenVideoChannel?: (channelFeed: any) => void;
   style?: React.CSSProperties;
   className?: string;
 }) {
-  const [activeTab, setActiveTab] = useState<TrackingTab>("object");
+  const [internalActiveTab, setInternalActiveTab] = useState<TrackingTab>("object");
+  const activeTab = propActiveTab ?? internalActiveTab;
+
+  const handleTabChange = (tab: TrackingTab) => {
+    setInternalActiveTab(tab);
+    onTabChange?.(tab);
+  };
   const [query, setQuery] = useState("");
   const [activeStatus, setActiveStatus] = useState<ObjectStatus | "all">("all");
   const [activeDriverStatus, setActiveDriverStatus] = useState<string>("all");
   const [activeJobStatus, setActiveJobStatus] = useState<string>("all");
+  const [activeTrailerStatus, setActiveTrailerStatus] = useState<"all" | "attached" | "notAttached">("all");
   const [selectedHealthCategory, setSelectedHealthCategory] = useState<
     "all" | "safety" | "efficiency" | "risk" | "discipline"
   >("all");
@@ -762,6 +781,584 @@ export function FleetExplorerPanel({
     );
   };
 
+  // Dynamic Trailer Dataset state (1:1 with reference screenshot media_1791350803265.png)
+  const [trailerData, setTrailerData] = useState([
+    {
+      group: "Company",
+      count: 2,
+      subgroups: [
+        {
+          name: "Valsad",
+          count: 2,
+          trailers: [
+            { id: "tr-1", name: "TVS trailer", code: "998715", isAttached: true, vehicle: "MH 14 KQ 4446" },
+            { id: "tr-2", name: "BMV Trailer", code: "158276", isAttached: true, vehicle: "MH 14 KA 6985" },
+          ],
+        },
+      ],
+    },
+    {
+      group: "TKDN",
+      count: 1,
+      subgroups: [
+        {
+          name: "TKDN",
+          count: 1,
+          trailers: [
+            { id: "tr-3", name: "Eye Beacon", code: "D001", isAttached: false, vehicle: "Unassigned" },
+          ],
+        },
+      ],
+    },
+    {
+      group: "Jaideep Test Account",
+      count: 1,
+      subgroups: [
+        {
+          name: "VALSAD BRANCH",
+          count: 1,
+          trailers: [
+            { id: "tr-4", name: "B&B frozen trailer", code: "1234567890", isAttached: true, vehicle: "GJ 05 CU 1936" },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  const [collapsedTrailerGroups, setCollapsedTrailerGroups] = useState<Record<string, boolean>>({});
+
+  // Dynamic Beacon Dataset state (Rich realistic dataset matching live fleet tracking)
+  const [beaconData, setBeaconData] = useState([
+    {
+      group: "HP Company",
+      count: 5,
+      subgroups: [
+        {
+          name: "HP Branch 1",
+          count: 4,
+          beacons: [
+            {
+              id: "b-1",
+              name: "HP FMB920 Object 1 Beacon",
+              timestamp: "07/09/2026 12:00:10 PM",
+              object: "HP FMB920 Object 1",
+              location: "At HP Address 124",
+              rssi: "-100dBm",
+              distance: "19.57m",
+              isConnected: true,
+              checked: true,
+            },
+            {
+              id: "b-2",
+              name: "HP FMB920 Object 3 Beacon",
+              timestamp: "22/09/2026 10:01:04 AM",
+              object: "HP FMB920 Object 3",
+              location: "At HP Address 124",
+              rssi: "78dBm",
+              distance: "2.37m",
+              isConnected: true,
+              checked: true,
+            },
+            {
+              id: "b-3",
+              name: "HP Asset Sensor B-102",
+              timestamp: "07/10/2026 02:14:22 PM",
+              object: "HP Heavy Rig 4",
+              location: "Surat Logistics Yard Gate 3",
+              rssi: "-68dBm",
+              distance: "4.12m",
+              isConnected: true,
+              checked: true,
+            },
+            {
+              id: "b-4",
+              name: "HP Trailer Beacon T-4",
+              timestamp: "07/10/2026 01:45:00 PM",
+              object: "Scania Container R-90",
+              location: "Valsad Industrial Hub",
+              rssi: "-112dBm",
+              distance: "34.80m",
+              isConnected: false,
+              checked: false,
+            },
+          ],
+        },
+        {
+          name: "HP Branch 2 (West Zone)",
+          count: 1,
+          beacons: [
+            {
+              id: "b-5",
+              name: "HP Temp Tag 09",
+              timestamp: "07/10/2026 02:30:15 PM",
+              object: "Cold Chain Refr-1",
+              location: "Mumbai Central Depot",
+              rssi: "-74dBm",
+              distance: "8.50m",
+              isConnected: true,
+              checked: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      group: "Surya Logistics",
+      count: 4,
+      subgroups: [
+        {
+          name: "Valsad Division",
+          count: 3,
+          beacons: [
+            {
+              id: "b-6",
+              name: "Surya Ble Tag S-101",
+              timestamp: "07/10/2026 02:28:44 PM",
+              object: "MH 14 KQ 4446",
+              location: "Dharampur Highway Km 14",
+              rssi: "-82dBm",
+              distance: "12.40m",
+              isConnected: true,
+              checked: true,
+            },
+            {
+              id: "b-7",
+              name: "Surya Cargo Probe C-44",
+              timestamp: "07/10/2026 11:20:18 AM",
+              object: "MH 14 KA 6985",
+              location: "Vapi Toll Plaza",
+              rssi: "-95dBm",
+              distance: "22.10m",
+              isConnected: true,
+              checked: true,
+            },
+            {
+              id: "b-8",
+              name: "Surya Pallet Tracker P-88",
+              timestamp: "06/10/2026 09:12:30 PM",
+              object: "Unassigned Cargo",
+              location: "GIDC Warehouse Yard 2",
+              rssi: "-120dBm",
+              distance: "55.00m",
+              isConnected: false,
+              checked: false,
+            },
+          ],
+        },
+        {
+          name: "Surat Depot",
+          count: 1,
+          beacons: [
+            {
+              id: "b-9",
+              name: "Surya Fleet Beacon SF-12",
+              timestamp: "07/10/2026 02:32:01 PM",
+              object: "GJ 05 CU 1936",
+              location: "Ring Road Service Center",
+              rssi: "-64dBm",
+              distance: "3.20m",
+              isConnected: true,
+              checked: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      group: "TKDN Global Operations",
+      count: 3,
+      subgroups: [
+        {
+          name: "TKDN Express Hub",
+          count: 3,
+          beacons: [
+            {
+              id: "b-10",
+              name: "TKDN Eye Beacon D-001",
+              timestamp: "07/10/2026 02:31:10 PM",
+              object: "TKDN Delivery Van 4",
+              location: "Jakarta South Depot",
+              rssi: "-72dBm",
+              distance: "6.85m",
+              isConnected: true,
+              checked: true,
+            },
+            {
+              id: "b-11",
+              name: "TKDN Smart Tag T-905",
+              timestamp: "05/10/2026 04:50:12 PM",
+              object: "Container CT-440",
+              location: "Bandung Logistics Yard",
+              rssi: "-115dBm",
+              distance: "41.20m",
+              isConnected: false,
+              checked: false,
+            },
+            {
+              id: "b-12",
+              name: "TKDN Security Beacon SEC-1",
+              timestamp: "07/10/2026 02:25:33 PM",
+              object: "Armored Truck A-1",
+              location: "Central Bank Vault Depot",
+              rssi: "-58dBm",
+              distance: "1.90m",
+              isConnected: true,
+              checked: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      group: "Jaideep Test Fleet",
+      count: 3,
+      subgroups: [
+        {
+          name: "Valsad Branch",
+          count: 3,
+          beacons: [
+            {
+              id: "b-13",
+              name: "B&B Frozen Temp Sensor 1",
+              timestamp: "07/10/2026 02:29:50 PM",
+              object: "Reefer Trailer 104",
+              location: "Abrama Cold Storage",
+              rssi: "-88dBm",
+              distance: "15.30m",
+              isConnected: true,
+              checked: true,
+            },
+            {
+              id: "b-14",
+              name: "Jaideep BLE Beacon J-88",
+              timestamp: "07/10/2026 02:10:05 PM",
+              object: "Volvo FH 16",
+              location: "NH 48 Bypass Road",
+              rssi: "-92dBm",
+              distance: "18.60m",
+              isConnected: true,
+              checked: true,
+            },
+            {
+              id: "b-15",
+              name: "Jaideep Fuel Probe F-12",
+              timestamp: "04/10/2026 08:30:00 AM",
+              object: "Unassigned Tanker",
+              location: "Valsad Refueling Station",
+              rssi: "-118dBm",
+              distance: "48.00m",
+              isConnected: false,
+              checked: false,
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  const [activeBeaconStatus, setActiveBeaconStatus] = useState<"all" | "connected" | "disconnected">("all");
+  const [collapsedBeaconGroups, setCollapsedBeaconGroups] = useState<Record<string, boolean>>({});
+  const [collapsedBeaconSubgroups, setCollapsedBeaconSubgroups] = useState<Record<string, boolean>>({});
+
+  // Video Telematics Tab state & data matching media_1791365930946.png reference
+  const [activeVideoStatus, setActiveVideoStatus] = useState<"all" | "running" | "idle" | "stopped" | "inactive">("all");
+  const [collapsedVideoGroups, setCollapsedVideoGroups] = useState<Record<string, boolean>>({});
+  const [collapsedVideoSubgroups, setCollapsedVideoSubgroups] = useState<Record<string, boolean>>({});
+  const [collapsedVideoDevices, setCollapsedVideoDevices] = useState<Record<string, boolean>>({});
+
+  const [videoTelematicsData, setVideoTelematicsData] = useState([
+    {
+      group: "HP Company",
+      subgroups: [
+        {
+          name: "HP Branch 1",
+          devices: [
+            {
+              id: "v-1",
+              name: "H20P TRACKNOW",
+              status: "running" as const,
+              timestamp: "07-10-2026 09:30:15",
+              checked: true,
+              channels: [
+                { id: "ch-1-1", name: "CH1", status: "online" as const },
+                { id: "ch-1-2", name: "CH2", status: "online" as const },
+                { id: "ch-1-3", name: "CH3", status: "online" as const },
+              ],
+            },
+            {
+              id: "v-2",
+              name: "HP Bonga Streamax Object 1",
+              status: "running" as const,
+              timestamp: "07-10-2026 09:28:40",
+              checked: true,
+              channels: [
+                { id: "ch-2-1", name: "CH1", status: "online" as const },
+                { id: "ch-2-2", name: "CH2", status: "online" as const },
+              ],
+            },
+            {
+              id: "v-3",
+              name: "HP CL M920 Object 1",
+              status: "idle" as const,
+              timestamp: "07-10-2026 09:15:10",
+              checked: true,
+              channels: [
+                { id: "ch-3-1", name: "CH1", status: "online" as const },
+                { id: "ch-3-2", name: "CH2", status: "online" as const },
+              ],
+            },
+            {
+              id: "v-4",
+              name: "HP CV200 Object 1",
+              status: "stopped" as const,
+              timestamp: "07-10-2026 08:45:22",
+              checked: true,
+              channels: [
+                { id: "ch-4-1", name: "CH1", status: "offline" as const },
+                { id: "ch-4-2", name: "CH2", status: "offline" as const },
+              ],
+            },
+            {
+              id: "v-5",
+              name: "HP DB3 Riumor Object 1",
+              status: "inactive" as const,
+              timestamp: "07-10-2026 07:10:05",
+              checked: true,
+              channels: [
+                { id: "ch-5-1", name: "CH1", status: "offline" as const },
+                { id: "ch-5-2", name: "CH2", status: "offline" as const },
+              ],
+            },
+            {
+              id: "v-6",
+              name: "HP FaceID Object 1",
+              status: "idle" as const,
+              timestamp: "07-10-2026 09:05:00",
+              checked: true,
+              channels: [
+                { id: "ch-6-1", name: "CH1", status: "online" as const },
+                { id: "ch-6-2", name: "CH2", status: "online" as const },
+                { id: "ch-6-3", name: "CH3", status: "online" as const },
+                { id: "ch-6-4", name: "CH4", status: "online" as const },
+              ],
+            },
+            {
+              id: "v-7",
+              name: "HP JC400 Object 2",
+              status: "idle" as const,
+              timestamp: "07-10-2026 08:50:00",
+              checked: true,
+              channels: [
+                { id: "ch-7-1", name: "CH1", status: "online" as const },
+                { id: "ch-7-2", name: "CH2", status: "online" as const },
+              ],
+            },
+            {
+              id: "v-8",
+              name: "HP Meitrack MD500",
+              status: "idle" as const,
+              timestamp: "07-10-2026 08:30:00",
+              checked: true,
+              channels: [
+                { id: "ch-8-1", name: "CH1", status: "online" as const },
+                { id: "ch-8-2", name: "CH2", status: "online" as const },
+                { id: "ch-8-3", name: "CH3", status: "online" as const },
+                { id: "ch-8-4", name: "CH4", status: "online" as const },
+              ],
+            },
+            {
+              id: "v-9",
+              name: "HP Queclink CV100",
+              status: "idle" as const,
+              timestamp: "07-10-2026 08:15:00",
+              checked: true,
+              channels: [
+                { id: "ch-9-1", name: "CH1", status: "online" as const },
+              ],
+            },
+            {
+              id: "v-10",
+              name: "HP Streamax X3",
+              status: "stopped" as const,
+              timestamp: "07-10-2026 07:45:00",
+              checked: true,
+              channels: [
+                { id: "ch-10-1", name: "CH1", status: "offline" as const },
+                { id: "ch-10-2", name: "CH2", status: "offline" as const },
+              ],
+            },
+            {
+              id: "v-11",
+              name: "HP Suntech ST4940",
+              status: "stopped" as const,
+              timestamp: "07-10-2026 07:30:00",
+              checked: true,
+              channels: [
+                { id: "ch-11-1", name: "CH1", status: "offline" as const },
+                { id: "ch-11-2", name: "CH2", status: "offline" as const },
+              ],
+            },
+            {
+              id: "v-12",
+              name: "HP Teltonika FMC640",
+              status: "stopped" as const,
+              timestamp: "07-10-2026 07:15:00",
+              checked: true,
+              channels: [
+                { id: "ch-12-1", name: "CH1", status: "offline" as const },
+              ],
+            },
+            {
+              id: "v-13",
+              name: "HP Topmetr MDVR",
+              status: "stopped" as const,
+              timestamp: "07-10-2026 07:00:00",
+              checked: true,
+              channels: [
+                { id: "ch-13-1", name: "CH1", status: "offline" as const },
+                { id: "ch-13-2", name: "CH2", status: "offline" as const },
+                { id: "ch-13-3", name: "CH3", status: "offline" as const },
+                { id: "ch-13-4", name: "CH4", status: "offline" as const },
+              ],
+            },
+            {
+              id: "v-14",
+              name: "HP Jimi Dashcam",
+              status: "inactive" as const,
+              timestamp: "07-10-2026 06:30:00",
+              checked: true,
+              channels: [
+                { id: "ch-14-1", name: "CH1", status: "offline" as const },
+                { id: "ch-14-2", name: "CH2", status: "offline" as const },
+              ],
+            },
+            {
+              id: "v-15",
+              name: "HP Howen MDVR 4CH",
+              status: "inactive" as const,
+              timestamp: "07-10-2026 05:45:00",
+              checked: true,
+              channels: [
+                { id: "ch-15-1", name: "CH1", status: "offline" as const },
+                { id: "ch-15-2", name: "CH2", status: "offline" as const },
+                { id: "ch-15-3", name: "CH3", status: "offline" as const },
+                { id: "ch-15-4", name: "CH4", status: "offline" as const },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  const videoCounts = useMemo(() => {
+    let running = 0;
+    let idle = 0;
+    let stopped = 0;
+    let inactive = 0;
+    let total = 0;
+    for (const g of videoTelematicsData) {
+      for (const sub of g.subgroups) {
+        for (const d of sub.devices) {
+          total++;
+          if (d.status === "running") running++;
+          else if (d.status === "idle") idle++;
+          else if (d.status === "stopped") stopped++;
+          else if (d.status === "inactive") inactive++;
+        }
+      }
+    }
+    return { running, idle, stopped, inactive, total };
+  }, [videoTelematicsData]);
+
+  const beaconCounts = useMemo(() => {
+    let connected = 0;
+    let disconnected = 0;
+    let total = 0;
+    for (const g of beaconData) {
+      for (const sub of g.subgroups) {
+        for (const b of sub.beacons) {
+          total++;
+          if (b.isConnected) connected++;
+          else disconnected++;
+        }
+      }
+    }
+    return { connected, disconnected, total };
+  }, [beaconData]);
+
+  const trailerCounts = useMemo(() => {
+    let attached = 0;
+    let notAttached = 0;
+    let total = 0;
+    for (const g of trailerData) {
+      for (const sub of g.subgroups) {
+        for (const tr of sub.trailers) {
+          total++;
+          if (tr.isAttached) attached++;
+          else notAttached++;
+        }
+      }
+    }
+    return { attached, notAttached, total };
+  }, [trailerData]);
+
+  // Edit Trailer & Vehicle Allocation Modal states
+  const [editTrailerModalOpen, setEditTrailerModalOpen] = useState(false);
+  const [selectedEditTrailer, setSelectedEditTrailer] = useState<TrailerItem | null>(null);
+
+  const handleOpenEditTrailer = (tr: any, groupName?: string, subName?: string) => {
+    setSelectedEditTrailer({
+      id: tr.id,
+      name: tr.name,
+      code: tr.code,
+      isAttached: tr.isAttached,
+      vehicle: tr.vehicle,
+      group: groupName || "Company",
+      subgroup: subName || "Valsad",
+    });
+    setEditTrailerModalOpen(true);
+  };
+
+  const handleSaveTrailer = (updatedTrailer: TrailerItem) => {
+    setTrailerData((prev) =>
+      prev.map((g) => ({
+        ...g,
+        subgroups: g.subgroups.map((s) => ({
+          ...s,
+          trailers: s.trailers.map((item) =>
+            item.id === updatedTrailer.id
+              ? {
+                  ...item,
+                  name: updatedTrailer.name,
+                  code: updatedTrailer.code,
+                  isAttached: updatedTrailer.isAttached,
+                  vehicle: updatedTrailer.vehicle,
+                }
+              : item,
+          ),
+        })),
+      })),
+    );
+  };
+
+  // Allocate Vehicle Modal states
+  const [allocateVehicleModalOpen, setAllocateVehicleModalOpen] = useState(false);
+  const [selectedAllocateTrailer, setSelectedAllocateTrailer] = useState<TrailerItem | null>(null);
+
+  const handleOpenAllocateVehicle = (tr: any, groupName?: string, subName?: string) => {
+    setSelectedAllocateTrailer({
+      id: tr.id,
+      name: tr.name,
+      code: tr.code,
+      isAttached: tr.isAttached,
+      vehicle: tr.vehicle,
+      group: groupName || "Company",
+      subgroup: subName || "Valsad",
+    });
+    setAllocateVehicleModalOpen(true);
+  };
+
   // Local vehicles state
   const [localVehicles, setLocalVehicles] = useState<FleetObject[]>(vehicles);
   useEffect(() => {
@@ -857,6 +1454,83 @@ export function FleetExplorerPanel({
   ]);
   const [addressCategorySearch, setAddressCategorySearch] = useState("");
 
+  // Geofence Filter Popover State (Matching reference images media_1791349807324.png, media_1791349897647.png, media_1791349908549.png)
+  const ALL_GEOFENCE_GROUPS = useMemo(
+    () => [
+      "Ha Company Geofences",
+      "HP Geofence Group 1",
+      "Plant Operations",
+      "Logistics Sectors",
+      "Regional Branches",
+      "All Test",
+    ],
+    [],
+  );
+
+  const ALL_GEOFENCE_CATEGORIES = useMemo(
+    () => [
+      "Area",
+      "Stay in Zone",
+      "Stay Away from Zone",
+      "Road Fence",
+      "Risky Area",
+      "Financial / Bank",
+      "Tech Hub",
+      "Safety Operations",
+      "Security Area",
+      "Emergency Response",
+    ],
+    [],
+  );
+
+  const ALL_GEOFENCE_TYPES = useMemo(
+    () => [
+      "Polygon Zone",
+      "Circular Zone",
+      "Rectangle Zone",
+      "HP Geofence Type 1",
+    ],
+    [],
+  );
+
+  const [activeGeofenceFilterTab, setActiveGeofenceFilterTab] = useState<
+    "Geofence Group" | "Category" | "Type"
+  >("Geofence Group");
+
+  const [selectedGeofenceGroups, setSelectedGeofenceGroups] = useState<string[]>([
+    "Ha Company Geofences",
+    "HP Geofence Group 1",
+    "Plant Operations",
+    "Logistics Sectors",
+    "Regional Branches",
+    "All Test",
+  ]);
+
+  const [selectedGeofenceCategories, setSelectedGeofenceCategories] = useState<string[]>([
+    "Area",
+    "Stay in Zone",
+    "Stay Away from Zone",
+    "Road Fence",
+    "Risky Area",
+    "Financial / Bank",
+    "Tech Hub",
+    "Safety Operations",
+    "Security Area",
+    "Emergency Response",
+  ]);
+
+  const [selectedGeofenceTypes, setSelectedGeofenceTypes] = useState<string[]>([
+    "Polygon Zone",
+    "Circular Zone",
+    "Rectangle Zone",
+    "HP Geofence Type 1",
+  ]);
+
+  const [tempGeofenceGroups, setTempGeofenceGroups] = useState<string[]>([]);
+  const [tempGeofenceCategories, setTempGeofenceCategories] = useState<string[]>([]);
+  const [tempGeofenceTypes, setTempGeofenceTypes] = useState<string[]>([]);
+  const [geofenceFilterSearch, setGeofenceFilterSearch] = useState("");
+
   // Sync draft filter when filter popover opens
   useEffect(() => {
     if (filterOpen) {
@@ -864,8 +1538,19 @@ export function FleetExplorerPanel({
         selectedGroups.includes("All") ? ALL_FILTER_COMPANIES : selectedGroups,
       );
       setFilterSearch("");
+      setTempGeofenceGroups(selectedGeofenceGroups);
+      setTempGeofenceCategories(selectedGeofenceCategories);
+      setTempGeofenceTypes(selectedGeofenceTypes);
+      setGeofenceFilterSearch("");
     }
-  }, [filterOpen, selectedGroups, ALL_FILTER_COMPANIES]);
+  }, [
+    filterOpen,
+    selectedGroups,
+    ALL_FILTER_COMPANIES,
+    selectedGeofenceGroups,
+    selectedGeofenceCategories,
+    selectedGeofenceTypes,
+  ]);
 
   // Sort Popover State (Report Overlay Style matching Image 3)
   const [sortOpen, setSortOpen] = useState(false);
@@ -1056,7 +1741,7 @@ export function FleetExplorerPanel({
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <button
               type="button"
-              onClick={() => setActiveTab("object")}
+              onClick={() => handleTabChange("object")}
               className="flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:text-[#0089FF] dark:hover:text-[#0089FF] text-xs font-bold transition-colors cursor-pointer shrink-0 active:scale-95 py-1 px-1"
               title="Back to Fleet Explorer"
             >
@@ -1084,7 +1769,7 @@ export function FleetExplorerPanel({
                   <button
                     key={tab.id}
                     type="button"
-                    onClick={() => setActiveTab(tab.id as TrackingTab)}
+                    onClick={() => handleTabChange(tab.id as TrackingTab)}
                     className="h-8 flex items-center gap-1.5 px-3 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] text-white text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-98"
                   >
                     <IconComp className="h-3.5 w-3.5 stroke-[2.2] fill-current shrink-0" />
@@ -1099,7 +1784,7 @@ export function FleetExplorerPanel({
                     <TooltipTrigger asChild>
                       <button
                         type="button"
-                        onClick={() => setActiveTab(tab.id as TrackingTab)}
+                        onClick={() => handleTabChange(tab.id as TrackingTab)}
                         className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer shrink-0"
                       >
                         <IconComp className="h-4 w-4 stroke-[2]" />
@@ -1364,6 +2049,436 @@ export function FleetExplorerPanel({
                 className={cn(
                   "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
                   activeJobStatus === "all"
+                    ? "text-slate-200"
+                    : "text-slate-600 dark:text-slate-400",
+                )}
+              >
+                Total
+              </span>
+            </button>
+          </div>
+        </div>
+      ) : activeTab === "trailer" ? (
+        <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div className="grid grid-cols-3 gap-1.5">
+            {/* Attached */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveTrailerStatus(
+                  activeTrailerStatus === "attached" ? "all" : "attached",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeTrailerStatus === "attached"
+                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
+                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeTrailerStatus === "attached"
+                      ? "bg-white animate-pulse"
+                      : "bg-emerald-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {trailerCounts.attached}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeTrailerStatus === "attached"
+                    ? "text-emerald-100"
+                    : "text-emerald-700/80 dark:text-emerald-400/80",
+                )}
+              >
+                Attached
+              </span>
+            </button>
+
+            {/* Not Attached */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveTrailerStatus(
+                  activeTrailerStatus === "notAttached" ? "all" : "notAttached",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeTrailerStatus === "notAttached"
+                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
+                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeTrailerStatus === "notAttached"
+                      ? "bg-white"
+                      : "bg-rose-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {trailerCounts.notAttached}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeTrailerStatus === "notAttached"
+                    ? "text-rose-100"
+                    : "text-rose-700/80 dark:text-rose-400/80",
+                )}
+              >
+                Not Attached
+              </span>
+            </button>
+
+            {/* Total */}
+            <button
+              type="button"
+              onClick={() => setActiveTrailerStatus("all")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeTrailerStatus === "all"
+                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
+                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeTrailerStatus === "all" ? "bg-white" : "bg-slate-400",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {trailerCounts.total}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeTrailerStatus === "all"
+                    ? "text-slate-200"
+                    : "text-slate-600 dark:text-slate-400",
+                )}
+              >
+                Total
+              </span>
+            </button>
+          </div>
+        </div>
+      ) : activeTab === "beacon" ? (
+        <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div className="grid grid-cols-3 gap-1.5">
+            {/* Connected */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveBeaconStatus(
+                  activeBeaconStatus === "connected" ? "all" : "connected",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeBeaconStatus === "connected"
+                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
+                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeBeaconStatus === "connected"
+                      ? "bg-white animate-pulse"
+                      : "bg-emerald-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {beaconCounts.connected}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeBeaconStatus === "connected"
+                    ? "text-emerald-100"
+                    : "text-emerald-700/80 dark:text-emerald-400/80",
+                )}
+              >
+                Connected
+              </span>
+            </button>
+
+            {/* Disconnected */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveBeaconStatus(
+                  activeBeaconStatus === "disconnected" ? "all" : "disconnected",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeBeaconStatus === "disconnected"
+                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
+                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeBeaconStatus === "disconnected"
+                      ? "bg-white"
+                      : "bg-rose-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {beaconCounts.disconnected}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeBeaconStatus === "disconnected"
+                    ? "text-rose-100"
+                    : "text-rose-700/80 dark:text-rose-400/80",
+                )}
+              >
+                Disconnected
+              </span>
+            </button>
+
+            {/* Total */}
+            <button
+              type="button"
+              onClick={() => setActiveBeaconStatus("all")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeBeaconStatus === "all"
+                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
+                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeBeaconStatus === "all" ? "bg-white" : "bg-slate-400",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {beaconCounts.total}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeBeaconStatus === "all"
+                    ? "text-slate-200"
+                    : "text-slate-600 dark:text-slate-400",
+                )}
+              >
+                Total
+              </span>
+            </button>
+          </div>
+        </div>
+      ) : activeTab === "video_telematics" ? (
+        <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0 border-b border-slate-200/60 dark:border-slate-800/60">
+          <div className="grid grid-cols-5 gap-1.5">
+            {/* Running */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveVideoStatus(
+                  activeVideoStatus === "running" ? "all" : "running",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeVideoStatus === "running"
+                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
+                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeVideoStatus === "running"
+                      ? "bg-white animate-pulse"
+                      : "bg-emerald-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {videoCounts.running}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeVideoStatus === "running"
+                    ? "text-emerald-100"
+                    : "text-emerald-700/80 dark:text-emerald-400/80",
+                )}
+              >
+                Running
+              </span>
+            </button>
+
+            {/* Idle */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveVideoStatus(
+                  activeVideoStatus === "idle" ? "all" : "idle",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeVideoStatus === "idle"
+                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
+                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeVideoStatus === "idle" ? "bg-white" : "bg-amber-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {videoCounts.idle}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeVideoStatus === "idle"
+                    ? "text-amber-100"
+                    : "text-amber-700/80 dark:text-amber-400/80",
+                )}
+              >
+                Idle
+              </span>
+            </button>
+
+            {/* Stopped */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveVideoStatus(
+                  activeVideoStatus === "stopped" ? "all" : "stopped",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeVideoStatus === "stopped"
+                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
+                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeVideoStatus === "stopped" ? "bg-white" : "bg-rose-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {videoCounts.stopped}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeVideoStatus === "stopped"
+                    ? "text-rose-100"
+                    : "text-rose-700/80 dark:text-rose-400/80",
+                )}
+              >
+                Stopped
+              </span>
+            </button>
+
+            {/* Inactive */}
+            <button
+              type="button"
+              onClick={() =>
+                setActiveVideoStatus(
+                  activeVideoStatus === "inactive" ? "all" : "inactive",
+                )
+              }
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeVideoStatus === "inactive"
+                  ? "bg-indigo-500 text-white border-indigo-600 shadow-md shadow-indigo-500/25 font-bold scale-[1.02]"
+                  : "bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200/60 dark:border-indigo-800/40 text-indigo-800 dark:text-indigo-300 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/50",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeVideoStatus === "inactive"
+                      ? "bg-white"
+                      : "bg-indigo-500",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {videoCounts.inactive}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeVideoStatus === "inactive"
+                    ? "text-indigo-100"
+                    : "text-indigo-700/80 dark:text-indigo-400/80",
+                )}
+              >
+                Inactive
+              </span>
+            </button>
+
+            {/* Total */}
+            <button
+              type="button"
+              onClick={() => setActiveVideoStatus("all")}
+              className={cn(
+                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
+                activeVideoStatus === "all"
+                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
+                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    activeVideoStatus === "all" ? "bg-white" : "bg-slate-400",
+                  )}
+                />
+                <span className="text-xs font-black tabular-nums leading-none">
+                  {videoCounts.total}
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
+                  activeVideoStatus === "all"
                     ? "text-slate-200"
                     : "text-slate-600 dark:text-slate-400",
                 )}
@@ -1851,8 +2966,8 @@ export function FleetExplorerPanel({
               className={cn(
                 "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
                 activeStatus === "all"
-                  ? "bg-[#0089FF] text-white border-[#0070d6] shadow-md shadow-[#0089FF]/25 font-bold scale-[1.02]"
-                  : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-[#0089FF] dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
+                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
+                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
               )}
             >
               <div className="flex items-center gap-1">
@@ -1860,7 +2975,7 @@ export function FleetExplorerPanel({
                   {counts.total}
                 </span>
               </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "all" ? "text-sky-100" : "text-[#0089FF]")}>
+              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "all" ? "text-slate-200" : "text-slate-600 dark:text-slate-400")}>
                 Total
               </span>
             </button>
@@ -1913,6 +3028,12 @@ export function FleetExplorerPanel({
                 ? "Search by Geofence Name, Zone, Group, etc."
                 : activeTab === "address"
                 ? "Search by Address Name, Category, Group, etc."
+                : activeTab === "trailer"
+                ? "Search by Trailer Name, Code, Group..."
+                : activeTab === "beacon"
+                ? "Search Beacon, Object, Location..."
+                : activeTab === "video_telematics"
+                ? "Search Video Telematics, Channel, Object..."
                 : "Search by IMEI, VIN, Registration, Object Model, SIM Number, etc."
             }
             className="h-8 w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-950/40 pl-3 pr-8 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#0089FF] focus:bg-white dark:focus:bg-slate-900 transition-colors"
@@ -1944,6 +3065,12 @@ export function FleetExplorerPanel({
                       toast.success("Geofences reloaded successfully");
                     } else if (activeTab === "address") {
                       toast.success("Addresses reloaded successfully");
+                    } else if (activeTab === "trailer") {
+                      toast.success("Trailers reloaded successfully");
+                    } else if (activeTab === "beacon") {
+                      toast.success("Beacons reloaded successfully");
+                    } else if (activeTab === "video_telematics") {
+                      toast.success("Video Telematics reloaded successfully");
                     } else {
                       handleReload();
                     }
@@ -1967,13 +3094,13 @@ export function FleetExplorerPanel({
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="font-semibold text-xs bg-slate-900 text-white border-slate-800">
-                {activeTab === "geofence" ? "Reload / Refresh Geofence List" : activeTab === "address" ? "Reload / Refresh Address List" : "Refresh Live Telemetry"}
+                {activeTab === "geofence" ? "Reload / Refresh Geofence List" : activeTab === "address" ? "Reload / Refresh Address List" : activeTab === "trailer" ? "Reload / Refresh Trailer List" : activeTab === "beacon" ? "Reload / Refresh Beacon List" : activeTab === "video_telematics" ? "Reload / Refresh Video Telematics List" : "Refresh Live Telemetry"}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
-          {/* 2. Add Object / Add Address / Add Geofence Button (Hidden on Driver and Jobs tabs) */}
-          {activeTab !== "driver" && activeTab !== "jobs" && (
+          {/* 2. Add Object / Add Address / Add Geofence / Add Trailer Button (Hidden on Driver, Jobs, Beacon, and Video Telematics tabs) */}
+          {activeTab !== "driver" && activeTab !== "jobs" && activeTab !== "beacon" && activeTab !== "video_telematics" && (
             <TooltipProvider delayDuration={150}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -1981,10 +3108,21 @@ export function FleetExplorerPanel({
                     type="button"
                     onClick={() => {
                       if (activeTab === "geofence") {
-                        toast.info("Opening Add Geofence modal...");
+                        if (onOpenAddGeofence) onOpenAddGeofence();
+                        else toast.info("Opening Add Geofence modal...");
                       } else if (activeTab === "address") {
                         if (onOpenAddAddress) onOpenAddAddress();
                         else toast.info("Opening Add Address modal...");
+                      } else if (activeTab === "trailer") {
+                        handleOpenEditTrailer({
+                          id: "tr-new-" + Date.now(),
+                          name: "",
+                          code: "",
+                          isAttached: false,
+                          vehicle: "Unassigned",
+                          group: "Company",
+                          subgroup: "Valsad",
+                        });
                       } else if (onOpenAddVehicle) {
                         onOpenAddVehicle();
                       }
@@ -1995,7 +3133,7 @@ export function FleetExplorerPanel({
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="font-semibold text-xs bg-slate-900 text-white border-slate-800">
-                  {activeTab === "geofence" ? "Add Geofence" : activeTab === "address" ? "Add Address" : "Add New Object Page"}
+                  {activeTab === "geofence" ? "Add Geofence" : activeTab === "address" ? "Add Address" : activeTab === "trailer" ? "Add Trailer" : "Add New Object Page"}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -2053,7 +3191,214 @@ export function FleetExplorerPanel({
               sideOffset={6}
               className="w-auto p-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl text-xs z-50 select-none overflow-hidden"
             >
-              {activeTab === "address" ? (
+              {activeTab === "geofence" ? (
+                <div className="flex divide-x divide-slate-200 dark:divide-slate-800">
+                  {/* Left Category Menu: Geofence Group, Category, Type */}
+                  <div className="w-44 p-2 space-y-1 bg-slate-50/80 dark:bg-slate-950/70 shrink-0">
+                    {[
+                      { id: "Geofence Group", label: "Geofence Group" },
+                      { id: "Category", label: "Category" },
+                      { id: "Type", label: "Type" },
+                    ].map((tab) => {
+                      const isActive = activeGeofenceFilterTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => setActiveGeofenceFilterTab(tab.id as any)}
+                          onMouseEnter={() => setActiveGeofenceFilterTab(tab.id as any)}
+                          className={cn(
+                            "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer",
+                            isActive
+                              ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-slate-200/80 dark:border-slate-700/80"
+                              : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60",
+                          )}
+                        >
+                          <span>{tab.label}</span>
+                          <ChevronRight
+                            className={cn(
+                              "h-3.5 w-3.5 shrink-0 transition-transform",
+                              isActive ? "text-[#0089FF] translate-x-0.5" : "text-slate-400",
+                            )}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right Options Content Panel */}
+                  <div className="w-64 p-3 flex flex-col justify-between bg-white dark:bg-slate-900 shrink-0">
+                    <div>
+                      {/* Header with Title and Selected Count Badge */}
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200/70 dark:border-slate-800">
+                        <span className="font-bold text-slate-900 dark:text-slate-100 text-xs">
+                          {activeGeofenceFilterTab}
+                        </span>
+                        <span className="text-[10px] font-bold text-[#0089FF] bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 px-2 py-0.5 rounded-full">
+                          {activeGeofenceFilterTab === "Geofence Group"
+                            ? tempGeofenceGroups.length
+                            : activeGeofenceFilterTab === "Category"
+                            ? tempGeofenceCategories.length
+                            : tempGeofenceTypes.length}{" "}
+                          selected
+                        </span>
+                      </div>
+
+                      {/* Search Input Bar */}
+                      <div className="relative flex items-center mb-2">
+                        <Search className="h-3.5 w-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={geofenceFilterSearch}
+                          onChange={(e) => setGeofenceFilterSearch(e.target.value)}
+                          placeholder={`Search ${activeGeofenceFilterTab.toLowerCase()}...`}
+                          className="w-full h-8 pl-8 pr-3 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-[#0089FF]"
+                        />
+                        {geofenceFilterSearch && (
+                          <button
+                            type="button"
+                            onClick={() => setGeofenceFilterSearch("")}
+                            className="absolute right-2 p-0.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Checkbox Options List */}
+                      <div className="space-y-0.5 max-h-52 overflow-y-auto custom-scrollbar pr-1">
+                        {/* Select All */}
+                        <label className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer text-slate-800 dark:text-slate-200 text-xs font-semibold select-none">
+                          <input
+                            type="checkbox"
+                            checked={
+                              activeGeofenceFilterTab === "Geofence Group"
+                                ? tempGeofenceGroups.length === ALL_GEOFENCE_GROUPS.length
+                                : activeGeofenceFilterTab === "Category"
+                                ? tempGeofenceCategories.length === ALL_GEOFENCE_CATEGORIES.length
+                                : tempGeofenceTypes.length === ALL_GEOFENCE_TYPES.length
+                            }
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                if (activeGeofenceFilterTab === "Geofence Group") {
+                                  setTempGeofenceGroups([...ALL_GEOFENCE_GROUPS]);
+                                } else if (activeGeofenceFilterTab === "Category") {
+                                  setTempGeofenceCategories([...ALL_GEOFENCE_CATEGORIES]);
+                                } else {
+                                  setTempGeofenceTypes([...ALL_GEOFENCE_TYPES]);
+                                }
+                              } else {
+                                if (activeGeofenceFilterTab === "Geofence Group") {
+                                  setTempGeofenceGroups([]);
+                                } else if (activeGeofenceFilterTab === "Category") {
+                                  setTempGeofenceCategories([]);
+                                } else {
+                                  setTempGeofenceTypes([]);
+                                }
+                              }
+                            }}
+                            className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                          />
+                          <span>Select All</span>
+                        </label>
+
+                        <div className="border-t border-slate-200/60 dark:border-slate-800/80 my-1" />
+
+                        {/* Filtered list items based on active tab */}
+                        {(activeGeofenceFilterTab === "Geofence Group"
+                          ? ALL_GEOFENCE_GROUPS
+                          : activeGeofenceFilterTab === "Category"
+                          ? ALL_GEOFENCE_CATEGORIES
+                          : ALL_GEOFENCE_TYPES
+                        )
+                          .filter((item) =>
+                            item.toLowerCase().includes(geofenceFilterSearch.toLowerCase()),
+                          )
+                          .map((item) => {
+                            const isChecked =
+                              activeGeofenceFilterTab === "Geofence Group"
+                                ? tempGeofenceGroups.includes(item)
+                                : activeGeofenceFilterTab === "Category"
+                                ? tempGeofenceCategories.includes(item)
+                                : tempGeofenceTypes.includes(item);
+
+                            return (
+                              <label
+                                key={item}
+                                className={cn(
+                                  "flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer text-xs select-none transition-colors",
+                                  isChecked
+                                    ? "text-[#0089FF] font-semibold bg-sky-50/60 dark:bg-sky-950/40"
+                                    : "text-slate-700 dark:text-slate-300",
+                                )}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    if (activeGeofenceFilterTab === "Geofence Group") {
+                                      setTempGeofenceGroups((prev) =>
+                                        e.target.checked
+                                          ? [...prev, item]
+                                          : prev.filter((x) => x !== item),
+                                      );
+                                    } else if (activeGeofenceFilterTab === "Category") {
+                                      setTempGeofenceCategories((prev) =>
+                                        e.target.checked
+                                          ? [...prev, item]
+                                          : prev.filter((x) => x !== item),
+                                      );
+                                    } else {
+                                      setTempGeofenceTypes((prev) =>
+                                        e.target.checked
+                                          ? [...prev, item]
+                                          : prev.filter((x) => x !== item),
+                                      );
+                                    }
+                                  }}
+                                  className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer"
+                                />
+                                <span className="truncate">{item}</span>
+                              </label>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                    {/* Footer Buttons: Save & Reset */}
+                    <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-slate-200 dark:border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTempGeofenceGroups([...ALL_GEOFENCE_GROUPS]);
+                          setTempGeofenceCategories([...ALL_GEOFENCE_CATEGORIES]);
+                          setTempGeofenceTypes([...ALL_GEOFENCE_TYPES]);
+                          setSelectedGeofenceGroups([...ALL_GEOFENCE_GROUPS]);
+                          setSelectedGeofenceCategories([...ALL_GEOFENCE_CATEGORIES]);
+                          setSelectedGeofenceTypes([...ALL_GEOFENCE_TYPES]);
+                          toast.info("Geofence filters reset");
+                        }}
+                        className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl transition-all cursor-pointer"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedGeofenceGroups(tempGeofenceGroups);
+                          setSelectedGeofenceCategories(tempGeofenceCategories);
+                          setSelectedGeofenceTypes(tempGeofenceTypes);
+                          setFilterOpen(false);
+                          toast.success("Geofence filter saved!");
+                        }}
+                        className="px-4 py-1.5 text-xs font-bold text-white bg-[#0089FF] hover:bg-[#0070d6] rounded-xl shadow-md shadow-[#0089FF]/20 transition-all cursor-pointer active:scale-95"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : activeTab === "address" ? (
                 <div className="w-72 p-3.5 bg-white dark:bg-slate-900 flex flex-col gap-3 shrink-0">
                   {/* Header Title & Selected Count Badge */}
                   <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
@@ -2388,7 +3733,7 @@ export function FleetExplorerPanel({
                     </PopoverTrigger>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="font-semibold text-xs bg-slate-900 text-white border-slate-800">
-                    {activeTab === "geofence" ? "Sorting" : "Sorting / Order"}
+                    {activeTab === "geofence" ? "Order" : "Sorting / Order"}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -2397,85 +3742,14 @@ export function FleetExplorerPanel({
               sideOffset={6}
               className="w-auto p-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl text-xs z-50 overflow-hidden select-none"
             >
-              <div className="flex divide-x divide-[#DFE3EB] dark:divide-slate-800">
-                {/* Left Category Menu (Sorting / Order) */}
-                <div className="w-36 p-2 space-y-0.5 bg-slate-50/70 dark:bg-slate-950/60 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setActiveSortCategory("Sorting")}
-                    onMouseEnter={() => setActiveSortCategory("Sorting")}
-                    className={cn(
-                      "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
-                      activeSortCategory === "Sorting"
-                        ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-slate-200/80 dark:border-slate-700/80"
-                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60",
-                    )}
-                  >
-                    <span>Sorting</span>
-                    <ChevronRight
-                      className={cn(
-                        "h-3.5 w-3.5 shrink-0 transition-transform",
-                        activeSortCategory === "Sorting" ? "text-[#0089FF] translate-x-0.5" : "text-slate-400",
-                      )}
-                    />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveSortCategory("Order")}
-                    onMouseEnter={() => setActiveSortCategory("Order")}
-                    className={cn(
-                      "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
-                      activeSortCategory === "Order"
-                        ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-slate-200/80 dark:border-slate-700/80"
-                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60",
-                    )}
-                  >
-                    <span>Order</span>
-                    <ChevronRight
-                      className={cn(
-                        "h-3.5 w-3.5 shrink-0 transition-transform",
-                        activeSortCategory === "Order" ? "text-[#0089FF] translate-x-0.5" : "text-slate-400",
-                      )}
-                    />
-                  </button>
-                </div>
-
-                {/* Right Options Flyout Panel */}
+              {activeTab === "geofence" ? (
                 <div className="w-56 p-3 flex flex-col justify-between bg-white dark:bg-slate-900 shrink-0">
-                  <div className="space-y-1">
-                    {activeSortCategory === "Sorting" ? (
-                      [
-                        { label: "Object Number", key: "number" },
-                        { label: "Object Name", key: "name" },
-                        { label: "Status", key: "status" },
-                        { label: "Last Updated Date Time", key: "last_updated" },
-                        { label: "Ignition", key: "ignition" },
-                        { label: "Power", key: "power" },
-                        { label: "Driver", key: "driver" },
-                      ].map((item) => {
-                        const isSelected = tempSortField === item.key;
-                        return (
-                          <label
-                            key={item.key}
-                            onClick={() => setTempSortField(item.key as any)}
-                            className={cn(
-                              "flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer transition-colors text-xs select-none",
-                              isSelected && "bg-sky-50/70 dark:bg-sky-950/40 text-[#0089FF] font-bold",
-                            )}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => {}}
-                              className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF]"
-                            />
-                            <span>{item.label}</span>
-                          </label>
-                        );
-                      })
-                    ) : (
-                      [
+                  <div className="space-y-2">
+                    <span className="font-bold text-slate-900 dark:text-slate-100 text-xs block pb-1 border-b border-slate-200/70 dark:border-slate-800">
+                      Select Order
+                    </span>
+                    <div className="space-y-1">
+                      {[
                         { label: "Ascending", key: "asc" },
                         { label: "Descending", key: "desc" },
                       ].map((item) => {
@@ -2491,7 +3765,7 @@ export function FleetExplorerPanel({
                           >
                             <input
                               type="radio"
-                              name="sortDirRadioFlyout"
+                              name="geofenceSortDirRadio"
                               checked={isSelected}
                               onChange={() => {}}
                               className="h-3.5 w-3.5 text-[#0089FF] accent-[#0089FF]"
@@ -2499,8 +3773,8 @@ export function FleetExplorerPanel({
                             <span>{item.label}</span>
                           </label>
                         );
-                      })
-                    )}
+                      })}
+                    </div>
                   </div>
 
                   {/* Footer Bar */}
@@ -2508,7 +3782,6 @@ export function FleetExplorerPanel({
                     <button
                       type="button"
                       onClick={() => {
-                        setTempSortField("name");
                         setTempSortDirection("asc");
                       }}
                       className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer px-1"
@@ -2526,10 +3799,9 @@ export function FleetExplorerPanel({
                       <button
                         type="button"
                         onClick={() => {
-                          setSortField(tempSortField);
                           setSortDirection(tempSortDirection);
                           setSortOpen(false);
-                          toast.success(`Sorted by ${tempSortField} (${tempSortDirection})`);
+                          toast.success(`Order set to ${tempSortDirection === "asc" ? "Ascending" : "Descending"}`);
                         }}
                         className="px-4 py-1.5 text-xs font-semibold text-white bg-[#0089FF] hover:bg-[#0070d6] rounded-lg shadow-xs transition-all cursor-pointer active:scale-98"
                       >
@@ -2538,7 +3810,150 @@ export function FleetExplorerPanel({
                     </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex divide-x divide-[#DFE3EB] dark:divide-slate-800">
+                  {/* Left Category Menu (Sorting / Order) */}
+                  <div className="w-36 p-2 space-y-0.5 bg-slate-50/70 dark:bg-slate-950/60 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSortCategory("Sorting")}
+                      onMouseEnter={() => setActiveSortCategory("Sorting")}
+                      className={cn(
+                        "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
+                        activeSortCategory === "Sorting"
+                          ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-slate-200/80 dark:border-slate-700/80"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60",
+                      )}
+                    >
+                      <span>Sorting</span>
+                      <ChevronRight
+                        className={cn(
+                          "h-3.5 w-3.5 shrink-0 transition-transform",
+                          activeSortCategory === "Sorting" ? "text-[#0089FF] translate-x-0.5" : "text-slate-400",
+                        )}
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveSortCategory("Order")}
+                      onMouseEnter={() => setActiveSortCategory("Order")}
+                      className={cn(
+                        "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
+                        activeSortCategory === "Order"
+                          ? "bg-white dark:bg-slate-800 text-[#0089FF] font-bold shadow-xs border border-slate-200/80 dark:border-slate-700/80"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60",
+                      )}
+                    >
+                      <span>Order</span>
+                      <ChevronRight
+                        className={cn(
+                          "h-3.5 w-3.5 shrink-0 transition-transform",
+                          activeSortCategory === "Order" ? "text-[#0089FF] translate-x-0.5" : "text-slate-400",
+                        )}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Right Options Flyout Panel */}
+                  <div className="w-56 p-3 flex flex-col justify-between bg-white dark:bg-slate-900 shrink-0">
+                    <div className="space-y-1">
+                      {activeSortCategory === "Sorting" ? (
+                        [
+                          { label: "Object Number", key: "number" },
+                          { label: "Object Name", key: "name" },
+                          { label: "Status", key: "status" },
+                          { label: "Last Updated Date Time", key: "last_updated" },
+                          { label: "Ignition", key: "ignition" },
+                          { label: "Power", key: "power" },
+                          { label: "Driver", key: "driver" },
+                        ].map((item) => {
+                          const isSelected = tempSortField === item.key;
+                          return (
+                            <label
+                              key={item.key}
+                              onClick={() => setTempSortField(item.key as any)}
+                              className={cn(
+                                "flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer transition-colors text-xs select-none",
+                                isSelected && "bg-sky-50/70 dark:bg-sky-950/40 text-[#0089FF] font-bold",
+                              )}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => {}}
+                                className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF]"
+                              />
+                              <span>{item.label}</span>
+                            </label>
+                          );
+                        })
+                      ) : (
+                        [
+                          { label: "Ascending", key: "asc" },
+                          { label: "Descending", key: "desc" },
+                        ].map((item) => {
+                          const isSelected = tempSortDirection === item.key;
+                          return (
+                            <label
+                              key={item.key}
+                              onClick={() => setTempSortDirection(item.key as any)}
+                              className={cn(
+                                "flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer transition-colors text-xs select-none",
+                                isSelected && "bg-sky-50/70 dark:bg-sky-950/40 text-[#0089FF] font-bold",
+                              )}
+                            >
+                              <input
+                                type="radio"
+                                name="sortDirRadioFlyout"
+                                checked={isSelected}
+                                onChange={() => {}}
+                                className="h-3.5 w-3.5 text-[#0089FF] accent-[#0089FF]"
+                              />
+                              <span>{item.label}</span>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Footer Bar */}
+                    <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-slate-200 dark:border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTempSortField("name");
+                          setTempSortDirection("asc");
+                        }}
+                        className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer px-1"
+                      >
+                        Reset
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setSortOpen(false)}
+                          className="px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-98"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSortField(tempSortField);
+                            setSortDirection(tempSortDirection);
+                            setSortOpen(false);
+                            toast.success(`Sorted by ${tempSortField} (${tempSortDirection})`);
+                          }}
+                          className="px-4 py-1.5 text-xs font-semibold text-white bg-[#0089FF] hover:bg-[#0070d6] rounded-lg shadow-xs transition-all cursor-pointer active:scale-98"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </PopoverContent>
           </Popover>
           )}
@@ -4023,13 +5438,40 @@ export function FleetExplorerPanel({
                 const filteredSubgroups = groupData.subgroups
                   .map((sub) => ({
                     ...sub,
-                    geofences: sub.geofences.filter(
-                      (g) =>
-                        query.trim() === "" ||
-                        g.name.toLowerCase().includes(query.trim().toLowerCase()) ||
-                        g.category.toLowerCase().includes(query.trim().toLowerCase()) ||
-                        g.type.toLowerCase().includes(query.trim().toLowerCase()),
-                    ),
+                    geofences: sub.geofences.filter((g) => {
+                      const q = query.trim().toLowerCase();
+                      const matchesQuery =
+                        q === "" ||
+                        g.name.toLowerCase().includes(q) ||
+                        g.category.toLowerCase().includes(q) ||
+                        g.type.toLowerCase().includes(q);
+
+                      const matchesGroup =
+                        selectedGeofenceGroups.length === ALL_GEOFENCE_GROUPS.length ||
+                        selectedGeofenceGroups.some(
+                          (grp) =>
+                            grp.toLowerCase() === sub.name.toLowerCase() ||
+                            grp.toLowerCase() === groupData.group.toLowerCase(),
+                        );
+
+                      const matchesCategory =
+                        selectedGeofenceCategories.length === ALL_GEOFENCE_CATEGORIES.length ||
+                        selectedGeofenceCategories.some(
+                          (cat) =>
+                            cat.toLowerCase() === g.category.toLowerCase() ||
+                            g.category.toLowerCase().includes(cat.toLowerCase()),
+                        );
+
+                      const matchesType =
+                        selectedGeofenceTypes.length === ALL_GEOFENCE_TYPES.length ||
+                        selectedGeofenceTypes.some(
+                          (typ) =>
+                            typ.toLowerCase() === g.type.toLowerCase() ||
+                            g.type.toLowerCase().includes(typ.toLowerCase()),
+                        );
+
+                      return matchesQuery && matchesGroup && matchesCategory && matchesType;
+                    }),
                   }))
                   .filter((sub) => sub.geofences.length > 0);
 
@@ -4195,7 +5637,24 @@ export function FleetExplorerPanel({
                                     type="button"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      toast.success(`Editing geofence configuration for "${geo.name}"`);
+                                      if (onOpenAddGeofence) {
+                                        onOpenAddGeofence({
+                                          id: geo.id,
+                                          company: "Ha Company",
+                                          name: geo.name,
+                                          category: geo.category || "Area",
+                                          access: "Public",
+                                          group: "Ha Company Geofences",
+                                          type: geo.type || "Polygon Zone",
+                                          contactNo: "+91 98765 43210",
+                                          address: "Ha Company Main Zone",
+                                          color: "#0089FF",
+                                          tolerance: 10,
+                                          description: "Ha Company geofence area",
+                                        });
+                                      } else {
+                                        toast.success(`Editing geofence configuration for "${geo.name}"`);
+                                      }
                                     }}
                                     className="p-1 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
                                     title="Edit Geofence"
@@ -4235,7 +5694,699 @@ export function FleetExplorerPanel({
           </div>
         )}
 
-        {/* Routes Tab View */}
+        {/* Trailer Tab View (Standard Trakzee 2.0 Format) */}
+        {activeTab === "trailer" && (
+          <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900">
+            {/* 1. Column Table Header Bar */}
+            <div className="px-3 py-2 bg-slate-100/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center shrink-0">
+              <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                <span>Trailer</span>
+              </div>
+              <div className="w-24 text-left">Code</div>
+              <div className="w-16 text-right pr-1">Actions</div>
+            </div>
+
+            {/* 2. Grouped Accordion List */}
+            <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+              {trailerData.map((groupItem, gIdx) => {
+                const isGroupCollapsed = collapsedTrailerGroups[groupItem.group];
+                const filteredSubgroups = groupItem.subgroups
+                  .map((sub) => ({
+                    ...sub,
+                    trailers: sub.trailers.filter((tr) => {
+                      const matchesQuery =
+                        tr.name.toLowerCase().includes(query.toLowerCase()) ||
+                        tr.code.toLowerCase().includes(query.toLowerCase()) ||
+                        groupItem.group.toLowerCase().includes(query.toLowerCase()) ||
+                        sub.name.toLowerCase().includes(query.toLowerCase());
+
+                      const matchesStatus =
+                        activeTrailerStatus === "all"
+                          ? true
+                          : activeTrailerStatus === "attached"
+                          ? tr.isAttached
+                          : !tr.isAttached;
+
+                      return matchesQuery && matchesStatus;
+                    }),
+                  }))
+                  .filter((sub) => sub.trailers.length > 0 || (query === "" && activeTrailerStatus === "all"));
+
+                const groupTotalTrailers = filteredSubgroups.reduce((acc, sub) => acc + sub.trailers.length, 0);
+                if ((query !== "" || activeTrailerStatus !== "all") && groupTotalTrailers === 0) return null;
+
+                return (
+                  <div key={gIdx} className="bg-white dark:bg-slate-900">
+                    {/* Top Group Accordion Header (e.g. Company, TKDN, Jaideep Test Account) */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCollapsedTrailerGroups((prev) => ({
+                          ...prev,
+                          [groupItem.group]: !prev[groupItem.group],
+                        }))
+                      }
+                      className="w-full px-3 py-2 bg-slate-50/80 dark:bg-slate-800/40 hover:bg-slate-100/80 dark:hover:bg-slate-800/70 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between text-left transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        {isGroupCollapsed ? (
+                          <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
+                        )}
+                        <span className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
+                          {groupItem.group}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
+                        [{groupTotalTrailers}]
+                      </span>
+                    </button>
+
+                    {/* Subgroups & Trailers */}
+                    {!isGroupCollapsed && (
+                      <div className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                        {filteredSubgroups.map((subGroup, sIdx) => (
+                          <div key={sIdx} className="bg-white dark:bg-slate-900">
+                            {/* Subgroup Header (e.g. Valsad, VALSAD BRANCH) */}
+                            <div className="px-3 py-1.5 pl-6 bg-slate-50/40 dark:bg-slate-900/50 flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400 border-b border-slate-100/60 dark:border-slate-800/30">
+                              <span className="truncate font-semibold text-slate-700 dark:text-slate-300">
+                                {subGroup.name}
+                              </span>
+                              <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
+                                [{subGroup.trailers.length}]
+                              </span>
+                            </div>
+
+                            {/* Trailer Row List */}
+                            <div className="divide-y divide-slate-100/60 dark:divide-slate-800/30">
+                              {subGroup.trailers.map((tr) => (
+                                <div
+                                  key={tr.id}
+                                  className="px-3 py-2 pl-8 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center text-xs transition-colors group"
+                                >
+                                  {/* Trailer Name */}
+                                  <div className="flex-1 min-w-0 pr-2">
+                                    <div
+                                      onClick={() => handleOpenEditTrailer(tr, groupItem.group, subGroup.name)}
+                                      className="font-semibold text-slate-800 dark:text-slate-200 truncate hover:text-[#0089FF] cursor-pointer"
+                                      title="Edit Trailer Details"
+                                    >
+                                      {tr.name}
+                                    </div>
+                                    {tr.vehicle && (
+                                      <div
+                                        onClick={() => handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name)}
+                                        className="text-[10px] text-slate-400 truncate flex items-center gap-1 hover:text-[#0089FF] cursor-pointer"
+                                        title="Allocate / Change Vehicle"
+                                      >
+                                        <Truck className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                        <span className={tr.vehicle !== "Unassigned" ? "text-slate-600 dark:text-slate-300 font-mono font-medium" : "text-slate-400"}>
+                                          {tr.vehicle}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Code */}
+                                  <div className="w-24 text-left font-mono text-[11px] text-slate-600 dark:text-slate-400 truncate">
+                                    {tr.code}
+                                  </div>
+
+                                  {/* Action Buttons: Allocate Vehicle + Edit Trailer */}
+                                  <div className="w-16 flex items-center justify-end gap-1.5 text-slate-400">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name);
+                                      }}
+                                      className="p-1 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                      title="Allocate / Change Vehicle Object"
+                                    >
+                                      <Link2 className="h-3.5 w-3.5 stroke-[2]" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenEditTrailer(tr, groupItem.group, subGroup.name);
+                                      }}
+                                      className="p-1 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                      title="Edit Trailer Details"
+                                    >
+                                      <Edit3 className="h-3.5 w-3.5 stroke-[2]" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Beacon Tab View (1:1 with reference screenshot media_1791362670674.png) */}
+        {activeTab === "beacon" && (
+          <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900">
+            {/* 1. Five Column Headers with Text Names: 1. Beacon Name, 2. Object, 3. Location, 4. RSSI, 5. Distance */}
+            <div className="flex items-center px-3 py-2 bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 select-none">
+              <div className="w-10 shrink-0" />
+              
+              {/* 1. Beacon Name */}
+              <div className="flex-1 min-w-0 font-extrabold text-slate-700 dark:text-slate-200 truncate">
+                Beacon Name
+              </div>
+
+              {/* 2. Object */}
+              <div className="w-24 text-left font-extrabold text-slate-700 dark:text-slate-200 truncate">
+                Object
+              </div>
+
+              {/* 3. Location */}
+              <div className="w-28 text-left font-extrabold text-slate-700 dark:text-slate-200 truncate">
+                Location
+              </div>
+
+              {/* 4. RSSI */}
+              <div className="w-16 text-right font-extrabold text-slate-700 dark:text-slate-200 truncate">
+                RSSI
+              </div>
+
+              {/* 5. Distance */}
+              <div className="w-16 text-right font-extrabold text-slate-700 dark:text-slate-200 truncate">
+                Distance
+              </div>
+            </div>
+
+            {/* 2. Group & Subgroup Tree List with Beacons */}
+            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 select-none">
+              {beaconData.map((groupItem) => {
+                const isGroupCollapsed = collapsedBeaconGroups[groupItem.group] ?? false;
+
+                const filteredSubgroups = groupItem.subgroups
+                  .map((subGroup) => ({
+                    ...subGroup,
+                    beacons: subGroup.beacons.filter((b) => {
+                      const q = query.trim().toLowerCase();
+                      const matchesQuery =
+                        q === "" ||
+                        b.name.toLowerCase().includes(q) ||
+                        b.object.toLowerCase().includes(q) ||
+                        b.location.toLowerCase().includes(q);
+
+                      const matchesStatus =
+                        activeBeaconStatus === "all" ||
+                        (activeBeaconStatus === "connected" && b.isConnected) ||
+                        (activeBeaconStatus === "disconnected" && !b.isConnected);
+
+                      return matchesQuery && matchesStatus;
+                    }),
+                  }))
+                  .filter((s) => s.beacons.length > 0);
+
+                const groupTotalCount = groupItem.subgroups.reduce(
+                  (acc, s) => acc + s.beacons.length,
+                  0,
+                );
+
+                return (
+                  <div key={groupItem.group} className="divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40">
+                    {/* Top Level Group Header (e.g. HP Company) */}
+                    <div className="flex items-center justify-between pl-2.5 pr-3 py-1.5 bg-slate-50/90 dark:bg-slate-900/60 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-colors">
+                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCollapsedBeaconGroups((prev) => ({
+                              ...prev,
+                              [groupItem.group]: !prev[groupItem.group],
+                            }))
+                          }
+                          className="flex items-center gap-1 text-left text-xs font-semibold text-slate-800 dark:text-slate-200 hover:text-[#0089FF] cursor-pointer flex-1 truncate"
+                        >
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-150",
+                              isGroupCollapsed && "-rotate-90",
+                            )}
+                          />
+                          <span className="truncate">{groupItem.group}</span>
+                        </button>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400 shrink-0">
+                        [{groupTotalCount}]
+                      </span>
+                    </div>
+
+                    {/* Subgroups & Beacon Rows */}
+                    {!isGroupCollapsed &&
+                      filteredSubgroups.map((subGroup) => {
+                        const isSubCollapsed = collapsedBeaconSubgroups[subGroup.name] ?? false;
+
+                        return (
+                          <div key={subGroup.name} className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                            {/* Subgroup Header (e.g. HP Branch 1) */}
+                            <div className="flex items-center justify-between pl-6 pr-3 py-1 bg-slate-50/40 dark:bg-slate-900/40">
+                              <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                                <input
+                                  type="checkbox"
+                                  defaultChecked
+                                  className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCollapsedBeaconSubgroups((prev) => ({
+                                      ...prev,
+                                      [subGroup.name]: !prev[subGroup.name],
+                                    }))
+                                  }
+                                  className="flex items-center gap-1 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0089FF] cursor-pointer flex-1 truncate"
+                                >
+                                  <ChevronDown
+                                    className={cn(
+                                      "h-3.5 w-3.5 text-slate-500 transition-transform duration-150",
+                                      isSubCollapsed && "-rotate-90",
+                                    )}
+                                  />
+                                  <span className="truncate">{subGroup.name}</span>
+                                </button>
+                              </div>
+                              <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
+                                [{subGroup.beacons.length}]
+                              </span>
+                            </div>
+
+                            {/* Beacon Data Items */}
+                            {!isSubCollapsed &&
+                              subGroup.beacons.map((beacon) => (
+                                <div
+                                  key={beacon.id}
+                                  className="px-3 py-2 pl-8 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center text-xs transition-colors group select-none"
+                                >
+                                  {/* Checkbox & Status Indicator Dot */}
+                                  <div className="w-10 shrink-0 flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={beacon.checked}
+                                      onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        setBeaconData((prev) =>
+                                          prev.map((g) => ({
+                                            ...g,
+                                            subgroups: g.subgroups.map((s) => ({
+                                              ...s,
+                                              beacons: s.beacons.map((b) =>
+                                                b.id === beacon.id ? { ...b, checked } : b,
+                                              ),
+                                            })),
+                                          })),
+                                        );
+                                      }}
+                                      className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                    />
+
+                                    {/* Active Status Badge / Dot centered vertically with checkbox */}
+                                    <span
+                                      title={`Status: ${beacon.isConnected ? "CONNECTED" : "DISCONNECTED"}`}
+                                      className={cn(
+                                        "h-2 w-2 rounded-full shrink-0 shadow-2xs",
+                                        beacon.isConnected ? "bg-emerald-500 ring-2 ring-emerald-500/20" : "bg-rose-500",
+                                      )}
+                                    />
+                                  </div>
+
+                                  {/* 1. Beacon Name & Timestamp (Standard Dark Text) */}
+                                  <div className="flex-1 min-w-0 pr-2">
+                                    <div
+                                      onClick={() => toast.info(`Viewing details for "${beacon.name}"`)}
+                                      className="font-semibold text-slate-800 dark:text-slate-100 hover:text-[#0089FF] cursor-pointer truncate"
+                                      title={beacon.name}
+                                    >
+                                      {beacon.name}
+                                    </div>
+                                    <div className="text-[10px] text-slate-400 font-mono mt-0.5 truncate">
+                                      {beacon.timestamp}
+                                    </div>
+                                  </div>
+
+                                  {/* 2. Object */}
+                                  <div className="w-24 text-left text-[11px] font-medium text-slate-700 dark:text-slate-300 truncate" title={beacon.object}>
+                                    {beacon.object}
+                                  </div>
+
+                                  {/* 3. Location */}
+                                  <div className="w-28 text-left text-[11px] text-slate-600 dark:text-slate-400 truncate" title={beacon.location}>
+                                    {beacon.location}
+                                  </div>
+
+                                  {/* 4. RSSI */}
+                                  <div className="w-16 text-right font-mono text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                                    {beacon.rssi}
+                                  </div>
+
+                                  {/* 5. Distance */}
+                                  <div className="w-16 text-right font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-100">
+                                    {beacon.distance}
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        );
+                      })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Video Telematics Tab View (1:1 with reference screenshot media_1791365930946.png) */}
+        {activeTab === "video_telematics" && (
+          <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900 select-none">
+            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60">
+              {videoTelematicsData.map((groupItem) => {
+                const isGroupCollapsed = collapsedVideoGroups[groupItem.group] ?? false;
+
+                const filteredSubgroups = groupItem.subgroups
+                  .map((subGroup) => ({
+                    ...subGroup,
+                    devices: subGroup.devices.filter((d) => {
+                      const q = query.trim().toLowerCase();
+                      const matchesQuery =
+                        q === "" ||
+                        d.name.toLowerCase().includes(q) ||
+                        d.channels.some((c) => c.name.toLowerCase().includes(q));
+
+                      const matchesStatus =
+                        activeVideoStatus === "all" || d.status === activeVideoStatus;
+
+                      return matchesQuery && matchesStatus;
+                    }),
+                  }))
+                  .filter((s) => s.devices.length > 0);
+
+                const groupTotalCount = groupItem.subgroups.reduce(
+                  (acc, s) => acc + s.devices.length,
+                  0,
+                );
+
+                return (
+                  <div key={groupItem.group} className="divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40">
+                    {/* Top Level Group Header (e.g. HP Company) */}
+                    <div className="flex items-center justify-between pl-2.5 pr-3 py-1.5 bg-slate-50/90 dark:bg-slate-900/60 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-colors">
+                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCollapsedVideoGroups((prev) => ({
+                              ...prev,
+                              [groupItem.group]: !prev[groupItem.group],
+                            }))
+                          }
+                          className="flex items-center gap-1 text-left text-xs font-semibold text-slate-800 dark:text-slate-200 hover:text-[#0089FF] cursor-pointer flex-1 truncate"
+                        >
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-150",
+                              isGroupCollapsed && "-rotate-90",
+                            )}
+                          />
+                          <span className="truncate">{groupItem.group}</span>
+                        </button>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400 shrink-0">
+                        [{groupTotalCount}]
+                      </span>
+                    </div>
+
+                    {/* Subgroups & Video Telematics Devices */}
+                    {!isGroupCollapsed &&
+                      filteredSubgroups.map((subGroup) => {
+                        const isSubCollapsed = collapsedVideoSubgroups[subGroup.name] ?? false;
+
+                        return (
+                          <div key={subGroup.name} className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                            {/* Subgroup Header (e.g. HP Branch 1) */}
+                            <div className="flex items-center justify-between pl-6 pr-3 py-1 bg-slate-50/40 dark:bg-slate-900/40">
+                              <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                                <input
+                                  type="checkbox"
+                                  defaultChecked
+                                  className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCollapsedVideoSubgroups((prev) => ({
+                                      ...prev,
+                                      [subGroup.name]: !prev[subGroup.name],
+                                    }))
+                                  }
+                                  className="flex items-center gap-1 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0089FF] cursor-pointer flex-1 truncate"
+                                >
+                                  <ChevronDown
+                                    className={cn(
+                                      "h-3.5 w-3.5 text-slate-500 transition-transform duration-150",
+                                      isSubCollapsed && "-rotate-90",
+                                    )}
+                                  />
+                                  <span className="truncate">{subGroup.name}</span>
+                                </button>
+                              </div>
+                              <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
+                                [{subGroup.devices.length}]
+                              </span>
+                            </div>
+
+                            {/* Device & Nested Channels Items */}
+                            {!isSubCollapsed &&
+                              subGroup.devices.map((device) => {
+                                const isDeviceCollapsed = collapsedVideoDevices[device.id] ?? false;
+
+                                return (
+                                  <div key={device.id} className="divide-y divide-slate-50 dark:divide-slate-800/20">
+                                    {/* Device Main Row */}
+                                    <div className="px-3 py-1.5 pl-8 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between text-xs transition-colors group">
+                                      {/* Left: Checkbox + ChevronDown + Status Dot + Device Name & Timestamp */}
+                                      <div className="flex items-center gap-1.5 min-w-0 flex-1 pr-2">
+                                        <input
+                                          type="checkbox"
+                                          checked={device.checked}
+                                          onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setVideoTelematicsData((prev) =>
+                                              prev.map((g) => ({
+                                                ...g,
+                                                subgroups: g.subgroups.map((s) => ({
+                                                  ...s,
+                                                  devices: s.devices.map((d) =>
+                                                    d.id === device.id ? { ...d, checked } : d,
+                                                  ),
+                                                })),
+                                              })),
+                                            );
+                                          }}
+                                          className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                        />
+
+                                        {/* Standard Theme Chevron Expand / Collapse */}
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setCollapsedVideoDevices((prev) => ({
+                                              ...prev,
+                                              [device.id]: !prev[device.id],
+                                            }))
+                                          }
+                                          className="p-0.5 rounded text-slate-400 hover:text-[#0089FF] transition-colors cursor-pointer shrink-0"
+                                          title={isDeviceCollapsed ? "Expand Channels" : "Collapse Channels"}
+                                        >
+                                          <ChevronDown
+                                            className={cn(
+                                              "h-3.5 w-3.5 transition-transform duration-150",
+                                              isDeviceCollapsed && "-rotate-90",
+                                            )}
+                                          />
+                                        </button>
+
+                                        {/* Status Dot */}
+                                        <span
+                                          title={`Status: ${device.status.toUpperCase()}`}
+                                          className={cn(
+                                            "h-2 w-2 rounded-full shrink-0 shadow-2xs",
+                                            device.status === "running"
+                                              ? "bg-emerald-500 ring-2 ring-emerald-500/20"
+                                              : device.status === "idle"
+                                              ? "bg-amber-500 ring-2 ring-amber-500/20"
+                                              : device.status === "stopped"
+                                              ? "bg-rose-500 ring-2 ring-rose-500/20"
+                                              : "bg-indigo-500 ring-2 ring-indigo-500/20",
+                                          )}
+                                        />
+
+                                        {/* Device Name & Timestamp */}
+                                        <div className="flex flex-col min-w-0 truncate">
+                                          <div
+                                            onClick={() => toast.info(`Viewing camera stream for "${device.name}"`)}
+                                            className="font-semibold text-slate-800 dark:text-slate-100 hover:text-[#0089FF] cursor-pointer truncate text-xs"
+                                            title={device.name}
+                                          >
+                                            {device.name}
+                                          </div>
+                                          <div className="text-[10px] text-slate-400 font-mono mt-0.5 truncate">
+                                            {device.timestamp}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* Right Action Icons: Intercom (Mic) button */}
+                                      <div className="flex items-center gap-1 shrink-0">
+                                        <button
+                                          type="button"
+                                          onClick={() => toast.info(`Starting Intercom session with ${device.name}...`)}
+                                          className="p-1 rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors cursor-pointer"
+                                          title="Intercom / Two-Way Audio"
+                                        >
+                                          <Mic className="h-3.5 w-3.5 stroke-[2]" />
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Nested Channel Rows under Device */}
+                                    {!isDeviceCollapsed &&
+                                      device.channels.map((channel) => (
+                                        <div
+                                          key={channel.id}
+                                          className="py-1 pl-16 pr-3 bg-slate-50/40 dark:bg-slate-900/30 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 flex items-center justify-between text-xs transition-colors"
+                                        >
+                                          {/* Channel Label (Lines Removed) */}
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-bold text-xs text-slate-700 dark:text-slate-300 font-mono">
+                                              {channel.name}
+                                            </span>
+                                          </div>
+
+                                          {/* 4 Quick Action Camera Buttons */}
+                                          <div className="flex items-center gap-1 shrink-0">
+                                            {/* 1. Live Stream Video */}
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                const feed = {
+                                                  id: `${device.id}-${channel.id}`,
+                                                  deviceName: device.name,
+                                                  channelName: channel.name,
+                                                  location: "At Uffizio - Head Office",
+                                                  status: "Active" as const,
+                                                  fps: device.status === "running" ? 25 : 15,
+                                                  dataUsed: "3.39 MB",
+                                                  bitrate: "1/40.34 kbps",
+                                                  resolution: "704x576 px",
+                                                  coordinates: "20.594105N 72.930708E",
+                                                  speed: "0 km/h",
+                                                };
+                                                if (onOpenVideoChannel) {
+                                                  onOpenVideoChannel(feed);
+                                                } else {
+                                                  toast.success(`Starting Live Stream on ${device.name} (${channel.name})`);
+                                                }
+                                              }}
+                                              className={cn(
+                                                "h-6 w-6 rounded-md flex items-center justify-center border transition-all cursor-pointer shadow-2xs active:scale-95",
+                                                device.status === "running" || device.status === "idle"
+                                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40 hover:bg-emerald-100"
+                                                  : "bg-rose-50 text-rose-500 border-rose-200/60 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/40 hover:bg-rose-100",
+                                              )}
+                                              title={`Live Stream - ${channel.name}`}
+                                            >
+                                              <Video className="h-3 w-3 stroke-[2.2]" />
+                                            </button>
+
+                                            {/* 2. Playback */}
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                toast.info(`Opening Playback for ${device.name} (${channel.name})`)
+                                              }
+                                              className={cn(
+                                                "h-6 w-6 rounded-md flex items-center justify-center border transition-all cursor-pointer shadow-2xs active:scale-95",
+                                                device.status === "running" || device.status === "idle"
+                                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40 hover:bg-emerald-100"
+                                                  : "bg-rose-50 text-rose-500 border-rose-200/60 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/40 hover:bg-rose-100",
+                                              )}
+                                              title={`Playback - ${channel.name}`}
+                                            >
+                                              <RotateCcw className="h-3 w-3 stroke-[2.2]" />
+                                            </button>
+
+                                            {/* 3. Target / Refresh */}
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                toast.info(`Refreshing camera feed ${device.name} (${channel.name})`)
+                                              }
+                                              className={cn(
+                                                "h-6 w-6 rounded-md flex items-center justify-center border transition-all cursor-pointer shadow-2xs active:scale-95",
+                                                device.status === "running" || device.status === "idle"
+                                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40 hover:bg-emerald-100"
+                                                  : "bg-rose-50 text-rose-500 border-rose-200/60 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/40 hover:bg-rose-100",
+                                              )}
+                                              title={`Refresh / Alert - ${channel.name}`}
+                                            >
+                                              <Target className="h-3 w-3 stroke-[2.2]" />
+                                            </button>
+
+                                            {/* 4. Snapshot */}
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                toast.success(`Snapshot captured for ${device.name} (${channel.name})`)
+                                              }
+                                              className={cn(
+                                                "h-6 w-6 rounded-md flex items-center justify-center border transition-all cursor-pointer shadow-2xs active:scale-95",
+                                                device.status === "running" || device.status === "idle"
+                                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40 hover:bg-emerald-100"
+                                                  : "bg-rose-50 text-rose-500 border-rose-200/60 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/40 hover:bg-rose-100",
+                                              )}
+                                              title={`Take Snapshot - ${channel.name}`}
+                                            >
+                                              <Camera className="h-3 w-3 stroke-[2.2]" />
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        );
+                      })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Routes Tab View View */}
         {activeTab === "route" && (
           <div className="p-3 space-y-2">
             <div className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
@@ -4580,7 +6731,7 @@ export function FleetExplorerPanel({
           <button
             type="button"
             onClick={() => {
-              setActiveTab("health");
+              handleTabChange("health");
               setSelectedHealthCategory("safety");
               if (onCloseTelemetry) onCloseTelemetry();
             }}
@@ -4603,7 +6754,7 @@ export function FleetExplorerPanel({
           <button
             type="button"
             onClick={() => {
-              setActiveTab("health");
+              handleTabChange("health");
               setSelectedHealthCategory("efficiency");
               if (onCloseTelemetry) onCloseTelemetry();
             }}
@@ -4624,7 +6775,7 @@ export function FleetExplorerPanel({
           <button
             type="button"
             onClick={() => {
-              setActiveTab("health");
+              handleTabChange("health");
               setSelectedHealthCategory("risk");
               if (onCloseTelemetry) onCloseTelemetry();
             }}
@@ -4645,7 +6796,7 @@ export function FleetExplorerPanel({
           <button
             type="button"
             onClick={() => {
-              setActiveTab("health");
+              handleTabChange("health");
               setSelectedHealthCategory("discipline");
               if (onCloseTelemetry) onCloseTelemetry();
             }}
@@ -4663,6 +6814,23 @@ export function FleetExplorerPanel({
           </button>
         </div>
       )}
+
+      {/* 1. Edit Trailer Specifications Modal (Standard 56px Header Format) */}
+      <EditTrailerModal
+        open={editTrailerModalOpen}
+        onClose={() => setEditTrailerModalOpen(false)}
+        trailer={selectedEditTrailer}
+        onSaveTrailer={handleSaveTrailer}
+      />
+
+      {/* 2. Allocate Vehicle Modal (Standard 56px Header & 44px #FAFBFC Subheader Format) */}
+      <AllocateVehicleModal
+        open={allocateVehicleModalOpen}
+        onClose={() => setAllocateVehicleModalOpen(false)}
+        trailer={selectedAllocateTrailer}
+        availableVehicles={localVehicles}
+        onSaveAllocation={handleSaveTrailer}
+      />
     </div>
   );
 }

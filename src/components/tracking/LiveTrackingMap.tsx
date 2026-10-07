@@ -180,6 +180,7 @@ export function LiveTrackingMap({
   leftPanelWidth = 630,
   isTelemetryDrawerOpen,
   onToggleTelemetryDrawer,
+  activeTab = "object",
   onSelectVehicle,
   className,
 }: {
@@ -192,6 +193,7 @@ export function LiveTrackingMap({
   leftPanelWidth?: number;
   isTelemetryDrawerOpen: boolean;
   onToggleTelemetryDrawer: () => void;
+  activeTab?: string;
   onSelectVehicle?: (id: string) => void;
   className?: string;
 }) {
@@ -682,8 +684,8 @@ export function LiveTrackingMap({
         }}
       >
         <div className="pointer-events-auto flex items-center gap-2.5 py-0.5 px-1">
-          {/* Playback CTA Button & Hover Dropdown Overlay (Exact Same Width Alignment 1:1) */}
-          {selectedVehicle && (
+          {/* Playback CTA Button & Hover Dropdown Overlay (Exact Same Width Alignment 1:1) - Enabled ONLY in Object tab */}
+          {selectedVehicle && activeTab === "object" && (
             <div className="relative w-[136px] group/playback">
               {/* Reference-Matched Playback CTA Button (Full Container Width) */}
               <button
