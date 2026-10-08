@@ -270,13 +270,13 @@ export function VehicleTelemetryDrawer({
     <>
       <div
         className={cn(
-          "flex flex-col w-full text-xs select-none h-full bg-transparent overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar pr-1.5 pointer-events-auto",
+          "flex flex-col gap-2 w-full text-xs select-none h-full bg-transparent pointer-events-none",
           className,
         )}
       >
-        {/* 1. Sticky Header Bar (Unified in one line with widget cards, scrollbar outside) */}
+        {/* 1. Header Card */}
         {!isHealthOnly && !selectedJob && (
-          <div className="sticky top-0 z-20 flex h-11 w-full items-center justify-between bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-2 select-none rounded-xl shadow-md shrink-0">
+          <div className="flex h-11 w-full items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 select-none rounded-2xl shadow-md shrink-0 pointer-events-auto">
             <div className="flex items-center gap-1 min-w-0">
               {DRAWER_TABS.map((tab) => {
                 const isActive = activeDrawerTab === tab.id;
@@ -315,15 +315,16 @@ export function VehicleTelemetryDrawer({
           </div>
         )}
 
-        {/* 2. Column of Floating Cards */}
-        {(isHealthOnly
-          ? ["health_score"]
-          : selectedJob
-            ? selectedJob.isObjectHalt
-              ? ["object_halt_info"]
-              : ["job_info"]
-            : cardsOrder.filter((id) => id !== "health_score" && id !== "job_info" && id !== "object_halt_info")
-        ).map((cardId) => {
+        {/* 2. Scrollable Column of Floating Cards */}
+        <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar py-0.5 pr-2 pointer-events-auto">
+          {(isHealthOnly
+            ? ["health_score"]
+            : selectedJob
+              ? selectedJob.isObjectHalt
+                ? ["object_halt_info"]
+                : ["job_info"]
+              : cardsOrder.filter((id) => id !== "health_score" && id !== "job_info" && id !== "object_halt_info")
+          ).map((cardId) => {
             const isDraggingThis = draggedCardId === cardId;
             const isRefreshingThis = refreshingCardId === cardId;
             const cardWrapperClass = cn(
@@ -1740,6 +1741,7 @@ export function VehicleTelemetryDrawer({
                 return null;
             }
           })}
+        </div>
       </div>
 
       {/* Tooltip Widget Customization Settings Modal */}

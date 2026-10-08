@@ -387,7 +387,7 @@ export function TrackingPage() {
             isHealthOnly={isHealthTelemetryOnly}
             selectedJob={selectedJobForDrawer}
             className={cn(
-              isHealthTelemetryOnly ? "w-[300px] sm:w-[300px]" : "w-[220px] sm:w-[220px]",
+              isHealthTelemetryOnly ? "w-[300px] sm:w-[300px]" : "w-[228px] sm:w-[228px]",
               "h-full pointer-events-auto bg-transparent border-0 shadow-none",
             )}
           />
