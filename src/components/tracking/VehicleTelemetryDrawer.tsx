@@ -274,9 +274,9 @@ export function VehicleTelemetryDrawer({
           className,
         )}
       >
-        {/* 1. Header Card */}
+        {/* 1. Header Card (220px Width Matching Cards 1:1) */}
         {!isHealthOnly && !selectedJob && (
-          <div className="flex h-11 w-full items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 select-none rounded-2xl shadow-md shrink-0 pointer-events-auto">
+          <div className="flex h-11 w-[220px] items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 select-none rounded-2xl shadow-md shrink-0 pointer-events-auto">
             <div className="flex items-center gap-1 min-w-0">
               {DRAWER_TABS.map((tab) => {
                 const isActive = activeDrawerTab === tab.id;
@@ -315,7 +315,7 @@ export function VehicleTelemetryDrawer({
           </div>
         )}
 
-        {/* 2. Scrollable Column of Floating Cards */}
+        {/* 2. Scrollable Column of Floating Cards (Outer Scrollbar Outside 220px Area) */}
         <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar py-0.5 pr-2 pointer-events-auto">
           {(isHealthOnly
             ? ["health_score"]
@@ -328,7 +328,7 @@ export function VehicleTelemetryDrawer({
             const isDraggingThis = draggedCardId === cardId;
             const isRefreshingThis = refreshingCardId === cardId;
             const cardWrapperClass = cn(
-              "w-full shrink-0 group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden text-xs transition-all relative",
+              "w-[220px] shrink-0 group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden text-xs transition-all relative",
               isDraggingThis && "opacity-50 border-dashed border-[#0089FF]"
             );
 
