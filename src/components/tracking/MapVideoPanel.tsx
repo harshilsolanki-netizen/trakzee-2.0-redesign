@@ -830,38 +830,6 @@ export function MapVideoPanel({
             </button>
           </div>
 
-          {/* Right Global Controls: Auto Play Checkbox & Start/Pause All Button */}
-          <div className="flex items-center gap-3">
-            {/* Auto Play Checkbox */}
-            <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isAutoPlay}
-                onChange={(e) => setIsAutoPlay(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer"
-              />
-              <span>Auto Play</span>
-            </label>
-
-            {/* Start / Pause All Button */}
-            <button
-              type="button"
-              onClick={handleStartAll}
-              className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
-            >
-              {isAllPlaying ? (
-                <>
-                  <Pause className="h-3.5 w-3.5 fill-white stroke-none" />
-                  <span>Pause All</span>
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5 fill-white stroke-none" />
-                  <span>Start All</span>
-                </>
-              )}
-            </button>
-          </div>
         </div>
       )}
 
