@@ -4,6 +4,8 @@ import { LiveTrackingMap } from "@/components/tracking/LiveTrackingMap";
 import { VehicleTelemetryDrawer } from "@/components/tracking/VehicleTelemetryDrawer";
 import { RoutePlaybackBar } from "@/components/tracking/RoutePlaybackBar";
 import { LiveDashcamModal } from "@/components/tracking/LiveDashcamModal";
+import { IntercomPanel, type IntercomDevice } from "@/components/tracking/IntercomPanel";
+import { PlaybackHistoryPanel, type PlaybackDeviceProps } from "@/components/tracking/PlaybackHistoryPanel";
 import { MapVideoPanel, type VideoChannelFeed } from "@/components/tracking/MapVideoPanel";
 import { AddVehiclePage } from "@/components/tracking/AddVehiclePage";
 import {
@@ -66,6 +68,8 @@ export function TrackingPage() {
   );
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(DEFAULT_COLUMNS);
+  const [intercomDevice, setIntercomDevice] = useState<IntercomDevice | null>(null);
+  const [playbackHistoryDevice, setPlaybackHistoryDevice] = useState<PlaybackDeviceProps | null>(null);
 
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
   const [isUploadAddressModalOpen, setIsUploadAddressModalOpen] = useState(false);
@@ -74,7 +78,7 @@ export function TrackingPage() {
   const [isAddGeofenceModalOpen, setIsAddGeofenceModalOpen] = useState(false);
   const [editingGeofenceData, setEditingGeofenceData] = useState<GeofenceFormData | null>(null);
 
-  // Map + Video Right Panel Camera Feeds state
+  // Map + Video Right Panel Camera Feeds state using real telematics camera assets
   const [activeVideoFeeds, setActiveVideoFeeds] = useState<VideoChannelFeed[]>([
     {
       id: "v-1",
@@ -92,57 +96,106 @@ export function TrackingPage() {
     {
       id: "v-2",
       deviceName: "H20P TRACKNOW",
-      channelName: "CH2",
+      channelName: "DMS Fatigue Alert",
+      location: "Plot 214, Phase 2, GIDC Industrial Estate, Vapi, Gujarat 396195",
+      status: "Active",
+      fps: 25,
+      dataUsed: "7.50 MB",
+      bitrate: "1/41.21 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/driver_fatigue_rubbing_eyes.png",
+    },
+    {
+      id: "v-3",
+      deviceName: "H20P TRACKNOW",
+      channelName: "DMS Smoking Alert",
+      location: "National Highway 48, Near Toll Plaza, Vapi",
+      status: "Active",
+      fps: 25,
+      dataUsed: "7.85 MB",
+      bitrate: "1/40.16 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/driver_smoking.png",
+    },
+    {
+      id: "v-4",
+      deviceName: "HP Bonga Stream...",
+      channelName: "DMS Yawning Alert",
       location: "At Uffizio - Head Office",
       status: "Active",
       fps: 25,
-      dataUsed: "3.39 MB",
-      bitrate: "1/40.34 kbps",
+      dataUsed: "5.12 MB",
+      bitrate: "1/41.55 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/driver_yawning.png",
+    },
+    {
+      id: "v-5",
+      deviceName: "HP Bonga Stream...",
+      channelName: "Night IR Phone Call",
+      location: "At Uffizio - Head Office",
+      status: "Active",
+      fps: 25,
+      dataUsed: "6.90 MB",
+      bitrate: "1/42.10 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/driver_phone_night_1.png",
+    },
+    {
+      id: "v-6",
+      deviceName: "HP CL M920",
+      channelName: "Night Sleeper Phone",
+      location: "Sector 14, Gandhinagar Highway, Gujarat",
+      status: "Active",
+      fps: 25,
+      dataUsed: "4.20 MB",
+      bitrate: "1/39.80 kbps",
+      resolution: "704x576 px",
+      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
+      snapshotUrl: "/telematics/driver_phone_night_2.png",
+    },
+    {
+      id: "v-7",
+      deviceName: "HP CV200",
+      channelName: "DMS Distraction",
+      location: "At Uffizio - Head Office",
+      status: "Active",
+      fps: 25,
+      dataUsed: "3.90 MB",
+      bitrate: "1/40.05 kbps",
       resolution: "704x576 px",
       coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
       snapshotUrl: "/telematics/driver_fatigue.png",
     },
     {
-      id: "v-3",
-      deviceName: "H20P TRACKNOW",
-      channelName: "CH5",
-      location: "At Uffizio - Head Office",
+      id: "v-8",
+      deviceName: "HP DB3 Riumor",
+      channelName: "Cargo Hold Cam",
+      location: "Surat Logistics Hub Warehouse 3",
       status: "Active",
       fps: 25,
-      dataUsed: "3.39 MB",
-      bitrate: "1/40.34 kbps",
+      dataUsed: "8.10 MB",
+      bitrate: "1/41.90 kbps",
       resolution: "704x576 px",
       coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
       snapshotUrl: "/telematics/cargo_hold.png",
     },
-    {
-      id: "v-4",
-      deviceName: "HP Bonga Stream...",
-      channelName: "CH1",
-      location: "At Uffizio - Head Office",
-      status: "Active",
-      fps: 25,
-      dataUsed: "3.39 MB",
-      bitrate: "1/40.34 kbps",
-      resolution: "704x576 px",
-      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
-      snapshotUrl: "/telematics/driver_cabin_1.jpg",
-    },
-    {
-      id: "v-5",
-      deviceName: "HP Bonga Stream...",
-      channelName: "CH2",
-      location: "At Uffizio - Head Office",
-      status: "Active",
-      fps: 25,
-      dataUsed: "3.39 MB",
-      bitrate: "1/40.34 kbps",
-      resolution: "704x576 px",
-      coordinates: "20.594183N 72.938680E 0km/h TIME:2815H DIST:43Km",
-      snapshotUrl: "/telematics/driver_phone_distraction.png",
-    },
   ]);
   const [isVideoMatrixMode, setIsVideoMatrixMode] = useState(false);
+  const [isMapVideoPanelOpen, setIsMapVideoPanelOpen] = useState(false);
+
+  // Sync Video Telematics Right Panel visibility with activeTab
+  useEffect(() => {
+    if (activeTab === "video_telematics") {
+      setIsMapVideoPanelOpen(true);
+    } else {
+      setIsMapVideoPanelOpen(false);
+    }
+  }, [activeTab]);
 
   const handleOpenVideoChannel = (feed: VideoChannelFeed) => {
     setActiveVideoFeeds((prev) => {
@@ -154,6 +207,10 @@ export function TrackingPage() {
       toast.success(`Added ${feed.deviceName} (${feed.channelName}) to video panel`);
       return [...prev, feed];
     });
+    setIntercomDevice(null);
+    setPlaybackHistoryDevice(null);
+    setIsMapVideoPanelOpen(true);
+    setActiveTab("video_telematics");
   };
 
   const handleOpenAddAddress = (initialData?: AddressFormData) => {
@@ -326,6 +383,16 @@ export function TrackingPage() {
             activeTab={activeTab as any}
             onTabChange={(tab) => setActiveTab(tab)}
             onOpenVideoChannel={handleOpenVideoChannel}
+            onOpenIntercom={(dev) => {
+              setIntercomDevice(dev);
+              setPlaybackHistoryDevice(null);
+              setIsMapVideoPanelOpen(false);
+            }}
+            onOpenPlayback={(dev) => {
+              setPlaybackHistoryDevice(dev);
+              setIntercomDevice(null);
+              setIsMapVideoPanelOpen(false);
+            }}
             style={{ width: `${panelWidth}px` }}
             className={cn(
               "relative h-full shadow-2xl pointer-events-auto border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl animate-in slide-in-from-left-4 duration-200",
@@ -349,7 +416,7 @@ export function TrackingPage() {
       )}
 
       {/* 3. Right Floating Map + Video Live Camera Feeds Panel */}
-      {activeVideoFeeds.length > 0 && (
+      {isMapVideoPanelOpen && activeVideoFeeds.length > 0 && !intercomDevice && !playbackHistoryDevice && (
         <div
           className={cn(
             "absolute top-2.5 bottom-2.5 z-20 flex flex-col pointer-events-none animate-in slide-in-from-right-4 duration-200",
@@ -366,13 +433,41 @@ export function TrackingPage() {
           <MapVideoPanel
             channels={activeVideoFeeds}
             onCloseChannel={(id) =>
-              setActiveVideoFeeds((prev) => prev.filter((c) => c.id !== id))
+              setActiveVideoFeeds((prev) => {
+                const next = prev.filter((c) => c.id !== id);
+                if (next.length === 0) setIsMapVideoPanelOpen(false);
+                return next;
+              })
             }
-            onCloseAll={() => setActiveVideoFeeds([])}
+            onCloseAll={() => {
+              setActiveVideoFeeds([]);
+              setIsMapVideoPanelOpen(false);
+            }}
             isMatrixMode={isVideoMatrixMode}
             onToggleMatrixMode={(enabled) => setIsVideoMatrixMode(enabled)}
+            onOpenIntercom={(dev) => {
+              setIntercomDevice(dev);
+              setPlaybackHistoryDevice(null);
+              setIsMapVideoPanelOpen(false);
+            }}
           />
         </div>
+      )}
+
+      {/* 3.5 Right Floating Standalone Live Intercom Panel (Replaces Video Panel at w-[398px]) */}
+      {intercomDevice && !playbackHistoryDevice && (
+        <IntercomPanel
+          device={intercomDevice}
+          onClose={() => setIntercomDevice(null)}
+        />
+      )}
+
+      {/* 3.6 Right Floating Standalone Playback History Panel (Replaces Video Panel & Intercom at w-[398px]) */}
+      {playbackHistoryDevice && (
+        <PlaybackHistoryPanel
+          device={playbackHistoryDevice}
+          onClose={() => setPlaybackHistoryDevice(null)}
+        />
       )}
 
       {/* 4. Right Floating Vehicle Telemetry & Diagnostics Drawer */}

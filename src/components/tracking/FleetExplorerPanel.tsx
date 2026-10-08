@@ -22,6 +22,7 @@ import {
   Filter,
   Flame,
   Hash,
+  History,
   Info,
   Key,
   Layers,
@@ -134,6 +135,8 @@ export function FleetExplorerPanel({
   activeTab: propActiveTab,
   onTabChange,
   onOpenVideoChannel,
+  onOpenIntercom,
+  onOpenPlayback,
   style,
   className,
 }: {
@@ -165,6 +168,7 @@ export function FleetExplorerPanel({
   activeTab?: TrackingTab;
   onTabChange?: (tab: TrackingTab) => void;
   onOpenVideoChannel?: (channelFeed: any) => void;
+  onOpenIntercom?: (device: { id: string; name: string; location?: string }) => void;
   style?: React.CSSProperties;
   className?: string;
 }) {
@@ -1737,15 +1741,14 @@ export function FleetExplorerPanel({
             </div>
           </div>
         ) : activeTab === "health" ? (
-          /* Textual Back Button with Chevron ONLY when in Health Score mode */
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center justify-between w-full min-w-0">
             <button
               type="button"
               onClick={() => handleTabChange("object")}
-              className="flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:text-[#0089FF] dark:hover:text-[#0089FF] text-xs font-bold transition-colors cursor-pointer shrink-0 active:scale-95 py-1 px-1"
-              title="Back to Fleet Explorer"
+              className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95"
+              title="Back to Object List"
             >
-              <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
+              <ChevronLeft className="h-4 w-4 stroke-[2.5] text-slate-600 dark:text-slate-400" />
               <span>Back</span>
             </button>
           </div>
@@ -1764,45 +1767,30 @@ export function FleetExplorerPanel({
               const isActive = activeTab === tab.id;
               const IconComp = tab.icon;
 
-              if (isActive) {
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => handleTabChange(tab.id as TrackingTab)}
-                    className="h-8 flex items-center gap-1.5 px-3 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] text-white text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-98"
-                  >
-                    <IconComp className="h-3.5 w-3.5 stroke-[2.2] fill-current shrink-0" />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              }
-
               return (
-                <TooltipProvider key={tab.id} delayDuration={150}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => handleTabChange(tab.id as TrackingTab)}
-                        className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer shrink-0"
-                      >
-                        <IconComp className="h-4 w-4 stroke-[2]" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="text-xs">
-                      {tab.label}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleTabChange(tab.id as TrackingTab)}
+                  title={tab.label}
+                  className={cn(
+                    "h-8 flex items-center justify-center gap-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0 active:scale-98",
+                    isActive
+                      ? "bg-[#0089FF] hover:bg-[#0070d6] text-white shadow-2xs px-2.5"
+                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white px-2"
+                  )}
+                >
+                  <IconComp className={cn("h-3.5 w-3.5 stroke-[2.2] shrink-0", isActive && "fill-current")} />
+                  {isActive && <span>{tab.label}</span>}
+                </button>
               );
             })}
           </div>
         )}
 
-        {/* Right Action Buttons (Object & Column Settings) - Hidden when on Health tab */}
-        {activeTab !== "health" && (
-          <div className="flex items-center gap-0.5">
+        {/* Right Action Buttons (Object & Column Settings) */}
+        {!selectedJobDetail && activeTab !== "health" && (
+          <div className="flex items-center gap-0.5 shrink-0 ml-1">
             <TooltipProvider delayDuration={150}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -2732,7 +2720,7 @@ export function FleetExplorerPanel({
             </button>
           </div>
         </div>
-      ) : (activeTab === "jobs" && !selectedJobDetail) ? (
+      ) : activeTab === "object" ? (
         <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0 border-b border-slate-200/60 dark:border-slate-800/60">
           <div className="grid grid-cols-5 gap-1.5">
             {/* Running */}
@@ -3713,7 +3701,7 @@ export function FleetExplorerPanel({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          ) : activeTab !== "driver" && activeTab !== "address" && (
+          ) : activeTab !== "driver" && activeTab !== "address" ? (
             <Popover open={sortOpen} onOpenChange={setSortOpen}>
               <TooltipProvider delayDuration={150}>
                 <Tooltip>
@@ -3956,11 +3944,11 @@ export function FleetExplorerPanel({
               )}
             </PopoverContent>
           </Popover>
-          )}
-          </div>
-        )}
+        ) : null}
       </div>
-      )}
+    )}
+  </div>
+)}
 
       {/* Structured Table Column Header Bar */}
       {activeTab === "object" && (
@@ -4001,18 +3989,19 @@ export function FleetExplorerPanel({
         </div>
       )}
 
-      {/* 5. Hierarchical Object Tree & Custom Tab Views */}
-      <div
-        className={cn(
-          "flex-1 min-h-0 flex flex-col text-xs rounded-b-2xl",
-          activeTab === "health" ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden",
-          activeTab === "object" && "divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60"
-        )}
-      >
-        {activeTab === "object" && (
-          <div>
-            {/* Branches Groups */}
-            <div className="divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40">
+      {/* 5. Hierarchical Object Tree & Custom Tab Views (3D Page Flip Animation for Health View) */}
+      {(activeTab === "object" || activeTab === "health") && (
+        <div className="flex-1 min-h-0 relative [perspective:1200px] bg-white dark:bg-slate-900 overflow-hidden rounded-b-2xl">
+          <div
+            className={cn(
+              "w-full h-full relative transition-transform duration-700 ease-in-out [transform-style:preserve-3d]",
+              activeTab === "health" ? "[transform:rotateY(-180deg)]" : "[transform:rotateY(0deg)]"
+            )}
+          >
+            {/* FRONT FACE: Object Tree List & Pinned Bottom Health Footer Bar */}
+            <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden]">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60">
+                <div className="divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40">
               {branchGroups.map(([branch, branchVehicles]) => {
                 const isGroupCollapsed = collapsedGroups[branch] ?? false;
                 const groupIds = branchVehicles.map((v) => v.id);
@@ -4263,9 +4252,308 @@ export function FleetExplorerPanel({
               })}
             </div>
           </div>
-        )}
 
-        {/* Reference-Matched Job Tab View (1:1 with media_1791178558557.png & 3D Page Flip Animation) */}
+          {/* Pinned Bottom Vehicle Health Scores Footer Bar */}
+          <div className="shrink-0 border-t border-[#DFE3EB] dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 px-2 py-1.5 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar select-none rounded-b-2xl">
+            {/* Safety Score */}
+            <button
+              type="button"
+              onClick={() => {
+                handleTabChange("health");
+                setSelectedHealthCategory("safety");
+                if (onCloseTelemetry) onCloseTelemetry();
+              }}
+              className={cn(
+                "flex-1 min-w-[76px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+                activeTab === "health" && selectedHealthCategory === "safety"
+                  ? "bg-[#10B981] text-white border-emerald-600 shadow-md shadow-emerald-500/20 font-bold"
+                  : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-800/50 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/50"
+              )}
+              title="View Safety Health Scores"
+            >
+              <div className={cn("h-4 w-4 rounded-full flex items-center justify-center shrink-0 shadow-2xs", activeTab === "health" && selectedHealthCategory === "safety" ? "bg-white text-[#10B981]" : "bg-[#10B981] text-white")}>
+                <ShieldCheck className="h-2.5 w-2.5 stroke-[3]" />
+              </div>
+              <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "safety" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Safety</span>
+              <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")}>85</span>
+            </button>
+
+            {/* Efficiency Score */}
+            <button
+              type="button"
+              onClick={() => {
+                handleTabChange("health");
+                setSelectedHealthCategory("efficiency");
+                if (onCloseTelemetry) onCloseTelemetry();
+              }}
+              className={cn(
+                "flex-1 min-w-[82px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+                activeTab === "health" && selectedHealthCategory === "efficiency"
+                  ? "bg-[#D97706] text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold"
+                  : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/50 hover:bg-amber-100/70 dark:hover:bg-amber-900/50"
+              )}
+              title="View Efficiency Health Scores"
+            >
+              <Timer className={cn("h-4 w-4 shrink-0 stroke-[2.2]", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")} />
+              <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Efficiency</span>
+              <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")}>72</span>
+            </button>
+
+            {/* Risk Score */}
+            <button
+              type="button"
+              onClick={() => {
+                handleTabChange("health");
+                setSelectedHealthCategory("risk");
+                if (onCloseTelemetry) onCloseTelemetry();
+              }}
+              className={cn(
+                "flex-1 min-w-[68px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+                activeTab === "health" && selectedHealthCategory === "risk"
+                  ? "bg-[#EF4444] text-white border-rose-600 shadow-md shadow-rose-500/20 font-bold"
+                  : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/60 dark:border-rose-800/50 hover:bg-rose-100/70 dark:hover:bg-rose-900/50"
+              )}
+              title="View Risk Health Scores"
+            >
+              <AlertTriangle className={cn("h-4 w-4 shrink-0 stroke-white", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white fill-white stroke-[#EF4444]" : "text-[#EF4444] fill-[#EF4444]")} />
+              <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Risk</span>
+              <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")}>15</span>
+            </button>
+
+            {/* Discipline Score */}
+            <button
+              type="button"
+              onClick={() => {
+                handleTabChange("health");
+                setSelectedHealthCategory("discipline");
+                if (onCloseTelemetry) onCloseTelemetry();
+              }}
+              className={cn(
+                "flex-1 min-w-[88px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
+                activeTab === "health" && selectedHealthCategory === "discipline"
+                  ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/20 font-bold"
+                  : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/60 dark:border-sky-800/50 hover:bg-sky-100/70 dark:hover:bg-sky-900/50"
+              )}
+              title="View Route Discipline Scores"
+            >
+              <ThumbsUp className={cn("h-4 w-4 shrink-0 fill-current", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")} />
+              <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Discipline</span>
+              <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")}>98</span>
+            </button>
+          </div>
+        </div>
+
+        {/* BACK FACE: Health Score Full View */}
+        <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          {/* 1. Category Filters Header Bar */}
+          <div className="p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 grid grid-cols-4 gap-1.5 shrink-0">
+            {/* Safety */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedHealthCategory(selectedHealthCategory === "safety" ? "all" : "safety");
+                if (onCloseTelemetry) onCloseTelemetry();
+              }}
+              className={cn(
+                "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                selectedHealthCategory === "safety"
+                  ? "bg-[#10B981] text-white border-emerald-600 shadow-md shadow-emerald-500/20 font-bold"
+                  : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/60 text-slate-800 dark:text-slate-100 hover:bg-emerald-100/80"
+              )}
+            >
+              <div className="flex items-center gap-1 min-w-0">
+                <div className={cn("h-4 w-4 rounded-full flex items-center justify-center shrink-0", selectedHealthCategory === "safety" ? "bg-white text-[#10B981]" : "bg-[#10B981] text-white")}>
+                  <ShieldCheck className="h-2.5 w-2.5 stroke-[3]" />
+                </div>
+                <span className="text-xs truncate">Safety</span>
+              </div>
+              <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")}>85</span>
+            </button>
+
+            {/* Efficiency */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedHealthCategory(selectedHealthCategory === "efficiency" ? "all" : "efficiency");
+                if (onCloseTelemetry) onCloseTelemetry();
+              }}
+              className={cn(
+                "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                selectedHealthCategory === "efficiency"
+                  ? "bg-[#D97706] text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold"
+                  : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 text-slate-800 dark:text-slate-100 hover:bg-amber-100/80"
+              )}
+            >
+              <div className="flex items-center gap-1 min-w-0">
+                <Timer className={cn("h-3.5 w-3.5 shrink-0 stroke-[2.2]", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")} />
+                <span className="text-xs truncate">Efficiency</span>
+              </div>
+              <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")}>72</span>
+            </button>
+
+            {/* Risk */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedHealthCategory(selectedHealthCategory === "risk" ? "all" : "risk");
+                if (onCloseTelemetry) onCloseTelemetry();
+              }}
+              className={cn(
+                "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                selectedHealthCategory === "risk"
+                  ? "bg-[#EF4444] text-white border-rose-600 shadow-md shadow-rose-500/20 font-bold"
+                  : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60 text-slate-800 dark:text-slate-100 hover:bg-rose-100/80"
+              )}
+            >
+              <div className="flex items-center gap-1 min-w-0">
+                <AlertTriangle className={cn("h-3.5 w-3.5 shrink-0 stroke-white", selectedHealthCategory === "risk" ? "text-white fill-white stroke-[#EF4444]" : "text-[#EF4444] fill-[#EF4444]")} />
+                <span className="text-xs truncate">Risk</span>
+              </div>
+              <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")}>15</span>
+            </button>
+
+            {/* Discipline */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedHealthCategory(selectedHealthCategory === "discipline" ? "all" : "discipline");
+                if (onCloseTelemetry) onCloseTelemetry();
+              }}
+              className={cn(
+                "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                selectedHealthCategory === "discipline"
+                  ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/20 font-bold"
+                  : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/80 dark:border-sky-800/60 text-slate-800 dark:text-slate-100 hover:bg-sky-100/80"
+              )}
+            >
+              <div className="flex items-center gap-1 min-w-0">
+                <ThumbsUp className={cn("h-3.5 w-3.5 shrink-0 fill-current", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")} />
+                <span className="text-xs truncate">Discipline</span>
+              </div>
+              <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")}>98</span>
+            </button>
+          </div>
+
+          {/* 2. Search & Info Sub-Header */}
+          <div className="p-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0 space-y-1">
+            <div className="flex items-center gap-1.5">
+              <div className="relative flex-1 flex items-center">
+                <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={healthSearch}
+                  onChange={(e) => setHealthSearch(e.target.value)}
+                  placeholder="Search by IMEI, Registration, Object Model..."
+                  className="w-full h-8 pl-8 pr-8 rounded-lg bg-slate-100 dark:bg-slate-800 border-0 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0089FF]"
+                />
+                {healthSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setHealthSearch("")}
+                    className="absolute right-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextOrder = healthSortOrder === "asc" ? "desc" : "asc";
+                        setHealthSortOrder(nextOrder);
+                        toast.success(
+                          `Sorted by Health Score (${nextOrder === "asc" ? "Ascending" : "Descending"})`,
+                        );
+                      }}
+                      className={cn(
+                        "h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all cursor-pointer shrink-0 active:scale-95",
+                        healthSortOrder === "asc" && "text-[#0089FF] border-[#0089FF]/60 bg-sky-50 dark:bg-sky-950/40",
+                      )}
+                      title="Sort Ascending / Descending"
+                    >
+                      <ArrowUpDown className="h-3.5 w-3.5 stroke-[2.2]" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="text-xs font-semibold">
+                    Sort {healthSortOrder === "asc" ? "Descending (High to Low)" : "Ascending (Low to High)"}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            <div className="px-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+              Based on {filteredHealthVehicles.length} eligible vehicles
+            </div>
+          </div>
+
+          {/* 3. Full View Vehicle Health Score List */}
+          <div key={selectedHealthCategory} className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-slate-100 dark:divide-slate-800/60 animate-in fade-in-50 zoom-in-95 duration-300">
+            {filteredHealthVehicles.map((v, i) => {
+              const score = 75 + ((i * 7 + 13) % 23);
+              const isSelected = v.id === selectedVehicleId;
+
+              return (
+                <div
+                  key={v.id}
+                  onClick={() => {
+                    onSelectVehicle(v.id);
+                    onOpenTelemetry(v, true);
+                  }}
+                  className={cn(
+                    "flex items-center justify-between px-3.5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer select-none",
+                    isSelected && "bg-sky-50/80 dark:bg-sky-950/40"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1 pl-1">
+                    <span
+                      className={cn(
+                        "h-2 w-2 rounded-full shrink-0 shadow-2xs ml-0.5",
+                        v.status === "running"
+                          ? "bg-emerald-500"
+                          : v.status === "idle"
+                            ? "bg-amber-500"
+                            : v.status === "stopped"
+                              ? "bg-rose-500"
+                              : "bg-indigo-500"
+                      )}
+                    />
+                    <div className="flex flex-col min-w-0 truncate">
+                      <span className="font-semibold text-xs text-slate-800 dark:text-slate-100 truncate">
+                        {v.name}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 truncate">
+                        IMEI: {v.imei}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={cn(
+                        "px-2.5 py-0.5 rounded-md font-mono text-xs font-bold border tabular-nums shadow-2xs",
+                        score >= 80
+                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-500/20"
+                          : score >= 60
+                            ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-500/20"
+                            : "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-500/20"
+                      )}
+                    >
+                      {score}
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-slate-400 stroke-[2]" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
         {activeTab === "jobs" && (
           <div className="flex-1 min-h-0 relative [perspective:1200px] bg-white dark:bg-slate-900 overflow-hidden">
             <div
@@ -5431,265 +5719,267 @@ export function FleetExplorerPanel({
 
         {/* Geofences Tab View (1:1 with reference screenshot media_1791282117663.png) */}
         {activeTab === "geofence" && (
-          <div className="py-1">
-            <div className="divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 select-none">
-              {geofenceData.map((groupData) => {
-                const isGroupCollapsed = collapsedGeofenceGroups[groupData.group] ?? false;
-                const filteredSubgroups = groupData.subgroups
-                  .map((sub) => ({
-                    ...sub,
-                    geofences: sub.geofences.filter((g) => {
-                      const q = query.trim().toLowerCase();
-                      const matchesQuery =
-                        q === "" ||
-                        g.name.toLowerCase().includes(q) ||
-                        g.category.toLowerCase().includes(q) ||
-                        g.type.toLowerCase().includes(q);
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-slate-900">
+            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar py-1">
+              <div className="divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 select-none">
+                {geofenceData.map((groupData) => {
+                  const isGroupCollapsed = collapsedGeofenceGroups[groupData.group] ?? false;
+                  const filteredSubgroups = groupData.subgroups
+                    .map((sub) => ({
+                      ...sub,
+                      geofences: sub.geofences.filter((g) => {
+                        const q = query.trim().toLowerCase();
+                        const matchesQuery =
+                          q === "" ||
+                          g.name.toLowerCase().includes(q) ||
+                          g.category.toLowerCase().includes(q) ||
+                          g.type.toLowerCase().includes(q);
 
-                      const matchesGroup =
-                        selectedGeofenceGroups.length === ALL_GEOFENCE_GROUPS.length ||
-                        selectedGeofenceGroups.some(
-                          (grp) =>
-                            grp.toLowerCase() === sub.name.toLowerCase() ||
-                            grp.toLowerCase() === groupData.group.toLowerCase(),
-                        );
+                        const matchesGroup =
+                          selectedGeofenceGroups.length === ALL_GEOFENCE_GROUPS.length ||
+                          selectedGeofenceGroups.some(
+                            (grp) =>
+                              grp.toLowerCase() === sub.name.toLowerCase() ||
+                              grp.toLowerCase() === groupData.group.toLowerCase(),
+                          );
 
-                      const matchesCategory =
-                        selectedGeofenceCategories.length === ALL_GEOFENCE_CATEGORIES.length ||
-                        selectedGeofenceCategories.some(
-                          (cat) =>
-                            cat.toLowerCase() === g.category.toLowerCase() ||
-                            g.category.toLowerCase().includes(cat.toLowerCase()),
-                        );
+                        const matchesCategory =
+                          selectedGeofenceCategories.length === ALL_GEOFENCE_CATEGORIES.length ||
+                          selectedGeofenceCategories.some(
+                            (cat) =>
+                              cat.toLowerCase() === g.category.toLowerCase() ||
+                              g.category.toLowerCase().includes(cat.toLowerCase()),
+                          );
 
-                      const matchesType =
-                        selectedGeofenceTypes.length === ALL_GEOFENCE_TYPES.length ||
-                        selectedGeofenceTypes.some(
-                          (typ) =>
-                            typ.toLowerCase() === g.type.toLowerCase() ||
-                            g.type.toLowerCase().includes(typ.toLowerCase()),
-                        );
+                        const matchesType =
+                          selectedGeofenceTypes.length === ALL_GEOFENCE_TYPES.length ||
+                          selectedGeofenceTypes.some(
+                            (typ) =>
+                              typ.toLowerCase() === g.type.toLowerCase() ||
+                              g.type.toLowerCase().includes(typ.toLowerCase()),
+                          );
 
-                      return matchesQuery && matchesGroup && matchesCategory && matchesType;
-                    }),
-                  }))
-                  .filter((sub) => sub.geofences.length > 0);
+                        return matchesQuery && matchesGroup && matchesCategory && matchesType;
+                      }),
+                    }))
+                    .filter((sub) => sub.geofences.length > 0);
 
-                const totalGeofencesInGroup = groupData.subgroups.reduce(
-                  (acc, sub) => acc + sub.geofences.length,
-                  0,
-                );
+                  const totalGeofencesInGroup = groupData.subgroups.reduce(
+                    (acc, sub) => acc + sub.geofences.length,
+                    0,
+                  );
 
-                const allGeofencesChecked = groupData.subgroups.every((sub) =>
-                  sub.geofences.every((g) => g.checked),
-                );
-                const someGeofencesChecked =
-                  groupData.subgroups.some((sub) =>
-                    sub.geofences.some((g) => g.checked),
-                  ) && !allGeofencesChecked;
+                  const allGeofencesChecked = groupData.subgroups.every((sub) =>
+                    sub.geofences.every((g) => g.checked),
+                  );
+                  const someGeofencesChecked =
+                    groupData.subgroups.some((sub) =>
+                      sub.geofences.some((g) => g.checked),
+                    ) && !allGeofencesChecked;
 
-                return (
-                  <div key={groupData.group} className="divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40">
-                    {/* Top Level Branch Header */}
-                    <div className="flex items-center justify-between pl-2.5 pr-3 py-1.5 bg-slate-50/80 dark:bg-slate-900/60 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-colors">
-                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                        <input
-                          type="checkbox"
-                          checked={allGeofencesChecked}
-                          ref={(el) => {
-                            if (el) el.indeterminate = someGeofencesChecked;
-                          }}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            setGeofenceData((prev) =>
-                              prev.map((g) =>
-                                g.group === groupData.group
-                                  ? {
-                                      ...g,
-                                      subgroups: g.subgroups.map((s) => ({
-                                        ...s,
-                                        geofences: s.geofences.map((item) => ({
-                                          ...item,
-                                          checked,
+                  return (
+                    <div key={groupData.group} className="divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40">
+                      {/* Top Level Branch Header */}
+                      <div className="flex items-center justify-between pl-2.5 pr-3 py-1.5 bg-slate-50/80 dark:bg-slate-900/60 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-colors">
+                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={allGeofencesChecked}
+                            ref={(el) => {
+                              if (el) el.indeterminate = someGeofencesChecked;
+                            }}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setGeofenceData((prev) =>
+                                prev.map((g) =>
+                                  g.group === groupData.group
+                                    ? {
+                                        ...g,
+                                        subgroups: g.subgroups.map((s) => ({
+                                          ...s,
+                                          geofences: s.geofences.map((item) => ({
+                                            ...item,
+                                            checked,
+                                          })),
                                         })),
-                                      })),
-                                    }
-                                  : g,
-                              ),
-                            );
-                          }}
-                          className="h-[12px] w-[12px] rounded border-slate-300 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCollapsedGeofenceGroups((prev) => ({
-                              ...prev,
-                              [groupData.group]: !prev[groupData.group],
-                            }))
-                          }
-                          className="flex items-center gap-1 text-left text-xs font-semibold text-slate-800 dark:text-slate-200 hover:text-[#0089FF] cursor-pointer flex-1 truncate"
-                        >
-                          <ChevronDown
-                            className={cn(
-                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-150",
-                              isGroupCollapsed && "-rotate-90",
-                            )}
+                                      }
+                                    : g,
+                                ),
+                              );
+                            }}
+                            className="h-[12px] w-[12px] rounded border-slate-300 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
                           />
-                          <span className="truncate">{groupData.group}</span>
-                        </button>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
-                        [{totalGeofencesInGroup}]
-                      </span>
-                    </div>
-
-                    {/* Geofence Items */}
-                    {!isGroupCollapsed &&
-                      filteredSubgroups.map((sub) => (
-                        <div key={sub.name} className="divide-y divide-slate-100 dark:divide-slate-800/40">
-                          {sub.geofences.map((geo) => {
-                            const isChecked = checkedGeofenceIds.includes(geo.id);
-
-                            return (
-                              <div
-                                key={geo.id}
-                                className={cn(
-                                  "flex items-center justify-between px-3 py-1.5 text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 group/geo select-none min-h-[36px]",
-                                  isChecked && "bg-sky-50/40 dark:bg-sky-950/20",
-                                )}
-                              >
-                                {/* Left: Checkbox + Status Dot + Name */}
-                                <div className="flex items-center gap-2 min-w-0 flex-1 pl-1">
-                                  <input
-                                    type="checkbox"
-                                    checked={isChecked}
-                                    onChange={() => {
-                                      if (onToggleCheckGeofence) {
-                                        onToggleCheckGeofence(geo.id);
-                                      }
-                                      setGeofenceData((prev) =>
-                                        prev.map((g) => ({
-                                          ...g,
-                                          subgroups: g.subgroups.map((s) => ({
-                                            ...s,
-                                            geofences: s.geofences.map((item) =>
-                                              item.id === geo.id ? { ...item, checked: !isChecked } : item,
-                                            ),
-                                          })),
-                                        })),
-                                      );
-                                    }}
-                                    className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
-                                  />
-
-                                  <span
-                                    className={cn(
-                                      "h-2 w-2 rounded-full shrink-0 transition-all",
-                                      isChecked
-                                        ? "bg-[#0089FF] ring-2 ring-sky-500/20 shadow-xs"
-                                        : "border border-slate-400 bg-transparent dark:border-slate-500",
-                                    )}
-                                  />
-
-                                  <span
-                                    className={cn(
-                                      "truncate text-xs transition-colors cursor-pointer",
-                                      isChecked
-                                        ? "text-[#0089FF] dark:text-sky-400 font-bold"
-                                        : "text-slate-700 dark:text-slate-300 font-medium",
-                                    )}
-                                    title={geo.name}
-                                    onClick={() => {
-                                      if (!isChecked && onToggleCheckGeofence) {
-                                        onToggleCheckGeofence(geo.id);
-                                      }
-                                      if (onSelectGeofence) {
-                                        onSelectGeofence(geo.id);
-                                      }
-                                      toast.info(`Focusing map on geofence "${geo.name}"`);
-                                    }}
-                                  >
-                                    {geo.name}
-                                  </span>
-                                </div>
-
-                                {/* Right Actions: Locate Pin, Edit Pencil, Delete Trash */}
-                                <div className="flex items-center gap-2 shrink-0 text-slate-400">
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (!isChecked && onToggleCheckGeofence) {
-                                        onToggleCheckGeofence(geo.id);
-                                      }
-                                      if (onSelectGeofence) {
-                                        onSelectGeofence(geo.id);
-                                      }
-                                      toast.info(`Focusing map on geofence "${geo.name}"`);
-                                    }}
-                                    className="p-1 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
-                                    title="Locate Geofence on Map"
-                                  >
-                                    <MapPin className="h-3.5 w-3.5 stroke-[2]" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (onOpenAddGeofence) {
-                                        onOpenAddGeofence({
-                                          id: geo.id,
-                                          company: "Ha Company",
-                                          name: geo.name,
-                                          category: geo.category || "Area",
-                                          access: "Public",
-                                          group: "Ha Company Geofences",
-                                          type: geo.type || "Polygon Zone",
-                                          contactNo: "+91 98765 43210",
-                                          address: "Ha Company Main Zone",
-                                          color: "#0089FF",
-                                          tolerance: 10,
-                                          description: "Ha Company geofence area",
-                                        });
-                                      } else {
-                                        toast.success(`Editing geofence configuration for "${geo.name}"`);
-                                      }
-                                    }}
-                                    className="p-1 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
-                                    title="Edit Geofence"
-                                  >
-                                    <Edit3 className="h-3.5 w-3.5 stroke-[2]" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setGeofenceData((prev) =>
-                                        prev.map((g) => ({
-                                          ...g,
-                                          subgroups: g.subgroups.map((s) => ({
-                                            ...s,
-                                            geofences: s.geofences.filter((item) => item.id !== geo.id),
-                                          })),
-                                        })),
-                                      );
-                                      toast.error(`Geofence "${geo.name}" deleted`);
-                                    }}
-                                    className="p-1 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
-                                    title="Delete Geofence"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5 stroke-[2]" />
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          })}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCollapsedGeofenceGroups((prev) => ({
+                                ...prev,
+                                [groupData.group]: !prev[groupData.group],
+                              }))
+                            }
+                            className="flex items-center gap-1 text-left text-xs font-semibold text-slate-800 dark:text-slate-200 hover:text-[#0089FF] cursor-pointer flex-1 truncate"
+                          >
+                            <ChevronDown
+                              className={cn(
+                                "h-3.5 w-3.5 text-slate-500 transition-transform duration-150",
+                                isGroupCollapsed && "-rotate-90",
+                              )}
+                            />
+                            <span className="truncate">{groupData.group}</span>
+                          </button>
                         </div>
-                      ))}
-                  </div>
-                );
-              })}
+                        <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
+                          [{totalGeofencesInGroup}]
+                        </span>
+                      </div>
+
+                      {/* Geofence Items */}
+                      {!isGroupCollapsed &&
+                        filteredSubgroups.map((sub) => (
+                          <div key={sub.name} className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                            {sub.geofences.map((geo) => {
+                              const isChecked = checkedGeofenceIds.includes(geo.id);
+
+                              return (
+                                <div
+                                  key={geo.id}
+                                  className={cn(
+                                    "flex items-center justify-between px-3 py-1.5 text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 group/geo select-none min-h-[36px]",
+                                    isChecked && "bg-sky-50/40 dark:bg-sky-950/20",
+                                  )}
+                                >
+                                  {/* Left: Checkbox + Status Dot + Name */}
+                                  <div className="flex items-center gap-2 min-w-0 flex-1 pl-1">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={() => {
+                                        if (onToggleCheckGeofence) {
+                                          onToggleCheckGeofence(geo.id);
+                                        }
+                                        setGeofenceData((prev) =>
+                                          prev.map((g) => ({
+                                            ...g,
+                                            subgroups: g.subgroups.map((s) => ({
+                                              ...s,
+                                              geofences: s.geofences.map((item) =>
+                                                item.id === geo.id ? { ...item, checked: !isChecked } : item,
+                                              ),
+                                            })),
+                                          })),
+                                        );
+                                      }}
+                                      className="h-[12px] w-[12px] rounded border-slate-300 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                    />
+
+                                    <span
+                                      className={cn(
+                                        "h-2 w-2 rounded-full shrink-0 transition-all",
+                                        isChecked
+                                          ? "bg-[#0089FF] ring-2 ring-sky-500/20 shadow-xs"
+                                          : "border border-slate-400 bg-transparent dark:border-slate-500",
+                                      )}
+                                    />
+
+                                    <span
+                                      className={cn(
+                                        "truncate text-xs transition-colors cursor-pointer",
+                                        isChecked
+                                          ? "text-[#0089FF] dark:text-sky-400 font-bold"
+                                          : "text-slate-700 dark:text-slate-300 font-medium",
+                                      )}
+                                      title={geo.name}
+                                      onClick={() => {
+                                        if (!isChecked && onToggleCheckGeofence) {
+                                          onToggleCheckGeofence(geo.id);
+                                        }
+                                        if (onSelectGeofence) {
+                                          onSelectGeofence(geo.id);
+                                        }
+                                        toast.info(`Focusing map on geofence "${geo.name}"`);
+                                      }}
+                                    >
+                                      {geo.name}
+                                    </span>
+                                  </div>
+
+                                  {/* Right Actions: Locate Pin, Edit Pencil, Delete Trash */}
+                                  <div className="flex items-center gap-2 shrink-0 text-slate-400">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (!isChecked && onToggleCheckGeofence) {
+                                          onToggleCheckGeofence(geo.id);
+                                        }
+                                        if (onSelectGeofence) {
+                                          onSelectGeofence(geo.id);
+                                        }
+                                        toast.info(`Focusing map on geofence "${geo.name}"`);
+                                      }}
+                                      className="p-1 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                      title="Locate Geofence on Map"
+                                    >
+                                      <MapPin className="h-3.5 w-3.5 stroke-[2]" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (onOpenAddGeofence) {
+                                          onOpenAddGeofence({
+                                            id: geo.id,
+                                            company: "Ha Company",
+                                            name: geo.name,
+                                            category: geo.category || "Area",
+                                            access: "Public",
+                                            group: "Ha Company Geofences",
+                                            type: geo.type || "Polygon Zone",
+                                            contactNo: "+91 98765 43210",
+                                            address: "Ha Company Main Zone",
+                                            color: "#0089FF",
+                                            tolerance: 10,
+                                            description: "Ha Company geofence area",
+                                          });
+                                        } else {
+                                          toast.success(`Editing geofence configuration for "${geo.name}"`);
+                                        }
+                                      }}
+                                      className="p-1 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                      title="Edit Geofence"
+                                    >
+                                      <Edit3 className="h-3.5 w-3.5 stroke-[2]" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setGeofenceData((prev) =>
+                                          prev.map((g) => ({
+                                            ...g,
+                                            subgroups: g.subgroups.map((s) => ({
+                                              ...s,
+                                              geofences: s.geofences.filter((item) => item.id !== geo.id),
+                                            })),
+                                          })),
+                                        );
+                                        toast.error(`Geofence "${geo.name}" deleted`);
+                                      }}
+                                      className="p-1 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                      title="Delete Geofence"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5 stroke-[2]" />
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
@@ -6257,15 +6547,25 @@ export function FleetExplorerPanel({
                                         </div>
                                       </div>
 
-                                      {/* Right Action Icons: Intercom (Mic) button */}
+                                      {/* Right Action Icons: Intercom (Radio/Mic) button */}
                                       <div className="flex items-center gap-1 shrink-0">
                                         <button
                                           type="button"
-                                          onClick={() => toast.info(`Starting Intercom session with ${device.name}...`)}
+                                          onClick={() => {
+                                            if (onOpenIntercom) {
+                                              onOpenIntercom({
+                                                id: device.id,
+                                                name: device.name,
+                                                location: "At Uffizio - Head Office",
+                                              });
+                                            } else {
+                                              toast.info(`Starting Intercom session with ${device.name}...`);
+                                            }
+                                          }}
                                           className="p-1 rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors cursor-pointer"
-                                          title="Intercom / Two-Way Audio"
+                                          title="Live Intercom / Two-Way Audio"
                                         >
-                                          <Mic className="h-3.5 w-3.5 stroke-[2]" />
+                                          <Radio className="h-3.5 w-3.5 stroke-[2]" />
                                         </button>
                                       </div>
                                     </div>
@@ -6285,7 +6585,7 @@ export function FleetExplorerPanel({
                                           </div>
 
                                           {/* 4 Quick Action Camera Buttons */}
-                                          <div className="flex items-center gap-1 shrink-0">
+                                          <div className="flex items-center gap-1.5 shrink-0">
                                             {/* 1. Live Stream Video */}
                                             <button
                                               type="button"
@@ -6310,48 +6610,57 @@ export function FleetExplorerPanel({
                                                 }
                                               }}
                                               className={cn(
-                                                "h-6 w-6 rounded-md flex items-center justify-center border transition-all cursor-pointer shadow-2xs active:scale-95",
+                                                "p-0.5 transition-colors cursor-pointer",
                                                 device.status === "running" || device.status === "idle"
-                                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40 hover:bg-emerald-100"
-                                                  : "bg-rose-50 text-rose-500 border-rose-200/60 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/40 hover:bg-rose-100",
+                                                  ? "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700"
+                                                  : "text-rose-500 dark:text-rose-400 hover:text-rose-600"
                                               )}
                                               title={`Live Stream - ${channel.name}`}
                                             >
-                                              <Video className="h-3 w-3 stroke-[2.2]" />
+                                              <Video className="h-3.5 w-3.5 stroke-[2.2]" />
                                             </button>
 
                                             {/* 2. Playback */}
                                             <button
                                               type="button"
-                                              onClick={() =>
-                                                toast.info(`Opening Playback for ${device.name} (${channel.name})`)
-                                              }
+                                              onClick={() => {
+                                                if (onOpenPlayback) {
+                                                  onOpenPlayback({
+                                                    deviceName: device.name,
+                                                    channelName: channel.name,
+                                                    location: "At Uffizio - Head Office",
+                                                    channels: device.channels.map((c) => c.name),
+                                                  });
+                                                } else {
+                                                  toast.info(`Opening Playback for ${device.name} (${channel.name})`);
+                                                }
+                                              }}
                                               className={cn(
-                                                "h-6 w-6 rounded-md flex items-center justify-center border transition-all cursor-pointer shadow-2xs active:scale-95",
+                                                "p-0.5 transition-colors cursor-pointer",
                                                 device.status === "running" || device.status === "idle"
-                                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40 hover:bg-emerald-100"
-                                                  : "bg-rose-50 text-rose-500 border-rose-200/60 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/40 hover:bg-rose-100",
+                                                  ? "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700"
+                                                  : "text-rose-500 dark:text-rose-400 hover:text-rose-600"
                                               )}
                                               title={`Playback - ${channel.name}`}
                                             >
-                                              <RotateCcw className="h-3 w-3 stroke-[2.2]" />
+                                              <RotateCcw className="h-3.5 w-3.5 stroke-[2.2]" />
                                             </button>
 
-                                            {/* 3. Target / Refresh */}
+                                            {/* 3. Playback of Last 1 Minute */}
                                             <button
                                               type="button"
                                               onClick={() =>
-                                                toast.info(`Refreshing camera feed ${device.name} (${channel.name})`)
+                                                toast.info(`Opening 1-Minute Playback for ${device.name} (${channel.name})`)
                                               }
                                               className={cn(
-                                                "h-6 w-6 rounded-md flex items-center justify-center border transition-all cursor-pointer shadow-2xs active:scale-95",
+                                                "p-0.5 transition-colors cursor-pointer",
                                                 device.status === "running" || device.status === "idle"
-                                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40 hover:bg-emerald-100"
-                                                  : "bg-rose-50 text-rose-500 border-rose-200/60 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/40 hover:bg-rose-100",
+                                                  ? "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700"
+                                                  : "text-rose-500 dark:text-rose-400 hover:text-rose-600"
                                               )}
-                                              title={`Refresh / Alert - ${channel.name}`}
+                                              title={`Playback of Last 1 Minute - ${channel.name}`}
                                             >
-                                              <Target className="h-3 w-3 stroke-[2.2]" />
+                                              <History className="h-3.5 w-3.5 stroke-[2.2]" />
                                             </button>
 
                                             {/* 4. Snapshot */}
@@ -6361,14 +6670,14 @@ export function FleetExplorerPanel({
                                                 toast.success(`Snapshot captured for ${device.name} (${channel.name})`)
                                               }
                                               className={cn(
-                                                "h-6 w-6 rounded-md flex items-center justify-center border transition-all cursor-pointer shadow-2xs active:scale-95",
+                                                "p-0.5 transition-colors cursor-pointer",
                                                 device.status === "running" || device.status === "idle"
-                                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40 hover:bg-emerald-100"
-                                                  : "bg-rose-50 text-rose-500 border-rose-200/60 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/40 hover:bg-rose-100",
+                                                  ? "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700"
+                                                  : "text-rose-500 dark:text-rose-400 hover:text-rose-600"
                                               )}
                                               title={`Take Snapshot - ${channel.name}`}
                                             >
-                                              <Camera className="h-3 w-3 stroke-[2.2]" />
+                                              <Camera className="h-3.5 w-3.5 stroke-[2.2]" />
                                             </button>
                                           </div>
                                         </div>
@@ -6509,311 +6818,6 @@ export function FleetExplorerPanel({
           </div>
         )}
 
-        {/* Health Score Full View (Matching media_1790577972357.png & media_1790579625204.png) */}
-        {activeTab === "health" && (
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900">
-            {/* 1. Category Filters Header Bar */}
-            <div className="p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 grid grid-cols-4 gap-1.5 shrink-0">
-              {/* Safety */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedHealthCategory(selectedHealthCategory === "safety" ? "all" : "safety");
-                  if (onCloseTelemetry) onCloseTelemetry();
-                }}
-                className={cn(
-                  "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
-                  selectedHealthCategory === "safety"
-                    ? "bg-[#10B981] text-white border-emerald-600 shadow-md shadow-emerald-500/20 font-bold"
-                    : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/60 text-slate-800 dark:text-slate-100 hover:bg-emerald-100/80"
-                )}
-              >
-                <div className="flex items-center gap-1 min-w-0">
-                  <div className={cn("h-4 w-4 rounded-full flex items-center justify-center shrink-0", selectedHealthCategory === "safety" ? "bg-white text-[#10B981]" : "bg-[#10B981] text-white")}>
-                    <ShieldCheck className="h-2.5 w-2.5 stroke-[3]" />
-                  </div>
-                  <span className="text-xs truncate">Safety</span>
-                </div>
-                <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")}>85</span>
-              </button>
-
-              {/* Efficiency */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedHealthCategory(selectedHealthCategory === "efficiency" ? "all" : "efficiency");
-                  if (onCloseTelemetry) onCloseTelemetry();
-                }}
-                className={cn(
-                  "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
-                  selectedHealthCategory === "efficiency"
-                    ? "bg-[#D97706] text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold"
-                    : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 text-slate-800 dark:text-slate-100 hover:bg-amber-100/80"
-                )}
-              >
-                <div className="flex items-center gap-1 min-w-0">
-                  <Timer className={cn("h-3.5 w-3.5 shrink-0 stroke-[2.2]", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")} />
-                  <span className="text-xs truncate">Efficiency</span>
-                </div>
-                <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")}>72</span>
-              </button>
-
-              {/* Risk */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedHealthCategory(selectedHealthCategory === "risk" ? "all" : "risk");
-                  if (onCloseTelemetry) onCloseTelemetry();
-                }}
-                className={cn(
-                  "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
-                  selectedHealthCategory === "risk"
-                    ? "bg-[#EF4444] text-white border-rose-600 shadow-md shadow-rose-500/20 font-bold"
-                    : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60 text-slate-800 dark:text-slate-100 hover:bg-rose-100/80"
-                )}
-              >
-                <div className="flex items-center gap-1 min-w-0">
-                  <AlertTriangle className={cn("h-3.5 w-3.5 shrink-0 stroke-white", selectedHealthCategory === "risk" ? "text-white fill-white stroke-[#EF4444]" : "text-[#EF4444] fill-[#EF4444]")} />
-                  <span className="text-xs truncate">Risk</span>
-                </div>
-                <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")}>15</span>
-              </button>
-
-              {/* Discipline */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedHealthCategory(selectedHealthCategory === "discipline" ? "all" : "discipline");
-                  if (onCloseTelemetry) onCloseTelemetry();
-                }}
-                className={cn(
-                  "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
-                  selectedHealthCategory === "discipline"
-                    ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/20 font-bold"
-                    : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/80 dark:border-sky-800/60 text-slate-800 dark:text-slate-100 hover:bg-sky-100/80"
-                )}
-              >
-                <div className="flex items-center gap-1 min-w-0">
-                  <ThumbsUp className={cn("h-3.5 w-3.5 shrink-0 fill-current", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")} />
-                  <span className="text-xs truncate">Discipline</span>
-                </div>
-                <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")}>98</span>
-              </button>
-            </div>
-
-            {/* 2. Search & Info Sub-Header (Matching media_1790577972357.png) */}
-            <div className="p-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0 space-y-1">
-              <div className="flex items-center gap-1.5">
-                <div className="relative flex-1 flex items-center">
-                  <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-                  <input
-                    type="text"
-                    value={healthSearch}
-                    onChange={(e) => setHealthSearch(e.target.value)}
-                    placeholder="Search by IMEI, Registration, Object Model..."
-                    className="w-full h-8 pl-8 pr-8 rounded-lg bg-slate-100 dark:bg-slate-800 border-0 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0089FF]"
-                  />
-                  {healthSearch && (
-                    <button
-                      type="button"
-                      onClick={() => setHealthSearch("")}
-                      className="absolute right-2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Ascending / Descending Sort Button Beside Search Input (Matching media_1790577972357.png) */}
-                <TooltipProvider delayDuration={150}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextOrder = healthSortOrder === "asc" ? "desc" : "asc";
-                          setHealthSortOrder(nextOrder);
-                          toast.success(
-                            `Sorted by Health Score (${nextOrder === "asc" ? "Ascending" : "Descending"})`,
-                          );
-                        }}
-                        className={cn(
-                          "h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all cursor-pointer shrink-0 active:scale-95",
-                          healthSortOrder === "asc" && "text-[#0089FF] border-[#0089FF]/60 bg-sky-50 dark:bg-sky-950/40",
-                        )}
-                        title="Sort Ascending / Descending"
-                      >
-                        <ArrowUpDown className="h-3.5 w-3.5 stroke-[2.2]" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="text-xs font-semibold">
-                      Sort {healthSortOrder === "asc" ? "Descending (High to Low)" : "Ascending (Low to High)"}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-
-              <div className="px-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-                Based on {filteredHealthVehicles.length} eligible vehicles
-              </div>
-            </div>
-
-            {/* 3. Full View Vehicle Health Score List (Matching media_1790577972357.png) */}
-            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-slate-100 dark:divide-slate-800/60">
-              {filteredHealthVehicles.map((v, i) => {
-                const score = 75 + ((i * 7 + 13) % 23);
-                const isSelected = v.id === selectedVehicleId;
-
-                return (
-                  <div
-                    key={v.id}
-                    onClick={() => {
-                      onSelectVehicle(v.id);
-                      onOpenTelemetry(v, true);
-                    }}
-                    className={cn(
-                      "flex items-center justify-between px-3.5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer select-none",
-                      isSelected && "bg-sky-50/80 dark:bg-sky-950/40"
-                    )}
-                  >
-                    {/* Left: Status dot + Name & IMEI */}
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1 pl-1">
-                      <span
-                        className={cn(
-                          "h-2 w-2 rounded-full shrink-0 shadow-2xs ml-0.5",
-                          v.status === "running"
-                            ? "bg-emerald-500"
-                            : v.status === "idle"
-                              ? "bg-amber-500"
-                              : v.status === "stopped"
-                                ? "bg-rose-500"
-                                : "bg-indigo-500"
-                        )}
-                      />
-                      <div className="flex flex-col min-w-0 truncate">
-                        <span className="font-semibold text-xs text-slate-800 dark:text-slate-100 truncate">
-                          {v.name}
-                        </span>
-                        <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 truncate">
-                          IMEI: {v.imei}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Right: Score Pill Badge + Chevron */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span
-                        className={cn(
-                          "px-2.5 py-0.5 rounded-md font-mono text-xs font-bold border tabular-nums shadow-2xs",
-                          score >= 80
-                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-500/20"
-                            : score >= 60
-                              ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-500/20"
-                              : "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-500/20"
-                        )}
-                      >
-                        {score}
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-slate-400 stroke-[2]" />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Pinned Bottom Vehicle Health Scores Footer Bar (Visible ONLY on Object tab) */}
-      {activeTab === "object" && (
-        <div className="shrink-0 border-t border-[#DFE3EB] dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 px-2 py-1.5 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar select-none rounded-b-2xl">
-          {/* Safety Score */}
-          <button
-            type="button"
-            onClick={() => {
-              handleTabChange("health");
-              setSelectedHealthCategory("safety");
-              if (onCloseTelemetry) onCloseTelemetry();
-            }}
-            className={cn(
-              "flex-1 min-w-[76px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
-              activeTab === "health" && selectedHealthCategory === "safety"
-                ? "bg-[#10B981] text-white border-emerald-600 shadow-md shadow-emerald-500/20 font-bold"
-                : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-800/50 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/50"
-            )}
-            title="View Safety Health Scores"
-          >
-            <div className={cn("h-4 w-4 rounded-full flex items-center justify-center shrink-0 shadow-2xs", activeTab === "health" && selectedHealthCategory === "safety" ? "bg-white text-[#10B981]" : "bg-[#10B981] text-white")}>
-              <ShieldCheck className="h-2.5 w-2.5 stroke-[3]" />
-            </div>
-            <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "safety" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Safety</span>
-            <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")}>85</span>
-          </button>
-
-          {/* Efficiency Score */}
-          <button
-            type="button"
-            onClick={() => {
-              handleTabChange("health");
-              setSelectedHealthCategory("efficiency");
-              if (onCloseTelemetry) onCloseTelemetry();
-            }}
-            className={cn(
-              "flex-1 min-w-[82px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
-              activeTab === "health" && selectedHealthCategory === "efficiency"
-                ? "bg-[#D97706] text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold"
-                : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/50 hover:bg-amber-100/70 dark:hover:bg-amber-900/50"
-            )}
-            title="View Efficiency Health Scores"
-          >
-            <Timer className={cn("h-4 w-4 shrink-0 stroke-[2.2]", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")} />
-            <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Efficiency</span>
-            <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")}>72</span>
-          </button>
-
-          {/* Risk Score */}
-          <button
-            type="button"
-            onClick={() => {
-              handleTabChange("health");
-              setSelectedHealthCategory("risk");
-              if (onCloseTelemetry) onCloseTelemetry();
-            }}
-            className={cn(
-              "flex-1 min-w-[68px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
-              activeTab === "health" && selectedHealthCategory === "risk"
-                ? "bg-[#EF4444] text-white border-rose-600 shadow-md shadow-rose-500/20 font-bold"
-                : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/60 dark:border-rose-800/50 hover:bg-rose-100/70 dark:hover:bg-rose-900/50"
-            )}
-            title="View Risk Health Scores"
-          >
-            <AlertTriangle className={cn("h-4 w-4 shrink-0 stroke-white", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white fill-white stroke-[#EF4444]" : "text-[#EF4444] fill-[#EF4444]")} />
-            <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Risk</span>
-            <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")}>15</span>
-          </button>
-
-          {/* Discipline Score */}
-          <button
-            type="button"
-            onClick={() => {
-              handleTabChange("health");
-              setSelectedHealthCategory("discipline");
-              if (onCloseTelemetry) onCloseTelemetry();
-            }}
-            className={cn(
-              "flex-1 min-w-[88px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
-              activeTab === "health" && selectedHealthCategory === "discipline"
-                ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/20 font-bold"
-                : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/60 dark:border-sky-800/50 hover:bg-sky-100/70 dark:hover:bg-sky-900/50"
-            )}
-            title="View Route Discipline Scores"
-          >
-            <ThumbsUp className={cn("h-4 w-4 shrink-0 fill-current", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")} />
-            <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Discipline</span>
-            <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")}>98</span>
-          </button>
-        </div>
-      )}
 
       {/* 1. Edit Trailer Specifications Modal (Standard 56px Header Format) */}
       <EditTrailerModal

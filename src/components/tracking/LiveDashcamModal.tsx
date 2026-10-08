@@ -56,10 +56,10 @@ export function LiveDashcamModal({
           <img
             src={
               activeChannel === 1
-                ? "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80"
+                ? "/telematics/driver_cabin_1.jpg"
                 : activeChannel === 2
-                  ? "https://images.unsplash.com/photo-1508974239320-0a029497e820?auto=format&fit=crop&w=1200&q=80"
-                  : "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80"
+                  ? "/telematics/driver_fatigue_rubbing_eyes.png"
+                  : "/telematics/cargo_hold.png"
             }
             alt="Live Dashcam Stream"
             className="h-full w-full object-cover opacity-90"

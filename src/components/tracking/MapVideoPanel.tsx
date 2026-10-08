@@ -27,10 +27,12 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
+  Radio,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { IntercomCard, type IntercomDevice } from "@/components/tracking/IntercomCard";
 
 export interface VideoChannelFeed {
   id: string;
@@ -97,10 +99,10 @@ function VideoPlayerSettingsPopover({
           onClick={(e) => {
             e.stopPropagation();
           }}
-          className="p-2 rounded-lg hover:bg-white/25 text-white transition-all cursor-pointer active:scale-95"
+          className="h-9 w-9 rounded-xl bg-black/60 backdrop-blur-md hover:bg-black/80 text-white transition-all cursor-pointer active:scale-95 flex items-center justify-center"
           title="Video Player Settings"
         >
-          <Settings className="h-[18px] w-[18px] stroke-[2]" />
+          <Settings className="h-4 w-4 stroke-[2]" />
         </button>
       </PopoverTrigger>
 
@@ -321,6 +323,9 @@ interface MapVideoPanelProps {
   onCloseAll: () => void;
   isMatrixMode?: boolean;
   onToggleMatrixMode?: (enabled: boolean) => void;
+  intercomDevice?: IntercomDevice | null;
+  onCloseIntercom?: () => void;
+  onOpenIntercom?: (device: IntercomDevice) => void;
   className?: string;
 }
 
@@ -330,6 +335,9 @@ export function MapVideoPanel({
   onCloseAll,
   isMatrixMode: propIsMatrixMode,
   onToggleMatrixMode,
+  intercomDevice,
+  onCloseIntercom,
+  onOpenIntercom,
   className,
 }: MapVideoPanelProps) {
   // Layout Modes: "stack" (side panel), "1x1", "2x2", "2x3" (asymmetric matrix), "3x3"
@@ -338,10 +346,23 @@ export function MapVideoPanel({
 
   const isMatrixMode = propIsMatrixMode ?? internalMatrixMode;
   const layoutMode = isMatrixMode ? (internalLayoutMode === "stack" ? "2x3" : internalLayoutMode) : "stack";
+  const [isMatrixContainerFullscreen, setIsMatrixContainerFullscreen] = useState(false);
 
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isAllPlaying, setIsAllPlaying] = useState(true);
   const [activePage, setActivePage] = useState(1);
+
+  // Dynamic Pagination Calculation based on selected Matrix Layout Mode
+  const pageSize = layoutMode === "1x1" ? 1 : layoutMode === "2x2" ? 4 : layoutMode === "2x3" ? 6 : layoutMode === "3x3" ? 9 : channels.length;
+  const totalPages = Math.max(1, Math.ceil(channels.length / pageSize));
+  const currentPage = Math.min(Math.max(1, activePage), totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const visibleFeeds = isMatrixMode ? channels.slice(startIndex, startIndex + pageSize) : channels;
+
+  const changeLayoutMode = (mode: "1x1" | "2x2" | "2x3" | "3x3") => {
+    setInternalLayoutMode(mode);
+    setActivePage(1);
+  };
 
   const [mutedChannels, setMutedChannels] = useState<Record<string, boolean>>({});
   const [pausedChannels, setPausedChannels] = useState<Record<string, boolean>>({});
@@ -376,6 +397,21 @@ export function MapVideoPanel({
     const interval = setInterval(updateClock, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // ESC key listener to exit full matrix view mode
+  useEffect(() => {
+    if (!isMatrixContainerFullscreen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Esc") {
+        setIsMatrixContainerFullscreen(false);
+        toast.info("Exited Full View matrix mode");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMatrixContainerFullscreen]);
 
   const toggleMute = (id: string, name: string) => {
     setMutedChannels((prev) => {
@@ -484,7 +520,7 @@ export function MapVideoPanel({
     onToggleMatrixMode?.(enabled);
   };
 
-  if (!channels || channels.length === 0) return null;
+  if ((!channels || channels.length === 0) && !intercomDevice) return null;
 
   // Single Video Card Renderer
   const renderVideoCard = (feed: VideoChannelFeed, isFeatured = false) => {
@@ -502,84 +538,94 @@ export function MapVideoPanel({
       <div
         key={feed.id}
         className={cn(
-          "relative flex flex-col rounded-xl overflow-hidden border border-[#DFE3EB] dark:border-slate-800 bg-black shadow-md group transition-all w-full shrink-0",
+          "relative flex flex-col rounded-2xl overflow-hidden border border-[#DFE3EB] dark:border-slate-800 bg-black shadow-md group transition-all w-full shrink-0 select-none",
           layoutMode === "stack" ? "h-[255px]" : "h-full"
         )}
       >
-        {/* Top Video Header Overlay Bar */}
-        <div className="absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/95 via-black/70 to-transparent text-white flex justify-between items-start z-20 pointer-events-none">
-          {/* Left Column (ALWAYS VISIBLE): 1. Object Name | 2. Channel & Status | 3. Location / Address */}
-          <div className="flex flex-col gap-0.5 pointer-events-auto min-w-0 pr-2 max-w-[calc(100%-36px)] group-hover:max-w-[50%] transition-all">
-            {/* Row 1: Object Name (Full Name by default, truncates ONLY on hover) */}
-            <div className="font-extrabold text-xs sm:text-sm text-white tracking-tight drop-shadow-sm whitespace-nowrap group-hover:truncate transition-all" title={`Object: ${feed.deviceName}`}>
+        {/* Top Video Header Overlay Area */}
+        <div className="absolute top-0 left-0 right-0 p-3.5 bg-gradient-to-b from-black/90 via-black/50 to-transparent text-white flex flex-col gap-2 z-20 pointer-events-none">
+          {/* Row 1: Object Name (Top-Left) + Close Button X (Top-Right) */}
+          <div className="flex items-center justify-between w-full pointer-events-auto">
+            <h3
+              className="font-bold text-sm sm:text-base text-white tracking-tight drop-shadow-md truncate max-w-[calc(100%-44px)]"
+              title={`Object: ${feed.deviceName}`}
+            >
               {feed.deviceName}
-            </div>
+            </h3>
 
-            {/* Row 2: Channel Name Badge + Status Beside It */}
-            <div className="flex items-center gap-2 flex-nowrap min-w-0">
-              {/* Channel Name Badge (Supports custom names like CH1, Main Cabin View on ONE SINGLE LINE) */}
-              <span className="px-1.5 py-0.5 rounded bg-sky-500/30 border border-sky-400/40 text-sky-300 font-mono text-[11px] font-bold shrink-0 shadow-xs whitespace-nowrap inline-block" title={`Channel: ${feed.channelName}`}>
-                {feed.channelName}
-              </span>
-
-              {/* Status (Active / Offline) Beside Channel No. */}
-              <div className="flex items-center gap-1 text-emerald-400 font-bold text-[11px] shrink-0 whitespace-nowrap">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                Active
-              </div>
-            </div>
-
-            {/* Row 3: Location / Address (12px Font Size with Proper Breathing Space) */}
-            <div className="flex items-center gap-1.5 text-xs text-slate-100 font-semibold drop-shadow-md whitespace-nowrap mt-0.5" title={feed.location ?? "At Uffizio - Head Office"}>
-              <MapPin className="h-3.5 w-3.5 text-sky-400 shrink-0 stroke-[2.2]" />
-              <span className="whitespace-nowrap text-[12px]">
-                {feed.location ?? "At Uffizio - Head Office"}
-              </span>
-            </div>
-          </div>
-
-          {/* Right Column: Technical Stats (HOVER ONLY) + Close Button (ALWAYS VISIBLE) */}
-          <div className="flex items-start gap-2 pointer-events-auto shrink-0">
-            {/* Technical Metrics: FPS | Data MB | Internet Speed | Video Resolution (HOVER ONLY) */}
-            <div className="text-right font-mono text-white drop-shadow-sm flex flex-col items-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-              <div className="flex items-center gap-1.5 text-xs font-medium">
-                <span className="text-white/90 font-semibold">{feed.fps ?? 25} fps</span>
-                <span className="text-slate-500">|</span>
-                <span className="text-white/90">{feed.dataUsed ?? "3.39 MB"}</span>
-                <span className="text-slate-500">|</span>
-                <span className="text-emerald-300 font-bold">{feed.bitrate ?? "40.34 kbps"}</span>
-              </div>
-
-              <div className="text-slate-300 text-[10px] font-mono flex items-center gap-1">
-                {zoomScale > 1 && (
-                  <span className="px-1 bg-[#0089FF] text-white rounded text-[9px] font-bold font-mono">
-                    {Math.round(zoomScale * 100)}%
-                  </span>
-                )}
-                {isHD && <span className="px-1 bg-emerald-500 text-white rounded text-[9px] font-bold">HD</span>}
-                <span>{isHD ? "1920x1080 px" : (feed.resolution ?? "704x576 px")}</span>
-              </div>
-            </div>
-
-            {/* Close Button X (ALWAYS VISIBLE) */}
+            {/* Close Button X Container */}
             <button
               type="button"
               onClick={() => onCloseChannel(feed.id)}
-              className="p-1.5 rounded-lg bg-black/40 text-white/80 hover:text-white hover:bg-rose-600/80 transition-all cursor-pointer shadow-md ml-1 shrink-0"
+              className="p-1.5 rounded-xl bg-black/60 backdrop-blur-md text-white/90 hover:text-white hover:bg-rose-600/80 transition-all cursor-pointer shadow-md shrink-0"
               title={`Close ${feed.deviceName} ${feed.channelName}`}
             >
               <X className="h-4 w-4 stroke-[2.5]" />
             </button>
           </div>
+
+          {/* Row 2: Channel Badge + Active Status (Left) & Technical Metrics Pill (Right) */}
+          <div className="flex items-start justify-between w-full pointer-events-auto min-w-0">
+            {/* Left: Channel Name Badge + Status Dot */}
+            <div className="flex items-center gap-2 min-w-0 pr-2 pt-0.5">
+              <span
+                className="px-2 py-0.5 rounded-lg border border-sky-400/40 bg-sky-500/20 text-sky-300 font-mono text-[11px] font-bold shrink-0 truncate max-w-[140px] shadow-xs"
+                title={`Channel: ${feed.channelName}`}
+              >
+                {feed.channelName}
+              </span>
+
+              <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px] shrink-0 whitespace-nowrap">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                Active
+              </div>
+            </div>
+
+            {/* Right: Technical Metrics Pill (Bitrate default; FPS & MB expand ON HOVER) */}
+            <div className="bg-black/65 backdrop-blur-md px-2.5 py-1 rounded-xl text-right font-mono transition-all duration-200 pointer-events-none shrink-0 shadow-md">
+              {/* Line 1 (ALWAYS VISIBLE): Bitrate */}
+              <div className="text-emerald-400 text-[11px] sm:text-xs font-bold font-mono">
+                {feed.bitrate ?? "1/41.21 kbps"}
+              </div>
+
+              {/* Line 2 (HOVER ONLY): FPS & Data MB */}
+              <div className="hidden group-hover:flex items-center justify-end gap-1.5 text-white text-[10px] sm:text-[11px] font-semibold font-mono mt-0.5 border-t border-white/10 pt-0.5">
+                <span>{feed.fps ?? 25} fps</span>
+                <span className="text-white/40">|</span>
+                <span>{feed.dataUsed ?? "7.50 MB"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Location & Resolution Info Overlay Area (Slides up smoothly on hover above controllers toolbar) */}
+        <div className="absolute left-0 right-0 px-3.5 flex items-end justify-between z-20 pointer-events-none transition-all duration-200 bottom-3 group-hover:bottom-[54px]">
+          {/* Bottom-Left: Location Icon + Address (Wraps up to 2 lines cleanly for long addresses) */}
+          <div
+            className="flex items-start gap-1.5 text-xs text-white font-semibold drop-shadow-md max-w-[70%] pointer-events-auto"
+            title={feed.location ?? "At Uffizio - Head Office"}
+          >
+            <MapPin className="h-3.5 w-3.5 text-sky-400 shrink-0 stroke-[2.2] mt-0.5" />
+            <span className="text-[11px] sm:text-[12px] leading-tight font-semibold line-clamp-2">
+              {feed.location ?? "At Uffizio - Head Office"}
+            </span>
+          </div>
+
+          {/* Bottom-Right: Video Resolution */}
+          <div className="text-[11px] font-mono text-white/90 font-semibold drop-shadow-md pointer-events-auto shrink-0 pb-0.5">
+            {isHD ? "1920x1080 px" : (feed.resolution ?? "704x576 px")}
+          </div>
         </div>
 
         {/* Telemetry Video Display Canvas Container */}
         <div className="relative w-full flex-1 bg-black overflow-hidden flex items-center justify-center">
+          {/* Bottom dark gradient overlay for text & control legibility over video stream */}
+          <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 pointer-events-none transition-all duration-200 group-hover:h-36" />
           {/* Camera Feed Stream Image with Mirror & Zoom Transforms */}
           <img
             src={
               feed.snapshotUrl ||
-              "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80"
+              "/telematics/driver_cabin_2.png"
             }
             alt={`${feed.deviceName} ${feed.channelName}`}
             style={{
@@ -606,49 +652,69 @@ export function MapVideoPanel({
             </div>
           )}
 
-          {/* HOVER VIDEO PLAYER CONTROLLER TOOLBAR (Standard Video Player Format) */}
-          <div className="absolute bottom-0 left-0 right-0 px-3 py-2 bg-gradient-to-t from-black/95 via-black/85 to-transparent flex items-center justify-between text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-30">
-            {/* Left Controllers: Play/Pause + Sound/Mute */}
-            <div className="flex items-center gap-1">
-              {/* Play / Pause Button */}
+          {/* HOVER VIDEO PLAYER CONTROLLER TOOLBAR (Matching Reference 1:1) */}
+          <div className="absolute bottom-0 left-0 right-0 px-3.5 py-2.5 bg-gradient-to-t from-black/95 via-black/80 to-transparent flex items-center justify-between text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-30">
+            {/* Left Controllers: Play/Pause Pill + Sound/Mute Box */}
+            <div className="flex items-center gap-1.5">
+              {/* Play / Pause Pill Button */}
               <button
                 type="button"
                 onClick={() => togglePlayPause(feed.id, `${feed.deviceName} ${feed.channelName}`)}
-                className="p-2 rounded-lg hover:bg-white/25 text-white transition-all cursor-pointer active:scale-95"
+                className="h-9 px-3 rounded-xl bg-white text-slate-900 hover:bg-slate-100 transition-all cursor-pointer active:scale-95 flex items-center justify-center shadow-md"
                 title={isPaused ? "Play Stream" : "Pause Stream"}
               >
                 {isPaused ? (
-                  <Play className="h-5 w-5 fill-white stroke-none" />
+                  <Play className="h-4 w-4 fill-slate-900 stroke-none" />
                 ) : (
-                  <Pause className="h-5 w-5 fill-white stroke-none" />
+                  <Pause className="h-4 w-4 fill-slate-900 stroke-none" />
                 )}
               </button>
 
-              {/* Sound / Mute Toggle */}
+              {/* Sound / Mute Toggle Square */}
               <button
                 type="button"
                 onClick={() => toggleMute(feed.id, `${feed.deviceName} ${feed.channelName}`)}
-                className="p-2 rounded-lg hover:bg-white/25 text-white transition-all cursor-pointer active:scale-95"
+                className="h-9 w-9 rounded-xl bg-black/60 backdrop-blur-md hover:bg-black/80 text-white transition-all cursor-pointer active:scale-95 flex items-center justify-center"
                 title={isMuted ? "Sound On" : "Mute Sound"}
               >
                 {isMuted ? (
-                  <VolumeX className="h-[18px] w-[18px] stroke-[2]" />
+                  <VolumeX className="h-4 w-4 stroke-[2]" />
                 ) : (
-                  <Volume2 className="h-[18px] w-[18px] stroke-[2] text-emerald-400" />
+                  <Volume2 className="h-4 w-4 stroke-[2] text-emerald-400" />
                 )}
+              </button>
+
+              {/* Live Intercom / 2-Way Audio Square */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOpenIntercom) {
+                    onOpenIntercom({
+                      id: feed.id,
+                      name: feed.deviceName,
+                      location: feed.location,
+                    });
+                  } else {
+                    toast.info(`Starting Intercom session with ${feed.deviceName}...`);
+                  }
+                }}
+                className="h-9 w-9 rounded-xl bg-black/60 backdrop-blur-md hover:bg-[#0089FF] text-white transition-all cursor-pointer active:scale-95 flex items-center justify-center"
+                title="Live Intercom / Two-Way Audio"
+              >
+                <Radio className="h-4 w-4 stroke-[2]" />
               </button>
             </div>
 
             {/* Right Controllers: Snapshot, PiP, Settings Popover, Full View */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {/* 1. Take Snapshot */}
               <button
                 type="button"
                 onClick={() => handleTakeSnapshot(feed)}
-                className="p-2 rounded-lg hover:bg-white/25 text-white transition-all cursor-pointer active:scale-95"
+                className="h-9 w-9 rounded-xl bg-black/60 backdrop-blur-md hover:bg-black/80 text-white transition-all cursor-pointer active:scale-95 flex items-center justify-center"
                 title="Take Snapshot"
               >
-                <Camera className="h-[18px] w-[18px] stroke-[2]" />
+                <Camera className="h-4 w-4 stroke-[2]" />
               </button>
 
               {/* 2. Picture in Picture */}
@@ -656,15 +722,15 @@ export function MapVideoPanel({
                 type="button"
                 onClick={() => handleTogglePiP(feed)}
                 className={cn(
-                  "p-2 rounded-lg transition-all cursor-pointer active:scale-95 text-white",
-                  pipChannel?.id === feed.id ? "bg-[#0089FF] text-white" : "hover:bg-white/25"
+                  "h-9 w-9 rounded-xl backdrop-blur-md transition-all cursor-pointer active:scale-95 flex items-center justify-center text-white",
+                  pipChannel?.id === feed.id ? "bg-[#0089FF] text-white" : "bg-black/60 hover:bg-black/80"
                 )}
                 title="Picture in Picture"
               >
-                <PictureInPicture2 className="h-[18px] w-[18px] stroke-[2]" />
+                <PictureInPicture2 className="h-4 w-4 stroke-[2]" />
               </button>
 
-              {/* 3. Video Player Settings Overlay Popover (Theme Aligned with Ratio & Zoom Submenus) */}
+              {/* 3. Video Player Settings Popover */}
               <VideoPlayerSettingsPopover
                 feed={feed}
                 isHMirrored={isHMirrored}
@@ -682,17 +748,17 @@ export function MapVideoPanel({
                 onResetZoom={() => handleResetZoom(feed.id, feed.deviceName)}
               />
 
-              {/* 4. Full View / Fullscreen (Opens ONLY this particular video stream in full view) */}
+              {/* 4. Full View / Fullscreen */}
               <button
                 type="button"
                 onClick={() => {
                   setSingleFullViewFeed(feed);
                   toast.success(`Full View opened for ${feed.deviceName} (${feed.channelName})`);
                 }}
-                className="p-2 rounded-lg hover:bg-white/25 text-white transition-all cursor-pointer active:scale-95"
+                className="h-9 w-9 rounded-xl bg-black/60 backdrop-blur-md hover:bg-black/80 text-white transition-all cursor-pointer active:scale-95 flex items-center justify-center"
                 title="Full View (This Video Stream Only)"
               >
-                <Maximize2 className="h-[18px] w-[18px] stroke-[2]" />
+                <Maximize2 className="h-4 w-4 stroke-[2]" />
               </button>
             </div>
           </div>
@@ -705,6 +771,7 @@ export function MapVideoPanel({
     <div
       className={cn(
         "flex flex-col bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden select-none z-30 pointer-events-auto transition-all duration-300 h-full w-full",
+        isMatrixContainerFullscreen && "fixed inset-0 z-[99999] rounded-none border-0 shadow-none w-screen h-screen bg-white dark:bg-slate-950",
         className
       )}
     >
@@ -764,117 +831,152 @@ export function MapVideoPanel({
         </div>
       </div>
 
-      {/* 2. Sub-Toolbar Bar (Visible in Matrix View Mode matching media_1791371402354.png) */}
+      {/* 2. Sub-Toolbar Bar (Matching Preset Icons: 1, 4, 6, 9 & Full View) */}
       {isMatrixMode && (
         <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 bg-slate-50/90 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 text-xs shrink-0 select-none">
           {/* Left Grid Layout Presets Selector */}
           <div className="flex items-center gap-1">
-            {/* 1x1 Single Focus */}
+            {/* 1. Single Channel View (1x1) */}
             <button
               type="button"
-              onClick={() => setInternalLayoutMode("1x1")}
+              onClick={() => changeLayoutMode("1x1")}
               className={cn(
                 "p-1.5 rounded-md transition-all cursor-pointer flex items-center justify-center",
                 layoutMode === "1x1"
                   ? "bg-[#0089FF] text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
               )}
-              title="1x1 Single Camera View"
+              title="1 Channel View (1x1)"
             >
               <Square className="h-4 w-4 stroke-[2]" />
             </button>
 
-            {/* 2x2 Grid (4 Cells) */}
+            {/* 2. 4 Channels Grid (2x2) */}
             <button
               type="button"
-              onClick={() => setInternalLayoutMode("2x2")}
+              onClick={() => changeLayoutMode("2x2")}
               className={cn(
                 "p-1.5 rounded-md transition-all cursor-pointer flex items-center justify-center",
                 layoutMode === "2x2"
                   ? "bg-[#0089FF] text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
               )}
-              title="2x2 Grid View (4 Cameras)"
+              title="4 Channels View (2x2)"
             >
               <Grid2x2 className="h-4 w-4 stroke-[2]" />
             </button>
 
-            {/* 2x3 Asymmetric Matrix Grid (1 Large Left + 4 Small Right - Matching media_1791371402354.png) */}
+            {/* 3. 6 Channels Matrix View (6 Grid / 2x3) */}
             <button
               type="button"
-              onClick={() => setInternalLayoutMode("2x3")}
+              onClick={() => changeLayoutMode("2x3")}
               className={cn(
                 "p-1.5 rounded-md transition-all cursor-pointer flex items-center justify-center",
                 layoutMode === "2x3"
                   ? "bg-[#0089FF] text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
               )}
-              title="Asymmetric Matrix Layout (1 Large + 4 Small Cameras)"
+              title="6 Channels View (6 Grid)"
             >
-              <LayoutGrid className="h-4 w-4 stroke-[2]" />
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4 fill-none stroke-current stroke-[2]"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="5" height="8" rx="1" />
+                <rect x="9.5" y="3" width="5" height="8" rx="1" />
+                <rect x="16" y="3" width="5" height="8" rx="1" />
+                <rect x="3" y="13" width="5" height="8" rx="1" />
+                <rect x="9.5" y="13" width="5" height="8" rx="1" />
+                <rect x="16" y="13" width="5" height="8" rx="1" />
+              </svg>
             </button>
 
-            {/* 3x3 Grid (9 Cells) */}
+            {/* 4. 9 Channels Grid (3x3) */}
             <button
               type="button"
-              onClick={() => setInternalLayoutMode("3x3")}
+              onClick={() => changeLayoutMode("3x3")}
               className={cn(
                 "p-1.5 rounded-md transition-all cursor-pointer flex items-center justify-center",
                 layoutMode === "3x3"
                   ? "bg-[#0089FF] text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
               )}
-              title="3x3 Grid View (9 Cameras)"
+              title="9 Channels View (3x3)"
             >
               <Grid3x3 className="h-4 w-4 stroke-[2]" />
             </button>
-          </div>
 
+            {/* 5. Full View (Fullscreen Matrix Container Toggle) */}
+            <button
+              type="button"
+              onClick={() => setIsMatrixContainerFullscreen((prev) => !prev)}
+              className={cn(
+                "p-1.5 rounded-md transition-all cursor-pointer flex items-center justify-center ml-1 border-l border-slate-200 dark:border-slate-800 pl-2",
+                isMatrixContainerFullscreen
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
+              )}
+              title={isMatrixContainerFullscreen ? "Exit Full View (ESC)" : "Full View Matrix Mode"}
+            >
+              <Maximize className="h-4 w-4 stroke-[2]" />
+            </button>
+          </div>
         </div>
       )}
 
       {/* 3. Camera Cards Container Workspace */}
-      {layoutMode === "2x3" && isMatrixMode ? (
-        /* Asymmetric Matrix Grid Layout matching media_1791371402354.png (1 Large Left 60% + 4 Small Right 40%) */
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-2.5 p-2.5 overflow-y-auto bg-slate-100 dark:bg-slate-950 custom-scrollbar min-h-0">
-          {/* Featured Primary Camera Feed (Left 7 Columns, Full Height) */}
-          {channels.length > 0 && (
-            <div className="lg:col-span-7 h-full flex flex-col min-h-0">
-              {renderVideoCard(channels[0], true)}
+      {layoutMode === "1x1" && isMatrixMode ? (
+        /* Mode 1: 1 Channel Full View (1x1) */
+        <div className="flex-1 p-2 bg-slate-100 dark:bg-slate-950 overflow-hidden min-h-0 h-full w-full">
+          {visibleFeeds.length > 0 && renderVideoCard(visibleFeeds[0], true)}
+        </div>
+      ) : layoutMode === "2x2" && isMatrixMode ? (
+        /* Mode 2: 4 Channels Grid View (2x2) */
+        <div className="flex-1 p-2 bg-slate-100 dark:bg-slate-950 overflow-hidden min-h-0 h-full w-full grid grid-cols-2 grid-rows-2 gap-2">
+          {visibleFeeds.map((feed) => (
+            <div key={feed.id} className="h-full w-full min-h-0 flex flex-col overflow-hidden">
+              {renderVideoCard(feed, false)}
             </div>
-          )}
-
-          {/* Secondary 4 Camera Feeds (Right 5 Columns in 2x2 Sub-Grid) */}
-          {channels.length > 1 && (
-            <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5 h-full min-h-0">
-              {channels.slice(1, 5).map((feed) => (
-                <div key={feed.id} className="h-full flex flex-col min-h-0">
-                  {renderVideoCard(feed, false)}
-                </div>
-              ))}
+          ))}
+        </div>
+      ) : layoutMode === "2x3" && isMatrixMode ? (
+        /* Mode 3: 6 Channels Asymmetric Matrix View (1 Large + 5 Small) */
+        <div className="flex-1 p-2 bg-slate-100 dark:bg-slate-950 overflow-hidden min-h-0 h-full w-full grid grid-cols-3 grid-rows-3 gap-2">
+          {visibleFeeds.map((feed, idx) => (
+            <div
+              key={feed.id}
+              className={cn(
+                "h-full w-full min-h-0 flex flex-col overflow-hidden",
+                idx === 0 ? "col-span-2 row-span-2" : "col-span-1 row-span-1"
+              )}
+            >
+              {renderVideoCard(feed, idx === 0)}
             </div>
-          )}
+          ))}
+        </div>
+      ) : layoutMode === "3x3" && isMatrixMode ? (
+        /* Mode 4: 9 Channels Grid View (3x3) */
+        <div className="flex-1 p-2 bg-slate-100 dark:bg-slate-950 overflow-hidden min-h-0 h-full w-full grid grid-cols-3 grid-rows-3 gap-2">
+          {visibleFeeds.map((feed) => (
+            <div key={feed.id} className="h-full w-full min-h-0 flex flex-col overflow-hidden">
+              {renderVideoCard(feed, false)}
+            </div>
+          ))}
         </div>
       ) : (
-        /* Standard Stack / Grid Layouts */
-        <div
-          className={cn(
-            "flex-1 overflow-y-auto p-2.5 bg-slate-100 dark:bg-slate-950 custom-scrollbar min-h-0",
-            layoutMode === "stack" && "space-y-2.5",
-            layoutMode === "1x1" && "grid grid-cols-1 gap-2 h-full",
-            layoutMode === "2x2" && "grid grid-cols-1 md:grid-cols-2 gap-2 auto-rows-fr",
-            layoutMode === "3x3" && "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 auto-rows-fr"
-          )}
-        >
+        /* Default Stack Mode (Side Panel List) */
+        <div className="flex-1 overflow-y-auto p-2.5 bg-slate-100 dark:bg-slate-950 custom-scrollbar space-y-2.5 min-h-0">
           {channels.map((feed) => renderVideoCard(feed, false))}
         </div>
       )}
 
-      {/* 4. Bottom Footer Pagination Bar (Matching media_1791371402354.png) */}
+      {/* 4. Bottom Footer Pagination Bar (Matching Old Application Screenshots) */}
       {isMatrixMode && (
         <div className="flex items-center justify-between px-3.5 py-1.5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs shrink-0 select-none">
           <div className="text-[11px] font-medium text-slate-500">
-            Showing 1-{Math.min(channels.length, 5)} of {channels.length} feeds
+            Showing {channels.length > 0 ? startIndex + 1 : 0}-{Math.min(startIndex + pageSize, channels.length)} of {channels.length} feeds
           </div>
 
           {/* Pagination Controls */}
@@ -882,41 +984,43 @@ export function MapVideoPanel({
             <button
               type="button"
               onClick={() => setActivePage((p) => Math.max(1, p - 1))}
-              className="h-6 w-6 rounded flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+              disabled={currentPage <= 1}
+              className={cn(
+                "h-6 w-6 rounded flex items-center justify-center border transition-all",
+                currentPage <= 1
+                  ? "border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed"
+                  : "border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              )}
             >
               <ChevronLeft className="h-3.5 w-3.5 stroke-[2]" />
             </button>
 
-            <button
-              type="button"
-              onClick={() => setActivePage(1)}
-              className={cn(
-                "h-6 w-6 rounded flex items-center justify-center text-xs font-bold cursor-pointer transition-all",
-                activePage === 1
-                  ? "bg-[#0089FF] text-white shadow-2xs"
-                  : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              )}
-            >
-              1
-            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+              <button
+                key={pg}
+                type="button"
+                onClick={() => setActivePage(pg)}
+                className={cn(
+                  "h-6 w-6 rounded flex items-center justify-center text-xs font-bold cursor-pointer transition-all",
+                  currentPage === pg
+                    ? "bg-[#0089FF] text-white shadow-2xs"
+                    : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                )}
+              >
+                {pg}
+              </button>
+            ))}
 
             <button
               type="button"
-              onClick={() => setActivePage(2)}
+              onClick={() => setActivePage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage >= totalPages}
               className={cn(
-                "h-6 w-6 rounded flex items-center justify-center text-xs font-bold cursor-pointer transition-all",
-                activePage === 2
-                  ? "bg-[#0089FF] text-white shadow-2xs"
-                  : "border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                "h-6 w-6 rounded flex items-center justify-center border transition-all",
+                currentPage >= totalPages
+                  ? "border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed"
+                  : "border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               )}
-            >
-              2
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActivePage((p) => Math.min(2, p + 1))}
-              className="h-6 w-6 rounded flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer"
             >
               <ChevronRight className="h-3.5 w-3.5 stroke-[2]" />
             </button>
@@ -964,7 +1068,7 @@ export function MapVideoPanel({
             <img
               src={
                 singleFullViewFeed.snapshotUrl ||
-                "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80"
+                "/telematics/driver_cabin_2.png"
               }
               alt={singleFullViewFeed.deviceName}
               style={{
@@ -1037,7 +1141,7 @@ export function MapVideoPanel({
       {pipChannel && (
         <div className="fixed bottom-6 right-6 z-50 w-80 h-48 rounded-2xl overflow-hidden shadow-2xl border-2 border-[#0089FF] bg-black animate-in slide-in-from-bottom-5 duration-300 group">
           <img
-            src={pipChannel.snapshotUrl || "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80"}
+            src={pipChannel.snapshotUrl || "/telematics/driver_cabin_2.png"}
             alt={pipChannel.deviceName}
             style={{
               transform: `scaleX(${hMirroredChannels[pipChannel.id] ? -1 : 1}) scaleY(${vMirroredChannels[pipChannel.id] ? -1 : 1})`,
