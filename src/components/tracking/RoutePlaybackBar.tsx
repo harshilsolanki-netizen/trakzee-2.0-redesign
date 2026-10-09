@@ -773,16 +773,19 @@ export function RoutePlaybackBar({
                           {/* Left Info: Status Dot + Name & IMEI */}
                           <div className="flex items-center gap-2 min-w-0 flex-1">
                             <span
-                              className={cn(
-                                "h-2 w-2 rounded-full shrink-0",
-                                v.status === "running"
-                                  ? "bg-emerald-500"
-                                  : v.status === "idle"
-                                    ? "bg-amber-500"
-                                    : v.status === "stopped"
-                                      ? "bg-rose-500"
-                                      : "bg-slate-400"
-                              )}
+                              style={{
+                                backgroundColor:
+                                  v.status === "running"
+                                    ? "#008446"
+                                    : v.status === "idle"
+                                      ? "#C46F37"
+                                      : v.status === "stopped"
+                                        ? "#C70036"
+                                        : v.status === "inactive"
+                                          ? "#372AAC"
+                                          : "#62748E",
+                              }}
+                              className="h-2 w-2 rounded-full shrink-0"
                             />
                             <div className="flex flex-col min-w-0 truncate">
                               <span className="font-bold text-xs text-slate-800 dark:text-slate-100 truncate">

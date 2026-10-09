@@ -57,13 +57,13 @@ import { useState } from "react";
 import { STATUS_META, type FleetObject } from "@/data/fleet";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import {
   DEFAULT_ENABLED_WIDGETS,
   TooltipWidgetSettingsModal,
@@ -130,7 +130,7 @@ export function VehicleTelemetryDrawer({
   onClose: () => void;
   onSelectVehicle: (id: string) => void;
   allVehicles: FleetObject[];
-  onOpenPlayback?: () => void;
+  onOpenPlayback?: (timeframe?: string) => void;
   isHealthOnly?: boolean;
   selectedJob?: {
     id?: string;
@@ -537,8 +537,8 @@ export function VehicleTelemetryDrawer({
 
               case "health_score":
                 return (
-                  <div key={cardId} {...dragProps} className={cardWrapperClass}>
-                    {/* 1. Header Row (Figma: 218px x 39px, padding 8px 10px) */}
+                  <div key={cardId} {...dragProps} className={cn("w-[300px] shrink-0 group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden text-xs transition-all relative", draggedCardId === cardId && "opacity-50 border-dashed border-[#0089FF]")}>
+                    {/* 1. Header Row */}
                     <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
                       <div className="flex items-center gap-[6px] min-w-0">
                         <ShieldCheck className="h-4 w-4 text-[#0089FF] stroke-[1.8] shrink-0" />
@@ -778,7 +778,22 @@ export function VehicleTelemetryDrawer({
                         <span className="w-full font-bold text-[#1D293D] dark:text-slate-100 text-[13px] leading-[17px] tracking-[-0.3px] font-sans whitespace-nowrap text-right">
                           {formatDuration(vehicle.duration)}
                         </span>
-                        <div className="w-[71px] h-[22px] px-3 py-1 bg-[#22C55E] rounded-[6px] shadow-[0px_1px_2px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                        <div
+                          style={{
+                            backgroundColor:
+                              STATUS_META[vehicle.status]?.color ||
+                              (vehicle.status === "running"
+                                ? "#008446"
+                                : vehicle.status === "idle"
+                                  ? "#C46F37"
+                                  : vehicle.status === "stopped"
+                                    ? "#C70036"
+                                    : vehicle.status === "inactive"
+                                      ? "#372AAC"
+                                      : "#62748E"),
+                          }}
+                          className="w-[71px] h-[22px] px-3 py-1 rounded-[6px] shadow-[0px_1px_2px_rgba(0,0,0,0.08)] flex items-center justify-center"
+                        >
                           <span className="font-bold text-white text-[11.5px] leading-[12px] font-sans whitespace-nowrap">
                             {STATUS_META[vehicle.status]?.label || "Running"}
                           </span>
@@ -840,9 +855,54 @@ export function VehicleTelemetryDrawer({
                           </div>
                         </>
                       )}
+                      {/* 4. Playback CTA Button & Timeframe Dropdown (Attached to vehicle card) */}
+                      <div className="pt-1 pb-0.5">
+                        <DropdownMenu>
+                          <div className="relative group/playback w-full">
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                type="button"
+                                className="w-full h-8 px-2.5 rounded-lg bg-white dark:bg-slate-900 border border-[#0089FF]/60 hover:border-[#0089FF] shadow-2xs hover:shadow-xs transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98] text-[#0089FF] hover:bg-[#0089FF]/5"
+                              >
+                                <Play className="h-3.5 w-3.5 fill-[#0089FF] text-[#0089FF] shrink-0" />
+                                <span className="font-semibold text-[12px] leading-none whitespace-nowrap">
+                                  Playback
+                                </span>
+                                <ChevronDown className="h-3 w-3 ml-auto opacity-70 group-hover/playback:opacity-100 transition-opacity" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              side="bottom"
+                              sideOffset={4}
+                              className="w-[140px] p-1 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-xl border border-slate-200 dark:border-slate-800 z-50"
+                            >
+                              {[
+                                "Today",
+                                "Last 24 Hour",
+                                "Yesterday",
+                                "This Week",
+                                "Last Week",
+                                "This Month",
+                                "Last Month",
+                                "Custom",
+                              ].map((tf) => (
+                                <DropdownMenuItem
+                                  key={tf}
+                                  onClick={() => onOpenPlayback?.(tf)}
+                                  className="text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-[#0089FF]/10 dark:hover:bg-[#0089FF]/20 rounded-lg px-2 py-1.5 cursor-pointer flex items-center justify-between"
+                                >
+                                  <span>{tf}</span>
+                                  <ChevronRight className="h-3 w-3 opacity-40 shrink-0" />
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </div>
+                        </DropdownMenu>
+                      </div>
                     </div>
 
-                    {/* 4. Action Toolbar Row (Figma: 218px x 34px, padding 0px 8px, background #F4F5F7) */}
+                    {/* 5. Action Toolbar Row (Figma: 218px x 34px, padding 0px 8px, background #F4F5F7) */}
                     <div className="bg-[#F4F5F7] dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 px-[8px] h-[34px] flex items-center justify-around text-[#45556C] dark:text-slate-400 rounded-b-[10px]">
                       <button
                         type="button"

@@ -19,6 +19,10 @@ import {
   ChevronRight,
   Filter,
   Loader2,
+  MoreVertical,
+  FlipHorizontal,
+  FlipVertical,
+  Tv,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -29,6 +33,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export interface PlaybackDeviceProps {
   deviceName: string;
@@ -44,6 +53,66 @@ interface PlaybackHistoryPanelProps {
   className?: string;
 }
 
+// 3-Dots Action Popover for Event List Items (Play & Download Options matching Trakzee Theme)
+function EventActionPopover({
+  eventInfo,
+  onPlay,
+  onDownload,
+}: {
+  eventInfo: string;
+  onPlay?: () => void;
+  onDownload?: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          onClick={(e) => e.stopPropagation()}
+          className="p-1 rounded-md text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          title="More Actions"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        className="w-40 p-1 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-[#DFE3EB] dark:border-slate-800 shadow-xl rounded-xl text-xs space-y-0.5 z-[100]"
+      >
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onPlay) onPlay();
+            else toast.info(`Playing video for ${eventInfo}`);
+            setIsOpen(false);
+          }}
+          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-sky-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-left font-semibold transition-colors cursor-pointer"
+        >
+          <Play className="h-3.5 w-3.5 text-[#0089FF] fill-[#0089FF]" />
+          <span>Play Video</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onDownload) onDownload();
+            else toast.success(`Downloading clip for ${eventInfo}`);
+            setIsOpen(false);
+          }}
+          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-sky-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-left font-semibold transition-colors cursor-pointer"
+        >
+          <Download className="h-3.5 w-3.5 text-[#0089FF] stroke-[2.2]" />
+          <span>Download</span>
+        </button>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function PlaybackHistoryPanel({
   device,
   onClose,
@@ -55,7 +124,7 @@ export function PlaybackHistoryPanel({
   );
 
   // Fetch state for initial empty state UX
-  const [hasFetched, setHasFetched] = useState<boolean>(false);
+  const [hasFetched, setHasFetched] = useState<boolean>(true);
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
   // Device channels setup
@@ -71,8 +140,12 @@ export function PlaybackHistoryPanel({
   const [endTime, setEndTime] = useState<string>("01:45 PM");
 
   const [activeTab, setActiveTab] = useState<"timeline" | "files" | "events">("timeline");
-  const [isPlayingAll, setIsPlayingAll] = useState<boolean>(true);
   const [scrubberTime, setScrubberTime] = useState<number>(360); // 06:00 AM in minutes
+
+  // Video Preview Player Controls state for Event List & Timeline
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState<boolean>(true);
+  const [isPreviewMuted, setIsPreviewMuted] = useState<boolean>(false);
+  const [selectedEventIndex, setSelectedEventIndex] = useState<number>(0);
 
   // Individual video play states
   const [playingFeeds, setPlayingFeeds] = useState<Record<string, boolean>>({
@@ -124,14 +197,37 @@ export function PlaybackHistoryPanel({
     });
   };
 
+  // File List Information (Matches Reference Image 1 Content)
+  const fileListData = Array.from({ length: 16 }, (_, i) => ({
+    id: `cam-${i + 1}`,
+    channel: `Cam ${i + 1}`,
+    startTime: i === 13 ? "2025-11-06 00:00:00" : "2024-03-15 14:00:00",
+    endTime: i === 13 ? "2024-03-15 14:00:00" : "2024-03-15 14:15:00",
+    duration: "00:15:00",
+  }));
+
+  // Event List Information (Matches Reference Image 2 Content)
+  const eventListData = [
+    { id: "ev-1", dateTime: "2024-03-15 14:00:00", type: "DMS", info: "Eye Closed", location: "Primary School....", feedUrl: "/telematics/driver_fatigue_rubbing_eyes.png" },
+    { id: "ev-2", dateTime: "2024-03-15 14:00:00", type: "ADAS", info: "Driver on Call", location: "Near Abrama", feedUrl: "/telematics/driver_cabin_2.png" },
+    { id: "ev-3", dateTime: "2024-03-15 14:00:00", type: "DMS", info: "Yawn", location: "Near Abrama", feedUrl: "/telematics/driver_fatigue_rubbing_eyes.png" },
+    { id: "ev-4", dateTime: "2024-03-15 14:00:00", type: "ADAS", info: "Eye Closed", location: "Near Abrama", feedUrl: "/telematics/driver_cabin_2.png" },
+    { id: "ev-5", dateTime: "2024-03-15 14:00:00", type: "DMS", info: "Driver on Call", location: "Near Abrama", feedUrl: "/telematics/driver_smoking.png" },
+    { id: "ev-6", dateTime: "2024-03-15 14:00:00", type: "DMS", info: "Driver on Call", location: "Near Abrama", feedUrl: "/telematics/driver_smoking.png" },
+    { id: "ev-7", dateTime: "2024-03-15 14:00:00", type: "ADAS", info: "Eye Closed", location: "Near Abrama", feedUrl: "/telematics/driver_fatigue_rubbing_eyes.png" },
+    { id: "ev-8", dateTime: "2024-03-15 14:00:00", type: "ADAS", info: "Eye Closed", location: "Near Abrama", feedUrl: "/telematics/driver_fatigue_rubbing_eyes.png" },
+    { id: "ev-9", dateTime: "2024-03-15 14:00:00", type: "DMS", info: "Driver on Call", location: "Near Abrama", feedUrl: "/telematics/driver_smoking.png" },
+    { id: "ev-10", dateTime: "2024-03-15 14:00:00", type: "ADAS", info: "Eye Closed", location: "Near Abrama", feedUrl: "/telematics/driver_fatigue_rubbing_eyes.png" },
+  ];
+
   return (
     <div
       className={cn(
-        "absolute top-2.5 right-2.5 z-20 flex flex-col w-[450px] max-h-[calc(100vh-20px)] h-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl border border-[#DFE3EB] dark:border-slate-800 shadow-2xl overflow-hidden animate-in slide-in-from-right-4 duration-200 pointer-events-auto select-none",
+        "flex flex-col w-full h-auto max-h-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl border border-[#DFE3EB] dark:border-slate-800 shadow-2xl overflow-hidden pointer-events-auto select-none",
         className
       )}
     >
-      {/* 1. Header Bar matching Trakzee Theme with Scenario Switcher */}
+      {/* 1. Original Header Bar matching Trakzee Theme */}
       <div className="flex items-center justify-between px-3 py-2 bg-white dark:bg-slate-900 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0">
         <div className="flex items-center gap-1.5">
           <RotateCcw className="h-4 w-4 text-[#0089FF] stroke-[2.2] animate-spin-slow shrink-0" />
@@ -195,7 +291,7 @@ export function PlaybackHistoryPanel({
         </div>
       </div>
 
-      {/* 2. Search Filter Toolbar (11px labels, 12px values, consistent active/focus states) */}
+      {/* 2. Original Search Filter Toolbar (11px labels, 12px values) */}
       <div className="p-3.5 bg-slate-50/70 dark:bg-slate-950/80 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0 space-y-3 text-xs">
         {activeScenario === 1 ? (
           /* SCENARIO 1 FILTER LAYOUT: No Channel Dropdown (Date, Start Time, End Time + Fetch Playback) */
@@ -428,20 +524,19 @@ export function PlaybackHistoryPanel({
         )}
       </div>
 
-      {/* 3. Sub-Tabs Header (Timeline, File List, Event List) - RENDERED ONLY IN SCENARIOS 1 & 2 */}
+      {/* 3. Sub-Tabs Header (Text Only - Timeline, File List, Event List) */}
       {activeScenario !== 3 && (
         <div className="flex items-center border-b border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0 px-2 pt-1 gap-1 text-xs select-none">
           <button
             type="button"
             onClick={() => setActiveTab("timeline")}
             className={cn(
-              "flex-1 py-2 font-bold text-center border-b-2 transition-all cursor-pointer flex items-center justify-center gap-1.5",
+              "flex-1 py-2 font-bold text-center border-b-2 transition-all cursor-pointer flex items-center justify-center",
               activeTab === "timeline"
                 ? "border-[#0089FF] text-[#0089FF]"
                 : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
             )}
           >
-            <Film className="h-3.5 w-3.5 stroke-[2]" />
             <span>Timeline</span>
           </button>
 
@@ -449,43 +544,35 @@ export function PlaybackHistoryPanel({
             type="button"
             onClick={() => setActiveTab("files")}
             className={cn(
-              "flex-1 py-2 font-bold text-center border-b-2 transition-all cursor-pointer flex items-center justify-center gap-1.5",
+              "flex-1 py-2 font-bold text-center border-b-2 transition-all cursor-pointer flex items-center justify-center",
               activeTab === "files"
                 ? "border-[#0089FF] text-[#0089FF]"
                 : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
             )}
           >
-            <FileVideo className="h-3.5 w-3.5 stroke-[2]" />
             <span>File List</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-              12
-            </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("events")}
             className={cn(
-              "flex-1 py-2 font-bold text-center border-b-2 transition-all cursor-pointer flex items-center justify-center gap-1.5",
+              "flex-1 py-2 font-bold text-center border-b-2 transition-all cursor-pointer flex items-center justify-center",
               activeTab === "events"
                 ? "border-[#0089FF] text-[#0089FF]"
                 : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
             )}
           >
-            <AlertTriangle className="h-3.5 w-3.5 stroke-[2]" />
             <span>Event List</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 font-bold">
-              5
-            </span>
           </button>
         </div>
       )}
 
       {/* 4. Tab Body Content */}
-      <div className="flex-1 overflow-y-auto bg-slate-100 dark:bg-slate-950 p-2.5 space-y-3 custom-scrollbar min-h-0">
+      <div className="flex-1 overflow-hidden bg-slate-100 dark:bg-slate-950 flex flex-col min-h-0">
         {!hasFetched ? (
           /* INITIAL EMPTY STATE BEFORE FETCHING */
-          <div className="py-12 px-5 flex flex-col items-center justify-center text-center bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB] dark:border-slate-800 space-y-3 my-1 shadow-2xs">
+          <div className="py-12 px-5 flex flex-col items-center justify-center text-center bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB] dark:border-slate-800 space-y-3 m-3 shadow-2xs">
             <div className="p-3.5 rounded-full bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-100 dark:border-sky-900/50 shadow-2xs">
               <Film className="h-7 w-7 stroke-[1.8]" />
             </div>
@@ -500,7 +587,7 @@ export function PlaybackHistoryPanel({
           </div>
         ) : activeScenario === 3 || activeTab === "timeline" ? (
           /* SCENARIO 3 OR TAB 1: TIMELINE VIEW */
-          <div className="space-y-3">
+          <div className="flex-1 overflow-y-auto p-2.5 space-y-3 custom-scrollbar min-h-0">
             {activeFeedsToDisplay.map((ch) => {
               const isPlaying = playingFeeds[ch] ?? true;
 
@@ -568,7 +655,7 @@ export function PlaybackHistoryPanel({
                     </div>
                   </div>
 
-                  {/* 24-Hour Scrubber Timeline Bar (RENDERED ONLY IN SCENARIOS 1 & 2) */}
+                  {/* 24-Hour Scrubber Timeline Bar */}
                   {activeScenario !== 3 && (
                     <div className="p-2.5 bg-slate-50 dark:bg-slate-900 border-t border-[#DFE3EB] dark:border-slate-800 space-y-1.5">
                       <div className="flex items-center justify-between text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">
@@ -583,11 +670,8 @@ export function PlaybackHistoryPanel({
 
                       {/* Colored Recording Segments Bar */}
                       <div className="relative h-4 w-full bg-slate-200 dark:bg-slate-800 rounded-md overflow-hidden cursor-pointer">
-                        {/* Recorded video green segments */}
                         <div className="absolute left-[10%] w-[35%] h-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors" title="Recorded footage (02:24 - 10:48)" />
                         <div className="absolute left-[50%] w-[40%] h-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors" title="Recorded footage (12:00 - 21:36)" />
-
-                        {/* Event alert red highlights */}
                         <div className="absolute left-[22%] w-[2%] h-full bg-rose-500" title="DMS Fatigue Event Alert" />
                         <div className="absolute left-[68%] w-[2%] h-full bg-amber-500" title="Speeding Motion Alert" />
 
@@ -616,86 +700,174 @@ export function PlaybackHistoryPanel({
             })}
           </div>
         ) : activeTab === "files" ? (
-          /* TAB 2: RECORDED FILES LIST VIEW */
-          <div className="space-y-2">
-            {[
-              { id: "f-1", name: `${device.deviceName}_CH1_0800.mp4`, duration: "00:59:45", size: "142 MB", time: "08:00:00 - 08:59:45" },
-              { id: "f-2", name: `${device.deviceName}_CH1_0900.mp4`, duration: "01:00:00", size: "155 MB", time: "09:00:00 - 10:00:00" },
-              { id: "f-3", name: `${device.deviceName}_CH2_0930.mp4`, duration: "00:45:12", size: "112 MB", time: "09:30:00 - 10:15:12" },
-              { id: "f-4", name: `${device.deviceName}_CH1_1100.mp4`, duration: "01:00:00", size: "160 MB", time: "11:00:00 - 12:00:00" },
-            ].map((file) => (
-              <div
-                key={file.id}
-                className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB] dark:border-slate-800 flex items-center justify-between text-xs hover:border-[#0089FF] transition-all cursor-pointer group"
-              >
-                <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800">
-                    <FileVideo className="h-4 w-4 stroke-[2]" />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-[#0089FF]">
-                      {file.name}
-                    </span>
-                    <span className="font-mono text-[10px] text-slate-400 mt-0.5">
-                      {file.time} · {file.duration} · {file.size}
-                    </span>
-                  </div>
-                </div>
+          /* TAB 2: RECORDED FILE LIST VIEW (Matches Information in Reference Image 1) */
+          <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900">
+            {/* Scrollable File List Table */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="sticky top-0 z-10 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border-b border-[#DFE3EB] dark:border-slate-700 text-[11px]">
+                  <tr>
+                    <th className="py-2.5 px-3">Channel</th>
+                    <th className="py-2.5 px-2 text-center">Start Time</th>
+                    <th className="py-2.5 px-2 text-center">End Time</th>
+                    <th className="py-2.5 px-2 text-center">Duration</th>
+                    <th className="py-2.5 px-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 text-[11px] font-mono">
+                  {fileListData.map((file) => (
+                    <tr
+                      key={file.id}
+                      className="hover:bg-sky-50/60 dark:hover:bg-slate-800/60 transition-colors"
+                    >
+                      <td className="py-2 px-3 font-sans font-medium text-slate-800 dark:text-slate-200">
+                        {file.channel}
+                      </td>
+                      <td className="py-2 px-2 text-center text-slate-600 dark:text-slate-400">
+                        {file.startTime}
+                      </td>
+                      <td className="py-2 px-2 text-center text-slate-600 dark:text-slate-400">
+                        {file.endTime}
+                      </td>
+                      <td className="py-2 px-2 text-center text-slate-600 dark:text-slate-400">
+                        {file.duration}
+                      </td>
+                      <td className="py-2 px-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => toast.success(`Downloading recording for ${file.channel}`)}
+                          className="p-1 rounded text-[#254796] hover:text-[#0089FF] hover:bg-sky-100 dark:hover:bg-slate-800 transition-colors cursor-pointer inline-flex items-center justify-center"
+                          title="Download Video File"
+                        >
+                          <Download className="h-4 w-4 stroke-[2.2]" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-                <button
-                  type="button"
-                  onClick={() => toast.success(`Playing file ${file.name}`)}
-                  className="p-1.5 rounded-lg bg-[#0089FF] text-white hover:bg-[#0070d6] transition-colors shadow-2xs active:scale-95"
-                  title="Play File"
-                >
-                  <Play className="h-3.5 w-3.5 stroke-[2.5]" />
-                </button>
-              </div>
-            ))}
+            {/* Bottom XLS Export Button (Exact Match to Reference Image 1) */}
+            <div className="p-2.5 bg-white dark:bg-slate-900 border-t border-[#DFE3EB] dark:border-slate-800 flex justify-center shrink-0">
+              <button
+                type="button"
+                onClick={() => toast.success("Exported File List to Excel (.xlsx)")}
+                className="px-10 py-1.5 rounded-md bg-[#254796] hover:bg-[#1e3a7a] active:bg-[#162c5e] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-98"
+              >
+                <span>XLS</span>
+              </button>
+            </div>
           </div>
         ) : (
-          /* TAB 3: TELEMATICS EVENTS LIST VIEW */
-          <div className="space-y-2">
-            {[
-              { id: "e-1", type: "DMS Fatigue Alert (Eyes Closed)", time: "09:14:22 AM", channel: "CH2", sev: "high" },
-              { id: "e-2", type: "DMS Phone Distraction", time: "10:05:10 AM", channel: "CH1", sev: "high" },
-              { id: "e-3", type: "ADAS Harsh Braking Event", time: "11:42:05 AM", channel: "CH1", sev: "medium" },
-              { id: "e-4", type: "Cargo Hold Door Open Alert", time: "12:15:30 PM", channel: "CH4", sev: "high" },
-            ].map((evt) => (
-              <div
-                key={evt.id}
-                className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB] dark:border-slate-800 flex items-center justify-between text-xs hover:border-[#0089FF] transition-all cursor-pointer group"
-              >
-                <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div
-                    className={cn(
-                      "p-2 rounded-lg border",
-                      evt.sev === "high"
-                        ? "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-950/60 dark:border-rose-800"
-                        : "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/60 dark:border-amber-800"
-                    )}
-                  >
-                    <AlertTriangle className="h-4 w-4 stroke-[2]" />
+          /* TAB 3: TELEMATICS EVENT LIST VIEW (Matches Information in Reference Image 2) */
+          <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900">
+            {/* Top Video Preview Box (Matches Reference Image 2 Video Preview) */}
+            <div className="relative h-44 w-full bg-black shrink-0 overflow-hidden flex items-center justify-center group border-b border-[#DFE3EB] dark:border-slate-800">
+              <img
+                src={eventListData[selectedEventIndex]?.feedUrl || "/telematics/driver_fatigue_rubbing_eyes.png"}
+                alt="Event Video Preview"
+                className={cn(
+                  "w-full h-full object-cover transition-all duration-300",
+                  !isPreviewPlaying && "brightness-75 blur-[1px]"
+                )}
+              />
+
+              {/* Video Player Control Bar (Play, Progress Bar 0:30 / 1:00, Volume, Settings) */}
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2.5 flex items-center gap-3 text-white text-xs z-10">
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewPlaying(!isPreviewPlaying)}
+                  className="hover:text-sky-400 transition-colors cursor-pointer"
+                >
+                  {isPreviewPlaying ? (
+                    <Pause className="h-4 w-4 stroke-[2.5]" />
+                  ) : (
+                    <Play className="h-4 w-4 stroke-[2.5]" />
+                  )}
+                </button>
+
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="font-mono text-[10px] text-white/80">0:30</span>
+                  <div className="flex-1 h-1.5 bg-white/30 rounded-full overflow-hidden relative cursor-pointer">
+                    <div className="h-full w-1/2 bg-[#0089FF] rounded-full" />
                   </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-[#0089FF]">
-                      {evt.type}
-                    </span>
-                    <span className="font-mono text-[10px] text-slate-400 mt-0.5">
-                      {evt.channel} · Time: {evt.time}
-                    </span>
-                  </div>
+                  <span className="font-mono text-[10px] text-white/80">1:00</span>
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => toast.info(`Replaying event clip: ${evt.type}`)}
-                  className="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800 hover:bg-sky-100 font-bold text-[10px] transition-colors"
+                  onClick={() => setIsPreviewMuted(!isPreviewMuted)}
+                  className="hover:text-sky-400 transition-colors cursor-pointer"
                 >
-                  Play Clip
+                  {isPreviewMuted ? (
+                    <VolumeX className="h-4 w-4" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => toast.info("Expanded full video screen")}
+                  className="hover:text-sky-400 transition-colors cursor-pointer"
+                >
+                  <Maximize2 className="h-3.5 w-3.5" />
                 </button>
               </div>
-            ))}
+            </div>
+
+            {/* Scrollable Event List Table (Matches Reference Image 2 Table) */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="sticky top-0 z-10 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border-b border-[#DFE3EB] dark:border-slate-700 text-[11px]">
+                  <tr>
+                    <th className="py-2.5 px-2.5">Date Time</th>
+                    <th className="py-2.5 px-2">Type</th>
+                    <th className="py-2.5 px-2">Information</th>
+                    <th className="py-2.5 px-2">Location</th>
+                    <th className="py-2.5 px-2 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#DFE3EB] dark:divide-slate-800 text-[11px]">
+                  {eventListData.map((evt, index) => {
+                    const isSelected = selectedEventIndex === index;
+
+                    return (
+                      <tr
+                        key={evt.id}
+                        onClick={() => {
+                          setSelectedEventIndex(index);
+                          toast.info(`Selected Event: ${evt.type} - ${evt.info}`);
+                        }}
+                        className={cn(
+                          "transition-colors cursor-pointer",
+                          isSelected
+                            ? "bg-sky-100/70 dark:bg-sky-950/60 font-semibold"
+                            : "hover:bg-sky-50/60 dark:hover:bg-slate-800/60"
+                        )}
+                      >
+                        <td className="py-2 px-2.5 font-mono text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                          {evt.dateTime}
+                        </td>
+                        <td className="py-2 px-2 font-bold text-slate-800 dark:text-slate-200">
+                          {evt.type}
+                        </td>
+                        <td className="py-2 px-2 text-slate-800 dark:text-slate-200">
+                          {evt.info}
+                        </td>
+                        <td className="py-2 px-2 text-slate-600 dark:text-slate-400 truncate max-w-[110px]">
+                          {evt.location}
+                        </td>
+                        <td className="py-2 px-2 text-center">
+                          <EventActionPopover eventInfo={`${evt.type} - ${evt.info}`} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

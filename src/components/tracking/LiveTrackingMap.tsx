@@ -75,9 +75,9 @@ export const CLUSTERS_DATA = [
     left: "35%",
     top: "33.8%",
     svgCircles: [
-      { stroke: "#EF4444", dashArray: "33 71", dashOffset: 0 },
-      { stroke: "#10B981", dashArray: "52 52", dashOffset: -33 },
-      { stroke: "#F59E0B", dashArray: "21 83", dashOffset: -85 },
+      { stroke: "#C70036", dashArray: "33 71", dashOffset: 0 },
+      { stroke: "#008446", dashArray: "52 52", dashOffset: -33 },
+      { stroke: "#C46F37", dashArray: "21 83", dashOffset: -85 },
     ],
     stats: { running: 8, idle: 3, stopped: 2, inactive: 1, nodata: 1 },
     vehicles: [
@@ -107,8 +107,8 @@ export const CLUSTERS_DATA = [
     left: "32%",
     top: "44.6%",
     svgCircles: [
-      { stroke: "#10B981", dashArray: "62 42", dashOffset: 0 },
-      { stroke: "#EF4444", dashArray: "42 62", dashOffset: -62 },
+      { stroke: "#008446", dashArray: "62 42", dashOffset: 0 },
+      { stroke: "#C70036", dashArray: "42 62", dashOffset: -62 },
     ],
     stats: { running: 4, idle: 2, stopped: 1, inactive: 0, nodata: 0 },
     vehicles: [
@@ -130,8 +130,8 @@ export const CLUSTERS_DATA = [
     left: "48%",
     top: "43.1%",
     svgCircles: [
-      { stroke: "#10B981", dashArray: "73 31", dashOffset: 0 },
-      { stroke: "#F59E0B", dashArray: "31 73", dashOffset: -73 },
+      { stroke: "#008446", dashArray: "73 31", dashOffset: 0 },
+      { stroke: "#C46F37", dashArray: "31 73", dashOffset: -73 },
     ],
     stats: { running: 2, idle: 1, stopped: 0, inactive: 0, nodata: 0 },
     vehicles: [
@@ -149,8 +149,8 @@ export const CLUSTERS_DATA = [
     left: "53%",
     top: "45.4%",
     svgCircles: [
-      { stroke: "#10B981", dashArray: "52 52", dashOffset: 0 },
-      { stroke: "#0089FF", dashArray: "52 52", dashOffset: -52 },
+      { stroke: "#008446", dashArray: "52 52", dashOffset: 0 },
+      { stroke: "#372AAC", dashArray: "52 52", dashOffset: -52 },
     ],
     stats: { running: 1, idle: 0, stopped: 0, inactive: 1, nodata: 0 },
     vehicles: [
@@ -167,8 +167,8 @@ export const CLUSTERS_DATA = [
     left: "76%",
     top: "80%",
     svgCircles: [
-      { stroke: "#10B981", dashArray: "78 26", dashOffset: 0 },
-      { stroke: "#F59E0B", dashArray: "26 78", dashOffset: -78 },
+      { stroke: "#008446", dashArray: "78 26", dashOffset: 0 },
+      { stroke: "#C46F37", dashArray: "26 78", dashOffset: -78 },
     ],
     stats: { running: 3, idle: 1, stopped: 0, inactive: 0, nodata: 0 },
     vehicles: [
@@ -189,6 +189,7 @@ export function LiveTrackingMap({
   isLeftPanelOpen = true,
   leftPanelWidth = 630,
   isTelemetryDrawerOpen,
+  isHealthTelemetryOnly = false,
   onToggleTelemetryDrawer,
   activeTab = "object",
   onSelectVehicle,
@@ -202,6 +203,7 @@ export function LiveTrackingMap({
   isLeftPanelOpen?: boolean;
   leftPanelWidth?: number;
   isTelemetryDrawerOpen: boolean;
+  isHealthTelemetryOnly?: boolean;
   onToggleTelemetryDrawer: () => void;
   activeTab?: string;
   onSelectVehicle?: (id: string) => void;
@@ -632,16 +634,19 @@ export function LiveTrackingMap({
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <span
-                              className={cn(
-                                "h-2 w-2 rounded-full shrink-0",
-                                v.status === "running"
-                                  ? "bg-emerald-500"
-                                  : v.status === "idle"
-                                    ? "bg-amber-500"
-                                    : v.status === "stopped"
-                                      ? "bg-rose-500"
-                                      : "bg-indigo-500",
-                              )}
+                              style={{
+                                backgroundColor:
+                                  v.status === "running"
+                                    ? "#008446"
+                                    : v.status === "idle"
+                                      ? "#C46F37"
+                                      : v.status === "stopped"
+                                        ? "#C70036"
+                                        : v.status === "inactive"
+                                          ? "#372AAC"
+                                          : "#62748E",
+                              }}
+                              className="h-2 w-2 rounded-full shrink-0"
                             />
                             <span className="font-semibold text-slate-800 dark:text-slate-200 text-xs truncate">
                               {v.name}
@@ -673,8 +678,22 @@ export function LiveTrackingMap({
         >
           {/* Minimal Vehicle Direction Pin */}
           <div className="relative flex items-center justify-center">
-            <div className="absolute w-6 h-6 rounded-md bg-emerald-500/25 animate-ping" />
-            <div className="h-6 w-6 rounded-md bg-[#10B981] border-2 border-white text-white flex items-center justify-center shadow-md">
+            <div className="absolute w-6 h-6 rounded-md bg-[#008446]/25 animate-ping" />
+            <div
+              style={{
+                backgroundColor:
+                  selectedVehicle.status === "running"
+                    ? "#008446"
+                    : selectedVehicle.status === "idle"
+                      ? "#C46F37"
+                      : selectedVehicle.status === "stopped"
+                        ? "#C70036"
+                        : selectedVehicle.status === "inactive"
+                          ? "#372AAC"
+                          : "#62748E",
+              }}
+              className="h-6 w-6 rounded-md border-2 border-white text-white flex items-center justify-center shadow-md"
+            >
               <Navigation className="h-3 w-3 fill-current rotate-[35deg]" />
             </div>
           </div>
@@ -682,7 +701,21 @@ export function LiveTrackingMap({
           {/* Ultra Minimal Compact Floating Vehicle Label */}
           {showLabels && (
             <div className="inline-flex items-center gap-1.5 px-2 py-0.5 h-5 rounded-full bg-white/95 dark:bg-slate-900/95 border border-[#DFE3EB] dark:border-slate-800 shadow-xs backdrop-blur-xs select-none">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span
+                style={{
+                  backgroundColor:
+                    selectedVehicle.status === "running"
+                      ? "#008446"
+                      : selectedVehicle.status === "idle"
+                        ? "#C46F37"
+                        : selectedVehicle.status === "stopped"
+                          ? "#C70036"
+                          : selectedVehicle.status === "inactive"
+                            ? "#372AAC"
+                            : "#62748E",
+                }}
+                className="h-1.5 w-1.5 rounded-full animate-pulse shrink-0"
+              />
               <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap leading-none">
                 {selectedVehicle.name}
               </span>
@@ -691,74 +724,19 @@ export function LiveTrackingMap({
         </div>
       )}
 
-      {/* 2. Top Center Floating Playback & Health Scores Dock Bar (Dynamic Map Canvas Fit) */}
+
+
+      {/* 3. Right Floating Map Controls Vertical Stack */}
       <div
-        className="absolute top-2.5 z-20 flex items-center justify-center transition-all duration-300 pointer-events-none select-none"
-        style={{
-          left: isLeftPanelOpen ? `${leftPanelWidth + 16}px` : "16px",
-          right: isTelemetryDrawerOpen ? "288px" : "46px",
-        }}
+        className={cn(
+          "absolute top-2.5 z-20 flex flex-col items-center gap-2 transition-all duration-200 select-none",
+          isTelemetryDrawerOpen
+            ? isHealthTelemetryOnly
+              ? "right-[316px]"
+              : "right-[244px]"
+            : "right-2.5",
+        )}
       >
-        <div className="pointer-events-auto flex items-center gap-2.5 py-0.5 px-1">
-          {/* Playback CTA Button & Hover Dropdown Overlay (Exact Same Width Alignment 1:1) - Enabled ONLY in Object tab */}
-          {selectedVehicle && activeTab === "object" && (
-            <div className="relative w-[136px] group/playback">
-              {/* Reference-Matched Playback CTA Button (Full Container Width) */}
-              <button
-                type="button"
-                onClick={() => onOpenPlayback("Today")}
-                className="w-full h-10 px-3 rounded-2xl bg-white dark:bg-slate-900 border-2 border-[#0089FF] shadow-md hover:shadow-lg hover:shadow-[#0089FF]/20 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 group/btn"
-              >
-                {/* Solid Blue Play Icon */}
-                <Play className="h-4 w-4 fill-[#0089FF] text-[#0089FF] shrink-0" />
-
-                {/* Bold Blue Text "Playback" */}
-                <span className="font-bold text-xs text-[#0089FF] dark:text-[#0089FF] leading-none whitespace-nowrap">
-                  Playback
-                </span>
-              </button>
-
-              {/* Timeframe Selector Overlay Menu on Hover (Exact Same Width as CTA Button) */}
-              <div className="absolute top-full left-0 pt-1.5 w-full z-50 opacity-0 pointer-events-none group-hover/playback:opacity-100 group-hover/playback:pointer-events-auto transition-all duration-200 ease-out transform translate-y-1 group-hover/playback:translate-y-0">
-                <div className="w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl shadow-2xl p-1.5 flex flex-col space-y-0.5">
-                  {[
-                    "Today",
-                    "Last 24 Hour",
-                    "Yesterday",
-                    "This Week",
-                    "Last Week",
-                    "This Month",
-                    "Last Month",
-                    "Custom",
-                  ].map((tf) => (
-                    <button
-                      key={tf}
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenPlayback(tf);
-                      }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#0089FF]/10 hover:text-[#0089FF] dark:hover:bg-[#0089FF]/20 dark:hover:text-sky-300 transition-colors duration-150 cursor-pointer flex items-center justify-between group/item"
-                    >
-                      <span className="truncate">{tf}</span>
-                      <ChevronRight className="h-3 w-3 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0 text-[#0089FF] ml-1" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* 3. Right Floating Map Controls Vertical Stack (Hidden when telemetry drawer is open) */}
-      {!isTelemetryDrawerOpen && (
-        <div
-          className={cn(
-            "absolute top-2.5 z-20 flex flex-col items-center gap-2 transition-all duration-200 select-none",
-            isTelemetryDrawerOpen ? "right-[368px]" : "right-2.5",
-          )}
-        >
         {/* 1. Top Card: Telemetry Drawer Toggle Chevron Button (Matching Reference Image 1:1: 44px Light Sky-Blue Card with Blue Chevron) */}
         <TooltipProvider delayDuration={150}>
           <Tooltip>
@@ -1042,11 +1020,16 @@ export function LiveTrackingMap({
           </TooltipProvider>
         </div>
       </div>
-      )}
 
       {/* 4. Bottom Map Scale & Coordinates */}
       <div
-        style={{ right: isTelemetryDrawerOpen ? "248px" : "10px" }}
+        style={{
+          right: isTelemetryDrawerOpen
+            ? isHealthTelemetryOnly
+              ? "316px"
+              : "248px"
+            : "10px",
+        }}
         className="absolute bottom-3 z-10 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3 py-1 rounded-xl border border-[#DFE3EB] dark:border-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 transition-all duration-300 shadow-sm"
       >
         <span>0.05 km</span>

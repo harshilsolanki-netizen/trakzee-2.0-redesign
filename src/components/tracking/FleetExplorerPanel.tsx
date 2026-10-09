@@ -716,6 +716,13 @@ export function FleetExplorerPanel({
     );
   }, [addressData]);
 
+  const addressTotal = useMemo(() => {
+    return addressData.reduce(
+      (acc, g) => acc + g.subgroups.reduce((sAcc, s) => sAcc + s.addresses.length, 0),
+      0,
+    );
+  }, [addressData]);
+
   const toggleAllAddresses = (checked: boolean) => {
     setAddressData((prev) =>
       prev.map((g) => ({
@@ -770,6 +777,13 @@ export function FleetExplorerPanel({
   const isGeofenceAllChecked = useMemo(() => {
     return geofenceData.every((g) =>
       g.subgroups.every((s) => s.geofences.every((item) => item.checked)),
+    );
+  }, [geofenceData]);
+
+  const geofenceTotal = useMemo(() => {
+    return geofenceData.reduce(
+      (acc, g) => acc + g.subgroups.reduce((sAcc, s) => sAcc + s.geofences.length, 0),
+      0,
     );
   }, [geofenceData]);
 
@@ -1399,6 +1413,9 @@ export function FleetExplorerPanel({
   // Reload Animation State
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Health Score Saved state (shown only after user saves selection when all checkboxes selected)
+  const [isHealthScoreSaved, setIsHealthScoreSaved] = useState(false);
+
   // Master Filter Options matching reference image
   const ALL_FILTER_COMPANIES = useMemo(
     () => [
@@ -1705,7 +1722,7 @@ export function FleetExplorerPanel({
     <div
       style={style}
       className={cn(
-        "flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg select-none relative transition-all duration-75",
+        "flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg select-none relative transition-all duration-75 overflow-hidden",
         className,
       )}
     >
@@ -2721,110 +2738,6 @@ export function FleetExplorerPanel({
           </div>
         </div>
       ) : activeTab === "object" ? (
-        <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0 border-b border-slate-200/60 dark:border-slate-800/60">
-          <div className="grid grid-cols-5 gap-1.5">
-            {/* Running */}
-            <button
-              type="button"
-              onClick={() => setActiveJobStatus(activeJobStatus === "running" ? "all" : "running")}
-              className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "running"
-                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
-                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
-              )}
-            >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "running" ? "bg-white animate-pulse" : "bg-emerald-500")} />
-                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.running}</span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "running" ? "text-emerald-100" : "text-emerald-700/80 dark:text-emerald-400/80")}>
-                Running
-              </span>
-            </button>
-
-            {/* Completed */}
-            <button
-              type="button"
-              onClick={() => setActiveJobStatus(activeJobStatus === "completed" ? "all" : "completed")}
-              className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "completed"
-                  ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/25 font-bold scale-[1.02]"
-                  : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-sky-800 dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
-              )}
-            >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "completed" ? "bg-white" : "bg-[#0089FF]")} />
-                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.completed}</span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "completed" ? "text-sky-100" : "text-sky-700/80 dark:text-sky-400/80")}>
-                Completed
-              </span>
-            </button>
-
-            {/* Upcoming */}
-            <button
-              type="button"
-              onClick={() => setActiveJobStatus(activeJobStatus === "upcoming" ? "all" : "upcoming")}
-              className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "upcoming"
-                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
-                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
-              )}
-            >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "upcoming" ? "bg-white" : "bg-amber-500")} />
-                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.upcoming}</span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "upcoming" ? "text-amber-100" : "text-amber-700/80 dark:text-amber-400/80")}>
-                Upcoming
-              </span>
-            </button>
-
-            {/* Fail */}
-            <button
-              type="button"
-              onClick={() => setActiveJobStatus(activeJobStatus === "fail" ? "all" : "fail")}
-              className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "fail"
-                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
-                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
-              )}
-            >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "fail" ? "bg-white" : "bg-rose-500")} />
-                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.fail}</span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "fail" ? "text-rose-100" : "text-rose-700/80 dark:text-rose-400/80")}>
-                Fail
-              </span>
-            </button>
-
-            {/* Total */}
-            <button
-              type="button"
-              onClick={() => setActiveJobStatus("all")}
-              className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "all"
-                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
-                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
-              )}
-            >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeJobStatus === "all" ? "bg-white" : "bg-slate-400")} />
-                <span className="text-xs font-black tabular-nums leading-none">{jobCounts.total}</span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5", activeJobStatus === "all" ? "text-slate-200" : "text-slate-600 dark:text-slate-400")}>
-                Total
-              </span>
-            </button>
-          </div>
-        </div>
-      ) : activeTab === "object" ? (
         <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0">
           <div className="grid grid-cols-6 gap-1.5">
             {/* Running */}
@@ -2833,21 +2746,21 @@ export function FleetExplorerPanel({
               onClick={() =>
                 setActiveStatus(activeStatus === "running" ? "all" : "running")
               }
+              style={{
+                backgroundColor: activeStatus === "running" ? "#008446" : "#ECFDF3",
+                borderColor: activeStatus === "running" ? "#008446" : "#A6F4C5",
+                color: activeStatus === "running" ? "#FFFFFF" : "#008446",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeStatus === "running"
-                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
-                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeStatus === "running" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "running" ? "bg-white animate-pulse" : "bg-emerald-500")} />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {counts.running}
-                </span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "running" ? "text-emerald-100" : "text-emerald-700/80 dark:text-emerald-400/80")}>
-                Running
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {counts.running}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                RUNNING
               </span>
             </button>
 
@@ -2857,21 +2770,21 @@ export function FleetExplorerPanel({
               onClick={() =>
                 setActiveStatus(activeStatus === "idle" ? "all" : "idle")
               }
+              style={{
+                backgroundColor: activeStatus === "idle" ? "#C46F37" : "#FEF7E6",
+                borderColor: activeStatus === "idle" ? "#C46F37" : "#FEDF89",
+                color: activeStatus === "idle" ? "#FFFFFF" : "#C46F37",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeStatus === "idle"
-                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
-                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeStatus === "idle" && "shadow-sm shadow-[#C46F37]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "idle" ? "bg-white" : "bg-amber-500")} />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {counts.idle}
-                </span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "idle" ? "text-amber-100" : "text-amber-700/80 dark:text-amber-400/80")}>
-                Idle
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {counts.idle}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                IDLE
               </span>
             </button>
 
@@ -2881,21 +2794,21 @@ export function FleetExplorerPanel({
               onClick={() =>
                 setActiveStatus(activeStatus === "stopped" ? "all" : "stopped")
               }
+              style={{
+                backgroundColor: activeStatus === "stopped" ? "#C70036" : "#FFF1F3",
+                borderColor: activeStatus === "stopped" ? "#C70036" : "#FCCEE8",
+                color: activeStatus === "stopped" ? "#FFFFFF" : "#C70036",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeStatus === "stopped"
-                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
-                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeStatus === "stopped" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "stopped" ? "bg-white" : "bg-rose-500")} />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {counts.stopped}
-                </span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "stopped" ? "text-rose-100" : "text-rose-700/80 dark:text-rose-400/80")}>
-                Stopped
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {counts.stopped}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                STOPPED
               </span>
             </button>
 
@@ -2905,45 +2818,45 @@ export function FleetExplorerPanel({
               onClick={() =>
                 setActiveStatus(activeStatus === "inactive" ? "all" : "inactive")
               }
+              style={{
+                backgroundColor: activeStatus === "inactive" ? "#372AAC" : "#F0EFFF",
+                borderColor: activeStatus === "inactive" ? "#372AAC" : "#D9D6FE",
+                color: activeStatus === "inactive" ? "#FFFFFF" : "#372AAC",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeStatus === "inactive"
-                  ? "bg-indigo-500 text-white border-indigo-600 shadow-md shadow-indigo-500/25 font-bold scale-[1.02]"
-                  : "bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200/60 dark:border-indigo-800/40 text-indigo-800 dark:text-indigo-300 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeStatus === "inactive" && "shadow-sm shadow-[#372AAC]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "inactive" ? "bg-white" : "bg-indigo-500")} />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {counts.inactive}
-                </span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "inactive" ? "text-indigo-100" : "text-indigo-700/80 dark:text-indigo-400/80")}>
-                Inactive
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {counts.inactive}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                INACTIVE
               </span>
             </button>
 
-            {/* NoData */}
+            {/* No Data */}
             <button
               type="button"
               onClick={() =>
                 setActiveStatus(activeStatus === "nodata" ? "all" : "nodata")
               }
+              style={{
+                backgroundColor: activeStatus === "nodata" ? "#62748E" : "#F1F5F9",
+                borderColor: activeStatus === "nodata" ? "#62748E" : "#E2E8F0",
+                color: activeStatus === "nodata" ? "#FFFFFF" : "#62748E",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeStatus === "nodata"
-                  ? "bg-slate-600 text-white border-slate-700 shadow-md shadow-slate-600/25 font-bold scale-[1.02]"
-                  : "bg-slate-100/80 dark:bg-slate-800/40 border-slate-200/70 dark:border-slate-700/40 text-slate-700 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeStatus === "nodata" && "shadow-sm shadow-[#62748E]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span className={cn("h-1.5 w-1.5 rounded-full", activeStatus === "nodata" ? "bg-white" : "bg-slate-400")} />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {counts.nodata}
-                </span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "nodata" ? "text-slate-200" : "text-slate-500 dark:text-slate-400")}>
-                No Data
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {counts.nodata}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                NO DATA
               </span>
             </button>
 
@@ -2951,20 +2864,21 @@ export function FleetExplorerPanel({
             <button
               type="button"
               onClick={() => setActiveStatus("all")}
+              style={{
+                backgroundColor: activeStatus === "all" ? "#223344" : "#E2E8F0",
+                borderColor: activeStatus === "all" ? "#223344" : "#CBD5E1",
+                color: activeStatus === "all" ? "#FFFFFF" : "#223344",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeStatus === "all"
-                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
-                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {counts.total}
-                </span>
-              </div>
-              <span className={cn("text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5", activeStatus === "all" ? "text-slate-200" : "text-slate-600 dark:text-slate-400")}>
-                Total
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {counts.total}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                TOTAL
               </span>
             </button>
           </div>
@@ -2976,24 +2890,8 @@ export function FleetExplorerPanel({
         <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 p-2 bg-white dark:bg-slate-900 shrink-0">
         {/* Select All Checkbox (Hidden on Health, Driver, and Jobs tabs) */}
         {activeTab !== "health" && activeTab !== "driver" && activeTab !== "jobs" && (
-          <input
-            type="checkbox"
-            checked={
-              activeTab === "geofence"
-                ? isGeofenceAllChecked
-                : activeTab === "address"
-                ? isAddressAllChecked
-                : allChecked
-            }
-            onChange={(e) => {
-              if (activeTab === "geofence") {
-                toggleAllGeofences(e.target.checked);
-              } else if (activeTab === "address") {
-                toggleAllAddresses(e.target.checked);
-              } else if (onToggleCheckAll) {
-                onToggleCheckAll(e);
-              }
-            }}
+          <label
+            className="h-8 w-8 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 cursor-pointer shrink-0 hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/50 transition-all duration-200 shadow-2xs active:scale-90"
             title={
               activeTab === "geofence"
                 ? "Select / Deselect all geofences on map"
@@ -3001,8 +2899,31 @@ export function FleetExplorerPanel({
                 ? "Select / Deselect all addresses on map"
                 : "Select / Deselect all vehicles on map"
             }
-            className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0 ml-0.5"
-          />
+          >
+            <input
+              type="checkbox"
+              checked={
+                activeTab === "geofence"
+                  ? isGeofenceAllChecked
+                  : activeTab === "address"
+                  ? isAddressAllChecked
+                  : allChecked
+              }
+              onChange={(e) => {
+                if (activeTab === "geofence") {
+                  toggleAllGeofences(e.target.checked);
+                } else if (activeTab === "address") {
+                  toggleAllAddresses(e.target.checked);
+                } else if (onToggleCheckAll) {
+                  onToggleCheckAll(e);
+                  if (!e.target.checked) {
+                    setIsHealthScoreSaved(false);
+                  }
+                }
+              }}
+              className="h-[13px] w-[13px] rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer"
+            />
+          </label>
         )}
 
         {/* Search input */}
@@ -3115,7 +3036,7 @@ export function FleetExplorerPanel({
                         onOpenAddVehicle();
                       }
                     }}
-                    className="h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
                   >
                     <PlusCircle className="h-3.5 w-3.5 stroke-[2.2]" />
                   </button>
@@ -3138,7 +3059,7 @@ export function FleetExplorerPanel({
                       if (onOpenUploadAddress) onOpenUploadAddress();
                       else toast.info("Opening Upload Address (CSV/XLS)...");
                     }}
-                    className="h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
                   >
                     <Upload className="h-3.5 w-3.5 stroke-[2.2]" />
                   </button>
@@ -3159,7 +3080,7 @@ export function FleetExplorerPanel({
                     <button
                       type="button"
                       className={cn(
-                        "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
+                        "h-8 w-8 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
                         filterOpen
                           ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
                           : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
@@ -3691,7 +3612,7 @@ export function FleetExplorerPanel({
                   <button
                     type="button"
                     onClick={() => toast.info("Opening Date Range Picker...")}
-                    className="h-7 w-7 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40 transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn"
                   >
                     <Calendar className="h-3.5 w-3.5 stroke-[2.2]" />
                   </button>
@@ -3701,7 +3622,7 @@ export function FleetExplorerPanel({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          ) : activeTab !== "driver" && activeTab !== "address" ? (
+          ) : activeTab !== "driver" && activeTab !== "address" && activeTab !== "geofence" ? (
             <Popover open={sortOpen} onOpenChange={setSortOpen}>
               <TooltipProvider delayDuration={150}>
                 <Tooltip>
@@ -3710,7 +3631,7 @@ export function FleetExplorerPanel({
                       <button
                         type="button"
                         className={cn(
-                          "h-7 w-7 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
+                          "h-8 w-8 flex items-center justify-center rounded-lg border transition-all shadow-2xs cursor-pointer active:scale-95 toolbar-action-btn",
                           sortOpen
                             ? "bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border-[#0089FF]/50 shadow-xs"
                             : "border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:border-[#0089FF]/40",
@@ -4086,16 +4007,19 @@ export function FleetExplorerPanel({
                                 {/* Sleek Status Dot Indicator */}
                                 <span
                                   title={`Status: ${v.status.toUpperCase()}`}
-                                  className={cn(
-                                    "h-2 w-2 rounded-full shrink-0 shadow-2xs",
-                                    v.status === "running"
-                                      ? "bg-emerald-500 ring-2 ring-emerald-500/20"
-                                      : v.status === "idle"
-                                        ? "bg-amber-500 ring-2 ring-amber-500/20"
-                                        : v.status === "stopped"
-                                          ? "bg-rose-500 ring-2 ring-rose-500/20"
-                                          : "bg-indigo-500 ring-2 ring-indigo-500/20",
-                                  )}
+                                  style={{
+                                    backgroundColor:
+                                      v.status === "running"
+                                        ? "#008446"
+                                        : v.status === "idle"
+                                          ? "#C46F37"
+                                          : v.status === "stopped"
+                                            ? "#C70036"
+                                            : v.status === "inactive"
+                                              ? "#372AAC"
+                                              : "#62748E",
+                                  }}
+                                  className="h-2 w-2 rounded-full shrink-0 shadow-2xs"
                                 />
 
                                 {/* Name & Timestamp */}
@@ -4253,100 +4177,143 @@ export function FleetExplorerPanel({
             </div>
           </div>
 
-          {/* Pinned Bottom Vehicle Health Scores Footer Bar */}
-          <div className="shrink-0 border-t border-[#DFE3EB] dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 px-2 py-1.5 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar select-none rounded-b-2xl">
-            {/* Safety Score */}
-            <button
-              type="button"
-              onClick={() => {
-                handleTabChange("health");
-                setSelectedHealthCategory("safety");
-                if (onCloseTelemetry) onCloseTelemetry();
-              }}
-              className={cn(
-                "flex-1 min-w-[76px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
-                activeTab === "health" && selectedHealthCategory === "safety"
-                  ? "bg-[#10B981] text-white border-emerald-600 shadow-md shadow-emerald-500/20 font-bold"
-                  : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-800/50 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/50"
-              )}
-              title="View Safety Health Scores"
-            >
-              <div className={cn("h-4 w-4 rounded-full flex items-center justify-center shrink-0 shadow-2xs", activeTab === "health" && selectedHealthCategory === "safety" ? "bg-white text-[#10B981]" : "bg-[#10B981] text-white")}>
-                <ShieldCheck className="h-2.5 w-2.5 stroke-[3]" />
+          {/* Pinned Bottom Vehicle Health Scores Footer Bar (Always Visible) with Slide-Up Save CTA when All Selected */}
+          <div className="relative shrink-0 border-t border-[#DFE3EB] dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-2 overflow-hidden select-none rounded-b-2xl">
+            {/* Health Score Cards Bar */}
+            <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+              {/* Safety Score */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleTabChange("health");
+                  setSelectedHealthCategory("safety");
+                  if (onCloseTelemetry) onCloseTelemetry();
+                }}
+                className={cn(
+                  "flex-1 h-[42px] px-2.5 rounded-xl border flex items-center justify-between gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs bg-white dark:bg-slate-900",
+                  activeTab === "health" && selectedHealthCategory === "safety"
+                    ? "border-[#10B981] ring-1 ring-[#10B981]/40 shadow-xs"
+                    : "border-[#DFE3EB] dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-800"
+                )}
+                title="View Safety Health Scores"
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <ShieldCheck className="h-4 w-4 text-[#10B981] shrink-0 stroke-[2]" />
+                  <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">Safety</span>
+                </div>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <span className="text-[14px] font-semibold text-[#10B981]">85%</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                </div>
+              </button>
+
+              {/* Efficiency Score */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleTabChange("health");
+                  setSelectedHealthCategory("efficiency");
+                  if (onCloseTelemetry) onCloseTelemetry();
+                }}
+                className={cn(
+                  "flex-1 h-[42px] px-2.5 rounded-xl border flex items-center justify-between gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs bg-white dark:bg-slate-900",
+                  activeTab === "health" && selectedHealthCategory === "efficiency"
+                    ? "border-[#D97706] ring-1 ring-[#D97706]/40 shadow-xs"
+                    : "border-[#DFE3EB] dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-800"
+                )}
+                title="View Efficiency Health Scores"
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <Timer className="h-4 w-4 text-[#D97706] shrink-0 stroke-[2]" />
+                  <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">Efficiency</span>
+                </div>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <span className="text-[14px] font-semibold text-[#D97706]">85%</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                </div>
+              </button>
+
+              {/* Risk Score */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleTabChange("health");
+                  setSelectedHealthCategory("risk");
+                  if (onCloseTelemetry) onCloseTelemetry();
+                }}
+                className={cn(
+                  "flex-1 h-[42px] px-2.5 rounded-xl border flex items-center justify-between gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs bg-white dark:bg-slate-900",
+                  activeTab === "health" && selectedHealthCategory === "risk"
+                    ? "border-[#EF4444] ring-1 ring-[#EF4444]/40 shadow-xs"
+                    : "border-[#DFE3EB] dark:border-slate-800 hover:border-rose-300 dark:hover:border-rose-800"
+                )}
+                title="View Risk Health Scores"
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <AlertTriangle className="h-4 w-4 text-[#EF4444] shrink-0 stroke-[2]" />
+                  <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">Risk</span>
+                </div>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <span className="text-[14px] font-semibold text-[#EF4444]">85%</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                </div>
+              </button>
+
+              {/* Discipline Score */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleTabChange("health");
+                  setSelectedHealthCategory("discipline");
+                  if (onCloseTelemetry) onCloseTelemetry();
+                }}
+                className={cn(
+                  "flex-1 h-[42px] px-2.5 rounded-xl border flex items-center justify-between gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs bg-white dark:bg-slate-900",
+                  activeTab === "health" && selectedHealthCategory === "discipline"
+                    ? "border-[#0089FF] ring-1 ring-[#0089FF]/40 shadow-xs"
+                    : "border-[#DFE3EB] dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-800"
+                )}
+                title="View Route Discipline Scores"
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <ThumbsUp className="h-4 w-4 text-[#0089FF] shrink-0 stroke-[2]" />
+                  <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">Discipline</span>
+                </div>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <span className="text-[14px] font-semibold text-[#0089FF]">85%</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                </div>
+              </button>
+            </div>
+
+            {/* Slide-Up Animated Save CTA Overlay (Appears on Select All) */}
+            {allChecked && !isHealthScoreSaved && (
+              <div className="absolute inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-2 flex items-center justify-between gap-3 animate-in slide-in-from-bottom duration-300 z-10">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="h-2 w-2 rounded-full bg-[#0089FF] animate-pulse shrink-0" />
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
+                    All {vehicles.length} objects selected
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsHealthScoreSaved(true);
+                    toast.success("Saved selection! Health score is updated.");
+                  }}
+                  className="h-8 px-4 rounded-xl bg-[#0089FF] hover:bg-[#0070d6] active:scale-95 text-white font-bold text-xs shadow-md shadow-[#0089FF]/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0"
+                >
+                  <span>Save</span>
+                </button>
               </div>
-              <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "safety" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Safety</span>
-              <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")}>85</span>
-            </button>
-
-            {/* Efficiency Score */}
-            <button
-              type="button"
-              onClick={() => {
-                handleTabChange("health");
-                setSelectedHealthCategory("efficiency");
-                if (onCloseTelemetry) onCloseTelemetry();
-              }}
-              className={cn(
-                "flex-1 min-w-[82px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
-                activeTab === "health" && selectedHealthCategory === "efficiency"
-                  ? "bg-[#D97706] text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold"
-                  : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/50 hover:bg-amber-100/70 dark:hover:bg-amber-900/50"
-              )}
-              title="View Efficiency Health Scores"
-            >
-              <Timer className={cn("h-4 w-4 shrink-0 stroke-[2.2]", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")} />
-              <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Efficiency</span>
-              <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")}>72</span>
-            </button>
-
-            {/* Risk Score */}
-            <button
-              type="button"
-              onClick={() => {
-                handleTabChange("health");
-                setSelectedHealthCategory("risk");
-                if (onCloseTelemetry) onCloseTelemetry();
-              }}
-              className={cn(
-                "flex-1 min-w-[68px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
-                activeTab === "health" && selectedHealthCategory === "risk"
-                  ? "bg-[#EF4444] text-white border-rose-600 shadow-md shadow-rose-500/20 font-bold"
-                  : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/60 dark:border-rose-800/50 hover:bg-rose-100/70 dark:hover:bg-rose-900/50"
-              )}
-              title="View Risk Health Scores"
-            >
-              <AlertTriangle className={cn("h-4 w-4 shrink-0 stroke-white", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white fill-white stroke-[#EF4444]" : "text-[#EF4444] fill-[#EF4444]")} />
-              <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Risk</span>
-              <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")}>15</span>
-            </button>
-
-            {/* Discipline Score */}
-            <button
-              type="button"
-              onClick={() => {
-                handleTabChange("health");
-                setSelectedHealthCategory("discipline");
-                if (onCloseTelemetry) onCloseTelemetry();
-              }}
-              className={cn(
-                "flex-1 min-w-[88px] h-[39.25px] px-2 rounded-lg border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs",
-                activeTab === "health" && selectedHealthCategory === "discipline"
-                  ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/20 font-bold"
-                  : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/60 dark:border-sky-800/50 hover:bg-sky-100/70 dark:hover:bg-sky-900/50"
-              )}
-              title="View Route Discipline Scores"
-            >
-              <ThumbsUp className={cn("h-4 w-4 shrink-0 fill-current", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")} />
-              <span className={cn("text-xs font-semibold", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-slate-800 dark:text-slate-100")}>Discipline</span>
-              <span className={cn("font-extrabold text-xs font-mono ml-0.5", activeTab === "health" && selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")}>98</span>
-            </button>
+            )}
           </div>
         </div>
 
         {/* BACK FACE: Health Score Full View */}
         <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden] [transform:rotateY(180deg)]">
           {/* 1. Category Filters Header Bar */}
-          <div className="p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 grid grid-cols-4 gap-1.5 shrink-0">
+          <div className="px-2 py-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 flex items-center gap-1.5 shrink-0">
             {/* Safety */}
             <button
               type="button"
@@ -4355,19 +4322,20 @@ export function FleetExplorerPanel({
                 if (onCloseTelemetry) onCloseTelemetry();
               }}
               className={cn(
-                "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                "flex-1 h-[42px] px-2.5 rounded-xl border flex items-center justify-between gap-1.5 transition-all cursor-pointer select-none active:scale-95 shadow-2xs",
                 selectedHealthCategory === "safety"
                   ? "bg-[#10B981] text-white border-emerald-600 shadow-md shadow-emerald-500/20 font-bold"
-                  : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/60 text-slate-800 dark:text-slate-100 hover:bg-emerald-100/80"
+                  : "bg-white dark:bg-slate-900 border-[#DFE3EB] dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-800"
               )}
             >
-              <div className="flex items-center gap-1 min-w-0">
-                <div className={cn("h-4 w-4 rounded-full flex items-center justify-center shrink-0", selectedHealthCategory === "safety" ? "bg-white text-[#10B981]" : "bg-[#10B981] text-white")}>
-                  <ShieldCheck className="h-2.5 w-2.5 stroke-[3]" />
-                </div>
-                <span className="text-xs truncate">Safety</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <ShieldCheck className={cn("h-4 w-4 shrink-0 stroke-[2]", selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")} />
+                <span className={cn("text-xs font-semibold truncate", selectedHealthCategory === "safety" ? "text-white" : "text-slate-900 dark:text-slate-100")}>Safety</span>
               </div>
-              <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")}>85</span>
+              <div className="flex items-center gap-0.5 shrink-0">
+                <span className={cn("text-[14px] font-semibold", selectedHealthCategory === "safety" ? "text-white" : "text-[#10B981]")}>85%</span>
+                <ChevronRight className={cn("h-3.5 w-3.5 shrink-0", selectedHealthCategory === "safety" ? "text-white/80" : "text-slate-400")} />
+              </div>
             </button>
 
             {/* Efficiency */}
@@ -4378,17 +4346,20 @@ export function FleetExplorerPanel({
                 if (onCloseTelemetry) onCloseTelemetry();
               }}
               className={cn(
-                "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                "flex-1 h-[42px] px-2.5 rounded-xl border flex items-center justify-between gap-1.5 transition-all cursor-pointer select-none active:scale-95 shadow-2xs",
                 selectedHealthCategory === "efficiency"
                   ? "bg-[#D97706] text-white border-amber-600 shadow-md shadow-amber-500/20 font-bold"
-                  : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/60 text-slate-800 dark:text-slate-100 hover:bg-amber-100/80"
+                  : "bg-white dark:bg-slate-900 border-[#DFE3EB] dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-800"
               )}
             >
-              <div className="flex items-center gap-1 min-w-0">
-                <Timer className={cn("h-3.5 w-3.5 shrink-0 stroke-[2.2]", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")} />
-                <span className="text-xs truncate">Efficiency</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Timer className={cn("h-4 w-4 shrink-0 stroke-[2]", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")} />
+                <span className={cn("text-xs font-semibold truncate", selectedHealthCategory === "efficiency" ? "text-white" : "text-slate-900 dark:text-slate-100")}>Efficiency</span>
               </div>
-              <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")}>72</span>
+              <div className="flex items-center gap-0.5 shrink-0">
+                <span className={cn("text-[14px] font-semibold", selectedHealthCategory === "efficiency" ? "text-white" : "text-[#D97706]")}>85%</span>
+                <ChevronRight className={cn("h-3.5 w-3.5 shrink-0", selectedHealthCategory === "efficiency" ? "text-white/80" : "text-slate-400")} />
+              </div>
             </button>
 
             {/* Risk */}
@@ -4399,17 +4370,20 @@ export function FleetExplorerPanel({
                 if (onCloseTelemetry) onCloseTelemetry();
               }}
               className={cn(
-                "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                "flex-1 h-[42px] px-2.5 rounded-xl border flex items-center justify-between gap-1.5 transition-all cursor-pointer select-none active:scale-95 shadow-2xs",
                 selectedHealthCategory === "risk"
                   ? "bg-[#EF4444] text-white border-rose-600 shadow-md shadow-rose-500/20 font-bold"
-                  : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-800/60 text-slate-800 dark:text-slate-100 hover:bg-rose-100/80"
+                  : "bg-white dark:bg-slate-900 border-[#DFE3EB] dark:border-slate-800 hover:border-rose-300 dark:hover:border-rose-800"
               )}
             >
-              <div className="flex items-center gap-1 min-w-0">
-                <AlertTriangle className={cn("h-3.5 w-3.5 shrink-0 stroke-white", selectedHealthCategory === "risk" ? "text-white fill-white stroke-[#EF4444]" : "text-[#EF4444] fill-[#EF4444]")} />
-                <span className="text-xs truncate">Risk</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <AlertTriangle className={cn("h-4 w-4 shrink-0 stroke-[2]", selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")} />
+                <span className={cn("text-xs font-semibold truncate", selectedHealthCategory === "risk" ? "text-white" : "text-slate-900 dark:text-slate-100")}>Risk</span>
               </div>
-              <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")}>15</span>
+              <div className="flex items-center gap-0.5 shrink-0">
+                <span className={cn("text-[14px] font-semibold", selectedHealthCategory === "risk" ? "text-white" : "text-[#EF4444]")}>85%</span>
+                <ChevronRight className={cn("h-3.5 w-3.5 shrink-0", selectedHealthCategory === "risk" ? "text-white/80" : "text-slate-400")} />
+              </div>
             </button>
 
             {/* Discipline */}
@@ -4420,17 +4394,20 @@ export function FleetExplorerPanel({
                 if (onCloseTelemetry) onCloseTelemetry();
               }}
               className={cn(
-                "py-1.5 px-2 rounded-xl border flex items-center justify-between transition-all cursor-pointer select-none",
+                "flex-1 h-[42px] px-2.5 rounded-xl border flex items-center justify-between gap-1.5 transition-all cursor-pointer select-none active:scale-95 shadow-2xs",
                 selectedHealthCategory === "discipline"
                   ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/20 font-bold"
-                  : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/80 dark:border-sky-800/60 text-slate-800 dark:text-slate-100 hover:bg-sky-100/80"
+                  : "bg-white dark:bg-slate-900 border-[#DFE3EB] dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-800"
               )}
             >
-              <div className="flex items-center gap-1 min-w-0">
-                <ThumbsUp className={cn("h-3.5 w-3.5 shrink-0 fill-current", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")} />
-                <span className="text-xs truncate">Discipline</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <ThumbsUp className={cn("h-4 w-4 shrink-0 stroke-[2]", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")} />
+                <span className={cn("text-xs font-semibold truncate", selectedHealthCategory === "discipline" ? "text-white" : "text-slate-900 dark:text-slate-100")}>Discipline</span>
               </div>
-              <span className={cn("font-extrabold text-xs font-mono ml-1 shrink-0", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")}>98</span>
+              <div className="flex items-center gap-0.5 shrink-0">
+                <span className={cn("text-[14px] font-semibold", selectedHealthCategory === "discipline" ? "text-white" : "text-[#0089FF]")}>85%</span>
+                <ChevronRight className={cn("h-3.5 w-3.5 shrink-0", selectedHealthCategory === "discipline" ? "text-white/80" : "text-slate-400")} />
+              </div>
             </button>
           </div>
 
@@ -4444,7 +4421,7 @@ export function FleetExplorerPanel({
                   value={healthSearch}
                   onChange={(e) => setHealthSearch(e.target.value)}
                   placeholder="Search by IMEI, Registration, Object Model..."
-                  className="w-full h-8 pl-8 pr-8 rounded-lg bg-slate-100 dark:bg-slate-800 border-0 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0089FF]"
+                  className="w-full h-8 pl-8 pr-8 rounded-lg bg-white dark:bg-slate-900 border border-[#DFE3EB] dark:border-slate-700 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0089FF] focus:border-[#0089FF]"
                 />
                 {healthSearch && (
                   <button
@@ -5450,33 +5427,39 @@ export function FleetExplorerPanel({
               })}
             </div>
 
-            {/* Clean Export Action Footer Bar (Without "Export Report:" Label, as requested) */}
-            <div className="shrink-0 p-2.5 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2 select-none">
-              <button
-                type="button"
-                onClick={() =>
-                  toast.success("Exporting Driver List to XLS (.xlsx)...", {
-                    description: `${driverCounts.allocated} allocated drivers generated.`,
-                  })
-                }
-                className="h-8 px-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
-              >
-                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
-                <span>XLS</span>
-              </button>
+            {/* Clean Export Action Footer Bar */}
+            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Export
+              </div>
 
-              <button
-                type="button"
-                onClick={() =>
-                  toast.success("Exporting Driver List to PDF...", {
-                    description: "Printable driver allocation report generated.",
-                  })
-                }
-                className="h-8 px-4 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-200/80 dark:border-rose-800/60 hover:border-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
-              >
-                <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 group-hover:text-white transition-colors" />
-                <span>PDF</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.success("Exporting Driver List to XLS (.xlsx)...", {
+                      description: `${driverCounts.allocated} allocated drivers generated.`,
+                    })
+                  }
+                  className="h-8 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
+                  <span>XLS</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.success("Exporting Driver List to PDF...", {
+                      description: "Printable driver allocation report generated.",
+                    })
+                  }
+                  className="h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-200/80 dark:border-rose-800/60 hover:border-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+                >
+                  <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 group-hover:text-white transition-colors" />
+                  <span>PDF</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -5713,6 +5696,41 @@ export function FleetExplorerPanel({
                   </div>
                 );
               })}
+            </div>
+
+            {/* Clean Export Action Footer Bar */}
+            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Export
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.success("Exporting Address List to XLS (.xlsx)...", {
+                      description: `${addressTotal} addresses exported successfully.`,
+                    })
+                  }
+                  className="h-8 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
+                  <span>XLS</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.success("Exporting Address List to PDF...", {
+                      description: "Printable address location report generated.",
+                    })
+                  }
+                  className="h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-200/80 dark:border-rose-800/60 hover:border-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+                >
+                  <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 group-hover:text-white transition-colors" />
+                  <span>PDF</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -5981,6 +5999,54 @@ export function FleetExplorerPanel({
                 })}
               </div>
             </div>
+
+            {/* Clean Export Action Footer Bar */}
+            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Export
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.success("Exporting Geofences to KML...", {
+                      description: `${geofenceTotal} geofence spatial zone files generated.`,
+                    })
+                  }
+                  className="h-8 px-3 rounded-lg bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-600 dark:hover:bg-purple-600 text-purple-700 dark:text-purple-300 hover:text-white border border-purple-200/80 dark:border-purple-800/60 hover:border-purple-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+                >
+                  <Compass className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400 group-hover:text-white transition-colors" />
+                  <span>KML</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.success("Exporting Geofences to XLS (.xlsx)...", {
+                      description: `${geofenceTotal} geofences exported to XLS.`,
+                    })
+                  }
+                  className="h-8 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
+                  <span>XLS</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.success("Exporting Geofences to PDF...", {
+                      description: "Printable geofence document report generated.",
+                    })
+                  }
+                  className="h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-200/80 dark:border-rose-800/60 hover:border-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+                >
+                  <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 group-hover:text-white transition-colors" />
+                  <span>PDF</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -5992,6 +6058,7 @@ export function FleetExplorerPanel({
               <div className="flex-1 min-w-0 flex items-center gap-1.5">
                 <span>Trailer</span>
               </div>
+              <div className="w-32 text-left">Vehicle</div>
               <div className="w-24 text-left">Code</div>
               <div className="w-16 text-right pr-1">Actions</div>
             </div>
@@ -6007,6 +6074,7 @@ export function FleetExplorerPanel({
                       const matchesQuery =
                         tr.name.toLowerCase().includes(query.toLowerCase()) ||
                         tr.code.toLowerCase().includes(query.toLowerCase()) ||
+                        (tr.vehicle && tr.vehicle.toLowerCase().includes(query.toLowerCase())) ||
                         groupItem.group.toLowerCase().includes(query.toLowerCase()) ||
                         sub.name.toLowerCase().includes(query.toLowerCase());
 
@@ -6075,7 +6143,7 @@ export function FleetExplorerPanel({
                                   key={tr.id}
                                   className="px-3 py-2 pl-8 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center text-xs transition-colors group"
                                 >
-                                  {/* Trailer Name */}
+                                  {/* Col 1: Trailer Name */}
                                   <div className="flex-1 min-w-0 pr-2">
                                     <div
                                       onClick={() => handleOpenEditTrailer(tr, groupItem.group, subGroup.name)}
@@ -6084,26 +6152,43 @@ export function FleetExplorerPanel({
                                     >
                                       {tr.name}
                                     </div>
-                                    {tr.vehicle && (
+                                  </div>
+
+                                  {/* Col 2: Vehicle */}
+                                  <div className="w-32 text-left pr-2 truncate">
+                                    {tr.vehicle && tr.vehicle !== "Unassigned" ? (
                                       <div
                                         onClick={() => handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name)}
-                                        className="text-[10px] text-slate-400 truncate flex items-center gap-1 hover:text-[#0089FF] cursor-pointer"
-                                        title="Allocate / Change Vehicle"
+                                        className="truncate flex items-center gap-1.5 hover:text-[#0089FF] cursor-pointer"
+                                        title={`Assigned Vehicle: ${tr.vehicle}`}
                                       >
-                                        <Truck className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                                        <span className={tr.vehicle !== "Unassigned" ? "text-slate-600 dark:text-slate-300 font-mono font-medium" : "text-slate-400"}>
+                                        <span
+                                          style={{ backgroundColor: "#008446" }}
+                                          className="h-2 w-2 rounded-full shrink-0 shadow-2xs"
+                                          title="Status: Running"
+                                        />
+                                        <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">
                                           {tr.vehicle}
                                         </span>
+                                      </div>
+                                    ) : (
+                                      <div
+                                        onClick={() => handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name)}
+                                        className="truncate flex items-center gap-1.5 hover:text-[#0089FF] cursor-pointer text-slate-400"
+                                        title="Allocate Vehicle"
+                                      >
+                                        <span className="h-2 w-2 rounded-full shrink-0 bg-slate-300 dark:bg-slate-600 ring-2 ring-slate-300/30" />
+                                        <span className="italic text-slate-400">Unassigned</span>
                                       </div>
                                     )}
                                   </div>
 
-                                  {/* Code */}
+                                  {/* Col 3: Code */}
                                   <div className="w-24 text-left font-mono text-[11px] text-slate-600 dark:text-slate-400 truncate">
                                     {tr.code}
                                   </div>
 
-                                  {/* Action Buttons: Allocate Vehicle + Edit Trailer */}
+                                  {/* Col 4: Action Buttons: Allocate Vehicle + Edit Trailer */}
                                   <div className="w-16 flex items-center justify-end gap-1.5 text-slate-400">
                                     <button
                                       type="button"
@@ -6138,6 +6223,41 @@ export function FleetExplorerPanel({
                   </div>
                 );
               })}
+            </div>
+
+            {/* Clean Export Action Footer Bar */}
+            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Export
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.success("Exporting Trailer List to XLS (.xlsx)...", {
+                      description: `${trailerCounts.total} trailers exported successfully.`,
+                    })
+                  }
+                  className="h-8 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
+                  <span>XLS</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.success("Exporting Trailer List to PDF...", {
+                      description: "Printable trailer inventory report generated.",
+                    })
+                  }
+                  className="h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-200/80 dark:border-rose-800/60 hover:border-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
+                >
+                  <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 group-hover:text-white transition-colors" />
+                  <span>PDF</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

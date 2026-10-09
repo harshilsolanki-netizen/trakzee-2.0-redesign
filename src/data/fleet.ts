@@ -366,32 +366,47 @@ export type FleetObject = {
 
 export const STATUS_META: Record<
   ObjectStatus,
-  { label: string; color: string; tint: string }
+  { label: string; color: string; tint: string; unselectedBg: string; unselectedBorder: string; unselectedText: string }
 > = {
   running: {
     label: "Running",
-    color: "#10B981",
-    tint: "rgba(16, 185, 129, 0.12)",
+    color: "#008446",
+    tint: "rgba(0, 132, 70, 0.12)",
+    unselectedBg: "#ECFDF3",
+    unselectedBorder: "#A6F4C5",
+    unselectedText: "#008446",
   },
   idle: {
     label: "Idle",
-    color: "#F59E0B",
-    tint: "rgba(245, 158, 11, 0.15)",
+    color: "#C46F37",
+    tint: "rgba(196, 111, 55, 0.15)",
+    unselectedBg: "#FEF7E6",
+    unselectedBorder: "#FEDF89",
+    unselectedText: "#C46F37",
   },
   stopped: {
     label: "Stopped",
-    color: "#EF4444",
-    tint: "rgba(239, 68, 68, 0.12)",
+    color: "#C70036",
+    tint: "rgba(199, 0, 54, 0.12)",
+    unselectedBg: "#FFF1F3",
+    unselectedBorder: "#FCCEE8",
+    unselectedText: "#C70036",
   },
   inactive: {
     label: "Inactive",
-    color: "#6366F1",
-    tint: "rgba(99, 102, 241, 0.12)",
+    color: "#372AAC",
+    tint: "rgba(55, 42, 172, 0.12)",
+    unselectedBg: "#F0EFFF",
+    unselectedBorder: "#D9D6FE",
+    unselectedText: "#372AAC",
   },
   nodata: {
     label: "No Data",
-    color: "#64748B",
-    tint: "rgba(100, 116, 139, 0.12)",
+    color: "#62748E",
+    tint: "rgba(98, 116, 142, 0.12)",
+    unselectedBg: "#F1F5F9",
+    unselectedBorder: "#E2E8F0",
+    unselectedText: "#62748E",
   },
 };
 

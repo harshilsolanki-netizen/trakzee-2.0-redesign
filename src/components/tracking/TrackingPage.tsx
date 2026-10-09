@@ -337,6 +337,7 @@ export function TrackingPage() {
           isLeftPanelOpen={isLeftPanelOpen}
           leftPanelWidth={panelWidth}
           isTelemetryDrawerOpen={isTelemetryDrawerOpen}
+          isHealthTelemetryOnly={isHealthTelemetryOnly}
           onToggleTelemetryDrawer={() =>
             setIsTelemetryDrawerOpen((prev) => !prev)
           }
@@ -454,20 +455,26 @@ export function TrackingPage() {
         </div>
       )}
 
-      {/* 3.5 Right Floating Standalone Live Intercom Panel (Replaces Video Panel at w-[398px]) */}
+      {/* 3.5 Right Floating Standalone Live Intercom Panel (Matches Object Panel top-2.5 bottom-2.5 height) */}
       {intercomDevice && !playbackHistoryDevice && (
-        <IntercomPanel
-          device={intercomDevice}
-          onClose={() => setIntercomDevice(null)}
-        />
+        <div className="absolute top-2.5 bottom-2.5 right-2.5 z-20 flex flex-col pointer-events-none animate-in slide-in-from-right-4 duration-200">
+          <IntercomPanel
+            device={intercomDevice}
+            onClose={() => setIntercomDevice(null)}
+            className="w-[398px] h-full pointer-events-auto"
+          />
+        </div>
       )}
 
-      {/* 3.6 Right Floating Standalone Playback History Panel (Replaces Video Panel & Intercom at w-[398px]) */}
+      {/* 3.6 Right Floating Standalone Playback History Panel (Dynamic height fits content up to max Object Panel height) */}
       {playbackHistoryDevice && (
-        <PlaybackHistoryPanel
-          device={playbackHistoryDevice}
-          onClose={() => setPlaybackHistoryDevice(null)}
-        />
+        <div className="absolute top-2.5 bottom-2.5 right-2.5 z-20 flex flex-col items-end pointer-events-none animate-in slide-in-from-right-4 duration-200">
+          <PlaybackHistoryPanel
+            device={playbackHistoryDevice}
+            onClose={() => setPlaybackHistoryDevice(null)}
+            className="w-[450px] max-h-full h-auto pointer-events-auto shadow-2xl"
+          />
+        </div>
       )}
 
       {/* 4. Right Floating Vehicle Telemetry & Diagnostics Drawer */}
@@ -478,7 +485,7 @@ export function TrackingPage() {
             onClose={() => setIsTelemetryDrawerOpen(false)}
             onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
             allVehicles={fleetObjects}
-            onOpenPlayback={() => handleOpenPlayback()}
+            onOpenPlayback={(tf) => handleOpenPlayback(tf)}
             isHealthOnly={isHealthTelemetryOnly}
             selectedJob={selectedJobForDrawer}
             className={cn(
