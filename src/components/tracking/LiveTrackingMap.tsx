@@ -42,8 +42,18 @@ import {
   Zap,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import L from "leaflet";
+import type * as LType from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+// Safely resolve Leaflet library on client side only to prevent SSR "window is not defined" errors
+let L: typeof LType | any = null;
+if (typeof window !== "undefined") {
+  try {
+    L = require("leaflet");
+  } catch (e) {
+    console.warn("Leaflet client import fallback:", e);
+  }
+}
 import { toast } from "sonner";
 import { type FleetObject, STATUS_META } from "@/data/fleet";
 import { GEOFENCES_DATA } from "@/data/geofences";
@@ -225,7 +235,13 @@ export function LiveTrackingMap({
 
   // Initialize Leaflet Map Instance
   useEffect(() => {
-    if (!mapElementRef.current || mapInstanceRef.current) return;
+    if (typeof window === "undefined" || !mapElementRef.current || mapInstanceRef.current) return;
+    if (!L) {
+      try {
+        L = require("leaflet");
+      } catch (e) {}
+    }
+    if (!L) return;
 
     const map = L.map(mapElementRef.current, {
       center: [45.0000, 71.0000],
