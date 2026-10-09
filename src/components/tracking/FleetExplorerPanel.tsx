@@ -3876,7 +3876,7 @@ export function FleetExplorerPanel({
 )}
 
       {/* Structured Table Column Header Bar */}
-      {activeTab === "object" && !isTrackingViewTree && (
+      {activeTab === "object" && (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100/90 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 select-none shrink-0 overflow-x-hidden">
           <div className="w-[210px] shrink-0 truncate flex items-center gap-1 pl-1">
             <button
@@ -4252,7 +4252,7 @@ export function FleetExplorerPanel({
                   <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">Efficiency</span>
                 </div>
                 <div className="flex items-center gap-0.5 shrink-0">
-                  <span className="text-[14px] font-semibold text-[#D97706]">85%</span>
+                  <span className="text-[14px] font-semibold text-[#D97706]">72%</span>
                   <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                 </div>
               </button>
@@ -4278,7 +4278,7 @@ export function FleetExplorerPanel({
                   <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">Risk</span>
                 </div>
                 <div className="flex items-center gap-0.5 shrink-0">
-                  <span className="text-[14px] font-semibold text-[#EF4444]">85%</span>
+                  <span className="text-[14px] font-semibold text-[#EF4444]">15%</span>
                   <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                 </div>
               </button>
@@ -4304,7 +4304,7 @@ export function FleetExplorerPanel({
                   <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">Discipline</span>
                 </div>
                 <div className="flex items-center gap-0.5 shrink-0">
-                  <span className="text-[14px] font-semibold text-[#0089FF]">85%</span>
+                  <span className="text-[14px] font-semibold text-[#0089FF]">98%</span>
                   <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                 </div>
               </button>

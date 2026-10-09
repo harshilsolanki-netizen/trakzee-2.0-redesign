@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import {
   ChevronDown,
-  Folder,
-  FolderOpen,
   Key,
   Wifi,
   Video,
@@ -15,6 +13,15 @@ import {
   Info,
   Lock,
   Radio,
+  SlidersHorizontal,
+  Paperclip,
+  Share2,
+  Package,
+  Weight,
+  ShieldAlert,
+  MoreVertical,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FleetObject, ObjectStatus } from "@/data/fleet";
@@ -76,7 +83,6 @@ export function TrackingTreeView({
   onSelectTrailer,
   onSelectBeacon,
   onSelectVideoDevice,
-  onOpenIntercom,
   jobData = [],
   driverData = [],
   addressData = [],
@@ -148,11 +154,11 @@ export function TrackingTreeView({
   }, [branchGroups, filteredVehicles]);
 
   // ==========================================
-  // RENDER: Object Tab Tree (100% same data, columns, indicators, & actions)
+  // RENDER: Object Tab Tree (100% matched to media_1791552730969.png)
   // ==========================================
   if (activeTab === "object" || activeTab === "health") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1.5 px-2 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
         {effectiveBranchGroups.length === 0 ? (
           <div className="p-8 text-center text-xs text-slate-400">No matching objects found</div>
         ) : (
@@ -166,28 +172,11 @@ export function TrackingTreeView({
               groupIds.some((id) => checkedVehicleIds.includes(id)) && !isGroupAllChecked;
 
             return (
-              <div
-                key={branch}
-                className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-2xs overflow-hidden mb-2"
-              >
-                {/* Branch Node Header */}
-                <div className="flex items-center justify-between px-3 py-2 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors border-b border-slate-200/60 dark:border-slate-800/60">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    {/* Expand/Collapse Chevron */}
-                    <button
-                      type="button"
-                      onClick={() => toggleNode(branchKey)}
-                      className="p-1 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-700/60 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
-                    >
-                      <ChevronDown
-                        className={cn(
-                          "h-3.5 w-3.5 stroke-[2] transition-transform duration-200",
-                          isBranchCollapsed && "-rotate-90"
-                        )}
-                      />
-                    </button>
-
-                    {/* Branch Checkbox */}
+              <div key={branch} className="relative mb-0.5">
+                {/* Branch Header Row */}
+                <div className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors select-none">
+                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                    {/* Branch Checkbox (aligned at pl-0.5) */}
                     <input
                       type="checkbox"
                       checked={isGroupAllChecked}
@@ -204,31 +193,45 @@ export function TrackingTreeView({
                       className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
                     />
 
-                    {/* Folder Icon */}
-                    <div className="h-6 w-6 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                      {isBranchCollapsed ? (
-                        <Folder className="h-3.5 w-3.5 stroke-[2]" />
-                      ) : (
-                        <FolderOpen className="h-3.5 w-3.5 stroke-[2]" />
-                      )}
-                    </div>
+                    {/* Expand/Collapse Chevron */}
+                    <button
+                      type="button"
+                      onClick={() => toggleNode(branchKey)}
+                      className="p-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
+                    >
+                      <ChevronDown
+                        className={cn(
+                          "h-3.5 w-3.5 stroke-[2] transition-transform duration-200",
+                          isBranchCollapsed && "-rotate-90"
+                        )}
+                      />
+                    </button>
 
-                    {/* Branch Name */}
-                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
+                    {/* Branch Title */}
+                    <span
+                      onClick={() => toggleNode(branchKey)}
+                      className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate cursor-pointer hover:text-[#0089FF]"
+                    >
                       {branch}
                     </span>
-                    <span className="text-[11px] font-mono font-bold text-slate-500 shrink-0">
-                      [{branchVehicles.length}]
-                    </span>
                   </div>
+
+                  {/* Count badge on the right [N] */}
+                  <span className="text-[11px] font-mono font-medium text-slate-500 shrink-0">
+                    [{branchVehicles.length}]
+                  </span>
                 </div>
 
-                {/* Branch Vehicles (Leaves) with Tree Guide Line */}
+                {/* Branch Vehicles (Leaves) with Tree Guide Lines */}
                 {!isBranchCollapsed && (
-                  <div className="ml-5 pl-2.5 border-l-2 border-slate-200 dark:border-slate-800 divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 my-1">
-                    {branchVehicles.map((v) => {
+                  <div className="relative">
+                    {/* Continuous vertical trunk line from parent checkbox center */}
+                    <div className="absolute left-[18px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+
+                    {branchVehicles.map((v, idx) => {
                       const isSelected = v.id === selectedVehicleId;
                       const isChecked = checkedVehicleIds.includes(v.id);
+                      const isLast = idx === branchVehicles.length - 1;
 
                       return (
                         <div
@@ -238,20 +241,30 @@ export function TrackingTreeView({
                             if (onOpenTelemetry) onOpenTelemetry(v);
                           }}
                           className={cn(
-                            "flex items-center gap-2 px-2.5 py-1.5 text-xs transition-colors cursor-pointer select-none min-h-[46px] overflow-hidden rounded-r-lg",
+                            "relative flex items-center gap-2 pr-3 py-1.5 text-xs transition-colors cursor-pointer select-none min-h-[44px]",
                             isSelected
                               ? "bg-sky-50/90 dark:bg-sky-950/50"
-                              : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                              : "hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
                           )}
                         >
-                          {/* Col 1: Checkbox + Status Dot + Name & Timestamp */}
-                          <div className="flex items-center gap-1.5 shrink-0 w-[210px] pl-1">
+                          {/* Tree Elbow connector */}
+                          <div
+                            className={cn(
+                              "absolute left-[18px] top-0 pointer-events-none",
+                              isLast
+                                ? "h-[22px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
+                                : "h-[22px] w-[14px] border-b border-slate-300 dark:border-slate-700"
+                            )}
+                          />
+
+                          {/* Col 1: Indented Checkbox + Status Dot + Name & Timestamp */}
+                          <div className="flex items-center gap-1.5 shrink-0 w-[210px] pl-[34px]">
                             <input
                               type="checkbox"
                               checked={isChecked}
                               onClick={(e) => e.stopPropagation()}
                               onChange={() => onToggleCheckVehicle(v.id)}
-                              className="h-[12px] w-[12px] rounded border-slate-200 dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                              className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
                             />
 
                             {/* Status Dot */}
@@ -356,7 +369,7 @@ export function TrackingTreeView({
                             </div>
                           )}
 
-                          {/* Col 5: Address / Location Column (2 Lines Layout) */}
+                          {/* Col 5: Address / Location Column */}
                           {selectedColumns.includes("address") && (
                             <div
                               className="flex-1 min-w-[140px] line-clamp-2 break-words leading-tight text-[10.5px] text-slate-600 dark:text-slate-400"
@@ -435,11 +448,11 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Jobs Tab Tree View (Using Real jobData)
+  // RENDER: Jobs Tab Tree View (100% matched to media_1791552743382.png)
   // ==========================================
   if (activeTab === "jobs") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1.5 px-2 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
         {jobData.map((group) => {
           const bKey = "job-branch-" + group.branch;
           const isBranchCollapsed = isCollapsed(bKey);
@@ -468,108 +481,227 @@ export function TrackingTreeView({
           );
 
           return (
-            <div
-              key={group.branch}
-              className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-2xs overflow-hidden mb-2"
-            >
-              {/* Branch Node */}
+            <div key={group.branch} className="mb-1">
+              {/* Company Level Header (e.g. HP Company [8]) */}
               <div
                 onClick={() => toggleNode(bKey)}
-                className="flex items-center justify-between px-3 py-2 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors border-b border-slate-200/60 dark:border-slate-800/60 cursor-pointer"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <ChevronDown
                     className={cn(
                       "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
                       isBranchCollapsed && "-rotate-90"
                     )}
                   />
-                  <div className="h-6 w-6 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                    {isBranchCollapsed ? (
-                      <Folder className="h-3.5 w-3.5 stroke-[2]" />
-                    ) : (
-                      <FolderOpen className="h-3.5 w-3.5 stroke-[2]" />
-                    )}
-                  </div>
-                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
                     {group.branch}
                   </span>
-                  <span className="text-[11px] font-mono font-bold text-slate-500">
-                    [{branchTotalCount}]
-                  </span>
                 </div>
+                <span className="text-[11px] font-mono font-medium text-slate-500">
+                  [{branchTotalCount}]
+                </span>
               </div>
 
               {/* Subgroups & Jobs */}
-              {!isBranchCollapsed && (
-                <div className="ml-5 pl-2.5 border-l-2 border-slate-200 dark:border-slate-800 my-1">
-                  {filteredSubgroups.map((sub: any) => {
-                    const subKey = "job-sub-" + group.branch + "-" + sub.name;
-                    const isSubCollapsed = isCollapsed(subKey);
+              {!isBranchCollapsed &&
+                filteredSubgroups.map((sub: any) => {
+                  const subKey = "job-sub-" + group.branch + "-" + sub.name;
+                  const isSubCollapsed = isCollapsed(subKey);
 
-                    return (
-                      <div key={sub.name} className="mb-1">
-                        <div
-                          onClick={() => toggleNode(subKey)}
-                          className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 text-slate-400 transition-transform duration-200",
-                                isSubCollapsed && "-rotate-90"
-                              )}
-                            />
-                            <Folder className="h-3 w-3 text-amber-500" />
-                            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
-                              {sub.name}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400">
-                              [{sub.jobs.length}]
-                            </span>
-                          </div>
+                  return (
+                    <div key={sub.name}>
+                      {/* Branch Level Header (e.g. HP Branch 1 [8]) */}
+                      <div
+                        onClick={() => toggleNode(subKey)}
+                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
+                              isSubCollapsed && "-rotate-90"
+                            )}
+                          />
+                          <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                            {sub.name}
+                          </span>
                         </div>
+                        <span className="text-[11px] font-mono font-medium text-slate-500">
+                          [{sub.jobs.length}]
+                        </span>
+                      </div>
 
-                        {!isSubCollapsed && (
-                          <div className="ml-4 pl-2 border-l border-slate-200 dark:border-slate-800 space-y-1 my-1">
-                            {sub.jobs.map((job: any) => (
+                      {/* Job Cards with Hierarchy Connector */}
+                      {!isSubCollapsed && (
+                        <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                          {sub.jobs.map((job: any) => {
+                            const matchedVehicle =
+                              vehicles.find(
+                                (v) =>
+                                  v.name.toLowerCase() === job.object.toLowerCase() ||
+                                  v.name.toLowerCase().includes(job.object.toLowerCase()) ||
+                                  job.object.toLowerCase().includes(v.name.toLowerCase())
+                              ) || vehicles[0];
+
+                            return (
                               <div
                                 key={job.id}
-                                onClick={() => onSelectJob && onSelectJob(job)}
-                                className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-slate-100 dark:border-slate-800/60 cursor-pointer shadow-2xs"
+                                className="relative px-3 py-2 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors"
                               >
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                  <span
-                                    className={cn(
-                                      "h-2 w-2 rounded-full shrink-0",
-                                      job.statusType === "running"
-                                        ? "bg-emerald-500"
-                                        : job.statusType === "completed"
-                                        ? "bg-sky-500"
-                                        : "bg-amber-500"
-                                    )}
-                                  />
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
+                                {/* Hierarchy connector line dropping from '#' down to object dot */}
+                                <div className="absolute left-[15px] top-[18px] h-[22px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px] pointer-events-none" />
+
+                                {/* LINE 1: JOB INFORMATION */}
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onSelectJob) onSelectJob(job);
+                                    if (onOpenTelemetry && matchedVehicle) {
+                                      onOpenTelemetry(matchedVehicle, false, job);
+                                    }
+                                  }}
+                                  className="flex items-center justify-between gap-2 cursor-pointer mb-1.5"
+                                >
+                                  {/* Left: # code title [status] */}
+                                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span className="text-slate-400 text-xs font-mono font-semibold shrink-0">
+                                      #
+                                    </span>
+                                    <span className="font-mono text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0">
+                                      {job.code}
+                                    </span>
+                                    <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate">
                                       {job.title}
+                                    </span>
+                                    <span
+                                      className={cn(
+                                        "text-[10px] font-extrabold px-1.5 py-0.5 rounded leading-none shrink-0 border",
+                                        job.status.toLowerCase().includes("completed")
+                                          ? "bg-sky-50 text-[#0089FF] border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800"
+                                          : job.statusType === "running"
+                                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+                                          : job.statusType === "fail"
+                                          ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800"
+                                          : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
+                                      )}
+                                    >
+                                      {job.status}
+                                    </span>
+                                  </div>
+
+                                  {/* Right: Assigned Rep + Route, Attach, Share */}
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <div
+                                      className="flex items-center gap-1 px-1.5 py-0.5 rounded border border-emerald-300 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0"
+                                      title="Assigned Representative"
+                                    >
+                                      <User className="h-3 w-3 stroke-[2.2] text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                      <span className="text-[11px] font-mono font-bold">
+                                        {job.representatives?.length || job.repCount || 1}
+                                      </span>
                                     </div>
-                                    <div className="text-[10px] font-mono text-slate-400 truncate">
-                                      {job.code} • {job.object}
+
+                                    <div className="flex items-center gap-1 text-slate-400">
+                                      <button
+                                        type="button"
+                                        title="Job Route & Configuration"
+                                        className="p-1 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                                      >
+                                        <SlidersHorizontal className="h-3.5 w-3.5 stroke-[2]" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        title="Download Attachment Document"
+                                        className="p-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                      >
+                                        <Paperclip className="h-3.5 w-3.5 stroke-[2]" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        title="Share Job"
+                                        className="p-1 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                                      >
+                                        <Share2 className="h-3.5 w-3.5 stroke-[2]" />
+                                      </button>
                                     </div>
                                   </div>
                                 </div>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] border border-sky-200 dark:border-sky-800 shrink-0">
-                                  {job.status}
-                                </span>
+
+                                {/* LINE 2: VEHICLE & OBJECT INFORMATION (Connected via elbow) */}
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onSelectJob) onSelectJob(job);
+                                    if (onOpenTelemetry && matchedVehicle) {
+                                      onOpenTelemetry(matchedVehicle, false, job);
+                                    }
+                                  }}
+                                  className="flex items-center justify-between gap-2 pl-5 cursor-pointer"
+                                >
+                                  {/* Left: Green Dot + Object Name + State Badge */}
+                                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                    <span className="h-2 w-2 rounded-full shrink-0 bg-emerald-500 ring-2 ring-emerald-500/20" />
+                                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                                      {job.object}
+                                    </span>
+                                    <span
+                                      className={cn(
+                                        "text-[9.5px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0 border",
+                                        job.objectState === "Loaded"
+                                          ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200/80 dark:border-emerald-800/60"
+                                          : job.objectState === "Unloaded"
+                                          ? "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border-amber-200/80 dark:border-amber-800/60"
+                                          : "text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 border-sky-200/80 dark:border-sky-800/60"
+                                      )}
+                                    >
+                                      {job.objectState || "Unloaded"}
+                                    </span>
+                                  </div>
+
+                                  {/* Right: Quantity, Weight, Violation, Convoy Pill */}
+                                  <div className="flex items-center gap-2 text-xs font-mono font-medium text-slate-600 dark:text-slate-300 shrink-0 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-0.5 bg-slate-50/50 dark:bg-slate-900/40">
+                                    <div className="flex items-center gap-1" title="Quantity">
+                                      <Package className="h-3 w-3 text-slate-400 stroke-[2]" />
+                                      <span className="text-[11px] font-bold">{job.quantity || 0}</span>
+                                    </div>
+                                    <span className="text-slate-300 dark:text-slate-700">|</span>
+                                    <div className="flex items-center gap-1" title="Weight">
+                                      <Weight className="h-3 w-3 text-slate-400 stroke-[2]" />
+                                      <span className="text-[11px] font-bold">{job.weight || 0}</span>
+                                    </div>
+                                    <span className="text-slate-300 dark:text-slate-700">|</span>
+                                    <div className="flex items-center gap-1" title="Violations & Alerts">
+                                      <ShieldAlert
+                                        className={cn(
+                                          "h-3 w-3 stroke-[2]",
+                                          job.violation > 0 ? "text-rose-500" : "text-rose-500/80"
+                                        )}
+                                      />
+                                      <span
+                                        className={cn(
+                                          "text-[11px] font-bold",
+                                          job.violation > 0 ? "text-rose-600" : "text-slate-600 dark:text-slate-300"
+                                        )}
+                                      >
+                                        {job.violation || 0}
+                                      </span>
+                                    </div>
+                                    <span className="text-slate-300 dark:text-slate-700">|</span>
+                                    <div className="flex items-center gap-1" title="Convoy Group">
+                                      <Caravan className="h-3 w-3 text-slate-400 stroke-[2]" />
+                                      <span className="text-[11px] font-bold">{job.convoy || "--"}</span>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           );
         })}
@@ -578,11 +710,11 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Driver Tab Tree View (Using Real driverData)
+  // RENDER: Driver Tab Tree View (100% matched to media_1791552755188.png)
   // ==========================================
   if (activeTab === "driver") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1.5 px-2 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
         {driverData.map((group) => {
           const bKey = "drv-branch-" + group.branch;
           const isBranchCollapsed = isCollapsed(bKey);
@@ -594,7 +726,7 @@ export function TrackingTreeView({
                 return (
                   q === "" ||
                   drv.name.toLowerCase().includes(q) ||
-                  drv.vehicle.toLowerCase().includes(q) ||
+                  (drv.vehicle && drv.vehicle.toLowerCase().includes(q)) ||
                   group.branch.toLowerCase().includes(q) ||
                   sub.name.toLowerCase().includes(q)
                 );
@@ -611,116 +743,145 @@ export function TrackingTreeView({
           );
 
           return (
-            <div
-              key={group.branch}
-              className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-2xs overflow-hidden mb-2"
-            >
+            <div key={group.branch} className="mb-1">
+              {/* Company Level Header (e.g. Surya Travels Company [5]) */}
               <div
                 onClick={() => toggleNode(bKey)}
-                className="flex items-center justify-between px-3 py-2 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors border-b border-slate-200/60 dark:border-slate-800/60 cursor-pointer"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <ChevronDown
                     className={cn(
                       "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
                       isBranchCollapsed && "-rotate-90"
                     )}
                   />
-                  <div className="h-6 w-6 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                    {isBranchCollapsed ? (
-                      <Folder className="h-3.5 w-3.5 stroke-[2]" />
-                    ) : (
-                      <FolderOpen className="h-3.5 w-3.5 stroke-[2]" />
-                    )}
-                  </div>
-                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
                     {group.branch}
                   </span>
-                  <span className="text-[11px] font-mono font-bold text-slate-500">
-                    [{branchTotalCount}]
-                  </span>
                 </div>
+                <span className="text-[11px] font-mono font-medium text-slate-500">
+                  [{branchTotalCount}]
+                </span>
               </div>
 
-              {!isBranchCollapsed && (
-                <div className="ml-5 pl-2.5 border-l-2 border-slate-200 dark:border-slate-800 my-1">
-                  {filteredSubgroups.map((sub: any) => {
-                    const subKey = "drv-sub-" + group.branch + "-" + sub.name;
-                    const isSubCollapsed = isCollapsed(subKey);
+              {/* Subgroups & Drivers */}
+              {!isBranchCollapsed &&
+                filteredSubgroups.map((sub: any) => {
+                  const subKey = "drv-sub-" + group.branch + "-" + sub.name;
+                  const isSubCollapsed = isCollapsed(subKey);
 
-                    return (
-                      <div key={sub.name} className="mb-1">
-                        <div
-                          onClick={() => toggleNode(subKey)}
-                          className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 text-slate-400 transition-transform duration-200",
-                                isSubCollapsed && "-rotate-90"
-                              )}
-                            />
-                            <Folder className="h-3 w-3 text-amber-500" />
-                            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
-                              {sub.name}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400">
-                              [{sub.drivers.length}]
-                            </span>
-                          </div>
+                  return (
+                    <div key={sub.name}>
+                      {/* Branch Level Header (e.g. Surya Branch 1 [5]) */}
+                      <div
+                        onClick={() => toggleNode(subKey)}
+                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
+                              isSubCollapsed && "-rotate-90"
+                            )}
+                          />
+                          <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                            {sub.name}
+                          </span>
                         </div>
+                        <span className="text-[11px] font-mono font-medium text-slate-500">
+                          [{sub.drivers.length}]
+                        </span>
+                      </div>
 
-                        {!isSubCollapsed && (
-                          <div className="ml-4 pl-2 border-l border-slate-200 dark:border-slate-800 space-y-1 my-1">
-                            {sub.drivers.map((drv: any) => (
+                      {/* Driver rows with vertical guide trunk and elbows */}
+                      {!isSubCollapsed && (
+                        <div className="relative">
+                          {/* Vertical guide line dropping from branch chevron */}
+                          <div className="absolute left-[30px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+
+                          {sub.drivers.map((drv: any, idx: number) => {
+                            const isLast = idx === sub.drivers.length - 1;
+                            const isAllocated = Boolean(drv.vehicle && drv.vehicle !== "Unallocated");
+
+                            return (
                               <div
                                 key={drv.id}
                                 onClick={() => onSelectDriver && onSelectDriver(drv)}
-                                className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-slate-100 dark:border-slate-800/60 cursor-pointer shadow-2xs"
+                                className="relative flex items-center justify-between pl-[48px] pr-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                               >
-                                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                {/* Tree Elbow connector to driver status dot */}
+                                <div
+                                  className={cn(
+                                    "absolute left-[30px] top-0 pointer-events-none",
+                                    isLast
+                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
+                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
+                                  )}
+                                />
+
+                                {/* Col 1: Status Dot + Driver Name + Vehicle Registration */}
+                                <div className="flex items-center gap-2 min-w-0 flex-1">
                                   <span
-                                    className="h-2.5 w-2.5 rounded-full shrink-0"
+                                    className="h-2 w-2 rounded-full shrink-0"
                                     style={{
                                       backgroundColor: drv.isRunning
                                         ? "#008446"
                                         : drv.driverStatus === "Available"
                                         ? "#0089FF"
-                                        : "#C70036",
+                                        : drv.driverStatus === "On Leave"
+                                        ? "#9333EA"
+                                        : drv.driverStatus === "Not Avail"
+                                        ? "#D97706"
+                                        : isAllocated
+                                        ? "#008446"
+                                        : "#D97706",
                                     }}
                                   />
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
-                                      {drv.name}
-                                    </div>
-                                    <div className="text-[10px] font-medium text-slate-400 truncate">
-                                      {drv.vehicle || "Unallocated"} • {drv.phone}
-                                    </div>
-                                  </div>
+                                  <span
+                                    className={cn(
+                                      "font-bold text-xs truncate",
+                                      isAllocated
+                                        ? "text-slate-900 dark:text-slate-100"
+                                        : drv.driverStatus === "On Leave"
+                                        ? "text-purple-600 dark:text-purple-400"
+                                        : "text-amber-600 dark:text-amber-400"
+                                    )}
+                                  >
+                                    {drv.name}
+                                  </span>
+                                  <span className="font-mono text-xs text-slate-500 dark:text-slate-400 shrink-0 uppercase">
+                                    {drv.vehicle || "Unassigned"}
+                                  </span>
                                 </div>
-                                <div className="flex items-center gap-1.5 shrink-0">
+
+                                {/* Col 2: Allocated Status */}
+                                <div className="w-[110px] text-xs text-slate-700 dark:text-slate-300 shrink-0">
+                                  {isAllocated ? "Allocated Via" : "Not Allocated"}
+                                </div>
+
+                                {/* Col 3: Default */}
+                                <div className="w-[80px] text-xs text-slate-700 dark:text-slate-300 shrink-0">
+                                  Default
+                                </div>
+
+                                {/* Col 4: Action More menu */}
+                                <div className="w-[24px] flex justify-end shrink-0">
                                   <button
                                     type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (onOpenIntercom) onOpenIntercom(drv);
-                                    }}
-                                    className="p-1 rounded-md bg-sky-50 dark:bg-sky-950/60 text-[#0089FF] hover:bg-sky-100 dark:hover:bg-sky-900 transition-colors cursor-pointer"
-                                    title="Call Driver"
+                                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
                                   >
-                                    <Phone className="h-3 w-3" />
+                                    <MoreVertical className="h-3.5 w-3.5" />
                                   </button>
                                 </div>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           );
         })}
@@ -729,11 +890,11 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Address Tab Tree View (Using Real addressData)
+  // RENDER: Address Tab Tree View (100% matched to media_1791552765493.png)
   // ==========================================
   if (activeTab === "address") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1.5 px-2 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
         {addressData.map((group) => {
           const gKey = "addr-group-" + group.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -762,94 +923,155 @@ export function TrackingTreeView({
           );
 
           return (
-            <div
-              key={group.group}
-              className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-2xs overflow-hidden mb-2"
-            >
+            <div key={group.group} className="mb-1">
+              {/* Company Level Header (e.g. Ha Company [21]) */}
               <div
                 onClick={() => toggleNode(gKey)}
-                className="flex items-center justify-between px-3 py-2 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors border-b border-slate-200/60 dark:border-slate-800/60 cursor-pointer"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="checkbox"
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                  />
                   <ChevronDown
                     className={cn(
                       "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
                       isGroupCollapsed && "-rotate-90"
                     )}
                   />
-                  <div className="h-6 w-6 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                    {isGroupCollapsed ? (
-                      <Folder className="h-3.5 w-3.5 stroke-[2]" />
-                    ) : (
-                      <FolderOpen className="h-3.5 w-3.5 stroke-[2]" />
-                    )}
-                  </div>
-                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
                     {group.group}
                   </span>
-                  <span className="text-[11px] font-mono font-bold text-slate-500">
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono font-medium text-slate-500">
                     [{groupTotalCount}]
                   </span>
+                  <ChevronDown
+                    className={cn(
+                      "h-3.5 w-3.5 text-slate-400 transition-transform duration-200",
+                      isGroupCollapsed && "-rotate-180"
+                    )}
+                  />
                 </div>
               </div>
 
-              {!isGroupCollapsed && (
-                <div className="ml-5 pl-2.5 border-l-2 border-slate-200 dark:border-slate-800 my-1">
-                  {filteredSubgroups.map((sub: any) => {
-                    const subKey = "addr-sub-" + group.group + "-" + sub.name;
-                    const isSubCollapsed = isCollapsed(subKey);
+              {/* Subgroups (e.g. HS - Bank) with child items and tree connectors */}
+              {!isGroupCollapsed &&
+                filteredSubgroups.map((sub: any) => {
+                  const subKey = "addr-sub-" + group.group + "-" + sub.name;
+                  const isSubCollapsed = isCollapsed(subKey);
 
-                    return (
-                      <div key={sub.name} className="mb-1">
-                        <div
-                          onClick={() => toggleNode(subKey)}
-                          className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 text-slate-400 transition-transform duration-200",
-                                isSubCollapsed && "-rotate-90"
-                              )}
-                            />
-                            <Folder className="h-3 w-3 text-amber-500" />
-                            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
-                              {sub.name}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400">
-                              [{sub.addresses.length}]
-                            </span>
-                          </div>
+                  return (
+                    <div key={sub.name}>
+                      {/* Subgroup Header (e.g. checkbox + blue dot + HS - Bank + actions) */}
+                      <div
+                        onClick={() => toggleNode(subKey)}
+                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="checkbox"
+                            defaultChecked
+                            onClick={(e) => e.stopPropagation()}
+                            className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                          />
+                          <span className="h-2 w-2 rounded-full bg-[#0089FF] shrink-0" />
+                          <span className="font-bold text-xs text-[#0089FF]">
+                            {sub.name}
+                          </span>
                         </div>
+                        <div className="flex items-center gap-2 text-slate-400">
+                          <button
+                            type="button"
+                            className="p-0.5 hover:text-[#0089FF] transition-colors"
+                          >
+                            <MapPin className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-0.5 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-0.5 hover:text-rose-500 transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
 
-                        {!isSubCollapsed && (
-                          <div className="ml-4 pl-2 border-l border-slate-200 dark:border-slate-800 space-y-1 my-1">
-                            {sub.addresses.map((addr: any) => (
+                      {/* Address Items with Tree Connector Lines */}
+                      {!isSubCollapsed && (
+                        <div className="relative">
+                          {/* Continuous vertical trunk line dropping from parent checkbox center */}
+                          <div className="absolute left-[31px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+
+                          {sub.addresses.map((addr: any, idx: number) => {
+                            const isLast = idx === sub.addresses.length - 1;
+
+                            return (
                               <div
                                 key={addr.id}
                                 onClick={() => onSelectAddress && onSelectAddress(addr)}
-                                className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-slate-100 dark:border-slate-800/60 cursor-pointer shadow-2xs"
+                                className="relative flex items-center justify-between pl-[48px] pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                               >
+                                {/* Tree Elbow connector */}
+                                <div
+                                  className={cn(
+                                    "absolute left-[31px] top-0 pointer-events-none",
+                                    isLast
+                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
+                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
+                                  )}
+                                />
+
+                                {/* Left: Checkbox + Status Dot + Address Name */}
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
-                                  <MapPin className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
-                                      {addr.name}
-                                    </div>
-                                    <div className="text-[10px] text-slate-400 truncate">
-                                      {addr.address || addr.type}
-                                    </div>
-                                  </div>
+                                  <input
+                                    type="checkbox"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                  />
+                                  <span className="h-2 w-2 rounded-full bg-slate-400 shrink-0" />
+                                  <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate">
+                                    {addr.name}
+                                  </span>
+                                </div>
+
+                                {/* Right: Action Icons (MapPin, Pencil, Trash) */}
+                                <div className="flex items-center gap-2 text-slate-400 shrink-0">
+                                  <button
+                                    type="button"
+                                    className="p-0.5 hover:text-[#0089FF] transition-colors"
+                                  >
+                                    <MapPin className="h-3.5 w-3.5" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="p-0.5 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="p-0.5 hover:text-rose-500 transition-colors"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
                                 </div>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           );
         })}
@@ -858,11 +1080,11 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Geofence Tab Tree View (Using Real geofenceData)
+  // RENDER: Geofence Tab Tree View (100% matched to media_1791552778582.png)
   // ==========================================
   if (activeTab === "geofence") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1.5 px-2 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
         {geofenceData.map((groupData) => {
           const gKey = "gf-group-" + groupData.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -889,90 +1111,108 @@ export function TrackingTreeView({
             0
           );
 
+          // Flatten geofences if single group or list directly under group as shown in media_1791552778582.png
+          const allGeofences = filteredSubgroups.flatMap((s: any) => s.geofences);
+
           return (
-            <div
-              key={groupData.group}
-              className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-2xs overflow-hidden mb-2"
-            >
+            <div key={groupData.group} className="mb-1">
+              {/* Company Level Header (e.g. Ha Company [21]) */}
               <div
                 onClick={() => toggleNode(gKey)}
-                className="flex items-center justify-between px-3 py-2 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors border-b border-slate-200/60 dark:border-slate-800/60 cursor-pointer"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-3.5 w-3.5 rounded bg-[#0089FF] text-white flex items-center justify-center font-bold text-[10px] leading-none shrink-0">
+                    -
+                  </span>
                   <ChevronDown
                     className={cn(
                       "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
                       isGroupCollapsed && "-rotate-90"
                     )}
                   />
-                  <div className="h-6 w-6 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                    {isGroupCollapsed ? (
-                      <Folder className="h-3.5 w-3.5 stroke-[2]" />
-                    ) : (
-                      <FolderOpen className="h-3.5 w-3.5 stroke-[2]" />
-                    )}
-                  </div>
-                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
                     {groupData.group}
                   </span>
-                  <span className="text-[11px] font-mono font-bold text-slate-500">
-                    [{groupTotalCount}]
-                  </span>
                 </div>
+                <span className="text-[11px] font-mono font-medium text-slate-500">
+                  [{groupTotalCount}]
+                </span>
               </div>
 
+              {/* Geofence items under company with tree connector line */}
               {!isGroupCollapsed && (
-                <div className="ml-5 pl-2.5 border-l-2 border-slate-200 dark:border-slate-800 my-1">
-                  {filteredSubgroups.map((sub: any) => {
-                    const subKey = "gf-sub-" + groupData.group + "-" + sub.name;
-                    const isSubCollapsed = isCollapsed(subKey);
+                <div className="relative">
+                  {/* Continuous vertical trunk line */}
+                  <div className="absolute left-[19px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+
+                  {allGeofences.map((gf: any, idx: number) => {
+                    const isLast = idx === allGeofences.length - 1;
+                    const isChecked = idx < 5; // Top 5 checked in reference image
 
                     return (
-                      <div key={sub.name} className="mb-1">
+                      <div
+                        key={gf.id}
+                        onClick={() => onSelectGeofence && onSelectGeofence(gf)}
+                        className="relative flex items-center justify-between pl-[36px] pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
+                      >
+                        {/* Tree Elbow connector */}
                         <div
-                          onClick={() => toggleNode(subKey)}
-                          className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 text-slate-400 transition-transform duration-200",
-                                isSubCollapsed && "-rotate-90"
-                              )}
-                            />
-                            <Folder className="h-3 w-3 text-amber-500" />
-                            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
-                              {sub.name}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400">
-                              [{sub.geofences.length}]
-                            </span>
-                          </div>
+                          className={cn(
+                            "absolute left-[19px] top-0 pointer-events-none",
+                            isLast
+                              ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
+                              : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
+                          )}
+                        />
+
+                        {/* Left: Checkbox + Status Dot / Ring + Name */}
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={() => {}}
+                            className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                          />
+                          {isChecked ? (
+                            <span className="h-2 w-2 rounded-full bg-[#0089FF] shrink-0" />
+                          ) : (
+                            <span className="h-2 w-2 rounded-full border border-slate-400 bg-transparent shrink-0" />
+                          )}
+                          <span
+                            className={cn(
+                              "text-xs truncate",
+                              isChecked
+                                ? "font-bold text-[#0089FF]"
+                                : "font-medium text-slate-800 dark:text-slate-200"
+                            )}
+                          >
+                            {gf.name}
+                          </span>
                         </div>
 
-                        {!isSubCollapsed && (
-                          <div className="ml-4 pl-2 border-l border-slate-200 dark:border-slate-800 space-y-1 my-1">
-                            {sub.geofences.map((gf: any) => (
-                              <div
-                                key={gf.id}
-                                onClick={() => onSelectGeofence && onSelectGeofence(gf)}
-                                className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-slate-100 dark:border-slate-800/60 cursor-pointer shadow-2xs"
-                              >
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                  <Layers className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
-                                      {gf.name}
-                                    </div>
-                                    <div className="text-[10px] text-slate-400 truncate">
-                                      {gf.type || "Polygon"} • {gf.speedLimit || "No speed limit"}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {/* Right: Actions (MapPin, Pencil, Trash) */}
+                        <div className="flex items-center gap-2 text-slate-400 shrink-0">
+                          <button
+                            type="button"
+                            className="p-0.5 hover:text-[#0089FF] transition-colors"
+                          >
+                            <MapPin className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-0.5 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-0.5 hover:text-rose-500 transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -986,11 +1226,11 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Trailer Tab Tree View (Using Real trailerData)
+  // RENDER: Trailer Tab Tree View
   // ==========================================
   if (activeTab === "trailer") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1.5 px-2 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
         {trailerData.map((groupItem) => {
           const gKey = "tr-group-" + groupItem.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -1020,74 +1260,76 @@ export function TrackingTreeView({
           );
 
           return (
-            <div
-              key={groupItem.group}
-              className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-2xs overflow-hidden mb-2"
-            >
+            <div key={groupItem.group} className="mb-1">
               <div
                 onClick={() => toggleNode(gKey)}
-                className="flex items-center justify-between px-3 py-2 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors border-b border-slate-200/60 dark:border-slate-800/60 cursor-pointer"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <ChevronDown
                     className={cn(
                       "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
                       isGroupCollapsed && "-rotate-90"
                     )}
                   />
-                  <div className="h-6 w-6 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                    {isGroupCollapsed ? (
-                      <Folder className="h-3.5 w-3.5 stroke-[2]" />
-                    ) : (
-                      <FolderOpen className="h-3.5 w-3.5 stroke-[2]" />
-                    )}
-                  </div>
-                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
                     {groupItem.group}
                   </span>
-                  <span className="text-[11px] font-mono font-bold text-slate-500">
-                    [{groupTotalCount}]
-                  </span>
                 </div>
+                <span className="text-[11px] font-mono font-medium text-slate-500">
+                  [{groupTotalCount}]
+                </span>
               </div>
 
-              {!isGroupCollapsed && (
-                <div className="ml-5 pl-2.5 border-l-2 border-slate-200 dark:border-slate-800 my-1">
-                  {filteredSubgroups.map((sub: any) => {
-                    const subKey = "tr-sub-" + groupItem.group + "-" + sub.name;
-                    const isSubCollapsed = isCollapsed(subKey);
+              {!isGroupCollapsed &&
+                filteredSubgroups.map((sub: any) => {
+                  const subKey = "tr-sub-" + groupItem.group + "-" + sub.name;
+                  const isSubCollapsed = isCollapsed(subKey);
 
-                    return (
-                      <div key={sub.name} className="mb-1">
-                        <div
-                          onClick={() => toggleNode(subKey)}
-                          className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 text-slate-400 transition-transform duration-200",
-                                isSubCollapsed && "-rotate-90"
-                              )}
-                            />
-                            <Folder className="h-3 w-3 text-amber-500" />
-                            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
-                              {sub.name}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400">
-                              [{sub.trailers.length}]
-                            </span>
-                          </div>
+                  return (
+                    <div key={sub.name}>
+                      <div
+                        onClick={() => toggleNode(subKey)}
+                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <ChevronDown
+                            className={cn(
+                              "h-3 w-3 text-slate-400 transition-transform duration-200",
+                              isSubCollapsed && "-rotate-90"
+                            )}
+                          />
+                          <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
+                            {sub.name}
+                          </span>
                         </div>
+                        <span className="text-[10px] font-mono text-slate-400">
+                          [{sub.trailers.length}]
+                        </span>
+                      </div>
 
-                        {!isSubCollapsed && (
-                          <div className="ml-4 pl-2 border-l border-slate-200 dark:border-slate-800 space-y-1 my-1">
-                            {sub.trailers.map((tr: any) => (
+                      {!isSubCollapsed && (
+                        <div className="relative">
+                          <div className="absolute left-[30px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+
+                          {sub.trailers.map((tr: any, idx: number) => {
+                            const isLast = idx === sub.trailers.length - 1;
+
+                            return (
                               <div
                                 key={tr.id}
                                 onClick={() => onSelectTrailer && onSelectTrailer(tr)}
-                                className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-slate-100 dark:border-slate-800/60 cursor-pointer shadow-2xs"
+                                className="relative flex items-center justify-between pl-[48px] pr-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                               >
+                                <div
+                                  className={cn(
+                                    "absolute left-[30px] top-0 pointer-events-none",
+                                    isLast
+                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
+                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
+                                  )}
+                                />
+
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                   <Caravan className="h-3.5 w-3.5 text-amber-600 shrink-0" />
                                   <div className="min-w-0 flex-1">
@@ -1110,14 +1352,13 @@ export function TrackingTreeView({
                                   {tr.isAttached ? "Attached" : "Detached"}
                                 </span>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           );
         })}
@@ -1126,11 +1367,11 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Beacon Tab Tree View (Using Real beaconData)
+  // RENDER: Beacon Tab Tree View
   // ==========================================
   if (activeTab === "beacon") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1.5 px-2 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
         {beaconData.map((groupItem) => {
           const gKey = "bcn-group-" + groupItem.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -1158,74 +1399,76 @@ export function TrackingTreeView({
           );
 
           return (
-            <div
-              key={groupItem.group}
-              className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-2xs overflow-hidden mb-2"
-            >
+            <div key={groupItem.group} className="mb-1">
               <div
                 onClick={() => toggleNode(gKey)}
-                className="flex items-center justify-between px-3 py-2 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors border-b border-slate-200/60 dark:border-slate-800/60 cursor-pointer"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <ChevronDown
                     className={cn(
                       "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
                       isGroupCollapsed && "-rotate-90"
                     )}
                   />
-                  <div className="h-6 w-6 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                    {isGroupCollapsed ? (
-                      <Folder className="h-3.5 w-3.5 stroke-[2]" />
-                    ) : (
-                      <FolderOpen className="h-3.5 w-3.5 stroke-[2]" />
-                    )}
-                  </div>
-                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
                     {groupItem.group}
                   </span>
-                  <span className="text-[11px] font-mono font-bold text-slate-500">
-                    [{groupTotalCount}]
-                  </span>
                 </div>
+                <span className="text-[11px] font-mono font-medium text-slate-500">
+                  [{groupTotalCount}]
+                </span>
               </div>
 
-              {!isGroupCollapsed && (
-                <div className="ml-5 pl-2.5 border-l-2 border-slate-200 dark:border-slate-800 my-1">
-                  {filteredSubgroups.map((subGroup: any) => {
-                    const subKey = "bcn-sub-" + groupItem.group + "-" + subGroup.name;
-                    const isSubCollapsed = isCollapsed(subKey);
+              {!isGroupCollapsed &&
+                filteredSubgroups.map((subGroup: any) => {
+                  const subKey = "bcn-sub-" + groupItem.group + "-" + subGroup.name;
+                  const isSubCollapsed = isCollapsed(subKey);
 
-                    return (
-                      <div key={subGroup.name} className="mb-1">
-                        <div
-                          onClick={() => toggleNode(subKey)}
-                          className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 text-slate-400 transition-transform duration-200",
-                                isSubCollapsed && "-rotate-90"
-                              )}
-                            />
-                            <Folder className="h-3 w-3 text-amber-500" />
-                            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
-                              {subGroup.name}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400">
-                              [{subGroup.beacons.length}]
-                            </span>
-                          </div>
+                  return (
+                    <div key={subGroup.name}>
+                      <div
+                        onClick={() => toggleNode(subKey)}
+                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <ChevronDown
+                            className={cn(
+                              "h-3 w-3 text-slate-400 transition-transform duration-200",
+                              isSubCollapsed && "-rotate-90"
+                            )}
+                          />
+                          <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
+                            {subGroup.name}
+                          </span>
                         </div>
+                        <span className="text-[10px] font-mono text-slate-400">
+                          [{subGroup.beacons.length}]
+                        </span>
+                      </div>
 
-                        {!isSubCollapsed && (
-                          <div className="ml-4 pl-2 border-l border-slate-200 dark:border-slate-800 space-y-1 my-1">
-                            {subGroup.beacons.map((bcn: any) => (
+                      {!isSubCollapsed && (
+                        <div className="relative">
+                          <div className="absolute left-[30px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+
+                          {subGroup.beacons.map((bcn: any, idx: number) => {
+                            const isLast = idx === subGroup.beacons.length - 1;
+
+                            return (
                               <div
                                 key={bcn.id}
                                 onClick={() => onSelectBeacon && onSelectBeacon(bcn)}
-                                className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-slate-100 dark:border-slate-800/60 cursor-pointer shadow-2xs"
+                                className="relative flex items-center justify-between pl-[48px] pr-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                               >
+                                <div
+                                  className={cn(
+                                    "absolute left-[30px] top-0 pointer-events-none",
+                                    isLast
+                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
+                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
+                                  )}
+                                />
+
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                   <Radio className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
                                   <div className="min-w-0 flex-1">
@@ -1241,14 +1484,13 @@ export function TrackingTreeView({
                                   {bcn.battery || "95%"}
                                 </span>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           );
         })}
@@ -1257,11 +1499,11 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Video Telematics Tab Tree View (Using Real videoTelematicsData)
+  // RENDER: Video Telematics Tab Tree View
   // ==========================================
   if (activeTab === "video_telematics") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1.5 px-2 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
         {videoTelematicsData.map((groupItem) => {
           const gKey = "vid-group-" + groupItem.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -1288,74 +1530,76 @@ export function TrackingTreeView({
           );
 
           return (
-            <div
-              key={groupItem.group}
-              className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-2xs overflow-hidden mb-2"
-            >
+            <div key={groupItem.group} className="mb-1">
               <div
                 onClick={() => toggleNode(gKey)}
-                className="flex items-center justify-between px-3 py-2 bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors border-b border-slate-200/60 dark:border-slate-800/60 cursor-pointer"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <ChevronDown
                     className={cn(
                       "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
                       isGroupCollapsed && "-rotate-90"
                     )}
                   />
-                  <div className="h-6 w-6 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                    {isGroupCollapsed ? (
-                      <Folder className="h-3.5 w-3.5 stroke-[2]" />
-                    ) : (
-                      <FolderOpen className="h-3.5 w-3.5 stroke-[2]" />
-                    )}
-                  </div>
-                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
                     {groupItem.group}
                   </span>
-                  <span className="text-[11px] font-mono font-bold text-slate-500">
-                    [{groupTotalCount}]
-                  </span>
                 </div>
+                <span className="text-[11px] font-mono font-medium text-slate-500">
+                  [{groupTotalCount}]
+                </span>
               </div>
 
-              {!isGroupCollapsed && (
-                <div className="ml-5 pl-2.5 border-l-2 border-slate-200 dark:border-slate-800 my-1">
-                  {filteredSubgroups.map((subGroup: any) => {
-                    const subKey = "vid-sub-" + groupItem.group + "-" + subGroup.name;
-                    const isSubCollapsed = isCollapsed(subKey);
+              {!isGroupCollapsed &&
+                filteredSubgroups.map((subGroup: any) => {
+                  const subKey = "vid-sub-" + groupItem.group + "-" + subGroup.name;
+                  const isSubCollapsed = isCollapsed(subKey);
 
-                    return (
-                      <div key={subGroup.name} className="mb-1">
-                        <div
-                          onClick={() => toggleNode(subKey)}
-                          className="flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg cursor-pointer"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 text-slate-400 transition-transform duration-200",
-                                isSubCollapsed && "-rotate-90"
-                              )}
-                            />
-                            <Folder className="h-3 w-3 text-amber-500" />
-                            <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
-                              {subGroup.name}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400">
-                              [{subGroup.devices.length}]
-                            </span>
-                          </div>
+                  return (
+                    <div key={subGroup.name}>
+                      <div
+                        onClick={() => toggleNode(subKey)}
+                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <ChevronDown
+                            className={cn(
+                              "h-3 w-3 text-slate-400 transition-transform duration-200",
+                              isSubCollapsed && "-rotate-90"
+                            )}
+                          />
+                          <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
+                            {subGroup.name}
+                          </span>
                         </div>
+                        <span className="text-[10px] font-mono text-slate-400">
+                          [{subGroup.devices.length}]
+                        </span>
+                      </div>
 
-                        {!isSubCollapsed && (
-                          <div className="ml-4 pl-2 border-l border-slate-200 dark:border-slate-800 space-y-1 my-1">
-                            {subGroup.devices.map((dev: any) => (
+                      {!isSubCollapsed && (
+                        <div className="relative">
+                          <div className="absolute left-[30px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+
+                          {subGroup.devices.map((dev: any, idx: number) => {
+                            const isLast = idx === subGroup.devices.length - 1;
+
+                            return (
                               <div
                                 key={dev.id}
                                 onClick={() => onSelectVideoDevice && onSelectVideoDevice(dev)}
-                                className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-slate-100 dark:border-slate-800/60 cursor-pointer shadow-2xs"
+                                className="relative flex items-center justify-between pl-[48px] pr-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                               >
+                                <div
+                                  className={cn(
+                                    "absolute left-[30px] top-0 pointer-events-none",
+                                    isLast
+                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
+                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
+                                  )}
+                                />
+
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                   <Video className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
                                   <div className="min-w-0 flex-1">
@@ -1371,14 +1615,13 @@ export function TrackingTreeView({
                                   ● LIVE
                                 </span>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           );
         })}
