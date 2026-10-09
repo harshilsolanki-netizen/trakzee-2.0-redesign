@@ -85,6 +85,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTrackingViewMode } from "@/lib/useTrackingViewMode";
+import { TrackingTreeView } from "./TrackingTreeView";
 
 export type TrackingTab =
   | "object"
@@ -189,6 +191,8 @@ export function FleetExplorerPanel({
   >("all");
   const [healthSearch, setHealthSearch] = useState("");
   const [healthSortOrder, setHealthSortOrder] = useState<"asc" | "desc">("desc");
+
+  const { mode: trackingViewMode, isTree: isTrackingViewTree } = useTrackingViewMode();
 
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({
     Company: false,
@@ -3872,7 +3876,7 @@ export function FleetExplorerPanel({
 )}
 
       {/* Structured Table Column Header Bar */}
-      {activeTab === "object" && (
+      {activeTab === "object" && !isTrackingViewTree && (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100/90 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 select-none shrink-0 overflow-x-hidden">
           <div className="w-[210px] shrink-0 truncate flex items-center gap-1 pl-1">
             <button
@@ -3921,10 +3925,29 @@ export function FleetExplorerPanel({
           >
             {/* FRONT FACE: Object Tree List & Pinned Bottom Health Footer Bar */}
             <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden]">
-              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60">
-                <div className="divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40">
-              {branchGroups.map(([branch, branchVehicles]) => {
-                const isGroupCollapsed = collapsedGroups[branch] ?? false;
+              {isTrackingViewTree ? (
+                <TrackingTreeView
+                  activeTab="object"
+                  vehicles={vehicles}
+                  selectedVehicleId={selectedVehicleId}
+                  checkedVehicleIds={checkedVehicleIds}
+                  onSelectVehicle={onSelectVehicle}
+                  onToggleCheckVehicle={onToggleCheckVehicle}
+                  onToggleCheckAll={onToggleCheckAll}
+                  onOpenTelemetry={onOpenTelemetry}
+                  query={query}
+                  activeStatus={activeStatus}
+                  selectedColumns={selectedColumns}
+                  branchGroups={branchGroups}
+                  onToggleCheckGroup={onToggleCheckGroup}
+                  onTraceVehicle={onTraceVehicle}
+                  onOpenDashcam={onOpenDashcam}
+                />
+              ) : (
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60">
+                  <div className="divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40">
+                {branchGroups.map(([branch, branchVehicles]) => {
+                  const isGroupCollapsed = collapsedGroups[branch] ?? false;
                 const groupIds = branchVehicles.map((v) => v.id);
                 const isGroupAllChecked =
                   groupIds.length > 0 &&
@@ -4174,8 +4197,9 @@ export function FleetExplorerPanel({
                   </div>
                 );
               })}
-            </div>
-          </div>
+                </div>
+              </div>
+            )}
 
           {/* Pinned Bottom Vehicle Health Scores Footer Bar (Always Visible) with Slide-Up Save CTA when All Selected */}
           <div className="relative shrink-0 border-t border-[#DFE3EB] dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-2 overflow-hidden select-none rounded-b-2xl">
@@ -4541,9 +4565,26 @@ export function FleetExplorerPanel({
             >
               {/* FRONT FACE: Default Jobs List View */}
               <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden]">
-                {/* Jobs Tree List */}
-                <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-200/60 dark:divide-slate-800/60 select-none">
-                  {jobData.map((group) => {
+                {isTrackingViewTree ? (
+                  <TrackingTreeView
+                    activeTab="jobs"
+                    vehicles={vehicles}
+                    selectedVehicleId={selectedVehicleId}
+                    checkedVehicleIds={checkedVehicleIds}
+                    onSelectVehicle={onSelectVehicle}
+                    onToggleCheckVehicle={onToggleCheckVehicle}
+                    onToggleCheckAll={onToggleCheckAll}
+                    onOpenTelemetry={onOpenTelemetry}
+                    query={query}
+                    onSelectJob={(job) => {
+                      setSelectedJobDetail(job);
+                      if (onOpenTelemetry) onOpenTelemetry(vehicles[0] || {} as any, false, job);
+                    }}
+                    jobData={jobData}
+                  />
+                ) : (
+                  <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-200/60 dark:divide-slate-800/60 select-none">
+                    {jobData.map((group) => {
                     const isBranchCollapsed = collapsedJobBranches[group.branch];
 
                     const filteredSubgroups = group.subgroups
@@ -4894,6 +4935,7 @@ export function FleetExplorerPanel({
                     );
                   })}
                 </div>
+                )}
               </div>
 
               {/* BACK FACE: Flipped Object Checkpoint Details View (1:1 with media_1791279242339.png) */}
@@ -5114,9 +5156,31 @@ export function FleetExplorerPanel({
                 {/* Reference-Matched Driver Tab View (1:1 with media_1790833871737.png & media_1790835635015.png) */}
         {activeTab === "driver" && (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-            {/* Drivers Tree List */}
-            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none">
-              {driverData.map((group) => {
+            {isTrackingViewTree ? (
+              <TrackingTreeView
+                activeTab="driver"
+                vehicles={vehicles}
+                selectedVehicleId={selectedVehicleId}
+                checkedVehicleIds={checkedVehicleIds}
+                onSelectVehicle={onSelectVehicle}
+                onToggleCheckVehicle={onToggleCheckVehicle}
+                onToggleCheckAll={onToggleCheckAll}
+                onOpenTelemetry={onOpenTelemetry}
+                query={query}
+                onSelectDriver={(drv) => {
+                  toast.info(`Selected Driver: ${drv.name} (${drv.phone})`);
+                }}
+                onOpenIntercom={(drv) => {
+                  if (onOpenIntercom) onOpenIntercom(drv);
+                  else toast.success(`Calling ${drv.name}...`);
+                }}
+                driverData={driverData}
+              />
+            ) : (
+              <>
+                {/* Drivers Tree List */}
+                <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none">
+                  {driverData.map((group) => {
                 const isBranchCollapsed = collapsedDriverBranches[group.branch];
 
                 // Filter subgroups and drivers based on active status & query search
@@ -5461,15 +5525,35 @@ export function FleetExplorerPanel({
                 </button>
               </div>
             </div>
-          </div>
+          </>
         )}
+      </div>
+    )}
 
         {/* Reference-Matched Address Tab View (1:1 with media_1791281186715.png) */}
         {activeTab === "address" && (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-slate-900">
-            {/* Address Tree List */}
-            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none custom-scrollbar">
-              {addressData.map((group) => {
+            {isTrackingViewTree ? (
+              <TrackingTreeView
+                activeTab="address"
+                vehicles={vehicles}
+                selectedVehicleId={selectedVehicleId}
+                checkedVehicleIds={checkedVehicleIds}
+                onSelectVehicle={onSelectVehicle}
+                onToggleCheckVehicle={onToggleCheckVehicle}
+                onToggleCheckAll={onToggleCheckAll}
+                onOpenTelemetry={onOpenTelemetry}
+                query={query}
+                onSelectAddress={(addr) => {
+                  toast.info(`Selected Address: ${addr.name}`);
+                }}
+                addressData={addressData}
+              />
+            ) : (
+              <>
+                {/* Address Tree List */}
+                <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none custom-scrollbar">
+                  {addressData.map((group) => {
                 const isGroupCollapsed = collapsedAddressGroups[group.group];
 
                 const filteredSubgroups = group.subgroups
@@ -5732,15 +5816,35 @@ export function FleetExplorerPanel({
                 </button>
               </div>
             </div>
-          </div>
+          </>
         )}
+      </div>
+    )}
 
         {/* Geofences Tab View (1:1 with reference screenshot media_1791282117663.png) */}
         {activeTab === "geofence" && (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-slate-900">
-            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar py-1">
-              <div className="divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 select-none">
-                {geofenceData.map((groupData) => {
+            {isTrackingViewTree ? (
+              <TrackingTreeView
+                activeTab="geofence"
+                vehicles={vehicles}
+                selectedVehicleId={selectedVehicleId}
+                checkedVehicleIds={checkedVehicleIds}
+                onSelectVehicle={onSelectVehicle}
+                onToggleCheckVehicle={onToggleCheckVehicle}
+                onToggleCheckAll={onToggleCheckAll}
+                onOpenTelemetry={onOpenTelemetry}
+                query={query}
+                onSelectGeofence={(gf) => {
+                  toast.info(`Selected Geofence: ${gf.name}`);
+                }}
+                geofenceData={geofenceData}
+              />
+            ) : (
+              <>
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar py-1">
+                  <div className="divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 select-none">
+                    {geofenceData.map((groupData) => {
                   const isGroupCollapsed = collapsedGeofenceGroups[groupData.group] ?? false;
                   const filteredSubgroups = groupData.subgroups
                     .map((sub) => ({
@@ -6047,21 +6151,41 @@ export function FleetExplorerPanel({
                 </button>
               </div>
             </div>
-          </div>
+          </>
         )}
+      </div>
+    )}
 
         {/* Trailer Tab View (Standard Trakzee 2.0 Format) */}
         {activeTab === "trailer" && (
           <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900">
-            {/* 1. Column Table Header Bar */}
-            <div className="px-3 py-2 bg-slate-100/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center shrink-0">
-              <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                <span>Trailer</span>
-              </div>
-              <div className="w-32 text-left">Vehicle</div>
-              <div className="w-24 text-left">Code</div>
-              <div className="w-16 text-right pr-1">Actions</div>
-            </div>
+            {isTrackingViewTree ? (
+              <TrackingTreeView
+                activeTab="trailer"
+                vehicles={vehicles}
+                selectedVehicleId={selectedVehicleId}
+                checkedVehicleIds={checkedVehicleIds}
+                onSelectVehicle={onSelectVehicle}
+                onToggleCheckVehicle={onToggleCheckVehicle}
+                onToggleCheckAll={onToggleCheckAll}
+                onOpenTelemetry={onOpenTelemetry}
+                query={query}
+                onSelectTrailer={(tr) => {
+                  toast.info(`Selected Trailer: ${tr.name} (${tr.code})`);
+                }}
+                trailerData={trailerData}
+              />
+            ) : (
+              <>
+                {/* 1. Column Table Header Bar */}
+                <div className="px-3 py-2 bg-slate-100/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center shrink-0">
+                  <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                    <span>Trailer</span>
+                  </div>
+                  <div className="w-32 text-left">Vehicle</div>
+                  <div className="w-24 text-left">Code</div>
+                  <div className="w-16 text-right pr-1">Actions</div>
+                </div>
 
             {/* 2. Grouped Accordion List */}
             <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -6259,20 +6383,40 @@ export function FleetExplorerPanel({
                 </button>
               </div>
             </div>
-          </div>
+          </>
         )}
+      </div>
+    )}
 
         {/* Beacon Tab View (1:1 with reference screenshot media_1791362670674.png) */}
         {activeTab === "beacon" && (
           <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900">
-            {/* 1. Five Column Headers with Text Names: 1. Beacon Name, 2. Object, 3. Location, 4. RSSI, 5. Distance */}
-            <div className="flex items-center px-3 py-2 bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 select-none">
-              <div className="w-10 shrink-0" />
-              
-              {/* 1. Beacon Name */}
-              <div className="flex-1 min-w-0 font-extrabold text-slate-700 dark:text-slate-200 truncate">
-                Beacon Name
-              </div>
+            {isTrackingViewTree ? (
+              <TrackingTreeView
+                activeTab="beacon"
+                vehicles={vehicles}
+                selectedVehicleId={selectedVehicleId}
+                checkedVehicleIds={checkedVehicleIds}
+                onSelectVehicle={onSelectVehicle}
+                onToggleCheckVehicle={onToggleCheckVehicle}
+                onToggleCheckAll={onToggleCheckAll}
+                onOpenTelemetry={onOpenTelemetry}
+                query={query}
+                onSelectBeacon={(bcn) => {
+                  toast.info(`Selected Beacon: ${bcn.name}`);
+                }}
+                beaconData={beaconData}
+              />
+            ) : (
+              <>
+                {/* 1. Five Column Headers with Text Names: 1. Beacon Name, 2. Object, 3. Location, 4. RSSI, 5. Distance */}
+                <div className="flex items-center px-3 py-2 bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 select-none">
+                  <div className="w-10 shrink-0" />
+                  
+                  {/* 1. Beacon Name */}
+                  <div className="flex-1 min-w-0 font-extrabold text-slate-700 dark:text-slate-200 truncate">
+                    Beacon Name
+                  </div>
 
               {/* 2. Object */}
               <div className="w-24 text-left font-extrabold text-slate-700 dark:text-slate-200 truncate">
@@ -6480,14 +6624,33 @@ export function FleetExplorerPanel({
                 );
               })}
             </div>
-          </div>
+          </>
         )}
+      </div>
+    )}
 
         {/* Video Telematics Tab View (1:1 with reference screenshot media_1791365930946.png) */}
         {activeTab === "video_telematics" && (
           <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900 select-none">
-            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60">
-              {videoTelematicsData.map((groupItem) => {
+            {isTrackingViewTree ? (
+              <TrackingTreeView
+                activeTab="video_telematics"
+                vehicles={vehicles}
+                selectedVehicleId={selectedVehicleId}
+                checkedVehicleIds={checkedVehicleIds}
+                onSelectVehicle={onSelectVehicle}
+                onToggleCheckVehicle={onToggleCheckVehicle}
+                onToggleCheckAll={onToggleCheckAll}
+                onOpenTelemetry={onOpenTelemetry}
+                query={query}
+                onSelectVideoDevice={(dev) => {
+                  toast.info(`Selected Device: ${dev.name}`);
+                }}
+                videoTelematicsData={videoTelematicsData}
+              />
+            ) : (
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60">
+                {videoTelematicsData.map((groupItem) => {
                 const isGroupCollapsed = collapsedVideoGroups[groupItem.group] ?? false;
 
                 const filteredSubgroups = groupItem.subgroups
@@ -6812,8 +6975,9 @@ export function FleetExplorerPanel({
                 );
               })}
             </div>
-          </div>
-        )}
+          )}
+        </div>
+      )}
 
         {/* Routes Tab View View */}
         {activeTab === "route" && (

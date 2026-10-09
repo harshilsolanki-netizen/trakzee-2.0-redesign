@@ -35,6 +35,7 @@ import {
 import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 import { getStoredLayoutMode, setStoredLayoutMode, type ScreenLayoutMode } from "@/lib/useLayoutMode";
+import { getStoredTrackingViewMode, setStoredTrackingViewMode, type TrackingViewMode } from "@/lib/useTrackingViewMode";
 
 type UserModalKind =
   | "password"
@@ -332,9 +333,11 @@ export function UserProfileMenu() {
     }
   });
 
-  const [customisationTab, setCustomisationTab] = useState<"color" | "ui" | "layout">("color");
+  const [customisationTab, setCustomisationTab] = useState<"color" | "layout" | "ui" | "trackingView">("color");
   const [activeLayoutMode, setActiveLayoutMode] = useState<ScreenLayoutMode>(() => getStoredLayoutMode());
   const [draftLayoutMode, setDraftLayoutMode] = useState<ScreenLayoutMode>(activeLayoutMode);
+  const [activeTrackingViewMode, setActiveTrackingViewMode] = useState<TrackingViewMode>(() => getStoredTrackingViewMode());
+  const [draftTrackingViewMode, setDraftTrackingViewMode] = useState<TrackingViewMode>(activeTrackingViewMode);
   const [draftThemeId, setDraftThemeId] = useState<string>(activeThemeId);
   const [draftUiStyle, setDraftUiStyle] = useState<UiElementStyle>(activeUiStyle);
 
@@ -364,9 +367,10 @@ export function UserProfileMenu() {
       setDraftThemeId(activeThemeId);
       setDraftUiStyle(activeUiStyle);
       setDraftLayoutMode(activeLayoutMode);
+      setDraftTrackingViewMode(activeTrackingViewMode);
       setCustomisationTab("color");
     }
-  }, [activeModal, activeThemeId, activeUiStyle]);
+  }, [activeModal, activeThemeId, activeUiStyle, activeTrackingViewMode]);
   // Password Form State
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -974,6 +978,20 @@ export function UserProfileMenu() {
               >
                 UI Elements
               </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={customisationTab === "trackingView"}
+                onClick={() => setCustomisationTab("trackingView")}
+                className={cn(
+                  "pb-2.5 text-xs font-semibold cursor-pointer transition-all border-b-2 -mb-px !rounded-none line-tab focus:outline-none",
+                  customisationTab === "trackingView"
+                    ? "border-[#0089FF] text-[#0089FF]"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Live Tracking View
+              </button>
             </div>
 
             {/* TAB 1: COLOR THEME */}
@@ -1377,6 +1395,168 @@ export function UserProfileMenu() {
               </div>
             )}
 
+            {/* TAB 4: LIVE TRACKING VIEW */}
+            {customisationTab === "trackingView" && (
+              <div className="space-y-3.5 animate-in fade-in-50 duration-150">
+                <div>
+                  <h3 className="font-bold text-xs text-foreground">
+                    Live Tracking Explorer View
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Choose your preferred display layout for the left explorer panel across all live tracking tabs (Object, Job, Driver, Trailer, Address, Geofence, Beacon, Video).
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                  {/* 1. Standard View Card */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setDraftTrackingViewMode("standard")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setDraftTrackingViewMode("standard");
+                      }
+                    }}
+                    className={cn(
+                      "relative rounded-xl border p-3.5 text-left cursor-pointer transition-all duration-150 bg-card hover:shadow-md select-none flex flex-col justify-between group",
+                      draftTrackingViewMode === "standard"
+                        ? "border-[#0089FF] ring-2 ring-[#0089FF]/30 shadow-sm"
+                        : "border-border/80 hover:border-border",
+                    )}
+                  >
+                    {draftTrackingViewMode === "standard" && (
+                      <div className="absolute top-3 right-3 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-[#0089FF] text-white shadow-xs z-10">
+                        <Check className="h-3 w-3 stroke-[3]" />
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs font-bold text-foreground">Standard View</h4>
+                        <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+                          Table & Cards
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                        Rich multi-column tabular rows with speed, driver info, addresses, and quick actions.
+                      </p>
+
+                      {/* Visual UI Mockup */}
+                      <div className="mt-3 rounded-lg border border-border/70 bg-muted/20 p-2 overflow-hidden">
+                        {/* Table Header mockup */}
+                        <div className="flex items-center justify-between text-[8px] font-bold text-muted-foreground border-b border-border/60 pb-1 px-1 uppercase tracking-wider">
+                          <span>Object / Name</span>
+                          <span>Speed</span>
+                          <span>Status</span>
+                        </div>
+                        {/* Table Rows mockup */}
+                        <div className="space-y-1.5 pt-1.5">
+                          <div className="flex items-center justify-between p-1 bg-background rounded border border-border/40 text-[9px]">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#008446]" />
+                              <span className="font-semibold text-foreground truncate">Fuel - 1001</span>
+                            </div>
+                            <span className="font-bold text-[#008446]">107 km/h</span>
+                          </div>
+                          <div className="flex items-center justify-between p-1 bg-background rounded border border-border/40 text-[9px]">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#C70036]" />
+                              <span className="font-semibold text-foreground truncate">BUS - 130003</span>
+                            </div>
+                            <span className="font-bold text-[#C70036]">0 km/h</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-border/50 text-[10.5px] text-muted-foreground flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#0089FF]" />
+                      <span>Best for full telemetry details & direct multi-column sorting</span>
+                    </div>
+                  </div>
+
+                  {/* 2. Tree List / Hierarchical View Card */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setDraftTrackingViewMode("tree")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setDraftTrackingViewMode("tree");
+                      }
+                    }}
+                    className={cn(
+                      "relative rounded-xl border p-3.5 text-left cursor-pointer transition-all duration-150 bg-card hover:shadow-md select-none flex flex-col justify-between group",
+                      draftTrackingViewMode === "tree"
+                        ? "border-[#0089FF] ring-2 ring-[#0089FF]/30 shadow-sm"
+                        : "border-border/80 hover:border-border",
+                    )}
+                  >
+                    {draftTrackingViewMode === "tree" && (
+                      <div className="absolute top-3 right-3 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-[#0089FF] text-white shadow-xs z-10">
+                        <Check className="h-3 w-3 stroke-[3]" />
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs font-bold text-foreground">Tree List / Hierarchical</h4>
+                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                          Tree View
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                        Company & branch directory with tree hierarchy guide lines and hardware telemetry indicators.
+                      </p>
+
+                      {/* Visual UI Mockup Matching Reference Image media_1791543949532.png */}
+                      <div className="mt-3 rounded-lg border border-border/70 bg-muted/20 p-2 overflow-hidden">
+                        {/* Company Node */}
+                        <div className="flex items-center gap-1.5 text-[9px] font-bold text-foreground">
+                          <span className="text-[8px] text-muted-foreground">▼</span>
+                          <span className="h-3.5 w-3.5 rounded bg-sky-100 text-[#0089FF] flex items-center justify-center text-[8px]">🏢</span>
+                          <span>HP Company</span>
+                        </div>
+                        {/* Branch Node with indent */}
+                        <div className="ml-3 pl-2 border-l border-slate-300 dark:border-slate-700 mt-1">
+                          <div className="flex items-center gap-1 text-[8.5px] font-semibold text-foreground">
+                            <span className="text-[8px] text-muted-foreground">▼</span>
+                            <span>📁</span>
+                            <span>HP Branch 1</span>
+                          </div>
+                          {/* Leaf Vehicle with icons */}
+                          <div className="ml-3 pl-2 border-l border-slate-300 dark:border-slate-700 mt-1 space-y-1">
+                            <div className="flex items-center justify-between p-0.5 bg-background rounded text-[8px]">
+                              <div className="flex items-center gap-1 min-w-0">
+                                <span className="h-1.5 w-1.5 rounded-full bg-[#008446]" />
+                                <span className="font-bold text-foreground truncate">E-Lock Pro</span>
+                              </div>
+                              <span className="font-bold text-[#008446]">80</span>
+                            </div>
+                            <div className="flex items-center justify-between p-0.5 bg-background rounded text-[8px]">
+                              <div className="flex items-center gap-1 min-w-0">
+                                <span className="h-1.5 w-1.5 rounded-full bg-[#C70036]" />
+                                <span className="font-bold text-foreground truncate">HP Bongo</span>
+                              </div>
+                              <span className="font-bold text-[#C70036]">0</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-border/50 text-[10.5px] text-muted-foreground flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <span>Best for enterprise multi-branch fleet directory navigation</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Footer */}
             <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border/70 mt-3">
               <button
@@ -1385,6 +1565,7 @@ export function UserProfileMenu() {
                   applyTheme(activeThemeId);
                   applyUiStyle(activeUiStyle);
                   setStoredLayoutMode(activeLayoutMode);
+                  setStoredTrackingViewMode(activeTrackingViewMode);
                   setActiveModal(null);
                 }}
                 className="px-4 py-2 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
@@ -1397,11 +1578,13 @@ export function UserProfileMenu() {
                   setActiveThemeId(draftThemeId);
                   setActiveUiStyle(draftUiStyle);
                   setActiveLayoutMode(draftLayoutMode);
+                  setActiveTrackingViewMode(draftTrackingViewMode);
                   applyTheme(draftThemeId);
                   applyUiStyle(draftUiStyle);
                   setStoredLayoutMode(draftLayoutMode);
+                  setStoredTrackingViewMode(draftTrackingViewMode);
                   toast.success(
-                    `Saved customisation: ${draftLayoutMode === "tabs" ? "Tabbed View" : "Single Screen View"}`,
+                    `Saved customisation: ${draftTrackingViewMode === "tree" ? "Tree List View" : "Standard View"} enabled`,
                   );
                   setActiveModal(null);
                 }}
