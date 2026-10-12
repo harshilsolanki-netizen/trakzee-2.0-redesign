@@ -443,7 +443,7 @@ export function TabStrip() {
       </div>
 
       {/* 2. Right Toolbar: Matching Report Section CTA Design System & Grid Alignment */}
-      <div className="relative z-10 flex items-center gap-2 shrink-0 pb-1.5">
+      <div className="relative z-10 flex items-center gap-2 shrink-0 pb-1.5 pr-3">
         {/* Filter Button */}
         <button
           type="button"

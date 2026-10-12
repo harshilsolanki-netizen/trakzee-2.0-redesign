@@ -33,11 +33,13 @@ function DashboardPage() {
     visibleTabs.length > 0 && activeTab?.id === visibleTabs[0]?.id;
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-[#F1F5F9] dark:bg-slate-950">
-      <TabStrip />
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto bg-white dark:bg-slate-900">
-        <div className="flex-1 min-h-0 p-4">
-          <DashboardGrid />
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-[#F0F0F0] dark:bg-slate-950 p-[10px]">
+      <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB]/80 dark:border-slate-800 shadow-2xs">
+        <TabStrip />
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto bg-white dark:bg-slate-900">
+          <div className="flex-1 min-h-0 p-4">
+            <DashboardGrid />
+          </div>
         </div>
       </div>
     </div>
