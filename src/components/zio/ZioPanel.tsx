@@ -573,40 +573,38 @@ export function ZioPanel({
               </div>
 
               {/* Central Input Box with Tabs */}
-              <div className="w-full max-w-2xl flex flex-col">
+              <div className="w-full max-w-[620px] flex flex-col">
                 {/* Tabs Switcher: Ask Zio / Artifacts */}
-                <div className="flex items-center gap-1 pl-4 mb-0">
-                  <div className="inline-flex rounded-t-xl bg-[#E2F1FF]/60 dark:bg-slate-800/60 p-1 border-t border-x border-[#0089FF]/20 shadow-xs">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("ask")}
-                      className={cn(
-                        "rounded-lg px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
-                        activeTab === "ask"
-                          ? "bg-white text-slate-800 shadow-sm"
-                          : "text-slate-500 hover:text-slate-800"
-                      )}
-                    >
-                      Ask Zio
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("artifacts")}
-                      className={cn(
-                        "rounded-lg px-4 py-1.5 text-xs font-medium transition-all cursor-pointer",
-                        activeTab === "artifacts"
-                          ? "bg-white text-slate-800 shadow-sm font-semibold"
-                          : "text-slate-500 hover:text-slate-800"
-                      )}
-                    >
-                      Artifacts
-                    </button>
-                  </div>
+                <div className="flex items-end pl-5 mb-0 z-10 -space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("ask")}
+                    className={cn(
+                      "px-5 py-2 text-xs rounded-t-xl transition-all cursor-pointer font-medium select-none",
+                      activeTab === "ask"
+                        ? "bg-[#E6F3FF] text-[#0066cc] font-semibold border-t-2 border-x-2 border-[#b8ddff] -mb-[2px] pb-2.5 shadow-none"
+                        : "bg-[#F3F4F6] text-slate-500 hover:text-slate-700 hover:bg-slate-200/70 border-t border-x border-transparent pb-2"
+                    )}
+                  >
+                    Ask Zio
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("artifacts")}
+                    className={cn(
+                      "px-5 py-2 text-xs rounded-t-xl transition-all cursor-pointer font-medium select-none",
+                      activeTab === "artifacts"
+                        ? "bg-[#E6F3FF] text-[#0066cc] font-semibold border-t-2 border-x-2 border-[#b8ddff] -mb-[2px] pb-2.5 shadow-none"
+                        : "bg-[#F3F4F6] text-slate-500 hover:text-slate-700 hover:bg-slate-200/70 border-t border-x border-transparent pb-2"
+                    )}
+                  >
+                    Artifacts
+                  </button>
                 </div>
 
-                {/* Main Prompt Container with soft border gradient */}
-                <div className="relative rounded-2xl p-[2px] bg-gradient-to-r from-[#0089FF]/35 via-[#0089FF]/20 to-[#f97316]/25 shadow-lg shadow-black/5">
-                  <div className="rounded-[14px] bg-white dark:bg-slate-900 min-h-[140px] p-4 flex flex-col justify-between">
+                {/* Main Prompt Container with soft continuous gradient pill border */}
+                <div className="relative rounded-[22px] p-[2.5px] bg-gradient-to-r from-[#90C8FF] via-[#BAE6FD] via-[#FFD8CA] to-[#FFD1BA] shadow-[0_4px_20px_-4px_rgba(0,137,255,0.08)]">
+                  <div className="rounded-[19.5px] bg-white dark:bg-slate-900 min-h-[155px] p-5 flex flex-col justify-between">
                     <textarea
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -618,7 +616,7 @@ export function ZioPanel({
                       }}
                       placeholder="Turn ideas into action. Create tasks, documents, or anything else with a prompt."
                       rows={4}
-                      className="w-full resize-none bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none leading-relaxed"
+                      className="w-full resize-none bg-transparent text-xs sm:text-[13px] text-slate-700 dark:text-slate-200 placeholder:text-slate-400/90 focus:outline-none leading-relaxed"
                     />
 
                     <div className="flex items-center justify-end pt-2">
@@ -627,14 +625,14 @@ export function ZioPanel({
                         onClick={handleSend}
                         disabled={!input.trim() || isStreaming}
                         className={cn(
-                          "inline-flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200 cursor-pointer shadow-xs",
+                          "inline-flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-200 cursor-pointer",
                           input.trim()
-                            ? "bg-[#0089FF] text-white hover:bg-[#007ae6]"
-                            : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                            ? "bg-[#0089FF] text-white hover:bg-[#007ae6] shadow-sm"
+                            : "bg-[#F1F5F9] text-[#94A3B8] hover:text-[#64748B] hover:bg-[#E2E8F0]"
                         )}
                         aria-label="Send"
                       >
-                        <Send className="h-4 w-4" />
+                        <Send className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
@@ -642,7 +640,7 @@ export function ZioPanel({
               </div>
 
               {/* 4 Action / Suggestion Cards */}
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3.5 w-full max-w-2xl">
+              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3.5 w-full max-w-[620px]">
                 <button
                   type="button"
                   onClick={() => sendMessage("Show me the idle report by driver")}
