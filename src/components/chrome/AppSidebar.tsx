@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   BarChart3,
   ChevronLeft,
@@ -6,6 +6,7 @@ import {
   Cloud,
   FileText,
   Grid2x2,
+  Home,
   LayoutDashboard,
   LifeBuoy,
   MapPin,
@@ -75,12 +76,19 @@ export function AppSidebar() {
     <TooltipProvider delayDuration={150}>
       <aside
         className={cn(
-          "relative flex shrink-0 flex-col items-center bg-[#070D1E] dark:bg-[#070D1E] select-none z-30 transition-all duration-300 ease-in-out border-r border-white/5",
-          isCollapsed ? "w-[60px] px-1.5 pt-2.5 pb-2" : "w-[68px] px-1.5 pt-2.5 pb-2"
+          "relative flex shrink-0 flex-col bg-[#070D1E] dark:bg-[#070D1E] select-none z-30 transition-all duration-300 ease-in-out border-r border-white/5",
+          isCollapsed
+            ? "w-[60px] px-1.5 pt-2.5 pb-2 items-center"
+            : "w-[200px] px-3 pt-2.5 pb-2 items-stretch"
         )}
       >
-        {/* Brand Logo Header: Circular white pill with uffizio script logo matching reference */}
-        <div className="flex items-center justify-center mb-2.5 w-full">
+        {/* Brand Logo Header: Circular white pill with uffizio script logo */}
+        <div
+          className={cn(
+            "flex items-center mb-3 w-full",
+            isCollapsed ? "justify-center" : "gap-3 px-1"
+          )}
+        >
           <Link
             to="/"
             aria-label="Home"
@@ -90,18 +98,23 @@ export function AppSidebar() {
               uffizio
             </span>
           </Link>
+          {!isCollapsed && (
+            <span className="font-bold text-sm tracking-tight text-white font-sans truncate">
+              Trakzee
+            </span>
+          )}
         </div>
 
-        {/* Navigation Items (Stacked Vertical Column) */}
-        <div className="flex-1 w-full flex flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden custom-scrollbar py-0.5">
-          {/* 1. Favourites (Star with golden fill) */}
+        {/* Navigation Items */}
+        <div className="flex-1 w-full flex flex-col gap-1.5 overflow-y-auto overflow-x-hidden custom-scrollbar py-0.5">
+          {/* 1. Favourites */}
           <FavoritesMenu collapsed={isCollapsed} />
 
           {/* 2. Dashboard */}
           <Link
             to="/"
             activeOptions={{ exact: true }}
-            className="w-full flex justify-center"
+            className="w-full flex"
             aria-label="Dashboard"
           >
             {({ isActive }) => (
@@ -109,15 +122,16 @@ export function AppSidebar() {
                 label="Dashboard"
                 icon={LayoutDashboard}
                 active={isActive}
+                collapsed={isCollapsed}
               />
             )}
           </Link>
 
-          {/* 3. Tracking (Active highlighted in reference with vivid electric blue pill) */}
+          {/* 3. Tracking */}
           <Link
             to="/tracking"
             activeOptions={{ exact: false }}
-            className="w-full flex justify-center"
+            className="w-full flex"
             aria-label="Tracking"
           >
             {({ isActive }) => (
@@ -125,6 +139,7 @@ export function AppSidebar() {
                 label="Tracking"
                 icon={MapPin}
                 active={isActive}
+                collapsed={isCollapsed}
               />
             )}
           </Link>
@@ -143,10 +158,11 @@ export function AppSidebar() {
             const item = MORE_ITEMS.find((m) => m.id === id);
             if (!item) return null;
             return (
-              <div key={id} className="w-full flex justify-center">
+              <div key={id} className="w-full flex">
                 <SidebarItem
                   label={item.label}
                   icon={item.icon}
+                  collapsed={isCollapsed}
                   onClick={() => runItem(item)}
                 />
               </div>
@@ -154,14 +170,15 @@ export function AppSidebar() {
           })}
 
           {/* 7. More Actions Popover */}
-          <div className="w-full flex justify-center">
+          <div className="w-full flex">
             <Popover open={moreOpen} onOpenChange={setMoreOpen}>
               <PopoverTrigger asChild>
-                <div className="w-full flex justify-center">
+                <div className="w-full">
                   <SidebarItem
                     label="More"
                     icon={Grid2x2}
                     active={moreOpen}
+                    collapsed={isCollapsed}
                     onClick={() => setMoreOpen(!moreOpen)}
                   />
                 </div>
@@ -169,7 +186,7 @@ export function AppSidebar() {
               <PopoverContent
                 side="right"
                 align="end"
-                sideOffset={14}
+                sideOffset={isCollapsed ? 14 : 10}
                 className="w-64 p-3 bg-popover/98 backdrop-blur-xl border border-border shadow-2xl rounded-xl z-50 text-foreground"
               >
                 <div className="grid grid-cols-3 gap-2">
@@ -239,14 +256,22 @@ export function AppSidebar() {
         </div>
 
         {/* Bottom Section: Collapse Navigation Button [<] */}
-        <div className="pt-2 mt-auto border-t border-white/5 flex items-center justify-center w-full">
+        <div
+          className={cn(
+            "pt-2 mt-auto border-t border-white/5 flex items-center w-full",
+            isCollapsed ? "justify-center" : "justify-end pr-1"
+          )}
+        >
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
                 onClick={toggleSidebar}
                 aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
-                className="flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer h-7 w-full py-1"
+                className={cn(
+                  "flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer h-7 py-1",
+                  isCollapsed ? "w-full" : "px-2 gap-1.5"
+                )}
               >
                 <div className="flex items-center text-[11px] font-mono font-bold leading-none select-none tracking-tighter">
                   {isCollapsed ? (
@@ -276,21 +301,22 @@ export function AppSidebar() {
 }
 
 /**
- * Reusable Sidebar Item strictly matching reference images (media_1791780432803.png & media_1791780446490.png):
- * - Rounded pill container
- * - Icon on top, Label text below
- * - Active state: Vibrant electric blue (#0089FF) pill background with glow shadow, pure white icon and bold text
- * - Inactive state: Subtle slate icon and text, hover state with soft translucent white background
+ * Reusable Sidebar Item:
+ * - Collapsed: Centered vertical layout (icon on top, label below) matching media_1791780432803.png
+ * - Expanded (200px): Clean horizontal row layout (icon on left, label on right) matching HubSpot expanded view
+ * - Active: Vibrant electric blue (#0089FF) pill background
  */
 export function SidebarItem({
   label,
   icon: Icon,
   active,
+  collapsed,
   onClick,
 }: {
   label: string;
   icon: ComponentType<{ className?: string }>;
   active?: boolean;
+  collapsed?: boolean;
   onClick?: () => void;
 }) {
   return (
@@ -298,21 +324,28 @@ export function SidebarItem({
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex w-full flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all duration-200 cursor-pointer select-none",
+        "group flex w-full transition-all duration-200 cursor-pointer select-none rounded-xl",
+        collapsed
+          ? "flex-col items-center justify-center py-1.5 px-1 min-h-[46px]"
+          : "flex-row items-center gap-3 px-3 py-2 text-left min-h-[38px]",
         active
-          ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35"
-          : "text-slate-400 hover:bg-white/10 hover:text-white"
+          ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
+          : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
       )}
     >
       <Icon
         className={cn(
-          "h-5 w-5 transition-transform duration-200 shrink-0",
+          "shrink-0 transition-transform duration-200",
+          collapsed ? "h-5 w-5" : "h-4.5 w-4.5",
           active ? "text-white scale-105" : "text-slate-400 group-hover:text-white group-hover:scale-105"
         )}
       />
       <span
         className={cn(
-          "text-[10px] leading-tight tracking-tight mt-1 transition-colors text-center truncate max-w-full px-0.5",
+          "leading-tight tracking-tight transition-colors truncate",
+          collapsed
+            ? "text-[10px] mt-1 text-center max-w-full px-0.5"
+            : "text-xs",
           active ? "font-semibold text-white" : "font-medium text-slate-400 group-hover:text-white"
         )}
       >
