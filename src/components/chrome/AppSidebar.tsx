@@ -1,23 +1,19 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import {
   BarChart3,
-  Bookmark,
   ChevronLeft,
   ChevronRight,
   Cloud,
   FileText,
   Grid2x2,
-  Home,
   LayoutDashboard,
   LifeBuoy,
   MapPin,
-  PanelLeftClose,
-  PanelLeftOpen,
   Pin,
   PinOff,
   Settings,
   ShoppingCart,
-  Sparkles,
+  Star,
 } from "lucide-react";
 import { useState, type ComponentType } from "react";
 import { toast } from "sonner";
@@ -39,11 +35,6 @@ import {
 import { useDashboard } from "@/dashboard/store";
 import { useSidebarState } from "@/lib/useSidebarState";
 import { cn } from "@/lib/utils";
-
-const NAV_PRIMARY = [
-  { to: "/", label: "Home", icon: Home, exact: true },
-  { to: "/tracking", label: "Tracking", icon: MapPin, exact: false },
-] as const;
 
 const MORE_ITEMS: {
   id: string;
@@ -84,72 +75,49 @@ export function AppSidebar() {
     <TooltipProvider delayDuration={150}>
       <aside
         className={cn(
-          "relative flex shrink-0 flex-col bg-[#282a2d] dark:bg-[#1f2124] select-none z-30 transition-all duration-300 ease-in-out border-r border-white/5",
-          isCollapsed ? "w-[60px] px-2 py-3" : "w-[200px] px-3 py-3"
+          "relative flex shrink-0 flex-col items-center bg-[#070D1E] dark:bg-[#070D1E] select-none z-30 transition-all duration-300 ease-in-out border-r border-white/5",
+          isCollapsed ? "w-[60px] px-1.5 pt-2.5 pb-2" : "w-[68px] px-1.5 pt-2.5 pb-2"
         )}
       >
-        {/* Brand Logo Header: Orange circle logo matching reference screenshot */}
-        <div className={cn("flex items-center mb-4", isCollapsed ? "justify-center" : "px-1 gap-2.5")}>
+        {/* Brand Logo Header: Circular white pill with uffizio script logo matching reference */}
+        <div className="flex items-center justify-center mb-2.5 w-full">
           <Link
             to="/"
             aria-label="Home"
-            className="group flex h-8 w-8 items-center justify-center rounded-full bg-[#FF5C35] text-white shadow-sm hover:scale-105 transition-all duration-200 shrink-0"
+            className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white shadow-md shadow-black/25 hover:scale-105 transition-all duration-200 shrink-0"
           >
-            {/* Minimal HubSpot / Trakzee Hub style sprout/circle badge */}
-            <svg
-              className="h-4.5 w-4.5 text-white"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="3" fill="currentColor" />
-              <path d="M12 3v6" />
-              <path d="M12 15v6" />
-              <path d="M4.93 4.93l4.24 4.24" />
-              <path d="M14.83 14.83l4.24 4.24" />
-            </svg>
-          </Link>
-
-          {!isCollapsed && (
-            <span className="font-bold text-sm tracking-tight text-white font-sans truncate">
-              Trakzee
+            <span className="text-[11px] font-black italic tracking-tighter text-slate-900 lowercase font-serif select-none">
+              uffizio
             </span>
-          )}
+          </Link>
         </div>
 
-        {/* Scrollable Navigation Items */}
-        <div className="flex-1 flex flex-col gap-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-          {/* 1. Home / Dashboard */}
+        {/* Navigation Items (Stacked Vertical Column) */}
+        <div className="flex-1 w-full flex flex-col items-center gap-1.5 overflow-y-auto overflow-x-hidden custom-scrollbar py-0.5">
+          {/* 1. Favourites (Star with golden fill) */}
+          <FavoritesMenu collapsed={isCollapsed} />
+
+          {/* 2. Dashboard */}
           <Link
             to="/"
             activeOptions={{ exact: true }}
-            className="w-full"
-            aria-label="Home"
+            className="w-full flex justify-center"
+            aria-label="Dashboard"
           >
             {({ isActive }) => (
               <SidebarItem
-                label="Home"
-                icon={Home}
+                label="Dashboard"
+                icon={LayoutDashboard}
                 active={isActive}
-                collapsed={isCollapsed}
               />
             )}
           </Link>
 
-          {/* 2. Bookmarks / Favorites */}
-          <FavoritesMenu collapsed={isCollapsed} />
-
-          {/* Subtle Horizontal Divider Line */}
-          <div className="my-2 h-px bg-white/10 w-full shrink-0" />
-
-          {/* 3. Tracking */}
+          {/* 3. Tracking (Active highlighted in reference with vivid electric blue pill) */}
           <Link
             to="/tracking"
             activeOptions={{ exact: false }}
-            className="w-full"
+            className="w-full flex justify-center"
             aria-label="Tracking"
           >
             {({ isActive }) => (
@@ -157,18 +125,17 @@ export function AppSidebar() {
                 label="Tracking"
                 icon={MapPin}
                 active={isActive}
-                collapsed={isCollapsed}
               />
             )}
           </Link>
 
-          {/* 4. Reports Cascading Menu */}
+          {/* 4. Report */}
           <ReportsMenu collapsed={isCollapsed} />
 
-          {/* 5. Charts Cascading Menu */}
+          {/* 5. Charts */}
           <ChartsMenu collapsed={isCollapsed} />
 
-          {/* 6. Settings Cascading Menu */}
+          {/* 6. Setting */}
           <SettingsMenu collapsed={isCollapsed} />
 
           {/* Pinned Extra Items */}
@@ -176,34 +143,33 @@ export function AppSidebar() {
             const item = MORE_ITEMS.find((m) => m.id === id);
             if (!item) return null;
             return (
-              <SidebarItem
-                key={id}
-                label={item.label}
-                icon={item.icon}
-                collapsed={isCollapsed}
-                onClick={() => runItem(item)}
-              />
+              <div key={id} className="w-full flex justify-center">
+                <SidebarItem
+                  label={item.label}
+                  icon={item.icon}
+                  onClick={() => runItem(item)}
+                />
+              </div>
             );
           })}
 
-          {/* More Actions Popover */}
-          <div className="w-full">
+          {/* 7. More Actions Popover */}
+          <div className="w-full flex justify-center">
             <Popover open={moreOpen} onOpenChange={setMoreOpen}>
               <PopoverTrigger asChild>
-                <div>
+                <div className="w-full flex justify-center">
                   <SidebarItem
                     label="More"
                     icon={Grid2x2}
                     active={moreOpen}
-                    collapsed={isCollapsed}
                     onClick={() => setMoreOpen(!moreOpen)}
                   />
                 </div>
               </PopoverTrigger>
               <PopoverContent
-                side={isCollapsed ? "right" : "right"}
+                side="right"
                 align="end"
-                sideOffset={isCollapsed ? 12 : 8}
+                sideOffset={14}
                 className="w-64 p-3 bg-popover/98 backdrop-blur-xl border border-border shadow-2xl rounded-xl z-50 text-foreground"
               >
                 <div className="grid grid-cols-3 gap-2">
@@ -273,27 +239,23 @@ export function AppSidebar() {
         </div>
 
         {/* Bottom Section: Collapse Navigation Button [<] */}
-        <div className="pt-2 mt-auto border-t border-white/5 flex items-center justify-end">
+        <div className="pt-2 mt-auto border-t border-white/5 flex items-center justify-center w-full">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
                 onClick={toggleSidebar}
                 aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
-                className={cn(
-                  "flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer p-1.5",
-                  isCollapsed ? "w-full h-8" : "h-7 px-2 gap-1.5"
-                )}
+                className="flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer h-7 w-full py-1"
               >
-                {/* Square bracket icon [<] matching reference screenshot */}
-                <div className="flex items-center text-xs font-mono font-bold leading-none select-none tracking-tighter">
+                <div className="flex items-center text-[11px] font-mono font-bold leading-none select-none tracking-tighter">
                   {isCollapsed ? (
                     <span className="flex items-center font-semibold text-slate-300">
-                      [<ChevronRight className="h-3.5 w-3.5 -mx-0.5 inline" />]
+                      [<ChevronRight className="h-3 w-3 -mx-0.5 inline" />]
                     </span>
                   ) : (
                     <span className="flex items-center font-semibold text-slate-300">
-                      [<ChevronLeft className="h-3.5 w-3.5 -mx-0.5 inline" />]
+                      [<ChevronLeft className="h-3 w-3 -mx-0.5 inline" />]
                     </span>
                   )}
                 </div>
@@ -301,7 +263,7 @@ export function AppSidebar() {
             </TooltipTrigger>
             <TooltipContent
               side="right"
-              sideOffset={12}
+              sideOffset={14}
               className="bg-[#18191b] text-white text-xs px-2.5 py-1 rounded shadow-xl border border-white/10 font-medium"
             >
               {isCollapsed ? "Expand navigation" : "Collapse navigation"}
@@ -314,65 +276,48 @@ export function AppSidebar() {
 }
 
 /**
- * Reusable Sidebar Item supporting both Expanded (horizontal row)
- * and Collapsed (centered icon) states.
+ * Reusable Sidebar Item strictly matching reference images (media_1791780432803.png & media_1791780446490.png):
+ * - Rounded pill container
+ * - Icon on top, Label text below
+ * - Active state: Vibrant electric blue (#0089FF) pill background with glow shadow, pure white icon and bold text
+ * - Inactive state: Subtle slate icon and text, hover state with soft translucent white background
  */
 export function SidebarItem({
   label,
   icon: Icon,
   active,
-  collapsed,
   onClick,
 }: {
   label: string;
   icon: ComponentType<{ className?: string }>;
   active?: boolean;
-  collapsed?: boolean;
   onClick?: () => void;
 }) {
-  const content = (
+  return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex w-full items-center transition-all duration-150 cursor-pointer select-none rounded-lg",
-        collapsed
-          ? "justify-center h-10 py-1"
-          : "gap-3 px-3 py-2 text-left h-9",
+        "group flex w-full flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all duration-200 cursor-pointer select-none",
         active
-          ? "bg-white/15 text-white font-semibold shadow-xs"
-          : "text-slate-300 hover:bg-white/10 hover:text-white font-medium"
+          ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35"
+          : "text-slate-400 hover:bg-white/10 hover:text-white"
       )}
     >
       <Icon
         className={cn(
-          "shrink-0 transition-colors",
-          collapsed ? "h-5 w-5" : "h-4.5 w-4.5",
-          active ? "text-white" : "text-slate-300 group-hover:text-white"
+          "h-5 w-5 transition-transform duration-200 shrink-0",
+          active ? "text-white scale-105" : "text-slate-400 group-hover:text-white group-hover:scale-105"
         )}
       />
-      {!collapsed && (
-        <span className="text-xs truncate tracking-tight leading-none">
-          {label}
-        </span>
-      )}
+      <span
+        className={cn(
+          "text-[10px] leading-tight tracking-tight mt-1 transition-colors text-center truncate max-w-full px-0.5",
+          active ? "font-semibold text-white" : "font-medium text-slate-400 group-hover:text-white"
+        )}
+      >
+        {label}
+      </span>
     </button>
   );
-
-  if (collapsed) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>{content}</TooltipTrigger>
-        <TooltipContent
-          side="right"
-          sideOffset={12}
-          className="bg-[#18191b] text-white text-xs px-2.5 py-1 rounded shadow-xl border border-white/10 font-medium"
-        >
-          {label}
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return content;
 }
