@@ -175,24 +175,30 @@ export function ChartsMenu({ collapsed }: { collapsed?: boolean }) {
         type="button"
         aria-label="Charts"
         onClick={() => setOpen((prev) => !prev)}
-        className="group flex w-full flex-col items-center gap-1 py-1 cursor-pointer select-none"
+        className={cn(
+          "group flex w-full transition-all duration-200 cursor-pointer select-none rounded-xl",
+          collapsed
+            ? "flex-col items-center justify-center py-1.5 px-1 min-h-[46px]"
+            : "flex-row items-center gap-3 px-3 py-2 text-left min-h-[38px]",
+          open || isChartsRoute
+            ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
+            : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
+        )}
       >
-        <div
+        <BarChart3
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200",
-            open || isChartsRoute
-              ? "bg-[#0089FF] text-white shadow-md shadow-blue-500/25"
-              : "text-slate-400 group-hover:bg-white/10 group-hover:text-white",
+            "shrink-0 transition-transform duration-200",
+            collapsed ? "h-5 w-5" : "h-4.5 w-4.5",
+            open || isChartsRoute ? "text-white scale-105" : "text-slate-400 group-hover:text-white group-hover:scale-105"
           )}
-        >
-          <BarChart3 className="h-5 w-5" />
-        </div>
+        />
         <span
           className={cn(
-            "text-[10px] leading-tight tracking-tight transition-colors",
-            open || isChartsRoute
-              ? "font-semibold text-white"
-              : "font-medium text-slate-400 group-hover:text-white",
+            "leading-tight tracking-tight transition-colors truncate",
+            collapsed
+              ? "text-[10px] mt-1 text-center max-w-full px-0.5"
+              : "text-xs",
+            open || isChartsRoute ? "font-semibold text-white" : "font-medium text-slate-400 group-hover:text-white"
           )}
         >
           Charts
