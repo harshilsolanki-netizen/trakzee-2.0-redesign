@@ -404,21 +404,30 @@ export function ZioPanel({
   return (
     <div
       className={cn(
-        "relative rounded-xl p-[1.5px] bg-gradient-to-b from-[#7c3aed] via-[#a855f7] via-[#ec4899] to-[#f43f5e] shadow-[0_16px_50px_-10px_rgba(139,92,246,0.18)] transition-all duration-300 ease-out flex flex-col",
-        isFullscreen && "w-full h-full flex-1",
+        "relative transition-all duration-300 ease-out flex flex-col",
+        isFullscreen
+          ? "w-full h-full flex-1 bg-white dark:bg-slate-950 p-0 border-0 rounded-none shadow-none"
+          : "rounded-xl p-[1.5px] bg-gradient-to-b from-[#7c3aed] via-[#a855f7] via-[#ec4899] to-[#f43f5e] shadow-[0_16px_50px_-10px_rgba(139,92,246,0.18)]",
         mode === "floating" && "w-[380px] sm:w-[410px] h-[580px] max-h-[85vh]",
         mode === "sidebar" && "w-full h-full flex-1",
         className,
       )}
     >
-      <div className="flex flex-col w-full h-full text-foreground bg-gradient-to-b from-white via-[#faf7ff] to-[#f4ebff] rounded-[10.5px] overflow-hidden relative">
-        {/* Ambient gradient glow in Fullscreen mode */}
+      <div
+        className={cn(
+          "flex flex-col w-full h-full text-foreground overflow-hidden relative",
+          isFullscreen
+            ? "bg-white dark:bg-slate-950 rounded-none"
+            : "bg-gradient-to-b from-white via-[#faf7ff] to-[#f4ebff] rounded-[10.5px]"
+        )}
+      >
+        {/* Subtle ambient gradient glow in Fullscreen mode matching reference screenshot */}
         {isFullscreen && (
           <div
-            className="pointer-events-none absolute inset-0 z-0 opacity-60 transition-opacity duration-500"
+            className="pointer-events-none absolute inset-0 z-0 opacity-40 transition-opacity duration-500"
             style={{
               background:
-                "radial-gradient(circle at 12% 75%, rgba(254, 205, 211, 0.45) 0%, transparent 45%), radial-gradient(circle at 88% 75%, rgba(219, 234, 254, 0.55) 0%, transparent 45%), radial-gradient(circle at 50% 90%, rgba(237, 233, 254, 0.45) 0%, transparent 50%)",
+                "radial-gradient(circle at 8% 85%, rgba(219, 234, 254, 0.5) 0%, transparent 40%), radial-gradient(circle at 92% 85%, rgba(254, 237, 232, 0.6) 0%, transparent 45%)",
             }}
           />
         )}
@@ -426,8 +435,8 @@ export function ZioPanel({
         {/* Header */}
         <header
           className={cn(
-            "flex items-center justify-between border-b border-violet-100/70 bg-white/90 px-4 py-2.5 transition-all duration-300 ease-out shrink-0 select-none z-10",
-            isFullscreen && "px-6 py-3",
+            "flex items-center justify-between border-b border-slate-100 bg-white/90 px-4 py-2.5 transition-all duration-300 ease-out shrink-0 select-none z-10",
+            isFullscreen && "px-6 py-3 border-transparent bg-transparent",
           )}
         >
         {/* Left header area: Show Title when in History view, clean empty space when in Chat view */}
@@ -572,44 +581,37 @@ export function ZioPanel({
                 </h2>
               </div>
 
-              {/* Central Input Box with Connected Chrome-Style Tabs */}
+              {/* Central Input Box with Connected Chrome-Style Folder Tabs */}
               <div className="w-full max-w-[620px] flex flex-col">
-                {/* Tabs Switcher: Chrome/folder shaped tabs */}
-                <div className="flex items-end pl-5 -mb-[1px] z-10 select-none">
+                {/* Tabs Switcher: Exactly as reference screenshot */}
+                <div className="flex items-end pl-6 -mb-[1px] z-10 select-none">
                   {/* Ask Zio Tab */}
                   <button
                     type="button"
                     onClick={() => setActiveTab("ask")}
                     className={cn(
-                      "relative h-[34px] px-6 text-xs transition-all cursor-pointer font-medium flex items-center justify-center",
+                      "relative h-[36px] px-6 text-[13px] transition-all cursor-pointer flex items-center justify-center font-medium",
                       activeTab === "ask"
-                        ? "text-slate-800 font-bold z-20"
-                        : "text-slate-400 hover:text-slate-600 font-normal z-10"
+                        ? "text-slate-800 font-semibold z-20"
+                        : "text-slate-400 hover:text-slate-600 z-10"
                     )}
                   >
-                    {/* Active tab Chrome folder background shape with side curves */}
                     {activeTab === "ask" ? (
                       <div className="absolute inset-0 pointer-events-none">
-                        {/* Tab body */}
-                        <div className="w-full h-full bg-[#E5F3FF] rounded-t-[14px]" />
-                        {/* Left inverse curved corner blending to border */}
-                        <div
-                          className="absolute -left-[10px] bottom-0 w-[10px] h-[10px] pointer-events-none"
-                          style={{
-                            background: "radial-gradient(circle at 0 0, transparent 10px, #E5F3FF 10.5px)",
-                          }}
-                        />
-                        {/* Right inverse curved corner blending to adjacent tab */}
-                        <div
-                          className="absolute -right-[10px] bottom-0 w-[10px] h-[10px] pointer-events-none"
-                          style={{
-                            background: "radial-gradient(circle at 100% 0, transparent 10px, #E5F3FF 10.5px)",
-                          }}
-                        />
+                        {/* Tab Background with exact curved ears connecting to container border */}
+                        <svg
+                          className="w-full h-full overflow-visible"
+                          viewBox="0 0 100 36"
+                          preserveAspectRatio="none"
+                        >
+                          <path
+                            d="M -12 36 C -4 36 -2 30 0 24 C 3 14 6 0 18 0 L 82 0 C 94 0 97 14 100 24 C 102 30 104 36 112 36 Z"
+                            fill="#E6F2FD"
+                          />
+                        </svg>
                       </div>
                     ) : (
-                      /* Inactive tab soft rounded pill shape */
-                      <div className="absolute inset-0 bg-[#F5F6F8] rounded-t-[14px] pointer-events-none" />
+                      <div className="absolute inset-0 bg-[#F4F5F7] rounded-t-xl pointer-events-none" />
                     )}
                     <span className="relative z-10 whitespace-nowrap">Ask Zio</span>
                   </button>
@@ -619,39 +621,33 @@ export function ZioPanel({
                     type="button"
                     onClick={() => setActiveTab("artifacts")}
                     className={cn(
-                      "relative h-[34px] px-6 text-xs transition-all cursor-pointer font-medium flex items-center justify-center",
+                      "relative h-[36px] px-6 text-[13px] transition-all cursor-pointer flex items-center justify-center font-medium",
                       activeTab === "artifacts"
-                        ? "text-slate-800 font-bold z-20"
-                        : "text-[#8E95A5] hover:text-slate-700 font-normal z-10"
+                        ? "text-slate-800 font-semibold z-20"
+                        : "text-[#8E95A5] hover:text-slate-700 z-10"
                     )}
                   >
                     {activeTab === "artifacts" ? (
                       <div className="absolute inset-0 pointer-events-none">
-                        {/* Tab body */}
-                        <div className="w-full h-full bg-[#E5F3FF] rounded-t-[14px]" />
-                        {/* Left inverse curved corner */}
-                        <div
-                          className="absolute -left-[10px] bottom-0 w-[10px] h-[10px] pointer-events-none"
-                          style={{
-                            background: "radial-gradient(circle at 0 0, transparent 10px, #E5F3FF 10.5px)",
-                          }}
-                        />
-                        {/* Right inverse curved corner */}
-                        <div
-                          className="absolute -right-[10px] bottom-0 w-[10px] h-[10px] pointer-events-none"
-                          style={{
-                            background: "radial-gradient(circle at 100% 0, transparent 10px, #E5F3FF 10.5px)",
-                          }}
-                        />
+                        <svg
+                          className="w-full h-full overflow-visible"
+                          viewBox="0 0 100 36"
+                          preserveAspectRatio="none"
+                        >
+                          <path
+                            d="M -12 36 C -4 36 -2 30 0 24 C 3 14 6 0 18 0 L 82 0 C 94 0 97 14 100 24 C 102 30 104 36 112 36 Z"
+                            fill="#E6F2FD"
+                          />
+                        </svg>
                       </div>
                     ) : (
-                      /* Inactive tab soft rounded pill shape with soft curve */
-                      <div className="absolute inset-0 bg-[#F5F6F8] rounded-t-[14px] pointer-events-none">
-                        {/* Right outer curve taper */}
+                      <div className="absolute inset-0 bg-[#F4F5F7] rounded-t-xl pointer-events-none">
+                        {/* Right soft swoop taper */}
                         <div
-                          className="absolute -right-[8px] bottom-0 w-[8px] h-[8px] pointer-events-none"
+                          className="absolute -right-3 bottom-0 w-3 h-3 pointer-events-none"
                           style={{
-                            background: "radial-gradient(circle at 100% 0, transparent 8px, #F5F6F8 8.5px)",
+                            background:
+                              "radial-gradient(circle at 100% 0, transparent 11px, #F4F5F7 12px)",
                           }}
                         />
                       </div>
@@ -660,15 +656,15 @@ export function ZioPanel({
                   </button>
                 </div>
 
-                {/* Main Prompt Container with matching continuous #BFE3FF to warm-peach stroke */}
+                {/* Main Prompt Container with pastel blue-to-peach gradient stroke */}
                 <div
-                  className="relative rounded-[24px] p-[2.5px] shadow-[0_6px_24px_-4px_rgba(0,137,255,0.06)]"
+                  className="relative rounded-[24px] p-[2px] shadow-[0_4px_20px_-2px_rgba(0,137,255,0.06)]"
                   style={{
                     background:
-                      "linear-gradient(135deg, #BFE3FF 0%, #BFE3FF 50%, #FFD6CB 85%, #FFD1C5 100%)",
+                      "linear-gradient(135deg, #A8D7FF 0%, #C8E6FF 35%, #FDE4D8 75%, #FCD5C5 100%)",
                   }}
                 >
-                  <div className="rounded-[21.5px] bg-white dark:bg-slate-900 min-h-[160px] p-5 flex flex-col justify-between">
+                  <div className="rounded-[22px] bg-white dark:bg-slate-900 min-h-[160px] p-5 flex flex-col justify-between">
                     <textarea
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -680,25 +676,13 @@ export function ZioPanel({
                       }}
                       placeholder="Turn ideas into action. Create tasks, documents, or anything else with a prompt."
                       rows={4}
-                      className="w-full resize-none bg-transparent text-xs sm:text-[13px] text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none leading-relaxed tracking-normal"
+                      className="w-full resize-none bg-transparent text-xs sm:text-[13px] text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none leading-relaxed"
                     />
 
+                    {/* Bottom controls: two subtle circles as shown in reference */}
                     <div className="flex items-center justify-between pt-2">
-                      <div className="h-6 w-6 rounded-full bg-slate-200/60 dark:bg-slate-800" />
-                      <button
-                        type="button"
-                        onClick={handleSend}
-                        disabled={!input.trim() || isStreaming}
-                        className={cn(
-                          "inline-flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200 cursor-pointer",
-                          input.trim()
-                            ? "bg-[#0089FF] text-white hover:bg-[#007ae6] shadow-sm"
-                            : "bg-[#F3F4F6] text-[#A0AEC0] hover:text-[#718096] hover:bg-slate-200/70"
-                        )}
-                        aria-label="Send"
-                      >
-                        <Send className="h-4 w-4" />
-                      </button>
+                      <div className="h-4 w-4 rounded-full bg-[#D1D5DB]" />
+                      <div className="h-4 w-4 rounded-full bg-[#D1D5DB]" />
                     </div>
                   </div>
                 </div>

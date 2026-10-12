@@ -176,7 +176,14 @@ function AppLayout() {
       <AppSidebar />
       <div className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-nav">
         <TopBar />
-        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden relative bg-[#F1F5F9] dark:bg-slate-950 rounded-tl-2xl">
+        <div
+          className={cn(
+            "flex min-h-0 min-w-0 flex-1 overflow-hidden relative rounded-tl-2xl",
+            isZioStandaloneRoute
+              ? "bg-white dark:bg-slate-950"
+              : "bg-[#F1F5F9] dark:bg-slate-950"
+          )}
+        >
           {/* Main Workspace Screen: smoothly resizes when Sidebar mode is open */}
           <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-tl-2xl">
             <Outlet />
