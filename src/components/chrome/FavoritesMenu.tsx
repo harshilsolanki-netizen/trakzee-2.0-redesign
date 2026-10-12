@@ -1,3 +1,8 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import {
   Bookmark,
