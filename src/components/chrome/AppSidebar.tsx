@@ -76,33 +76,33 @@ export function AppSidebar() {
     <TooltipProvider delayDuration={150}>
       <aside
         className={cn(
-          "relative flex shrink-0 flex-col bg-[#070D1E] dark:bg-[#070D1E] select-none z-30 transition-all duration-300 ease-in-out border-r border-white/5",
-          isCollapsed
-            ? "w-[60px] px-1.5 pt-2.5 pb-2 items-center"
-            : "w-[200px] px-3 pt-2.5 pb-2 items-stretch"
+          "relative flex shrink-0 flex-col bg-[#070D1E] dark:bg-[#070D1E] select-none z-30 border-r border-white/5 overflow-x-hidden pt-2.5 pb-2 px-2.5 items-stretch transition-[width] duration-300 ease-in-out will-change-[width]",
+          isCollapsed ? "w-[60px]" : "w-[200px]"
         )}
       >
         {/* Brand Logo Header: Circular white pill with uffizio script logo */}
-        <div
-          className={cn(
-            "flex items-center mb-3 w-full",
-            isCollapsed ? "justify-center" : "gap-3 px-1"
-          )}
-        >
+        <div className="flex items-center mb-3 w-full min-h-[34px] px-0.5 overflow-hidden">
           <Link
             to="/"
             aria-label="Home"
-            className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white shadow-md shadow-black/25 hover:scale-105 transition-all duration-200 shrink-0"
+            className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white shadow-md shadow-black/25 hover:scale-105 transition-all duration-200 shrink-0 mx-auto"
           >
             <span className="text-[11px] font-black italic tracking-tighter text-slate-900 lowercase font-serif select-none">
               uffizio
             </span>
           </Link>
-          {!isCollapsed && (
-            <span className="font-bold text-sm tracking-tight text-white font-sans truncate">
+          <div
+            className={cn(
+              "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
+              isCollapsed
+                ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none"
+                : "max-w-[130px] opacity-100 translate-x-0 ml-3"
+            )}
+          >
+            <span className="font-bold text-sm tracking-tight text-white font-sans truncate block">
               Trakzee
             </span>
-          )}
+          </div>
         </div>
 
         {/* Navigation Items */}
@@ -256,22 +256,14 @@ export function AppSidebar() {
         </div>
 
         {/* Bottom Section: Collapse Navigation Button [<] */}
-        <div
-          className={cn(
-            "pt-2 mt-auto border-t border-white/5 flex items-center w-full",
-            isCollapsed ? "justify-center" : "justify-end pr-1"
-          )}
-        >
+        <div className="pt-2 mt-auto border-t border-white/5 flex items-center justify-center w-full">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
                 onClick={toggleSidebar}
                 aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
-                className={cn(
-                  "flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer h-7 py-1",
-                  isCollapsed ? "w-full" : "px-2 gap-1.5"
-                )}
+                className="flex items-center justify-center w-full rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer h-7 py-1"
               >
                 <div className="flex items-center text-[11px] font-mono font-bold leading-none select-none tracking-tighter">
                   {isCollapsed ? (
@@ -302,8 +294,9 @@ export function AppSidebar() {
 
 /**
  * Reusable Sidebar Item:
- * - Collapsed: Centered vertical layout (icon on top, label below) matching media_1791780432803.png
- * - Expanded (200px): Clean horizontal row layout (icon on left, label on right) matching HubSpot expanded view
+ * - Fluid width and layout transition (no jumps between collapsed and expanded)
+ * - Collapsed: 60px rail with tooltip
+ * - Expanded: 200px width with smoothly faded label
  * - Active: Vibrant electric blue (#0089FF) pill background
  */
 export function SidebarItem({
@@ -324,32 +317,37 @@ export function SidebarItem({
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex w-full transition-all duration-200 cursor-pointer select-none rounded-xl h-10",
-        collapsed
-          ? "items-center justify-center px-0 w-10 mx-auto"
-          : "items-center gap-3 px-3 text-left",
+        "group flex w-full h-10 items-center rounded-xl px-2.5 transition-colors duration-200 cursor-pointer select-none overflow-hidden",
         active
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
       )}
     >
-      <Icon
+      <div className="flex h-5 w-5 shrink-0 items-center justify-center">
+        <Icon
+          className={cn(
+            "h-5 w-5 shrink-0 transition-transform duration-200",
+            active ? "text-white scale-105" : "text-slate-400 group-hover:text-white group-hover:scale-105"
+          )}
+        />
+      </div>
+      <div
         className={cn(
-          "shrink-0 transition-transform duration-200",
-          collapsed ? "h-5 w-5" : "h-5 w-5",
-          active ? "text-white scale-105" : "text-slate-400 group-hover:text-white group-hover:scale-105"
+          "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
+          collapsed
+            ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none"
+            : "max-w-[130px] opacity-100 translate-x-0 ml-3"
         )}
-      />
-      {!collapsed && (
+      >
         <span
           className={cn(
-            "leading-tight tracking-tight transition-colors truncate text-xs",
+            "leading-tight tracking-tight block truncate text-xs",
             active ? "font-semibold text-white" : "font-medium text-slate-300 group-hover:text-white"
           )}
         >
           {label}
         </span>
-      )}
+      </div>
     </button>
   );
 
