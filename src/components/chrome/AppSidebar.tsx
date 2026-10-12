@@ -106,7 +106,7 @@ export function AppSidebar() {
         </div>
 
         {/* Navigation Items */}
-        <div className="flex-1 w-full flex flex-col gap-1.5 overflow-y-auto overflow-x-hidden custom-scrollbar py-0.5">
+        <div className="flex-1 w-full flex flex-col gap-2.5 overflow-y-auto overflow-x-hidden custom-scrollbar py-1">
           {/* 1. Favourites */}
           <FavoritesMenu collapsed={isCollapsed} />
 
@@ -319,15 +319,15 @@ export function SidebarItem({
   collapsed?: boolean;
   onClick?: () => void;
 }) {
-  return (
+  const buttonEl = (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex w-full transition-all duration-200 cursor-pointer select-none rounded-xl",
+        "group flex w-full transition-all duration-200 cursor-pointer select-none rounded-xl h-10",
         collapsed
-          ? "flex-col items-center justify-center py-1.5 px-1 min-h-[46px]"
-          : "flex-row items-center gap-3 px-3 py-2 text-left min-h-[38px]",
+          ? "items-center justify-center px-0 w-10 mx-auto"
+          : "items-center gap-3 px-3 text-left",
         active
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
@@ -336,21 +336,37 @@ export function SidebarItem({
       <Icon
         className={cn(
           "shrink-0 transition-transform duration-200",
-          collapsed ? "h-5 w-5" : "h-4.5 w-4.5",
+          collapsed ? "h-5 w-5" : "h-5 w-5",
           active ? "text-white scale-105" : "text-slate-400 group-hover:text-white group-hover:scale-105"
         )}
       />
-      <span
-        className={cn(
-          "leading-tight tracking-tight transition-colors truncate",
-          collapsed
-            ? "text-[10px] mt-1 text-center max-w-full px-0.5"
-            : "text-xs",
-          active ? "font-semibold text-white" : "font-medium text-slate-400 group-hover:text-white"
-        )}
-      >
-        {label}
-      </span>
+      {!collapsed && (
+        <span
+          className={cn(
+            "leading-tight tracking-tight transition-colors truncate text-xs",
+            active ? "font-semibold text-white" : "font-medium text-slate-300 group-hover:text-white"
+          )}
+        >
+          {label}
+        </span>
+      )}
     </button>
   );
+
+  if (collapsed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{buttonEl}</TooltipTrigger>
+        <TooltipContent
+          side="right"
+          sideOffset={12}
+          className="bg-[#18191b] text-white text-xs px-2.5 py-1 rounded shadow-xl border border-white/10 font-medium"
+        >
+          {label}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return buttonEl;
 }

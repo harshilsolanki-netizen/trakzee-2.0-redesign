@@ -95,44 +95,74 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
 
   return (
     <div className="w-full relative">
-      <button
-        ref={triggerRef}
-        type="button"
-        aria-label="Favourites"
-        onClick={() => setOpen((prev) => !prev)}
-        className={cn(
-          "group flex w-full transition-all duration-200 cursor-pointer select-none rounded-xl",
-          collapsed
-            ? "flex-col items-center justify-center py-1.5 px-1 min-h-[46px]"
-            : "flex-row items-center gap-3 px-3 py-2 text-left min-h-[38px]",
-          open
-            ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
-            : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
-        )}
-      >
-        <Star
+      {collapsed ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              ref={triggerRef}
+              type="button"
+              aria-label="Favourites"
+              onClick={() => setOpen((prev) => !prev)}
+              className={cn(
+                "group flex transition-all duration-200 cursor-pointer select-none rounded-xl h-10 w-10 mx-auto items-center justify-center",
+                open
+                  ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
+                  : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
+              )}
+            >
+              <Star
+                className={cn(
+                  "h-5 w-5 shrink-0 transition-transform duration-200",
+                  open
+                    ? "fill-white text-white scale-105"
+                    : hasFavorites
+                    ? "fill-amber-400 text-amber-400 group-hover:scale-105"
+                    : "text-slate-400 group-hover:text-white group-hover:scale-105"
+                )}
+              />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="right"
+            sideOffset={12}
+            className="bg-[#18191b] text-white text-xs px-2.5 py-1 rounded shadow-xl border border-white/10 font-medium"
+          >
+            Favourites
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <button
+          ref={triggerRef}
+          type="button"
+          aria-label="Favourites"
+          onClick={() => setOpen((prev) => !prev)}
           className={cn(
-            "shrink-0 transition-transform duration-200",
-            collapsed ? "h-5 w-5" : "h-4.5 w-4.5",
+            "group flex w-full transition-all duration-200 cursor-pointer select-none rounded-xl h-10 items-center gap-3 px-3 text-left",
             open
-              ? "fill-white text-white scale-105"
-              : hasFavorites
-              ? "fill-amber-400 text-amber-400 group-hover:scale-105"
-              : "text-slate-400 group-hover:text-white group-hover:scale-105"
-          )}
-        />
-        <span
-          className={cn(
-            "leading-tight tracking-tight transition-colors truncate",
-            collapsed
-              ? "text-[10px] mt-1 text-center max-w-full px-0.5"
-              : "text-xs",
-            open ? "font-semibold text-white" : "font-medium text-slate-400 group-hover:text-white"
+              ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
+              : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
           )}
         >
-          Favourites
-        </span>
-      </button>
+          <Star
+            className={cn(
+              "h-5 w-5 shrink-0 transition-transform duration-200",
+              open
+                ? "fill-white text-white scale-105"
+                : hasFavorites
+                ? "fill-amber-400 text-amber-400 group-hover:scale-105"
+                : "text-slate-400 group-hover:text-white group-hover:scale-105"
+            )}
+          />
+          <span
+            className={cn(
+              "leading-tight tracking-tight transition-colors truncate text-xs",
+              open ? "font-semibold text-white" : "font-medium text-slate-300 group-hover:text-white"
+            )}
+          >
+            Favourites
+          </span>
+        </button>
+      )}
 
       {open && (
         <>
