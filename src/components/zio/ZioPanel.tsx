@@ -1,7 +1,11 @@
 import {
+  AlertTriangle,
+  AlignLeft,
   ArrowLeft,
+  BarChart3,
   Clock,
   Copy,
+  FileText,
   History,
   Maximize2,
   MessageSquare,
@@ -9,6 +13,7 @@ import {
   Plus,
   Search,
   Send,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -358,6 +363,7 @@ export function ZioPanel({
   const mode = forcedMode || contextMode;
   const isFullscreen = mode === "fullscreen";
   const [input, setInput] = useState("");
+  const [activeTab, setActiveTab] = useState<"ask" | "artifacts">("ask");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -557,89 +563,149 @@ export function ZioPanel({
           <ZioHistoryView isFullscreen={isFullscreen} />
         ) : messages.length === 0 ? (
           isFullscreen ? (
-            /* Fullscreen Initial View matching original UI */
-            <div className="flex flex-col items-center justify-end h-full py-6 w-full max-w-4xl mx-auto mt-auto animate-in fade-in duration-200">
-              <div className="mb-6 text-center space-y-1">
-                <h3 className="text-2xl font-bold text-foreground tracking-tight">
-                  Hi, I’m Zio. How can I help?
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  How can I help you analyze your fleet today?
-                </p>
+            /* Fullscreen Initial View matching reference screenshot */
+            <div className="flex flex-col items-center justify-center h-full min-h-[500px] py-10 w-full max-w-4xl mx-auto my-auto animate-in fade-in duration-300">
+              {/* Title Greeting */}
+              <div className="mb-8 text-center space-y-1">
+                <h2 className="text-3xl sm:text-4xl font-semibold text-slate-800 tracking-tight">
+                  Hi, Good Morning. How can I help?
+                </h2>
               </div>
 
-              {/* Suggestion Chips + Bottom Input */}
-              <div className="w-full flex flex-col items-center gap-4">
-                <div className="flex flex-wrap items-center justify-center gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => sendMessage("Show me the fleet dashboard")}
-                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
-                  >
-                    Show me the fleet dashboard
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      sendMessage("Where are my vehicles right now?")
-                    }
-                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
-                  >
-                    Where are my vehicles right now?
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      sendMessage("Show me the trip summary with dashboard")
-                    }
-                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
-                  >
-                    Show me the trip summary with dashboard
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => sendMessage("Why is the Safety low?")}
-                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
-                  >
-                    Why is the Safety low?
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => sendMessage("How to improve vehicle score?")}
-                    className="rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer"
-                  >
-                    How to improve vehicle score?
-                  </button>
-                </div>
-
-                <div className="w-full max-w-3xl">
-                  <div className="flex items-center gap-2 rounded-md border border-violet-100/80 bg-white/80 backdrop-blur-xs p-1.5 shadow-2xs focus-within:border-primary focus-within:bg-white focus-within:ring-1.5 focus-within:ring-primary/40">
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      disabled={isStreaming}
-                      placeholder="Ask me ..."
-                      className="flex-1 bg-transparent px-2.5 py-1 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                    />
+              {/* Central Input Box with Tabs */}
+              <div className="w-full max-w-2xl flex flex-col">
+                {/* Tabs Switcher: Ask Zio / Artifacts */}
+                <div className="flex items-center gap-1 pl-4 mb-0">
+                  <div className="inline-flex rounded-t-xl bg-[#E2F1FF]/60 dark:bg-slate-800/60 p-1 border-t border-x border-[#0089FF]/20 shadow-xs">
                     <button
                       type="button"
-                      onClick={handleSend}
-                      disabled={!input.trim() || isStreaming}
-                      aria-label="Send message"
+                      onClick={() => setActiveTab("ask")}
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-md transition-colors cursor-pointer shadow-2xs shrink-0",
-                        input.trim()
-                          ? "bg-[#111c38] text-white hover:bg-[#0c1429]"
-                          : "bg-[#111c38] text-white opacity-80 cursor-not-allowed",
+                        "rounded-lg px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                        activeTab === "ask"
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : "text-slate-500 hover:text-slate-800"
                       )}
                     >
-                      <Send className="h-4 w-4 fill-white text-white" />
+                      Ask Zio
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("artifacts")}
+                      className={cn(
+                        "rounded-lg px-4 py-1.5 text-xs font-medium transition-all cursor-pointer",
+                        activeTab === "artifacts"
+                          ? "bg-white text-slate-800 shadow-sm font-semibold"
+                          : "text-slate-500 hover:text-slate-800"
+                      )}
+                    >
+                      Artifacts
                     </button>
                   </div>
                 </div>
+
+                {/* Main Prompt Container with soft border gradient */}
+                <div className="relative rounded-2xl p-[2px] bg-gradient-to-r from-[#0089FF]/35 via-[#0089FF]/20 to-[#f97316]/25 shadow-lg shadow-black/5">
+                  <div className="rounded-[14px] bg-white dark:bg-slate-900 min-h-[140px] p-4 flex flex-col justify-between">
+                    <textarea
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSend();
+                        }
+                      }}
+                      placeholder="Turn ideas into action. Create tasks, documents, or anything else with a prompt."
+                      rows={4}
+                      className="w-full resize-none bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none leading-relaxed"
+                    />
+
+                    <div className="flex items-center justify-end pt-2">
+                      <button
+                        type="button"
+                        onClick={handleSend}
+                        disabled={!input.trim() || isStreaming}
+                        className={cn(
+                          "inline-flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200 cursor-pointer shadow-xs",
+                          input.trim()
+                            ? "bg-[#0089FF] text-white hover:bg-[#007ae6]"
+                            : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        )}
+                        aria-label="Send"
+                      >
+                        <Send className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4 Action / Suggestion Cards */}
+              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3.5 w-full max-w-2xl">
+                <button
+                  type="button"
+                  onClick={() => sendMessage("Show me the idle report by driver")}
+                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                >
+                  <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
+                    <FileText className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                    Idle Report
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                    Idle time by driver, lost...
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => sendMessage("Show me the weekly fuel dashboard and anomalies")}
+                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                >
+                  <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
+                    <BarChart3 className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                    Fuel Dashboard
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                    Weekly trend and anomal...
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => sendMessage("Alert rule for stopped vehicles after 8pm")}
+                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                >
+                  <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                    Alert Rule
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                    Stopped vehicles after 8...
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => sendMessage("Give me daily briefing on what needs attention today")}
+                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                >
+                  <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
+                    <AlignLeft className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                    Daily Briefing
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                    What needs attention today
+                  </span>
+                </button>
               </div>
             </div>
           ) : (

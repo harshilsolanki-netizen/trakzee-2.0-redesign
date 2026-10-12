@@ -14,6 +14,7 @@ import {
   PinOff,
   Settings,
   ShoppingCart,
+  Sparkles,
   Star,
 } from "lucide-react";
 import { useState, type ComponentType } from "react";
@@ -109,6 +110,66 @@ export function AppSidebar() {
 
         {/* Navigation Items */}
         <div className="flex-1 w-full flex flex-col gap-2.5 overflow-y-auto overflow-x-hidden custom-scrollbar py-1">
+          {/* AI Navigation Tab */}
+          <Link
+            to="/zio"
+            activeOptions={{ exact: false }}
+            className="w-full flex"
+            aria-label="AI"
+          >
+            {({ isActive }) => {
+              if (isCollapsed) {
+                return (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label="AI"
+                        className="group flex flex-col items-center justify-center w-full h-11 rounded-xl bg-[#0089FF] text-white shadow-md shadow-[#0089FF]/30 hover:bg-[#007ae6] transition-all duration-200 cursor-pointer select-none"
+                      >
+                        <Sparkles className="h-5 w-5 shrink-0 text-white fill-white transition-transform duration-200 group-hover:scale-110" />
+                        <span className="text-[10px] font-bold leading-tight tracking-tight mt-0.5 text-white">
+                          AI
+                        </span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="right"
+                      sideOffset={12}
+                      className="bg-[#18191b] text-white text-xs px-2.5 py-1 rounded shadow-xl border border-white/10 font-medium"
+                    >
+                      AI
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              }
+
+              return (
+                <button
+                  type="button"
+                  aria-label="AI"
+                  className={cn(
+                    "group flex w-full h-10 items-center rounded-xl px-2.5 transition-colors duration-200 cursor-pointer select-none overflow-hidden",
+                    isActive
+                      ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
+                      : "bg-[#0089FF] text-white hover:bg-[#007ae6] font-semibold shadow-md shadow-[#0089FF]/20"
+                  )}
+                >
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center">
+                    <Sparkles
+                      className="h-5 w-5 shrink-0 text-white fill-white transition-transform duration-200 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out max-w-[130px] opacity-100 translate-x-0 ml-3">
+                    <span className="leading-tight tracking-tight block truncate text-xs font-bold text-white">
+                      AI
+                    </span>
+                  </div>
+                </button>
+              );
+            }}
+          </Link>
+
           {/* 1. Favourites */}
           <FavoritesMenu collapsed={isCollapsed} />
 
