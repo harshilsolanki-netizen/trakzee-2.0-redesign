@@ -81,16 +81,18 @@ export function AppSidebar() {
         )}
       >
         {/* Brand Logo Header: Circular white pill with uffizio script logo */}
-        <div className="flex items-center mb-3 w-full min-h-[34px] px-0.5 overflow-hidden">
-          <Link
-            to="/"
-            aria-label="Home"
-            className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white shadow-md shadow-black/25 hover:scale-105 transition-all duration-200 shrink-0 mx-auto"
-          >
-            <span className="text-[11px] font-black italic tracking-tighter text-slate-900 lowercase font-serif select-none">
-              uffizio
-            </span>
-          </Link>
+        <div className="flex items-center mb-3 w-full h-10 px-2.5 overflow-hidden">
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center">
+            <Link
+              to="/"
+              aria-label="Home"
+              className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white shadow-md shadow-black/25 hover:scale-105 transition-all duration-200 shrink-0"
+            >
+              <span className="text-[11px] font-black italic tracking-tighter text-slate-900 lowercase font-serif select-none">
+                uffizio
+              </span>
+            </Link>
+          </div>
           <div
             className={cn(
               "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
