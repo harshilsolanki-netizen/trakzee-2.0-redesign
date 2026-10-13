@@ -17,8 +17,8 @@ export const Route = createFileRoute("/zio")({
 
 function ZioFullscreenPage() {
   return (
-    <div className="flex h-full min-h-[calc(100vh-3.5rem)] w-full flex-col bg-white dark:bg-slate-950">
-      <ZioPanel mode="fullscreen" />
+    <div className="flex h-full min-h-[calc(100vh-3.5rem)] w-full flex-col bg-white dark:bg-slate-950 rounded-tl-[24px] overflow-hidden">
+      <ZioPanel mode="fullscreen" className="rounded-tl-[24px]" />
     </div>
   );
 }

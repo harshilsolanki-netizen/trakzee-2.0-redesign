@@ -9,12 +9,14 @@ import {
   History,
   Maximize2,
   MessageSquare,
+  Mic,
   PanelRight,
   Plus,
   Search,
   Send,
   Sparkles,
   Trash2,
+  Truck,
   X,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -406,7 +408,7 @@ export function ZioPanel({
       className={cn(
         "relative transition-all duration-300 ease-out flex flex-col",
         isFullscreen
-          ? "w-full h-full flex-1 bg-white dark:bg-slate-950 p-0 border-0 rounded-none shadow-none"
+          ? "w-full h-full flex-1 bg-white dark:bg-slate-950 p-0 border-0 rounded-tl-[24px] shadow-none overflow-hidden"
           : "rounded-xl p-[1.5px] bg-gradient-to-b from-[#7c3aed] via-[#a855f7] via-[#ec4899] to-[#f43f5e] shadow-[0_16px_50px_-10px_rgba(139,92,246,0.18)]",
         mode === "floating" && "w-[380px] sm:w-[410px] h-[580px] max-h-[85vh]",
         mode === "sidebar" && "w-full h-full flex-1",
@@ -417,17 +419,17 @@ export function ZioPanel({
         className={cn(
           "flex flex-col w-full h-full text-foreground overflow-hidden relative",
           isFullscreen
-            ? "bg-white dark:bg-slate-950 rounded-none"
+            ? "bg-white dark:bg-slate-950 rounded-tl-[24px]"
             : "bg-gradient-to-b from-white via-[#faf7ff] to-[#f4ebff] rounded-[10.5px]"
         )}
       >
-        {/* Subtle ambient gradient glow in Fullscreen mode matching reference screenshot */}
+        {/* Seamless full-screen ambient atmospheric gradient merging seamlessly */}
         {isFullscreen && (
           <div
-            className="pointer-events-none absolute inset-0 z-0 opacity-40 transition-opacity duration-500"
+            className="pointer-events-none absolute inset-0 z-0"
             style={{
               background:
-                "radial-gradient(circle at 8% 85%, rgba(219, 234, 254, 0.5) 0%, transparent 40%), radial-gradient(circle at 92% 85%, rgba(254, 237, 232, 0.6) 0%, transparent 45%)",
+                "radial-gradient(ellipse 110% 70% at 50% 100%, rgba(228, 240, 255, 0.75) 0%, rgba(246, 235, 248, 0.45) 45%, rgba(255, 255, 255, 0) 80%)",
             }}
           />
         )}
@@ -581,39 +583,32 @@ export function ZioPanel({
                 </h2>
               </div>
 
-              {/* Central Input Box with Connected Chrome-Style Folder Tabs */}
-              <div className="w-full max-w-[620px] flex flex-col">
-                {/* Tabs Switcher: Exactly as reference screenshot */}
-                <div className="flex items-end pl-6 -mb-[1px] z-10 select-none">
+              {/* ── Zio prompt component: connected tabs + 9px gradient-framed white box ── */}
+              <div className="w-full max-w-[800px] relative">
+                {/* Tabs row — sits directly on top edge of container with zero gap */}
+                <div className="flex items-end pl-12 -mb-[1px] relative z-20 select-none">
                   {/* Ask Zio Tab */}
                   <button
                     type="button"
                     onClick={() => setActiveTab("ask")}
                     className={cn(
-                      "relative h-[36px] px-6 text-[13px] transition-all cursor-pointer flex items-center justify-center font-medium",
+                      "relative h-[34px] w-[100px] flex items-center justify-center cursor-pointer transition-colors focus:outline-none",
                       activeTab === "ask"
-                        ? "text-slate-800 font-semibold z-20"
-                        : "text-slate-400 hover:text-slate-600 z-10"
+                        ? "z-20 text-slate-800 font-semibold"
+                        : "z-10 text-[#64748B] font-medium hover:text-slate-800"
                     )}
                   >
-                    {activeTab === "ask" ? (
-                      <div className="absolute inset-0 pointer-events-none">
-                        {/* Tab Background with exact curved ears connecting to container border */}
-                        <svg
-                          className="w-full h-full overflow-visible"
-                          viewBox="0 0 100 36"
-                          preserveAspectRatio="none"
-                        >
-                          <path
-                            d="M -12 36 C -4 36 -2 30 0 24 C 3 14 6 0 18 0 L 82 0 C 94 0 97 14 100 24 C 102 30 104 36 112 36 Z"
-                            fill="#E6F2FD"
-                          />
-                        </svg>
-                      </div>
-                    ) : (
-                      <div className="absolute inset-0 bg-[#F4F5F7] rounded-t-xl pointer-events-none" />
-                    )}
-                    <span className="relative z-10 whitespace-nowrap">Ask Zio</span>
+                    <svg
+                      className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
+                      viewBox="0 0 100 34"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M -10 34 C -4.5 34 0 28.5 0 22 L 0 10 C 0 4.5 4.5 0 10 0 L 90 0 C 95.5 0 100 4.5 100 10 L 100 22 C 100 28.5 104.5 34 110 34 Z"
+                        fill={activeTab === "ask" ? "#E6F2FD" : "#F4F5F7"}
+                      />
+                    </svg>
+                    <span className="relative z-10 text-[13px] whitespace-nowrap">Ask Zio</span>
                   </button>
 
                   {/* Artifacts Tab */}
@@ -621,50 +616,37 @@ export function ZioPanel({
                     type="button"
                     onClick={() => setActiveTab("artifacts")}
                     className={cn(
-                      "relative h-[36px] px-6 text-[13px] transition-all cursor-pointer flex items-center justify-center font-medium",
+                      "relative h-[34px] w-[104px] flex items-center justify-center cursor-pointer transition-colors focus:outline-none",
                       activeTab === "artifacts"
-                        ? "text-slate-800 font-semibold z-20"
-                        : "text-[#8E95A5] hover:text-slate-700 z-10"
+                        ? "z-20 text-slate-800 font-semibold"
+                        : "z-10 text-[#64748B] font-medium hover:text-slate-800"
                     )}
                   >
-                    {activeTab === "artifacts" ? (
-                      <div className="absolute inset-0 pointer-events-none">
-                        <svg
-                          className="w-full h-full overflow-visible"
-                          viewBox="0 0 100 36"
-                          preserveAspectRatio="none"
-                        >
-                          <path
-                            d="M -12 36 C -4 36 -2 30 0 24 C 3 14 6 0 18 0 L 82 0 C 94 0 97 14 100 24 C 102 30 104 36 112 36 Z"
-                            fill="#E6F2FD"
-                          />
-                        </svg>
-                      </div>
-                    ) : (
-                      <div className="absolute inset-0 bg-[#F4F5F7] rounded-t-xl pointer-events-none">
-                        {/* Right soft swoop taper */}
-                        <div
-                          className="absolute -right-3 bottom-0 w-3 h-3 pointer-events-none"
-                          style={{
-                            background:
-                              "radial-gradient(circle at 100% 0, transparent 11px, #F4F5F7 12px)",
-                          }}
-                        />
-                      </div>
-                    )}
-                    <span className="relative z-10 whitespace-nowrap">Artifacts</span>
+                    <svg
+                      className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
+                      viewBox="0 0 104 34"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M -10 34 C -4.5 34 0 28.5 0 22 L 0 10 C 0 4.5 4.5 0 10 0 L 94 0 C 99.5 0 104 4.5 104 10 L 104 22 C 104 28.5 108.5 34 114 34 Z"
+                        fill={activeTab === "artifacts" ? "#E6F2FD" : "#F4F5F7"}
+                      />
+                    </svg>
+                    <span className="relative z-10 text-[13px] whitespace-nowrap">Artifacts</span>
                   </button>
                 </div>
 
-                {/* Main Prompt Container with pastel blue-to-peach gradient stroke */}
+                {/* Gradient border frame — exactly 9px padding creates the 9px gap/stroke around the white box */}
                 <div
-                  className="relative rounded-[24px] p-[2px] shadow-[0_4px_20px_-2px_rgba(0,137,255,0.06)]"
+                  className="relative w-full rounded-[28px] shadow-[0_4px_24px_-4px_rgba(0,137,255,0.08)] z-10"
                   style={{
+                    padding: "9px",
                     background:
-                      "linear-gradient(135deg, #A8D7FF 0%, #C8E6FF 35%, #FDE4D8 75%, #FCD5C5 100%)",
+                      "linear-gradient(135deg, #BAE6FD 0%, #C7E8FD 35%, #FED7AA 75%, #FDE4D8 100%)",
                   }}
                 >
-                  <div className="rounded-[22px] bg-white dark:bg-slate-900 min-h-[160px] p-5 flex flex-col justify-between">
+                  {/* White inner container */}
+                  <div className="rounded-[19px] bg-white dark:bg-slate-900 min-h-[185px] h-[185px] p-5 flex flex-col justify-between">
                     <textarea
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -675,21 +657,81 @@ export function ZioPanel({
                         }
                       }}
                       placeholder="Turn ideas into action. Create tasks, documents, or anything else with a prompt."
-                      rows={4}
-                      className="w-full resize-none bg-transparent text-xs sm:text-[13px] text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none leading-relaxed"
+                      className="w-full flex-1 resize-none bg-transparent text-xs sm:text-[13px] text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none leading-relaxed"
                     />
 
-                    {/* Bottom controls: two subtle circles as shown in reference */}
-                    <div className="flex items-center justify-between pt-2">
-                      <div className="h-4 w-4 rounded-full bg-[#D1D5DB]" />
-                      <div className="h-4 w-4 rounded-full bg-[#D1D5DB]" />
+                    {/* Bottom controls: + / Mic idle → Send when typing */}
+                    <div className="flex items-center justify-between">
+                      {input.trim() ? (
+                        <>
+                          <div />
+                          <button
+                            type="button"
+                            onClick={handleSend}
+                            disabled={!input.trim()}
+                            className="flex items-center justify-center h-8 w-8 rounded-full bg-[#0089FF] text-white shadow-md shadow-[#0089FF]/30 hover:bg-[#007ae6] transition-all duration-200 cursor-pointer disabled:opacity-50"
+                            aria-label="Send message"
+                          >
+                            <Send className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className="flex items-center justify-center h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-all duration-150 cursor-pointer"
+                            aria-label="Add attachment or action"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            className="flex items-center justify-center h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-all duration-150 cursor-pointer"
+                            aria-label="Voice input"
+                          >
+                            <Mic className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* 4 Action / Suggestion Cards */}
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3.5 w-full max-w-[620px]">
+              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3.5 w-full max-w-[800px]">
+                <button
+                  type="button"
+                  onClick={() => sendMessage("Provide me the travel report")}
+                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                >
+                  <div className="h-7 w-7 rounded-lg bg-sky-50 dark:bg-sky-950/40 flex items-center justify-center text-[#0089FF] mb-2">
+                    <Truck className="h-3.5 w-3.5 text-[#0089FF]" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                    Travel Report
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                    Summary & Trip History...
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => sendMessage("Provide me the fuel report of the last 15 days")}
+                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                >
+                  <div className="h-7 w-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 mb-2">
+                    <BarChart3 className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                    Fuel Report (15 Days)
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                    Fill-drain & telemetry...
+                  </span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => sendMessage("Show me the idle report by driver")}
@@ -702,39 +744,7 @@ export function ZioPanel({
                     Idle Report
                   </span>
                   <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
-                    Idle time by driver, lost...
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => sendMessage("Show me the weekly fuel dashboard and anomalies")}
-                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
-                >
-                  <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
-                    <BarChart3 className="h-3.5 w-3.5" />
-                  </div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
-                    Fuel Dashboard
-                  </span>
-                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
-                    Weekly trend and anomal...
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => sendMessage("Alert rule for stopped vehicles after 8pm")}
-                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
-                >
-                  <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
-                    <AlertTriangle className="h-3.5 w-3.5" />
-                  </div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
-                    Alert Rule
-                  </span>
-                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
-                    Stopped vehicles after 8...
+                    Idle time by driver...
                   </span>
                 </button>
 
@@ -771,6 +781,22 @@ export function ZioPanel({
               <div className="flex flex-col gap-2 pt-1 w-full">
                 <button
                   type="button"
+                  onClick={() => sendMessage("Provide me the travel report")}
+                  className="flex items-center justify-between rounded-md border border-sky-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-semibold text-slate-800 shadow-2xs transition-all hover:bg-white/90 hover:border-[#0089FF]/40 hover:text-[#0089FF] cursor-pointer w-full text-left"
+                >
+                  <span>🚗 Provide me the travel report</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    sendMessage("Provide me the fuel report of the last 15 days")
+                  }
+                  className="flex items-center justify-between rounded-md border border-emerald-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-semibold text-slate-800 shadow-2xs transition-all hover:bg-white/90 hover:border-emerald-300 hover:text-emerald-700 cursor-pointer w-full text-left"
+                >
+                  <span>⛽ Fuel report of the last 15 days</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => sendMessage("Show me the fleet dashboard")}
                   className="flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left"
                 >
@@ -787,26 +813,10 @@ export function ZioPanel({
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    sendMessage("Show me the trip summary with dashboard")
-                  }
-                  className="flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left"
-                >
-                  <span>Show me the trip summary with dashboard</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => sendMessage("Why is the Safety low?")}
                   className="flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left"
                 >
                   <span>Why is the Safety low?</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => sendMessage("How to improve vehicle score?")}
-                  className="flex items-center justify-between rounded-md border border-violet-100/80 bg-white/60 backdrop-blur-xs px-3.5 py-2.5 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-white/90 hover:border-violet-200 hover:text-slate-950 cursor-pointer w-full text-left"
-                >
-                  <span>How to improve vehicle score?</span>
                 </button>
               </div>
             </div>

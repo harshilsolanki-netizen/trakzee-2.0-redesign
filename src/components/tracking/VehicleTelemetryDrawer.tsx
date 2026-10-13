@@ -11,6 +11,7 @@ import {
   Compass,
   Copy,
   Download,
+  Disc,
   Droplet,
   Eye,
   FileText,
@@ -69,11 +70,15 @@ import {
   TooltipWidgetSettingsModal,
 } from "./TooltipWidgetSettingsModal";
 import { AddItemModal } from "./AddItemModal";
+import { TpmsDrawerCards } from "./TpmsDrawerCards";
+import { EngineParametersCard } from "./EngineParametersCard";
+import { TpmsIcon, EngineIcon } from "./AutomotiveIcons";
+import { VehicleModeModal, type VehicleModeData } from "./VehicleModeModal";
 
 const DRAWER_TABS = [
   { id: "details", label: "Details", icon: MapPin },
-  { id: "telemetry", label: "Telemetry", icon: Activity },
-  { id: "settings", label: "Settings", icon: SlidersHorizontal },
+  { id: "tpms", label: "TPMS", icon: TpmsIcon },
+  { id: "engine", label: "Engine Parameters", icon: EngineIcon },
 ] as const;
 
 function formatDuration(raw?: string): string {
@@ -124,6 +129,14 @@ export function VehicleTelemetryDrawer({
   onOpenPlayback,
   isHealthOnly = false,
   selectedJob = null,
+  onToggleFollow,
+  isFollowed = false,
+  onOpenShare,
+  onOpenNavigation,
+  onOpenFindNearBy,
+  onOpenChangeMode,
+  currentModeData,
+  onSaveModeData,
   className,
 }: {
   vehicle: FleetObject;
@@ -132,6 +145,14 @@ export function VehicleTelemetryDrawer({
   allVehicles: FleetObject[];
   onOpenPlayback?: (timeframe?: string) => void;
   isHealthOnly?: boolean;
+  onToggleFollow?: (vehicleId: string) => void;
+  isFollowed?: boolean;
+  onOpenShare?: (vehicle: FleetObject) => void;
+  onOpenNavigation?: (vehicle: FleetObject) => void;
+  onOpenFindNearBy?: (vehicle: FleetObject) => void;
+  onOpenChangeMode?: (vehicle: FleetObject) => void;
+  currentModeData?: VehicleModeData | null;
+  onSaveModeData?: (vehicleId: string, data: VehicleModeData | null) => void;
   selectedJob?: {
     id?: string;
     code?: string;
@@ -145,9 +166,27 @@ export function VehicleTelemetryDrawer({
   } | null;
   className?: string;
 }) {
-  const [activeDrawerTab, setActiveDrawerTab] = useState<"details" | "telemetry" | "settings">("details");
+  const [activeDrawerTab, setActiveDrawerTab] = useState<"details" | "tpms" | "engine">("details");
   const [showWidgetSettings, setShowWidgetSettings] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [showModeModal, setShowModeModal] = useState<boolean>(false);
+  const [internalModeData, setInternalModeData] = useState<Record<string, VehicleModeData | null>>({});
+  const activeVehicleMode = currentModeData !== undefined ? currentModeData : (internalModeData[vehicle.id] || null);
+
+  const handleOpenModeModal = () => {
+    if (onOpenChangeMode) {
+      onOpenChangeMode(vehicle);
+    }
+    setShowModeModal(true);
+  };
+
+  const handleSaveMode = (data: VehicleModeData | null) => {
+    setInternalModeData((prev) => ({ ...prev, [vehicle.id]: data }));
+    if (onSaveModeData) {
+      onSaveModeData(vehicle.id, data);
+    }
+  };
+
   const [enabledWidgets, setEnabledWidgets] = useState<string[]>(DEFAULT_ENABLED_WIDGETS);
   const [selectedDriverModal, setSelectedDriverModal] = useState<{
     name: string;
@@ -263,7 +302,11 @@ export function VehicleTelemetryDrawer({
   };
 
   const handleShare = () => {
-    toast.success("Live tracking share link copied to clipboard!");
+    if (onOpenShare) {
+      onOpenShare(vehicle);
+    } else {
+      toast.success("Live tracking share link copied to clipboard!");
+    }
   };
 
   return (
@@ -316,15 +359,32 @@ export function VehicleTelemetryDrawer({
         )}
 
         {/* 2. Scrollable Column of Floating Cards (Outer Scrollbar Outside 220px Area) */}
-        <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar py-0.5 pr-2 pointer-events-auto">
-          {(isHealthOnly
-            ? ["health_score"]
-            : selectedJob
-              ? selectedJob.isObjectHalt
-                ? ["object_halt_info"]
-                : ["job_info"]
-              : cardsOrder.filter((id) => id !== "health_score" && id !== "job_info" && id !== "object_halt_info")
-          ).map((cardId) => {
+        <div
+          className={cn(
+            "flex-1 min-h-0 w-full pointer-events-auto",
+            activeDrawerTab === "engine"
+              ? "flex flex-col h-full overflow-hidden"
+              : "overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar py-0.5 pr-2"
+          )}
+        >
+          {activeDrawerTab === "tpms" ? (
+            <TpmsDrawerCards vehicle={vehicle} onClose={onClose} />
+          ) : activeDrawerTab === "engine" ? (
+            <EngineParametersCard vehicle={vehicle} />
+          ) : (
+            (isHealthOnly
+              ? ["health_score"]
+              : selectedJob
+                ? selectedJob.isObjectHalt
+                  ? ["object_halt_info"]
+                  : ["job_info"]
+                : cardsOrder.filter(
+                    (id) =>
+                      id !== "health_score" &&
+                      id !== "job_info" &&
+                      id !== "object_halt_info"
+                  )
+            ).map((cardId) => {
             const isDraggingThis = draggedCardId === cardId;
             const isRefreshingThis = refreshingCardId === cardId;
             const cardWrapperClass = cn(
@@ -900,23 +960,66 @@ export function VehicleTelemetryDrawer({
                           </div>
                         </DropdownMenu>
                       </div>
+
+                      {/* Active Mode Banner if set */}
+                      {activeVehicleMode && (
+                        <div className="mx-2 mb-2 px-2.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 flex items-center justify-between text-xs animate-in fade-in duration-150 select-none">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                            <div className="min-w-0">
+                              <span className="font-bold text-amber-900 dark:text-amber-200 text-[11px] truncate block leading-tight">
+                                Mode: {activeVehicleMode.eventType}
+                              </span>
+                              {activeVehicleMode.subType && (
+                                <span className="text-[10px] text-amber-700 dark:text-amber-300 truncate block leading-tight">
+                                  {activeVehicleMode.subType}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleOpenModeModal}
+                            className="text-[10.5px] text-amber-800 dark:text-amber-300 hover:text-amber-950 font-bold ml-1.5 cursor-pointer shrink-0 hover:underline"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* 5. Action Toolbar Row (Figma: 218px x 34px, padding 0px 8px, background #F4F5F7) */}
                     <div className="bg-[#F4F5F7] dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 px-[8px] h-[34px] flex items-center justify-around text-[#45556C] dark:text-slate-400 rounded-b-[10px]">
                       <button
                         type="button"
-                        title="Follow"
-                        onClick={() => toast.success(`Following ${vehicle.name} live on map`)}
-                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                        title={isFollowed ? "Unfollow Vehicle" : "Follow Vehicle (Multi-Track)"}
+                        onClick={() => {
+                          if (onToggleFollow) {
+                            onToggleFollow(vehicle.id);
+                          } else {
+                            toast.success(`Following ${vehicle.name} live on map`);
+                          }
+                        }}
+                        className={cn(
+                          "p-1.5 rounded-lg transition-all cursor-pointer",
+                          isFollowed
+                            ? "bg-[#0089FF] text-white shadow-xs"
+                            : "text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs"
+                        )}
                       >
                         <Target className="h-4 w-4 stroke-[1.8]" />
                       </button>
 
                       <button
                         type="button"
-                        title="Navigate"
-                        onClick={() => toast.info(`Navigating to ${vehicle.name}`)}
+                        title="Navigation Mode"
+                        onClick={() => {
+                          if (onOpenNavigation) {
+                            onOpenNavigation(vehicle);
+                          } else {
+                            toast.info(`Navigation mode for ${vehicle.name}`);
+                          }
+                        }}
                         className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
                       >
                         <Navigation className="h-4 w-4 stroke-[1.8]" />
@@ -934,7 +1037,13 @@ export function VehicleTelemetryDrawer({
                       <button
                         type="button"
                         title="Find Near By"
-                        onClick={() => toast.info(`Searching points of interest near ${vehicle.name}`)}
+                        onClick={() => {
+                          if (onOpenFindNearBy) {
+                            onOpenFindNearBy(vehicle);
+                          } else {
+                            toast.info(`Searching points of interest near ${vehicle.name}`);
+                          }
+                        }}
                         className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
                       >
                         <MapPin className="h-4 w-4 stroke-[1.8]" />
@@ -942,9 +1051,14 @@ export function VehicleTelemetryDrawer({
 
                       <button
                         type="button"
-                        title="Change Mode"
-                        onClick={() => toast.info(`Changing display mode for ${vehicle.name}`)}
-                        className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs transition-all cursor-pointer"
+                        title={activeVehicleMode ? `Mode: ${activeVehicleMode.eventType}` : "Change Mode"}
+                        onClick={handleOpenModeModal}
+                        className={cn(
+                          "p-1.5 rounded-lg transition-all cursor-pointer",
+                          activeVehicleMode
+                            ? "bg-[#0089FF] text-white shadow-xs"
+                            : "text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:shadow-2xs"
+                        )}
                       >
                         <SlidersHorizontal className="h-4 w-4 stroke-[1.8]" />
                       </button>
@@ -1797,10 +1911,24 @@ export function VehicleTelemetryDrawer({
                   </div>
                 );
 
+              case "tpms":
+                return (
+                  <div key={cardId} {...dragProps}>
+                    <TpmsDrawerCards vehicle={vehicle} onClose={onClose} />
+                  </div>
+                );
+
+              case "engine":
+                return (
+                  <div key={cardId} {...dragProps}>
+                    <EngineParametersCard vehicle={vehicle} />
+                  </div>
+                );
+
               default:
                 return null;
             }
-          })}
+          }))}
         </div>
       </div>
 
@@ -1883,6 +2011,15 @@ export function VehicleTelemetryDrawer({
           </div>
         </div>
       )}
+
+      {/* Vehicle Mode Change Modal */}
+      <VehicleModeModal
+        open={showModeModal}
+        onClose={() => setShowModeModal(false)}
+        vehicle={vehicle}
+        currentModeData={activeVehicleMode}
+        onSaveMode={handleSaveMode}
+      />
     </>
   );
 }

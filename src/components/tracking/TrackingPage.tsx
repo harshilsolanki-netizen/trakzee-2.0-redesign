@@ -15,6 +15,11 @@ import {
 import { AddAddressModal, type AddressFormData } from "@/components/tracking/AddAddressModal";
 import { UploadAddressModal } from "@/components/tracking/UploadAddressModal";
 import { AddGeofenceModal, type GeofenceFormData } from "@/components/tracking/AddGeofenceModal";
+import { FollowVehiclesPanel } from "@/components/tracking/FollowVehiclesPanel";
+import { ShareLocationModal } from "@/components/tracking/ShareLocationModal";
+import { NavigationModeModal, type NavigationRoute } from "@/components/tracking/NavigationModeModal";
+import { FindNearByModal } from "@/components/tracking/FindNearByModal";
+import { type VehicleModeData } from "@/components/tracking/VehicleModeModal";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
 import { useZio } from "@/zio/ZioContext";
 import { cn } from "@/lib/utils";
@@ -39,6 +44,53 @@ export function TrackingPage() {
   ]);
   const [activeTab, setActiveTab] = useState<string>("object");
   const [selectedGeofenceId, setSelectedGeofenceId] = useState<string | null>(null);
+
+  // Follow Vehicles (Multi-Track) State (Follow up to 4 vehicles simultaneously)
+  const [followedVehicleIds, setFollowedVehicleIds] = useState<string[]>([
+    "o1", // Fuel - 1001
+  ]);
+  const [isFollowPanelOpen, setIsFollowPanelOpen] = useState(false);
+  const [vehicleModes, setVehicleModes] = useState<Record<string, VehicleModeData | null>>({});
+
+  const handleToggleFollowVehicle = (id: string) => {
+    setFollowedVehicleIds((prev) => {
+      if (prev.includes(id)) {
+        toast.info("Removed vehicle from follow list");
+        const next = prev.filter((vId) => vId !== id);
+        if (next.length === 0) {
+          setIsFollowPanelOpen(false);
+        }
+        return next;
+      }
+      if (prev.length >= 4) {
+        toast.error("Maximum 4 vehicles can be followed simultaneously", {
+          description: "Please remove one vehicle before adding another.",
+        });
+        return prev;
+      }
+      toast.success("Added vehicle to follow panel");
+      return [...prev, id];
+    });
+    setIsFollowPanelOpen(true);
+  };
+
+  const handleAddFollowVehicle = (id: string) => {
+    if (followedVehicleIds.length >= 4) {
+      toast.error("Maximum 4 vehicles can be followed simultaneously");
+      return;
+    }
+    setFollowedVehicleIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  };
+
+  const handleRemoveFollowVehicle = (id: string) => {
+    setFollowedVehicleIds((prev) => {
+      const next = prev.filter((vId) => vId !== id);
+      if (next.length === 0) {
+        setIsFollowPanelOpen(false);
+      }
+      return next;
+    });
+  };
 
   const handleToggleCheckGeofence = (id: string) => {
     setCheckedGeofenceIds((prev) =>
@@ -77,6 +129,37 @@ export function TrackingPage() {
 
   const [isAddGeofenceModalOpen, setIsAddGeofenceModalOpen] = useState(false);
   const [editingGeofenceData, setEditingGeofenceData] = useState<GeofenceFormData | null>(null);
+
+  // Share Live Location Modal state
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareModalVehicle, setShareModalVehicle] = useState<FleetObject | null>(null);
+
+  const handleOpenShare = (vehicle?: FleetObject | null) => {
+    const target = vehicle || selectedVehicle || (vehiclesList.length > 0 ? vehiclesList[0] : null);
+    setShareModalVehicle(target);
+    setIsShareModalOpen(true);
+  };
+
+  // Modern Trakzee 2.0 Theme Navigation Mode state
+  const [isNavigationOpen, setIsNavigationOpen] = useState(false);
+  const [navigationVehicle, setNavigationVehicle] = useState<FleetObject | null>(null);
+  const [activeNavigationRoute, setActiveNavigationRoute] = useState<NavigationRoute | null>(null);
+
+  const handleOpenNavigation = (vehicle?: FleetObject | null) => {
+    const target = vehicle || selectedVehicle || (vehiclesList.length > 0 ? vehiclesList[0] : null);
+    setNavigationVehicle(target);
+    setIsNavigationOpen(true);
+  };
+
+  // Modern Trakzee 2.0 Theme Find Near By Modal state
+  const [isFindNearByOpen, setIsFindNearByOpen] = useState(false);
+  const [findNearByVehicle, setFindNearByVehicle] = useState<FleetObject | null>(null);
+
+  const handleOpenFindNearBy = (vehicle?: FleetObject | null) => {
+    const target = vehicle || selectedVehicle || (vehiclesList.length > 0 ? vehiclesList[0] : null);
+    setFindNearByVehicle(target);
+    setIsFindNearByOpen(true);
+  };
 
   // Map + Video Right Panel Camera Feeds state using real telematics camera assets
   const [activeVideoFeeds, setActiveVideoFeeds] = useState<VideoChannelFeed[]>([
@@ -296,6 +379,36 @@ export function TrackingPage() {
     };
   }, [isResizing]);
 
+  const DEFAULT_FOLLOW_PANEL_WIDTH = 380;
+  const [customFollowWidth, setCustomFollowWidth] = useState<number | null>(null);
+  const [isResizingFollowCol, setIsResizingFollowCol] = useState(false);
+  const followPanelWidth = customFollowWidth ?? DEFAULT_FOLLOW_PANEL_WIDTH;
+
+  useEffect(() => {
+    if (!isResizingFollowCol) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = Math.max(280, Math.min(850, window.innerWidth - e.clientX));
+      setCustomFollowWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingFollowCol(false);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizingFollowCol]);
+
+  const handleStartFollowColResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizingFollowCol(true);
+  };
+
   const handleOpenPlayback = (tf?: string) => {
     if (tf) setPlaybackTimeframe(tf);
     if (!selectedVehicleId && vehiclesList.length > 0) {
@@ -325,31 +438,54 @@ export function TrackingPage() {
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden select-none bg-background">
-      {/* 1. Fullscreen Interactive GIS Map Canvas (Full Bleed Background) */}
-      <div className="absolute inset-0 z-0">
-        <LiveTrackingMap
-          selectedVehicle={selectedVehicle}
-          checkedVehicles={checkedVehicles}
-          checkedGeofenceIds={checkedGeofenceIds}
-          selectedGeofenceId={selectedGeofenceId}
-          onOpenPlayback={handleOpenPlayback}
-          isLeftPanelOpen={isLeftPanelOpen}
-          leftPanelWidth={panelWidth}
-          isTelemetryDrawerOpen={isTelemetryDrawerOpen}
-          isHealthTelemetryOnly={isHealthTelemetryOnly}
-          onToggleTelemetryDrawer={() =>
-            setIsTelemetryDrawerOpen((prev) => !prev)
-          }
-          activeTab={activeTab}
-          onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
-          className="h-full w-full rounded-none border-0 shadow-none"
-        />
-      </div>
+    <div className="relative h-full w-full overflow-hidden select-none bg-background flex">
+      {/* 1. Main Map Canvas Section (Ends at follow panel boundary so map does NOT run underneath it) */}
+      <div
+        className={cn(
+          "relative h-full flex-1 transition-[margin-right] duration-150 overflow-hidden",
+          isResizingFollowCol && "transition-none select-none"
+        )}
+        style={{
+          marginRight: isFollowPanelOpen ? `${followPanelWidth}px` : "0px",
+        }}
+      >
+        <div className="absolute inset-0 z-0">
+          <LiveTrackingMap
+            selectedVehicle={selectedVehicle}
+            checkedVehicles={checkedVehicles}
+            checkedGeofenceIds={checkedGeofenceIds}
+            selectedGeofenceId={selectedGeofenceId}
+            onOpenPlayback={handleOpenPlayback}
+            isLeftPanelOpen={isLeftPanelOpen}
+            leftPanelWidth={panelWidth}
+            isTelemetryDrawerOpen={isTelemetryDrawerOpen}
+            isHealthTelemetryOnly={isHealthTelemetryOnly}
+            onToggleTelemetryDrawer={() =>
+              setIsTelemetryDrawerOpen((prev) => !prev)
+            }
+            activeTab={activeTab}
+            onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
+            onToggleFollowPanel={() => {
+              setIsFollowPanelOpen((prev) => {
+                const next = !prev;
+                if (next && followedVehicleIds.length === 0) {
+                  setFollowedVehicleIds([selectedVehicleId || "o1"]);
+                }
+                return next;
+              });
+            }}
+            isFollowPanelOpen={isFollowPanelOpen}
+            followedCount={followedVehicleIds.length}
+            onOpenShare={handleOpenShare}
+            onOpenFindNearBy={handleOpenFindNearBy}
+            navigationRoute={activeNavigationRoute}
+            className="h-full w-full rounded-none border-0 shadow-none"
+          />
+        </div>
 
       {/* 2. Left Floating Fleet Explorer Panel */}
       {isLeftPanelOpen ? (
-        <div className="absolute top-2.5 bottom-2.5 left-2.5 z-10 flex flex-col pointer-events-none">
+        <div className="absolute top-2.5 bottom-2.5 left-2.5 z-20 flex flex-col pointer-events-none">
           <FleetExplorerPanel
             vehicles={vehiclesList}
             selectedVehicleId={selectedVehicleId}
@@ -409,7 +545,7 @@ export function TrackingPage() {
             type="button"
             onClick={() => setIsLeftPanelOpen(true)}
             className="flex h-10 w-5 items-center justify-center rounded-r-xl border border-l-0 border-[#DFE3EB] dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-600 dark:text-slate-300 shadow-md hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-all cursor-pointer active:scale-95"
-            title="Expand Fleet Explorer"
+            title="Expand Object Panel"
           >
             <ChevronRight className="h-4 w-4 stroke-[2.5]" />
           </button>
@@ -488,10 +624,44 @@ export function TrackingPage() {
             onOpenPlayback={(tf) => handleOpenPlayback(tf)}
             isHealthOnly={isHealthTelemetryOnly}
             selectedJob={selectedJobForDrawer}
+            onToggleFollow={handleToggleFollowVehicle}
+            isFollowed={followedVehicleIds.includes(selectedVehicle.id)}
+            onOpenShare={handleOpenShare}
+            onOpenNavigation={handleOpenNavigation}
+            onOpenFindNearBy={handleOpenFindNearBy}
+            currentModeData={vehicleModes[selectedVehicle.id]}
+            onSaveModeData={(vId, data) => setVehicleModes((prev) => ({ ...prev, [vId]: data }))}
             className={cn(
               isHealthTelemetryOnly ? "w-[300px] sm:w-[300px]" : "w-[228px] sm:w-[228px]",
               "h-full pointer-events-auto bg-transparent border-0 shadow-none",
             )}
+          />
+        </div>
+      )}
+
+      {/* 4.2 Floating Navigation Mode Card (Directly over Map, Exactly matching Reference Images) */}
+      {isNavigationOpen && (
+        <div
+          className={cn(
+            "absolute top-2.5 z-30 flex flex-col pointer-events-none transition-all duration-200",
+            isTelemetryDrawerOpen
+              ? isHealthTelemetryOnly
+                ? "right-[314px]"
+                : "right-[242px]"
+              : "right-2.5"
+          )}
+        >
+          <NavigationModeModal
+            open={isNavigationOpen}
+            onClose={() => {
+              setIsNavigationOpen(false);
+              setActiveNavigationRoute(null);
+            }}
+            vehicle={navigationVehicle || selectedVehicle}
+            onStartNavigation={(route) => setActiveNavigationRoute(route)}
+            onClearNavigation={() => setActiveNavigationRoute(null)}
+            isNavigating={!!activeNavigationRoute}
+            activeRoute={activeNavigationRoute}
           />
         </div>
       )}
@@ -505,6 +675,29 @@ export function TrackingPage() {
           onSelectVehicle={(v) => setSelectedVehicleIdState(v.id)}
           onClose={handleClosePlayback}
         />
+      )}
+      </div>
+
+      {/* 4.5. Dedicated Follow Vehicles Right Section (Different section, NOT on map, resizable with cursor) */}
+      {isFollowPanelOpen && (
+        <div className="absolute top-0 bottom-0 right-0 z-20 flex">
+          <FollowVehiclesPanel
+            followedVehicleIds={followedVehicleIds}
+            allVehicles={vehiclesList}
+            onAddVehicle={handleAddFollowVehicle}
+            onRemoveVehicle={handleRemoveFollowVehicle}
+            onFocusMainMap={(id) => {
+              const target = vehiclesList.find((v) => v.id === id);
+              if (target) {
+                handleTraceVehicle(target);
+              }
+            }}
+            panelWidth={followPanelWidth}
+            onWidthChange={setCustomFollowWidth}
+            onStartColResize={handleStartFollowColResize}
+            isResizingCol={isResizingFollowCol}
+          />
+        </div>
       )}
 
       {/* 5. Live Multi-Channel Dashcam Video Streaming Modal */}
@@ -547,6 +740,23 @@ export function TrackingPage() {
           // Geofence saved callback
         }}
         initialData={editingGeofenceData}
+      />
+
+      {/* 10. Modern Trakzee 2.0 Theme Share Live Location Modal */}
+      <ShareLocationModal
+        open={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        vehicle={shareModalVehicle || selectedVehicle}
+        allVehicles={vehiclesList}
+        onSelectVehicle={(veh) => setShareModalVehicle(veh)}
+      />
+
+      {/* 11. Modern Trakzee 2.0 Theme Find Near By Modal */}
+      <FindNearByModal
+        open={isFindNearByOpen}
+        onClose={() => setIsFindNearByOpen(false)}
+        vehicle={findNearByVehicle || selectedVehicle}
+        allVehicles={vehiclesList}
       />
     </div>
   );

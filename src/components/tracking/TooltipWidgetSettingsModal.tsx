@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { TpmsIcon, EngineIcon } from "./AutomotiveIcons";
 
 export interface TooltipWidgetCategory {
   id: string;
@@ -142,6 +143,16 @@ export const TOOLTIP_WIDGET_CATEGORIES: TooltipWidgetCategory[] = [
     label: "Passenger Seat",
     items: [{ id: "passenger_seat_info", label: "Passenger Seat Occupancy", default: false }],
   },
+  {
+    id: "tpms",
+    label: "TPMS (Tire Pressure)",
+    items: [{ id: "tpms", label: "Tire Pressure & Axle Status", default: true }],
+  },
+  {
+    id: "engine_parameters",
+    label: "Engine Parameters",
+    items: [{ id: "engine", label: "Diagnostic Faults & CAN Metrics", default: true }],
+  },
 ];
 
 export const DEFAULT_ENABLED_WIDGETS = TOOLTIP_WIDGET_CATEGORIES.flatMap((cat) =>
@@ -150,8 +161,8 @@ export const DEFAULT_ENABLED_WIDGETS = TOOLTIP_WIDGET_CATEGORIES.flatMap((cat) =
 
 const PIN_TABS = [
   { id: "live", label: "Live", icon: MapPin },
-  { id: "engine", label: "Engine Param", icon: Gauge },
-  { id: "tpms", label: "TPMS", icon: Disc },
+  { id: "tpms", label: "TPMS", icon: TpmsIcon },
+  { id: "engine", label: "Engine Param", icon: EngineIcon },
   { id: "ble", label: "BLE", icon: Bluetooth },
   { id: "video", label: "Video Telematics", icon: Video },
   { id: "sensors", label: "Sensors", icon: Thermometer },
@@ -188,6 +199,8 @@ export function TooltipWidgetSettingsModal({
     elock: true,
     trailer: true,
     passenger_seat: true,
+    tpms: true,
+    engine_parameters: true,
   });
 
   // Drag State for Categories

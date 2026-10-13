@@ -42,21 +42,12 @@ import {
   Zap,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import type * as LType from "leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// Safely resolve Leaflet library on client side only to prevent SSR "window is not defined" errors
-let L: typeof LType | any = null;
-if (typeof window !== "undefined") {
-  try {
-    L = require("leaflet");
-  } catch (e) {
-    console.warn("Leaflet client import fallback:", e);
-  }
-}
 import { toast } from "sonner";
 import { type FleetObject, STATUS_META } from "@/data/fleet";
 import { GEOFENCES_DATA } from "@/data/geofences";
+import { type NavigationRoute } from "./NavigationModeModal";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -191,8 +182,13 @@ export function LiveTrackingMap({
   isTelemetryDrawerOpen,
   isHealthTelemetryOnly = false,
   onToggleTelemetryDrawer,
-  activeTab = "object",
   onSelectVehicle,
+  onToggleFollowPanel,
+  isFollowPanelOpen = false,
+  followedCount = 0,
+  onOpenShare,
+  onOpenFindNearBy,
+  navigationRoute,
   className,
 }: {
   selectedVehicle: FleetObject | null;
@@ -207,6 +203,13 @@ export function LiveTrackingMap({
   onToggleTelemetryDrawer: () => void;
   activeTab?: string;
   onSelectVehicle?: (id: string) => void;
+  onToggleFollowPanel?: () => void;
+  isFollowed?: boolean;
+  isFollowPanelOpen?: boolean;
+  followedCount?: number;
+  onOpenShare?: (vehicle?: FleetObject | null) => void;
+  onOpenFindNearBy?: (vehicle?: FleetObject | null) => void;
+  navigationRoute?: NavigationRoute | null;
   className?: string;
 }) {
   const [mapStyle, setMapStyle] = useState<"streets" | "satellite" | "terrain" | "dark">("streets");
@@ -231,6 +234,7 @@ export function LiveTrackingMap({
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const polylineRef = useRef<L.Polyline | null>(null);
+  const navigationLayerRef = useRef<{ polyline: L.Polyline; marker: L.Marker } | null>(null);
 
   const [clusterScreenCoords, setClusterScreenCoords] = useState<Record<string, { x: number; y: number }>>({});
   const [activeVehicleCoord, setActiveVehicleCoord] = useState<{ x: number; y: number } | null>(null);
@@ -238,12 +242,6 @@ export function LiveTrackingMap({
   // Initialize Leaflet Map Instance
   useEffect(() => {
     if (typeof window === "undefined" || !mapElementRef.current || mapInstanceRef.current) return;
-    if (!L) {
-      try {
-        L = require("leaflet");
-      } catch (e) {}
-    }
-    if (!L) return;
 
     const map = L.map(mapElementRef.current, {
       center: [45.0000, 71.0000],
@@ -274,7 +272,24 @@ export function LiveTrackingMap({
     map.on("move zoom viewreset resize", syncPositions);
     syncPositions();
 
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    });
+    if (mapElementRef.current) {
+      resizeObserver.observe(mapElementRef.current);
+    }
+
     return () => {
+      resizeObserver.disconnect();
+      if (navigationLayerRef.current && mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.removeLayer(navigationLayerRef.current.polyline);
+          mapInstanceRef.current.removeLayer(navigationLayerRef.current.marker);
+        } catch (_) {}
+        navigationLayerRef.current = null;
+      }
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -383,6 +398,76 @@ export function LiveTrackingMap({
       }
     }
   }, [showObjectPath]);
+
+  // Synchronize Navigation Mode route polyline and destination pin on the map
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    const map = mapInstanceRef.current;
+
+    // Remove existing navigation layers
+    if (navigationLayerRef.current) {
+      try {
+        map.removeLayer(navigationLayerRef.current.polyline);
+        map.removeLayer(navigationLayerRef.current.marker);
+      } catch (_) {}
+      navigationLayerRef.current = null;
+    }
+
+    if (navigationRoute && navigationRoute.coordinates && navigationRoute.coordinates.length > 0) {
+      // 1. Red route polyline (matching media_1791883357890_22ce34ef.png)
+      const polyline = L.polyline(navigationRoute.coordinates, {
+        color: "#EF4444",
+        weight: 5.5,
+        opacity: 0.95,
+        lineCap: "round",
+        lineJoin: "round",
+      }).addTo(map);
+
+      // 2. Custom Destination Pin Marker with badge
+      const destCoords =
+        navigationRoute.destination ||
+        navigationRoute.coordinates[navigationRoute.coordinates.length - 1];
+
+      const destIcon = L.divIcon({
+        className: "custom-nav-dest-marker",
+        html: `
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: translate(-50%, -100%);">
+            <div style="width: 30px; height: 30px; border-radius: 9999px; background: #EF4444; border: 2.5px solid white; box-shadow: 0 4px 14px rgba(239,68,68,0.55); display: flex; align-items: center; justify-content: center; color: white;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <div style="margin-top: 4px; padding: 2px 8px; border-radius: 6px; background: rgba(15,23,42,0.92); backdrop-filter: blur(4px); color: white; font-size: 11px; font-weight: 700; white-space: nowrap; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+              ${navigationRoute.destinationName || "Destination"}
+            </div>
+          </div>
+        `,
+        iconSize: [30, 48],
+        iconAnchor: [15, 48],
+      });
+
+      const marker = L.marker(destCoords, { icon: destIcon }).addTo(map);
+
+      navigationLayerRef.current = { polyline, marker };
+
+      // 3. Smoothly fit map bounds to display the entire navigation route
+      try {
+        const bounds = polyline.getBounds();
+        if (bounds && bounds.isValid()) {
+          const leftPad = isLeftPanelOpen ? (leftPanelWidth || 630) + 40 : 60;
+          const rightPad = isTelemetryDrawerOpen ? 460 : 80;
+          map.fitBounds(bounds, {
+            paddingTopLeft: [70, leftPad],
+            paddingBottomRight: [70, rightPad],
+            maxZoom: 13,
+          });
+        }
+      } catch (err) {
+        console.warn("Caught error fitting bounds to navigation route:", err);
+      }
+    }
+  }, [navigationRoute, isLeftPanelOpen, leftPanelWidth, isTelemetryDrawerOpen]);
 
   const geofenceLayersRef = useRef<Map<string, L.Layer>>(new Map());
 
@@ -854,7 +939,13 @@ export function LiveTrackingMap({
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  onClick={() => toast.success("Live tracking link copied to clipboard!")}
+                  onClick={() => {
+                    if (onOpenShare) {
+                      onOpenShare(selectedVehicle);
+                    } else {
+                      toast.success("Live tracking link copied to clipboard!");
+                    }
+                  }}
                   className="w-[36px] h-[36px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
                 >
                   <Share2 className="h-4.5 w-4.5 stroke-[2]" />
@@ -868,7 +959,13 @@ export function LiveTrackingMap({
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  onClick={() => toast.info("Searching nearby assets & places...")}
+                  onClick={() => {
+                    if (onOpenFindNearBy) {
+                      onOpenFindNearBy(selectedVehicle);
+                    } else {
+                      toast.info("Searching nearby assets & places...");
+                    }
+                  }}
                   className="w-[36px] h-[36px] rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-all cursor-pointer shrink-0"
                 >
                   <Compass className="h-4.5 w-4.5 stroke-[2]" />
@@ -897,6 +994,32 @@ export function LiveTrackingMap({
                 </button>
               </TooltipTrigger>
               <TooltipContent side="left">Single Object Mode</TooltipContent>
+            </Tooltip>
+
+            {/* 7.5. Follow Multiple Vehicles Mode */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={onToggleFollowPanel}
+                  className={cn(
+                    "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0 relative",
+                    isFollowPanelOpen
+                      ? "bg-[#0089FF] text-white shadow-xs"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+                  )}
+                >
+                  <Eye className="h-4.5 w-4.5 stroke-[2]" />
+                  {followedCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-3.5 min-w-[14px] px-1 rounded-full bg-emerald-500 text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-xs">
+                      {followedCount}
+                    </span>
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                {isFollowPanelOpen ? "Close Follow Panel" : "Follow Vehicles (Multi-Track)"}
+              </TooltipContent>
             </Tooltip>
 
             {/* 8. Area Measurement */}

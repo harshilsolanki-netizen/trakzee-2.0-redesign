@@ -33,6 +33,20 @@ import {
 import { useZio } from "@/zio/ZioContext";
 import { type VehicleScoreContext } from "@/zio/zio-service";
 import { cn } from "@/lib/utils";
+import { FuelReportPreview } from "./FuelReportPreview";
+import { FuelReportQuestionnaireCard } from "./FuelReportQuestionnaireCard";
+import {
+  FuelQuestion1Card,
+  FuelQuestion2Card,
+  FuelQuestion3Card,
+} from "./FuelReportQuestions";
+import { TravelSummaryPreview } from "./TravelSummaryPreview";
+import { TravelHistoryPreview } from "./TravelHistoryPreview";
+import {
+  TravelQuestion1Card,
+  TravelQuestion2Card,
+  TravelQuestion3Card,
+} from "./TravelReportQuestions";
 
 export type ApplicationScreenType =
   | "dashboard"
@@ -40,7 +54,17 @@ export type ApplicationScreenType =
   | "trip-summary"
   | "safety-distribution"
   | "today-activity"
-  | "vehicle-score";
+  | "vehicle-score"
+  | "fuel-report"
+  | "fuel-report-questions"
+  | "fuel-question-1"
+  | "fuel-question-2"
+  | "fuel-question-3"
+  | "travel-question-1"
+  | "travel-question-2"
+  | "travel-question-3"
+  | "travel-summary"
+  | "travel-history";
 
 interface ApplicationScreenPreviewProps {
   type: ApplicationScreenType;
@@ -63,6 +87,45 @@ export function ApplicationScreenPreview({
     loc: string;
     status: string;
   } | null>(null);
+
+  // 0a. Conversational Step-by-Step Question Playbook
+  if (type === "fuel-question-1") {
+    return <FuelQuestion1Card />;
+  }
+
+  if (type === "fuel-question-2") {
+    return <FuelQuestion2Card />;
+  }
+
+  if (type === "fuel-question-3") {
+    return <FuelQuestion3Card />;
+  }
+
+  // 0b. Fill-Drain Fuel Telemetry Report Visual
+  if (type === "fuel-report" || type === "fuel-report-questions") {
+    return <FuelReportPreview />;
+  }
+
+  // 0c. Conversational Travel Questions & Reports Playbook
+  if (type === "travel-question-1") {
+    return <TravelQuestion1Card />;
+  }
+
+  if (type === "travel-question-2") {
+    return <TravelQuestion2Card />;
+  }
+
+  if (type === "travel-question-3") {
+    return <TravelQuestion3Card />;
+  }
+
+  if (type === "travel-summary") {
+    return <TravelSummaryPreview />;
+  }
+
+  if (type === "travel-history") {
+    return <TravelHistoryPreview />;
+  }
 
   // 1. Trakzee 2.0 Executive Dashboard Visual
   if (type === "dashboard") {

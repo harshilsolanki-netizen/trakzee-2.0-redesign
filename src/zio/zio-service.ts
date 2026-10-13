@@ -64,6 +64,8 @@ export function getVehicleScoreData(v: FleetObject): VehicleScoreContext {
   };
 }
 
+let travelReportMode: "summary" | "history" = "summary";
+
 export function isScoreRelatedQuery(query: string): boolean {
   return true;
 }
@@ -100,8 +102,144 @@ export async function streamZioResponse(
         ? "B"
         : "C";
 
-  // PRIORITY 1: Trip Summary / Trip Report / Mileage / Distance
+  // ── TRAVEL REPORT CONVERSATIONAL PLAYBOOK ──
+  // PRIORITY 0a-Travel: Step 3 Answered or Skip -> Generate Final Travel Report (Summary or History)
   if (
+    q.includes("today [13-10-2026") ||
+    q.includes("yesterday (full 24 hours)") ||
+    q.includes("last 7 days weekly overview") ||
+    q.includes("show travel summary") ||
+    q.includes("show travel history") ||
+    q.includes("generate travel summary") ||
+    q.includes("generate travel history") ||
+    (q.includes("skip questions") && q.includes("travel"))
+  ) {
+    if (q.includes("history") || travelReportMode === "history") {
+      appScreenType = "travel-history";
+      fullResponse =
+        "### 🗺️ Travel History Report [13-10-2026 12:00 AM – 09:48 AM]\n\n" +
+        "Generated the interactive **Travel History Report** showing segment-by-segment vehicle trip logs:\n\n" +
+        "- **Total Fleet Duration**: **146:59:21** aggregated across 690 trip legs.\n" +
+        "- **Running Time**: **25:47:11** in transit with normal highway speed profiles.\n" +
+        "- **Idle Duration**: **00:14:25** at traffic signals and depot turnarounds.\n" +
+        "- **Stoppage Duration**: **120:57:45** at designated parking yards and delivery bays.\n" +
+        "- **Safety Alerts**: **29.0 total alerts** captured across all trip segments.\n\n" +
+        "*Tip: Click the ⚡ lightning bolt icon in any row to inspect the interactive route map for that specific trip leg.*";
+    } else {
+      appScreenType = "travel-summary";
+      fullResponse =
+        "### 🚗 Travel Summary Report [13-10-2026 12:00 AM – 09:44 AM]\n\n" +
+        "Generated the interactive **Travel Summary Report** across **13 operational fleet vehicles**:\n\n" +
+        "- **Total Fleet Distance**: **3,617.61 km** covered across Thailand, Valsad, and Indonesia branches.\n" +
+        "- **Top Mileage Asset**: **SOC - 130002** (**527.76 km**, 09h 43m running, Thailand Branch).\n" +
+        "- **Time Utilization**: **80% Running (116:06:00)** vs **20% Stopped (29:16:00)**.\n" +
+        "- **Engine Idling**: **00:37:00** total idling time across 317 recorded idle events.\n" +
+        "- **Active Alerts**: **29 total alerts** logged during shift operations.\n\n" +
+        "*You can filter by company or branch, review route playbacks using ▶ buttons, or export to XLS/PDF/CSV using the controls above.*";
+    }
+  }
+  // PRIORITY 0b-Travel: Step 2 Answered -> Question 3 of 3 (Which time range should I analyze?)
+  else if (
+    q.includes("all 13 vehicles") ||
+    q.includes("thailand branch (4 vehicles)") ||
+    q.includes("valsad branch (2 vehicles)") ||
+    q.includes("indonesia branch (3 vehicles)") ||
+    (q.includes("13 vehicles") && !q.includes("fuel"))
+  ) {
+    appScreenType = "travel-question-3";
+    fullResponse = "";
+  }
+  // PRIORITY 0c-Travel: Step 1 Answered -> Question 2 of 3 (Which vehicles should I include?)
+  else if (
+    q.includes("travel summary report") ||
+    q.includes("travel history report") ||
+    q.includes("driver activity & work hours")
+  ) {
+    if (q.includes("history")) {
+      travelReportMode = "history";
+    } else {
+      travelReportMode = "summary";
+    }
+    appScreenType = "travel-question-2";
+    fullResponse = "";
+  }
+  // PRIORITY 0d-Travel: Initial Travel Query -> Question 1 of 3 (Which travel report do you need?)
+  else if (
+    q.includes("travel report") ||
+    q.includes("travel summary") ||
+    q.includes("travel history") ||
+    q.includes("travel")
+  ) {
+    if (q.includes("history")) {
+      travelReportMode = "history";
+    } else {
+      travelReportMode = "summary";
+    }
+    appScreenType = "travel-question-1";
+    fullResponse = "";
+  }
+  // ── FUEL REPORT CONVERSATIONAL PLAYBOOK ──
+  // PRIORITY 0a-Fuel: Step 3 Answered -> Generate Final Fuel Report
+  else if (
+    q.includes("today included") ||
+    q.includes("full days only") ||
+    q.includes("this month so far") ||
+    q.includes("28 sep to 12 oct") ||
+    q.includes("27 sep to 11 oct") ||
+    q.includes("1 oct to 12 oct") ||
+    (q.includes("skip questions") && !q.includes("travel")) ||
+    (q.includes("recommended answers") && !q.includes("travel")) ||
+    q.includes("generate report") ||
+    q.includes("generate fill-drain")
+  ) {
+    appScreenType = "fuel-report";
+    fullResponse =
+      "### ⛽ Fill-Drain Fuel Telemetry Report (Last 15 Days)\n\n" +
+      "Generated the interactive **Fill-Drain Fuel Report** covering **Sep 30 – Oct 14, 2026** (15 completed days) for your fleet:\n\n" +
+      "- **Total Distance Covered**: **5,744.38 km** across 9 logged commercial assets.\n" +
+      "- **Total Fuel Consumed**: **4,409.85 L** (Running: 4,408.87 L | Idling: 2.64 L).\n" +
+      "- **Refills Detected (Fills)**: **2 refill events** totaling **4,385.90 L** (Bulk refuels detected on asset `Fuel - 12393` in Valsad Branch).\n" +
+      "- **Theft / Drain Anomaly**: **0.00 L** — No sudden fuel level drops while ignition OFF detected across all sensors.\n\n" +
+      "*You can filter by branch, toggle refill events, or export to Excel/PDF using the controls in the report above.*";
+  }
+  // PRIORITY 0b-Fuel: Step 2 Answered -> Question 3 of 3 (Should today be included?)
+  else if (
+    q.includes("all 9 vehicles") ||
+    q.includes("all vehicles") ||
+    q.includes("indonesia branch") ||
+    q.includes("thailand branch") ||
+    q.includes("valsad branch") ||
+    q.includes("every vehicle")
+  ) {
+    appScreenType = "fuel-question-3";
+    fullResponse = "";
+  }
+  // PRIORITY 0c-Fuel: Step 1 Answered -> Question 2 of 3 (Which vehicles should I include?)
+  else if (
+    q.includes("fill-drain report") ||
+    q.includes("fuel consumption report") ||
+    q.includes("fuel cost report") ||
+    q.includes("fill-drain") ||
+    q.includes("fill drain")
+  ) {
+    appScreenType = "fuel-question-2";
+    fullResponse = "";
+  }
+  // PRIORITY 0d-Fuel: Initial Fuel Report Query -> Question 1 of 3 (Which fuel report do you need?)
+  else if (
+    q.includes("fuel report") ||
+    q.includes("fuel") ||
+    q.includes("refill") ||
+    q.includes("drain") ||
+    q.includes("diesel") ||
+    q.includes("petrol") ||
+    (q.includes("15 days") && (q.includes("report") || q.includes("fuel")))
+  ) {
+    appScreenType = "fuel-question-1";
+    fullResponse = "";
+  }
+  // PRIORITY 1: Trip Summary / Trip Report / Mileage / Distance
+  else if (
     q.includes("trip summary") ||
     q.includes("trip report") ||
     q.includes("top vehicle") ||
