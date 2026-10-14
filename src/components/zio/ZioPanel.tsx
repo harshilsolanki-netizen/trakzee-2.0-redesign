@@ -19,7 +19,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +32,7 @@ import {
   type ZioPanelMode,
 } from "@/zio/ZioContext";
 import { ApplicationScreenPreview } from "./ApplicationScreenPreview";
+import { TrakzeeWalkthroughScreen } from "./TrakzeeWalkthroughScreen";
 import { cn } from "@/lib/utils";
 
 function renderInlineMarkdown(text: string): React.ReactNode {
@@ -387,6 +388,7 @@ export function ZioPanel({
     if (!input.trim() || isStreaming) return;
     const text = input;
     setInput("");
+    setIsWalkthroughDismissed(false);
     sendMessage(text);
   };
 
@@ -402,6 +404,70 @@ export function ZioPanel({
   // Dynamic icon reflecting the CURRENT active mode
   const CurrentModeIcon =
     mode === "sidebar" ? PanelRight : mode === "fullscreen" ? Maximize2 : Copy;
+
+  const [isWalkthroughDismissed, setIsWalkthroughDismissed] = useState(false);
+
+  const handleExitWalkthrough = useCallback(() => {
+    setIsWalkthroughDismissed(true);
+    if (!forcedMode) {
+      closeZio();
+    }
+  }, [forcedMode, closeZio]);
+
+  // Check if a walkthrough is currently active in the chat
+  const isWalkthroughActive =
+    !isWalkthroughDismissed &&
+    !isHistoryOpen &&
+    messages.length > 0 &&
+    messages.some(
+      (m) =>
+        m.appScreenType === "add-object-walkthrough" ||
+        m.appScreenType === "company-walkthrough" ||
+        m.content.toLowerCase().includes("how to add") ||
+        m.content.toLowerCase().includes("i want to add") ||
+        m.content.toLowerCase().includes("how would i create a company") ||
+        m.content.toLowerCase().includes("create a company") ||
+        m.content.toLowerCase().includes("create company") ||
+        m.content.toLowerCase().includes("add object") ||
+        m.content.toLowerCase().includes("add vehicle") ||
+        m.content.toLowerCase().includes("walkthrough") ||
+        m.content.toLowerCase().includes("guidance") ||
+        m.content.toLowerCase().includes("guidence"),
+    );
+
+  const walkthroughTopic: "company" | "object" =
+    messages.some(
+      (m) =>
+        m.appScreenType === "company-walkthrough" ||
+        (m.content.toLowerCase().includes("company") &&
+          !m.content.toLowerCase().includes("object") &&
+          !m.content.toLowerCase().includes("vehicle")),
+    )
+      ? "company"
+      : "object";
+
+  if (isFullscreen && isWalkthroughActive) {
+    return (
+      <div
+        className={cn(
+          "relative transition-all duration-300 ease-out flex flex-col w-full h-full flex-1 bg-[#F0F0F0] p-0 border-0 shadow-none overflow-hidden",
+          className,
+        )}
+      >
+        <TrakzeeWalkthroughScreen
+          topic={walkthroughTopic}
+          userQuery={[...messages].reverse().find((m) => m.role === "user")?.content}
+          onSendMessage={(msg) => {
+            setIsWalkthroughDismissed(false);
+            sendMessage(msg);
+          }}
+          onClose={handleExitWalkthrough}
+          onBack={handleExitWalkthrough}
+        />
+      </div>
+    );
+  }
+
 
   return (
     <div
@@ -605,7 +671,7 @@ export function ZioPanel({
                     >
                       <path
                         d="M -10 34 C -4.5 34 0 28.5 0 22 L 0 10 C 0 4.5 4.5 0 10 0 L 90 0 C 95.5 0 100 4.5 100 10 L 100 22 C 100 28.5 104.5 34 110 34 Z"
-                        fill={activeTab === "ask" ? "#E6F2FD" : "#F4F5F7"}
+                        fill={activeTab === "ask" ? "#BBE6FD" : "#F4F5F7"}
                       />
                     </svg>
                     <span className="relative z-10 text-[13px] whitespace-nowrap">Ask Zio</span>
@@ -629,7 +695,7 @@ export function ZioPanel({
                     >
                       <path
                         d="M -10 34 C -4.5 34 0 28.5 0 22 L 0 10 C 0 4.5 4.5 0 10 0 L 94 0 C 99.5 0 104 4.5 104 10 L 104 22 C 104 28.5 108.5 34 114 34 Z"
-                        fill={activeTab === "artifacts" ? "#E6F2FD" : "#F4F5F7"}
+                        fill={activeTab === "artifacts" ? "#BBE6FD" : "#F4F5F7"}
                       />
                     </svg>
                     <span className="relative z-10 text-[13px] whitespace-nowrap">Artifacts</span>

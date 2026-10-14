@@ -36,6 +36,7 @@ import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 import { getStoredLayoutMode, setStoredLayoutMode, type ScreenLayoutMode } from "@/lib/useLayoutMode";
 import { getStoredTrackingViewMode, setStoredTrackingViewMode, type TrackingViewMode } from "@/lib/useTrackingViewMode";
+import { useAuth } from "@/auth/AuthContext";
 
 type UserModalKind =
   | "password"
@@ -341,8 +342,9 @@ export function UserProfileMenu() {
   const [draftThemeId, setDraftThemeId] = useState<string>(activeThemeId);
   const [draftUiStyle, setDraftUiStyle] = useState<UiElementStyle>(activeUiStyle);
 
-  const [userEmail] = useState("hpcompany@yopmail.com");
-  const [userName] = useState("VK");
+  const { logout, user } = useAuth();
+  const userEmail = user?.email || "design.uffizio.com";
+  const userName = "VK";
 
   // Load and apply saved theme and UI style on initial mount
   useEffect(() => {
@@ -416,9 +418,7 @@ export function UserProfileMenu() {
   };
 
   const handleLogout = () => {
-    toast.info("Logged out successfully", {
-      description: `Signed out of ${userEmail}`,
-    });
+    logout();
   };
 
   const handleSelectTheme = (themeId: string) => {

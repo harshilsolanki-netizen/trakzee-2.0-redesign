@@ -102,9 +102,82 @@ export async function streamZioResponse(
         ? "B"
         : "C";
 
+  // ── COMPANY WALKTHROUGH & GUIDANCE ──
+  const isCompanyQuery =
+    q.includes("company") &&
+    (q.includes("create") ||
+      q.includes("add") ||
+      q.includes("how") ||
+      q.includes("new") ||
+      q.includes("account") ||
+      q.includes("walkthrough"));
+
+  if (isCompanyQuery) {
+    appScreenType = "company-walkthrough";
+    fullResponse =
+      "### 🏢 Create a Company Account\n\n" +
+      "A company account is created under a reseller and is managed by a Reseller or Admin:\n\n" +
+      "1. Log in and open **Settings → General → Company**.\n" +
+      "2. Click the **+ Company** button.\n" +
+      "3. On **My Account**, pick the reseller.\n" +
+      "4. Select the country, state, district and RTO division, then add the short name.\n" +
+      "5. Enter the username (email address) and choose credential delivery (Email or SMS).\n" +
+      "6. Set password meeting security compliance.\n" +
+      "7. Add contact details and data storage period (90 days).\n" +
+      "8. Review Rule and User Settings tabs.\n" +
+      "9. Click **Save** to commit the new company account.\n\n" +
+      "💡 *Follow the interactive step-by-step walkthrough above to view the animated guidance!*";
+  }
+  // ── ADD OBJECT / VEHICLE WALKTHROUGH & GUIDANCE ──
+  else if (
+    (q.includes("add") &&
+      (q.includes("vehicle") ||
+        q.includes("object") ||
+        q.includes("car") ||
+        q.includes("truck") ||
+        q.includes("asset") ||
+        q.includes("fleet") ||
+        q.includes("device") ||
+        q.includes("how"))) ||
+    (q.includes("create") &&
+      (q.includes("vehicle") ||
+        q.includes("object") ||
+        q.includes("asset"))) ||
+    (q.includes("new") &&
+      (q.includes("vehicle") ||
+        q.includes("object") ||
+        q.includes("asset"))) ||
+    q.includes("how to add") ||
+    q.includes("how do i add") ||
+    q.includes("how can i add") ||
+    q.includes("i want to add") ||
+    q.includes("want to add") ||
+    q.includes("walkthrough") ||
+    q.includes("guidence") ||
+    q.includes("guidance") ||
+    q.includes("tour") ||
+    (q.includes("how") && (q.includes("vehicle") || q.includes("object")))
+  ) {
+    appScreenType = "add-object-walkthrough";
+    fullResponse =
+      "### 🚗 How to Add an Object / Vehicle in Trakzee 2.0\n\n" +
+      "There are **two ways** to add and configure an object in your fleet:\n\n" +
+      "1. **From Live Tracking (Fleet Explorer Panel)**:\n" +
+      "   - Open **Live Tracking** from the left navigation bar.\n" +
+      "   - In the Fleet Explorer toolbar, click the **+ Object** button.\n" +
+      "   - An enrollment overlay modal opens directly over the map. Enter the **Vehicle Registration No.**, **Device IMEI**, and select the **Vehicle Type**.\n" +
+      "   - Click **Save Object** to immediately track the vehicle on the live map.\n\n" +
+      "2. **From Settings Console**:\n" +
+      "   - Click **Settings** in the main sidebar.\n" +
+      "   - Select **General → Object** configuration.\n" +
+      "   - Click the blue **+ Object** button in the table header.\n" +
+      "   - Enter detailed specifications (IMEI, Device Model, Group/Branch, Driver assignment, and Fuel sensor calibration).\n" +
+      "   - Click **Save Object** to finalize enterprise onboarding.\n\n" +
+      "✨ *Follow the interactive step-by-step walkthrough above to view the animated cursor guidance and modal overlay!*";
+  }
   // ── TRAVEL REPORT CONVERSATIONAL PLAYBOOK ──
   // PRIORITY 0a-Travel: Step 3 Answered or Skip -> Generate Final Travel Report (Summary or History)
-  if (
+  else if (
     q.includes("today [13-10-2026") ||
     q.includes("yesterday (full 24 hours)") ||
     q.includes("last 7 days weekly overview") ||

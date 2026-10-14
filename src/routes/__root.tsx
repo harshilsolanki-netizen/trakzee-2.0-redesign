@@ -22,6 +22,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { DashboardProvider } from "@/dashboard/store";
 import { ZioProvider, useZio } from "@/zio/ZioContext";
 import { cn } from "@/lib/utils";
+import { AuthProvider, useAuth } from "@/auth/AuthContext";
+import { LoginPage } from "@/components/auth/LoginPage";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -143,18 +145,24 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider delayDuration={200}>
-        <DashboardProvider>
-          <ZioProvider>
-            <AppLayout />
-            <Toaster position="bottom-right" />
-          </ZioProvider>
-        </DashboardProvider>
+        <AuthProvider>
+          <DashboardProvider>
+            <ZioProvider>
+              <AppLayout />
+              <Toaster position="bottom-right" />
+            </ZioProvider>
+          </DashboardProvider>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
 }
 
 function AppLayout() {
+  const { isAuthenticated } = useAuth();
+  const { isOpen, mode, openZio } = useZio();
+  const location = useRouterState({ select: (s) => s.location });
+
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem("trakzee-active-theme-id");
@@ -163,8 +171,11 @@ function AppLayout() {
       if (savedUi) applyUiStyle(savedUi);
     } catch {}
   }, []);
-  const { isOpen, mode, openZio } = useZio();
-  const location = useRouterState({ select: (s) => s.location });
+
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
   const isZioStandaloneRoute = location.pathname.startsWith("/zio");
 
   const isSidebar = isOpen && mode === "sidebar" && !isZioStandaloneRoute;
@@ -198,7 +209,7 @@ function AppLayout() {
 
           {/* Fullscreen Zio Mode: Smoothly covers the main workspace area matching reference screenshot */}
           {isFullscreen && (
-            <div className="fixed top-[45px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-background/80 backdrop-blur-xs animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col">
+            <div className="fixed top-[45px] bottom-0 left-0 sm:left-14 right-0 z-50 p-3 bg-[#F0F0F0] animate-in fade-in zoom-in-[0.98] duration-300 ease-out flex flex-col">
               <ZioPanel mode="fullscreen" className="h-full w-full flex-1" />
             </div>
           )}

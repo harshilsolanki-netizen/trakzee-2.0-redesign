@@ -385,6 +385,16 @@ export function ZioProvider({ children }: { children: ReactNode }) {
           prev.map((m) => (m.id === assistantMsgId ? finalAssistantMsg : m)),
         );
 
+        if (
+          result.appScreenType === "add-object-walkthrough" ||
+          result.appScreenType === "company-walkthrough"
+        ) {
+          setModeState("fullscreen");
+          try {
+            localStorage.setItem("zio-preferred-mode-v4", "fullscreen");
+          } catch {}
+        }
+
         // Update session messages in sessions state
         if (currentSessionId) {
           const sid = currentSessionId;

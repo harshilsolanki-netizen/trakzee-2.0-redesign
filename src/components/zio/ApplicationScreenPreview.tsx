@@ -47,6 +47,7 @@ import {
   TravelQuestion2Card,
   TravelQuestion3Card,
 } from "./TravelReportQuestions";
+import { AddObjectWalkthrough } from "./AddObjectWalkthrough";
 
 export type ApplicationScreenType =
   | "dashboard"
@@ -64,7 +65,9 @@ export type ApplicationScreenType =
   | "travel-question-2"
   | "travel-question-3"
   | "travel-summary"
-  | "travel-history";
+  | "travel-history"
+  | "add-object-walkthrough"
+  | "company-walkthrough";
 
 interface ApplicationScreenPreviewProps {
   type: ApplicationScreenType;
@@ -77,7 +80,7 @@ export function ApplicationScreenPreview({
   title,
   data,
 }: ApplicationScreenPreviewProps) {
-  const { sendMessage } = useZio();
+  const { sendMessage, clearMessages } = useZio();
   const [zoom, setZoom] = useState(1);
   const [mapFilter, setMapFilter] = useState<string | null>(null);
   const [selectedPin, setSelectedPin] = useState<{
@@ -87,6 +90,23 @@ export function ApplicationScreenPreview({
     loc: string;
     status: string;
   } | null>(null);
+
+  // Walkthrough Simulator & Guidance in Trakzee 2.0 Theme
+  if (type === "add-object-walkthrough") {
+    return (
+      <div className="w-full my-2">
+        <AddObjectWalkthrough defaultMethod="tracking" />
+      </div>
+    );
+  }
+
+  if (type === "company-walkthrough") {
+    return (
+      <div className="w-full my-2">
+        <AddObjectWalkthrough defaultMethod="settings" />
+      </div>
+    );
+  }
 
   // 0a. Conversational Step-by-Step Question Playbook
   if (type === "fuel-question-1") {
