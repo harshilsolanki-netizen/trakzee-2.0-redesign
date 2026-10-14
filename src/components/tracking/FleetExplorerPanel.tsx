@@ -1880,35 +1880,21 @@ export function FleetExplorerPanel({
                   activeJobStatus === "running" ? "all" : "running",
                 )
               }
+              style={{
+                backgroundColor: activeJobStatus === "running" ? "#008446" : "#ECFDF3",
+                borderColor: activeJobStatus === "running" ? "#008446" : "#A6F4C5",
+                color: activeJobStatus === "running" ? "#FFFFFF" : "#008446",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "running"
-                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
-                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeJobStatus === "running" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeJobStatus === "running"
-                      ? "bg-white animate-pulse"
-                      : "bg-emerald-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {jobCounts.running}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeJobStatus === "running"
-                    ? "text-emerald-100"
-                    : "text-emerald-700/80 dark:text-emerald-400/80",
-                )}
-              >
-                Running
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {jobCounts.running}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                RUNNING
               </span>
             </button>
 
@@ -1920,35 +1906,21 @@ export function FleetExplorerPanel({
                   activeJobStatus === "completed" ? "all" : "completed",
                 )
               }
+              style={{
+                backgroundColor: activeJobStatus === "completed" ? "#0089FF" : "#EBF5FF",
+                borderColor: activeJobStatus === "completed" ? "#0089FF" : "#B9E6FE",
+                color: activeJobStatus === "completed" ? "#FFFFFF" : "#0089FF",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "completed"
-                  ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/25 font-bold scale-[1.02]"
-                  : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-sky-800 dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeJobStatus === "completed" && "shadow-sm shadow-[#0089FF]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeJobStatus === "completed"
-                      ? "bg-white"
-                      : "bg-[#0089FF]",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {jobCounts.completed}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeJobStatus === "completed"
-                    ? "text-sky-100"
-                    : "text-sky-700/80 dark:text-sky-400/80",
-                )}
-              >
-                Completed
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {jobCounts.completed}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                COMPLETED
               </span>
             </button>
 
@@ -1960,35 +1932,21 @@ export function FleetExplorerPanel({
                   activeJobStatus === "upcoming" ? "all" : "upcoming",
                 )
               }
+              style={{
+                backgroundColor: activeJobStatus === "upcoming" ? "#C46F37" : "#FEF7E6",
+                borderColor: activeJobStatus === "upcoming" ? "#C46F37" : "#FEDF89",
+                color: activeJobStatus === "upcoming" ? "#FFFFFF" : "#C46F37",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "upcoming"
-                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
-                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeJobStatus === "upcoming" && "shadow-sm shadow-[#C46F37]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeJobStatus === "upcoming"
-                      ? "bg-white"
-                      : "bg-amber-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {jobCounts.upcoming}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeJobStatus === "upcoming"
-                    ? "text-amber-100"
-                    : "text-amber-700/80 dark:text-amber-400/80",
-                )}
-              >
-                Upcoming
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {jobCounts.upcoming}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                UPCOMING
               </span>
             </button>
 
@@ -2000,33 +1958,21 @@ export function FleetExplorerPanel({
                   activeJobStatus === "fail" ? "all" : "fail",
                 )
               }
+              style={{
+                backgroundColor: activeJobStatus === "fail" ? "#C70036" : "#FFF1F3",
+                borderColor: activeJobStatus === "fail" ? "#C70036" : "#FCCEE8",
+                color: activeJobStatus === "fail" ? "#FFFFFF" : "#C70036",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "fail"
-                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
-                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeJobStatus === "fail" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeJobStatus === "fail" ? "bg-white" : "bg-rose-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {jobCounts.fail}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeJobStatus === "fail"
-                    ? "text-rose-100"
-                    : "text-rose-700/80 dark:text-rose-400/80",
-                )}
-              >
-                Fail
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {jobCounts.fail}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                FAIL
               </span>
             </button>
 
@@ -2034,33 +1980,21 @@ export function FleetExplorerPanel({
             <button
               type="button"
               onClick={() => setActiveJobStatus("all")}
+              style={{
+                backgroundColor: activeJobStatus === "all" ? "#223344" : "#E2E8F0",
+                borderColor: activeJobStatus === "all" ? "#223344" : "#CBD5E1",
+                color: activeJobStatus === "all" ? "#FFFFFF" : "#223344",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeJobStatus === "all"
-                  ? "bg-slate-700 text-white border-slate-800 shadow-md shadow-slate-700/25 font-bold scale-[1.02]"
-                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeJobStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeJobStatus === "all" ? "bg-white" : "bg-slate-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {jobCounts.total}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeJobStatus === "all"
-                    ? "text-slate-200"
-                    : "text-slate-600 dark:text-slate-400",
-                )}
-              >
-                Total
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {jobCounts.total}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                TOTAL
               </span>
             </button>
           </div>
@@ -2076,35 +2010,21 @@ export function FleetExplorerPanel({
                   activeTrailerStatus === "attached" ? "all" : "attached",
                 )
               }
+              style={{
+                backgroundColor: activeTrailerStatus === "attached" ? "#008446" : "#ECFDF3",
+                borderColor: activeTrailerStatus === "attached" ? "#008446" : "#A6F4C5",
+                color: activeTrailerStatus === "attached" ? "#FFFFFF" : "#008446",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeTrailerStatus === "attached"
-                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
-                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeTrailerStatus === "attached" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeTrailerStatus === "attached"
-                      ? "bg-white animate-pulse"
-                      : "bg-emerald-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {trailerCounts.attached}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeTrailerStatus === "attached"
-                    ? "text-emerald-100"
-                    : "text-emerald-700/80 dark:text-emerald-400/80",
-                )}
-              >
-                Attached
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {trailerCounts.attached}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                ATTACHED
               </span>
             </button>
 
@@ -2116,35 +2036,21 @@ export function FleetExplorerPanel({
                   activeTrailerStatus === "notAttached" ? "all" : "notAttached",
                 )
               }
+              style={{
+                backgroundColor: activeTrailerStatus === "notAttached" ? "#C70036" : "#FFF1F3",
+                borderColor: activeTrailerStatus === "notAttached" ? "#C70036" : "#FCCEE8",
+                color: activeTrailerStatus === "notAttached" ? "#FFFFFF" : "#C70036",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeTrailerStatus === "notAttached"
-                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
-                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeTrailerStatus === "notAttached" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeTrailerStatus === "notAttached"
-                      ? "bg-white"
-                      : "bg-rose-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {trailerCounts.notAttached}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeTrailerStatus === "notAttached"
-                    ? "text-rose-100"
-                    : "text-rose-700/80 dark:text-rose-400/80",
-                )}
-              >
-                Not Attached
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {trailerCounts.notAttached}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                NOT ATTACHED
               </span>
             </button>
 
@@ -2152,33 +2058,21 @@ export function FleetExplorerPanel({
             <button
               type="button"
               onClick={() => setActiveTrailerStatus("all")}
+              style={{
+                backgroundColor: activeTrailerStatus === "all" ? "#223344" : "#E2E8F0",
+                borderColor: activeTrailerStatus === "all" ? "#223344" : "#CBD5E1",
+                color: activeTrailerStatus === "all" ? "#FFFFFF" : "#223344",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeTrailerStatus === "all"
-                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
-                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeTrailerStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeTrailerStatus === "all" ? "bg-white" : "bg-slate-400",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {trailerCounts.total}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeTrailerStatus === "all"
-                    ? "text-slate-200"
-                    : "text-slate-600 dark:text-slate-400",
-                )}
-              >
-                Total
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {trailerCounts.total}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                TOTAL
               </span>
             </button>
           </div>
@@ -2194,35 +2088,21 @@ export function FleetExplorerPanel({
                   activeBeaconStatus === "connected" ? "all" : "connected",
                 )
               }
+              style={{
+                backgroundColor: activeBeaconStatus === "connected" ? "#008446" : "#ECFDF3",
+                borderColor: activeBeaconStatus === "connected" ? "#008446" : "#A6F4C5",
+                color: activeBeaconStatus === "connected" ? "#FFFFFF" : "#008446",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeBeaconStatus === "connected"
-                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
-                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeBeaconStatus === "connected" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeBeaconStatus === "connected"
-                      ? "bg-white animate-pulse"
-                      : "bg-emerald-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {beaconCounts.connected}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeBeaconStatus === "connected"
-                    ? "text-emerald-100"
-                    : "text-emerald-700/80 dark:text-emerald-400/80",
-                )}
-              >
-                Connected
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {beaconCounts.connected}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                CONNECTED
               </span>
             </button>
 
@@ -2234,35 +2114,21 @@ export function FleetExplorerPanel({
                   activeBeaconStatus === "disconnected" ? "all" : "disconnected",
                 )
               }
+              style={{
+                backgroundColor: activeBeaconStatus === "disconnected" ? "#C70036" : "#FFF1F3",
+                borderColor: activeBeaconStatus === "disconnected" ? "#C70036" : "#FCCEE8",
+                color: activeBeaconStatus === "disconnected" ? "#FFFFFF" : "#C70036",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeBeaconStatus === "disconnected"
-                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
-                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeBeaconStatus === "disconnected" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeBeaconStatus === "disconnected"
-                      ? "bg-white"
-                      : "bg-rose-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {beaconCounts.disconnected}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeBeaconStatus === "disconnected"
-                    ? "text-rose-100"
-                    : "text-rose-700/80 dark:text-rose-400/80",
-                )}
-              >
-                Disconnected
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {beaconCounts.disconnected}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                DISCONNECTED
               </span>
             </button>
 
@@ -2270,33 +2136,21 @@ export function FleetExplorerPanel({
             <button
               type="button"
               onClick={() => setActiveBeaconStatus("all")}
+              style={{
+                backgroundColor: activeBeaconStatus === "all" ? "#223344" : "#E2E8F0",
+                borderColor: activeBeaconStatus === "all" ? "#223344" : "#CBD5E1",
+                color: activeBeaconStatus === "all" ? "#FFFFFF" : "#223344",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeBeaconStatus === "all"
-                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
-                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeBeaconStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeBeaconStatus === "all" ? "bg-white" : "bg-slate-400",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {beaconCounts.total}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeBeaconStatus === "all"
-                    ? "text-slate-200"
-                    : "text-slate-600 dark:text-slate-400",
-                )}
-              >
-                Total
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {beaconCounts.total}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                TOTAL
               </span>
             </button>
           </div>
@@ -2312,35 +2166,21 @@ export function FleetExplorerPanel({
                   activeVideoStatus === "running" ? "all" : "running",
                 )
               }
+              style={{
+                backgroundColor: activeVideoStatus === "running" ? "#008446" : "#ECFDF3",
+                borderColor: activeVideoStatus === "running" ? "#008446" : "#A6F4C5",
+                color: activeVideoStatus === "running" ? "#FFFFFF" : "#008446",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeVideoStatus === "running"
-                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
-                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeVideoStatus === "running" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeVideoStatus === "running"
-                      ? "bg-white animate-pulse"
-                      : "bg-emerald-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {videoCounts.running}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeVideoStatus === "running"
-                    ? "text-emerald-100"
-                    : "text-emerald-700/80 dark:text-emerald-400/80",
-                )}
-              >
-                Running
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {videoCounts.running}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                RUNNING
               </span>
             </button>
 
@@ -2352,33 +2192,21 @@ export function FleetExplorerPanel({
                   activeVideoStatus === "idle" ? "all" : "idle",
                 )
               }
+              style={{
+                backgroundColor: activeVideoStatus === "idle" ? "#C46F37" : "#FEF7E6",
+                borderColor: activeVideoStatus === "idle" ? "#C46F37" : "#FEDF89",
+                color: activeVideoStatus === "idle" ? "#FFFFFF" : "#C46F37",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeVideoStatus === "idle"
-                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
-                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeVideoStatus === "idle" && "shadow-sm shadow-[#C46F37]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeVideoStatus === "idle" ? "bg-white" : "bg-amber-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {videoCounts.idle}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeVideoStatus === "idle"
-                    ? "text-amber-100"
-                    : "text-amber-700/80 dark:text-amber-400/80",
-                )}
-              >
-                Idle
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {videoCounts.idle}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                IDLE
               </span>
             </button>
 
@@ -2390,33 +2218,21 @@ export function FleetExplorerPanel({
                   activeVideoStatus === "stopped" ? "all" : "stopped",
                 )
               }
+              style={{
+                backgroundColor: activeVideoStatus === "stopped" ? "#C70036" : "#FFF1F3",
+                borderColor: activeVideoStatus === "stopped" ? "#C70036" : "#FCCEE8",
+                color: activeVideoStatus === "stopped" ? "#FFFFFF" : "#C70036",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeVideoStatus === "stopped"
-                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
-                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeVideoStatus === "stopped" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeVideoStatus === "stopped" ? "bg-white" : "bg-rose-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {videoCounts.stopped}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeVideoStatus === "stopped"
-                    ? "text-rose-100"
-                    : "text-rose-700/80 dark:text-rose-400/80",
-                )}
-              >
-                Stopped
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {videoCounts.stopped}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                STOPPED
               </span>
             </button>
 
@@ -2428,35 +2244,21 @@ export function FleetExplorerPanel({
                   activeVideoStatus === "inactive" ? "all" : "inactive",
                 )
               }
+              style={{
+                backgroundColor: activeVideoStatus === "inactive" ? "#372AAC" : "#F0EFFF",
+                borderColor: activeVideoStatus === "inactive" ? "#372AAC" : "#D9D6FE",
+                color: activeVideoStatus === "inactive" ? "#FFFFFF" : "#372AAC",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeVideoStatus === "inactive"
-                  ? "bg-indigo-500 text-white border-indigo-600 shadow-md shadow-indigo-500/25 font-bold scale-[1.02]"
-                  : "bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200/60 dark:border-indigo-800/40 text-indigo-800 dark:text-indigo-300 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeVideoStatus === "inactive" && "shadow-sm shadow-[#372AAC]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeVideoStatus === "inactive"
-                      ? "bg-white"
-                      : "bg-indigo-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {videoCounts.inactive}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeVideoStatus === "inactive"
-                    ? "text-indigo-100"
-                    : "text-indigo-700/80 dark:text-indigo-400/80",
-                )}
-              >
-                Inactive
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {videoCounts.inactive}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                INACTIVE
               </span>
             </button>
 
@@ -2464,33 +2266,21 @@ export function FleetExplorerPanel({
             <button
               type="button"
               onClick={() => setActiveVideoStatus("all")}
+              style={{
+                backgroundColor: activeVideoStatus === "all" ? "#223344" : "#E2E8F0",
+                borderColor: activeVideoStatus === "all" ? "#223344" : "#CBD5E1",
+                color: activeVideoStatus === "all" ? "#FFFFFF" : "#223344",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeVideoStatus === "all"
-                  ? "bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
-                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeVideoStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeVideoStatus === "all" ? "bg-white" : "bg-slate-400",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {videoCounts.total}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeVideoStatus === "all"
-                    ? "text-slate-200"
-                    : "text-slate-600 dark:text-slate-400",
-                )}
-              >
-                Total
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {videoCounts.total}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                TOTAL
               </span>
             </button>
           </div>
@@ -2506,35 +2296,21 @@ export function FleetExplorerPanel({
                   activeDriverStatus === "allocated" ? "all" : "allocated",
                 )
               }
+              style={{
+                backgroundColor: activeDriverStatus === "allocated" ? "#008446" : "#ECFDF3",
+                borderColor: activeDriverStatus === "allocated" ? "#008446" : "#A6F4C5",
+                color: activeDriverStatus === "allocated" ? "#FFFFFF" : "#008446",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeDriverStatus === "allocated"
-                  ? "bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25 font-bold scale-[1.02]"
-                  : "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeDriverStatus === "allocated" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeDriverStatus === "allocated"
-                      ? "bg-white"
-                      : "bg-emerald-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {driverCounts.allocated}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeDriverStatus === "allocated"
-                    ? "text-emerald-100"
-                    : "text-emerald-700/80 dark:text-emerald-400/80",
-                )}
-              >
-                Allocated
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.allocated}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                ALLOCATED
               </span>
             </button>
 
@@ -2548,35 +2324,21 @@ export function FleetExplorerPanel({
                     : "not_allocated",
                 )
               }
+              style={{
+                backgroundColor: activeDriverStatus === "not_allocated" ? "#C70036" : "#FFF1F3",
+                borderColor: activeDriverStatus === "not_allocated" ? "#C70036" : "#FCCEE8",
+                color: activeDriverStatus === "not_allocated" ? "#FFFFFF" : "#C70036",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeDriverStatus === "not_allocated"
-                  ? "bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25 font-bold scale-[1.02]"
-                  : "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeDriverStatus === "not_allocated" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeDriverStatus === "not_allocated"
-                      ? "bg-white"
-                      : "bg-rose-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {driverCounts.notAllocated}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeDriverStatus === "not_allocated"
-                    ? "text-rose-100"
-                    : "text-rose-700/80 dark:text-rose-400/80",
-                )}
-              >
-                Not Alloc
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.notAllocated}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                NOT ALLOC
               </span>
             </button>
 
@@ -2588,35 +2350,21 @@ export function FleetExplorerPanel({
                   activeDriverStatus === "available" ? "all" : "available",
                 )
               }
+              style={{
+                backgroundColor: activeDriverStatus === "available" ? "#0089FF" : "#EBF5FF",
+                borderColor: activeDriverStatus === "available" ? "#0089FF" : "#B9E6FE",
+                color: activeDriverStatus === "available" ? "#FFFFFF" : "#0089FF",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeDriverStatus === "available"
-                  ? "bg-[#0089FF] text-white border-sky-600 shadow-md shadow-sky-500/25 font-bold scale-[1.02]"
-                  : "bg-sky-50/70 dark:bg-sky-950/30 border-sky-200/60 dark:border-sky-800/40 text-sky-800 dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeDriverStatus === "available" && "shadow-sm shadow-[#0089FF]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeDriverStatus === "available"
-                      ? "bg-white"
-                      : "bg-[#0089FF]",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {driverCounts.available}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeDriverStatus === "available"
-                    ? "text-sky-100"
-                    : "text-sky-700/80 dark:text-sky-400/80",
-                )}
-              >
-                Available
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.available}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                AVAILABLE
               </span>
             </button>
 
@@ -2630,35 +2378,21 @@ export function FleetExplorerPanel({
                     : "not_available",
                 )
               }
+              style={{
+                backgroundColor: activeDriverStatus === "not_available" ? "#C46F37" : "#FEF7E6",
+                borderColor: activeDriverStatus === "not_available" ? "#C46F37" : "#FEDF89",
+                color: activeDriverStatus === "not_available" ? "#FFFFFF" : "#C46F37",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeDriverStatus === "not_available"
-                  ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25 font-bold scale-[1.02]"
-                  : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeDriverStatus === "not_available" && "shadow-sm shadow-[#C46F37]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeDriverStatus === "not_available"
-                      ? "bg-white"
-                      : "bg-amber-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {driverCounts.notAvailable}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeDriverStatus === "not_available"
-                    ? "text-amber-100"
-                    : "text-amber-700/80 dark:text-amber-400/80",
-                )}
-              >
-                Not Avail
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.notAvailable}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                NOT AVAIL
               </span>
             </button>
 
@@ -2670,35 +2404,21 @@ export function FleetExplorerPanel({
                   activeDriverStatus === "on_leave" ? "all" : "on_leave",
                 )
               }
+              style={{
+                backgroundColor: activeDriverStatus === "on_leave" ? "#372AAC" : "#F0EFFF",
+                borderColor: activeDriverStatus === "on_leave" ? "#372AAC" : "#D9D6FE",
+                color: activeDriverStatus === "on_leave" ? "#FFFFFF" : "#372AAC",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeDriverStatus === "on_leave"
-                  ? "bg-purple-600 text-white border-purple-700 shadow-md shadow-purple-500/25 font-bold scale-[1.02]"
-                  : "bg-purple-50/70 dark:bg-purple-950/30 border-purple-200/60 dark:border-purple-800/40 text-purple-800 dark:text-purple-300 hover:bg-purple-100/80 dark:hover:bg-purple-900/50",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeDriverStatus === "on_leave" && "shadow-sm shadow-[#372AAC]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeDriverStatus === "on_leave"
-                      ? "bg-white"
-                      : "bg-purple-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {driverCounts.onLeave}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeDriverStatus === "on_leave"
-                    ? "text-purple-100"
-                    : "text-purple-700/80 dark:text-purple-400/80",
-                )}
-              >
-                On Leave
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.onLeave}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                ON LEAVE
               </span>
             </button>
 
@@ -2706,35 +2426,21 @@ export function FleetExplorerPanel({
             <button
               type="button"
               onClick={() => setActiveDriverStatus("all")}
+              style={{
+                backgroundColor: activeDriverStatus === "all" ? "#223344" : "#E2E8F0",
+                borderColor: activeDriverStatus === "all" ? "#223344" : "#CBD5E1",
+                color: activeDriverStatus === "all" ? "#FFFFFF" : "#223344",
+              }}
               className={cn(
-                "flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border",
-                activeDriverStatus === "all"
-                  ? "bg-slate-700 text-white border-slate-800 shadow-md shadow-slate-700/25 font-bold scale-[1.02]"
-                  : "bg-slate-100/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700/80",
+                "flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans",
+                activeDriverStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    activeDriverStatus === "all"
-                      ? "bg-white"
-                      : "bg-slate-500",
-                  )}
-                />
-                <span className="text-xs font-black tabular-nums leading-none">
-                  {driverCounts.total}
-                </span>
-              </div>
-              <span
-                className={cn(
-                  "text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5",
-                  activeDriverStatus === "all"
-                    ? "text-slate-200"
-                    : "text-slate-600 dark:text-slate-400",
-                )}
-              >
-                Total
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.total}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                TOTAL
               </span>
             </button>
           </div>
@@ -4938,7 +4644,7 @@ export function FleetExplorerPanel({
 
               {/* BACK FACE: Flipped Object Checkpoint Details View (1:1 with media_1791279242339.png) */}
               <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                {/* 1. Status KPI Pills Summary Bar (Standard Application Component: h-[39.25px] 2-tier Grid Tabs) */}
+                {/* 1. Status KPI Pills Summary Bar */}
                 <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0 border-b border-slate-200/60 dark:border-slate-800/60">
                   <div className="grid grid-cols-4 gap-1.5">
                     {/* 1 UPCOMING */}
@@ -4948,14 +4654,16 @@ export function FleetExplorerPanel({
                         setSelectedJobDetail(null);
                         setActiveJobStatus("upcoming");
                       }}
-                      className="flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/60 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100/80 dark:hover:bg-amber-900/50"
+                      style={{
+                        backgroundColor: "#FEF7E6",
+                        borderColor: "#FEDF89",
+                        color: "#C46F37",
+                      }}
+                      className="flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans hover:bg-amber-100/80"
                     >
-                      <div className="flex items-center gap-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                        <span className="text-xs font-black tabular-nums leading-none">1</span>
-                      </div>
-                      <span className="text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5 text-amber-700/80 dark:text-amber-400/80">
-                        Upcoming
+                      <span className="text-[13px] font-bold tabular-nums leading-none">1</span>
+                      <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                        UPCOMING
                       </span>
                     </button>
 
@@ -4966,14 +4674,16 @@ export function FleetExplorerPanel({
                         setSelectedJobDetail(null);
                         setActiveJobStatus("running");
                       }}
-                      className="flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50"
+                      style={{
+                        backgroundColor: "#ECFDF3",
+                        borderColor: "#A6F4C5",
+                        color: "#008446",
+                      }}
+                      className="flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans hover:bg-emerald-100/80"
                     >
-                      <div className="flex items-center gap-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-xs font-black tabular-nums leading-none">3</span>
-                      </div>
-                      <span className="text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5 text-emerald-700/80 dark:text-emerald-400/80">
-                        Running
+                      <span className="text-[13px] font-bold tabular-nums leading-none">3</span>
+                      <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                        RUNNING
                       </span>
                     </button>
 
@@ -4984,28 +4694,32 @@ export function FleetExplorerPanel({
                         setSelectedJobDetail(null);
                         setActiveJobStatus("fail");
                       }}
-                      className="flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border bg-rose-50/70 dark:bg-rose-950/30 border-rose-200/60 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100/80 dark:hover:bg-rose-900/50"
+                      style={{
+                        backgroundColor: "#FFF1F3",
+                        borderColor: "#FCCEE8",
+                        color: "#C70036",
+                      }}
+                      className="flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans hover:bg-rose-100/80"
                     >
-                      <div className="flex items-center gap-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                        <span className="text-xs font-black tabular-nums leading-none">1</span>
-                      </div>
-                      <span className="text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5 text-rose-700/80 dark:text-rose-400/80">
-                        Missed
+                      <span className="text-[13px] font-bold tabular-nums leading-none">1</span>
+                      <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                        MISSED
                       </span>
                     </button>
 
                     {/* 8 CHECKPOINTS */}
                     <button
                       type="button"
-                      className="flex flex-col items-center justify-center h-[39.25px] px-0.5 rounded-lg transition-all duration-150 cursor-pointer select-none border bg-[#223344] text-white border-slate-700 shadow-md font-bold scale-[1.02]"
+                      style={{
+                        backgroundColor: "#223344",
+                        borderColor: "#223344",
+                        color: "#FFFFFF",
+                      }}
+                      className="flex flex-col items-center justify-center h-[42px] px-0.5 rounded-xl transition-all duration-150 cursor-pointer select-none border font-sans shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]"
                     >
-                      <div className="flex items-center gap-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                        <span className="text-xs font-black tabular-nums leading-none">8</span>
-                      </div>
-                      <span className="text-[9px] font-extrabold tracking-wide uppercase leading-tight mt-0.5 truncate max-w-full px-0.5 text-slate-200">
-                        Checkpoints
+                      <span className="text-[13px] font-bold tabular-nums leading-none">8</span>
+                      <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                        CHECKPOINTS
                       </span>
                     </button>
                   </div>
