@@ -36,18 +36,16 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
+    if (typeof window === "undefined") return false;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
         return parsed?.isAuthenticated === true;
       }
-      // First-time visit: default to logged-in for immediate convenience,
-      // but if user logs out, it persists as logged-out.
-      return true;
+      return false;
     } catch {
-      return true;
+      return false;
     }
   });
 
@@ -60,12 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (parsed?.user) return parsed.user;
       }
     } catch {}
-    return {
-      id: AUTH_CREDENTIALS.id,
-      name: AUTH_CREDENTIALS.defaultName,
-      email: AUTH_CREDENTIALS.id,
-      role: AUTH_CREDENTIALS.defaultRole,
-    };
+    return null;
   });
 
   const [isLoading, setIsLoading] = useState(false);
