@@ -34,9 +34,29 @@ const STORAGE_KEY = "trakzee_auth_session_v2";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const isLocalEnvironment = (): boolean => {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  return (
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host.startsWith("192.168.") ||
+    host.endsWith(".local") ||
+    Boolean(import.meta.env.DEV)
+  );
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
+    // On local environment / run locally, always start with the login page only
+    if (isLocalEnvironment()) {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(STORAGE_KEY);
+      } catch {}
+      return false;
+    }
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -51,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [user, setUser] = useState<AuthUser | null>(() => {
     if (typeof window === "undefined") return null;
+    if (isLocalEnvironment()) return null;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -60,6 +81,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
     return null;
   });
+
+  // On local mount, ensure any stale local sessions are completely cleared
+  useEffect(() => {
+    if (isLocalEnvironment()) {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(STORAGE_KEY);
+      } catch {}
+    }
+  }, []);
 
   const [isLoading, setIsLoading] = useState(false);
 

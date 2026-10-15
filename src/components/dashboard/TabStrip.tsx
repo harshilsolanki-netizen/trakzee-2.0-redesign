@@ -350,7 +350,7 @@ export function TabStrip() {
               <Plus className="h-3.5 w-3.5 text-[#0089FF] stroke-[2.2]" />
               <span>New</span>
               {hiddenTabs.length > 0 && (
-                <span className="rounded-full bg-[#0089FF] px-1.5 text-[9px] font-bold text-white">
+                <span className="rounded-full bg-[#0089FF] px-1.5 text-[11px] font-bold text-white">
                   {hiddenTabs.length}
                 </span>
               )}
@@ -377,7 +377,7 @@ export function TabStrip() {
 
             {/* 2. Hidden Tabs Section */}
             <div className="mt-1.5 pt-2 border-t border-border/60">
-              <span className="block px-2.5 pb-1 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+              <span className="block px-2.5 pb-1 text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
                 Hidden Tabs
               </span>
 
@@ -443,7 +443,7 @@ export function TabStrip() {
       </div>
 
       {/* 2. Right Toolbar: Matching Report Section CTA Design System & Grid Alignment */}
-      <div className="relative z-10 flex items-center gap-2 shrink-0 pb-1.5">
+      <div className="relative z-10 flex items-center gap-[10px] shrink-0 pb-1.5 pr-[10px]">
         {/* Filter Button */}
         <button
           type="button"

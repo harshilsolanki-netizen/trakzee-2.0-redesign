@@ -172,7 +172,7 @@ function AppLayout() {
     } catch {}
   }, []);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || location.pathname === "/login") {
     return <LoginPage />;
   }
 

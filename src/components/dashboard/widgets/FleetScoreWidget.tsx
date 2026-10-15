@@ -5,9 +5,10 @@ import {
   RadialBarChart,
   ResponsiveContainer,
 } from "recharts";
-import { WidgetCard } from "@/components/dashboard/WidgetCard";
+import { WidgetCard, useWidgetSize } from "@/components/dashboard/WidgetCard";
 import { useDashboard } from "@/dashboard/store";
 import { RANGE_LABEL, fleetScore, type Range } from "@/data/fleet";
+import { cn } from "@/lib/utils";
 
 const band = (score: number) => {
   if (score <= 50) return { label: "Poor", color: "var(--color-danger)" };
@@ -17,9 +18,13 @@ const band = (score: number) => {
 
 export function FleetScoreWidget() {
   const { activeTab, setTabRange, settings } = useDashboard();
+  const size = useWidgetSize();
   const range: Range = activeTab.range;
   const { score, delta } = fleetScore[range];
   const { color } = band(score);
+
+  const isLarge = size === "large";
+  const gaugeHeight = isLarge ? 240 : 160;
 
   return (
     <WidgetCard
@@ -28,33 +33,33 @@ export function FleetScoreWidget() {
       range={range}
       onRangeChange={(r) => setTabRange(activeTab.id, r)}
     >
-      <div className="flex flex-col items-center">
-        <div className="relative h-[190px] w-full max-w-[380px]">
+      <div className="flex flex-col items-center justify-between h-full min-h-0 select-none py-1">
+        <div style={{ height: gaugeHeight }} className="relative w-full max-w-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <RadialBarChart
               data={[{ name: "score", value: score, fill: color }]}
-              innerRadius="76%"
+              innerRadius={isLarge ? "76%" : "72%"}
               outerRadius="100%"
               startAngle={180}
               endAngle={0}
-              barSize={22}
+              barSize={isLarge ? 22 : 18}
             >
               <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-              <RadialBar background dataKey="value" cornerRadius={12} />
+              <RadialBar background dataKey="value" cornerRadius={10} />
             </RadialBarChart>
           </ResponsiveContainer>
-          <div className="pointer-events-none absolute inset-x-0 bottom-6 flex flex-col items-center">
-            <span className="text-5xl font-semibold tabular-nums text-foreground">
+          <div className="pointer-events-none absolute inset-x-0 bottom-2 flex flex-col items-center">
+            <span className={cn("font-bold tabular-nums text-foreground leading-none", isLarge ? "text-5xl" : "text-4xl")}>
               {score}
             </span>
-            <span className="mt-1 flex items-center gap-1 text-sm font-medium">
+            <span className={cn("flex items-center gap-1 font-medium", isLarge ? "mt-1 text-sm" : "mt-0.5 text-xs")}>
               {delta >= 0 ? (
-                <TrendingUp className="h-4 w-4 text-success" />
+                <TrendingUp className="h-3.5 w-3.5 text-success" />
               ) : (
-                <TrendingDown className="h-4 w-4 text-danger" />
+                <TrendingDown className="h-3.5 w-3.5 text-danger" />
               )}
               <span className={delta >= 0 ? "text-success" : "text-danger"}>
-                {Math.abs(delta)} %
+                {Math.abs(delta)}%
               </span>
               <span className="text-muted-foreground">
                 in {RANGE_LABEL[range].toLowerCase()}
@@ -63,7 +68,7 @@ export function FleetScoreWidget() {
           </div>
         </div>
 
-        <div className="mt-2 flex flex-wrap justify-center gap-4 text-xs">
+        <div className="flex flex-wrap justify-center gap-2.5 text-xs mt-1">
           <Legend color="var(--color-danger)" label="Poor" hint="(0-50)" />
           <Legend color="var(--color-warning)" label="Fair" hint="(51-89)" />
           <Legend
@@ -74,7 +79,7 @@ export function FleetScoreWidget() {
         </div>
 
         {settings.showNotes ? (
-          <p className="mt-3 text-center text-[11px] leading-relaxed text-muted-foreground">
+          <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground px-2">
             <span className="font-semibold text-foreground">Note: </span>
             Fleet Average Score represents the overall safety rating of your
             drivers, calculated from speeding, distraction, fatigue, and harsh

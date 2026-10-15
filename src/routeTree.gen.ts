@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as ComponentsRouteImport } from './routes/components'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as SettingRouteImport } from './routes/setting'
 import { Route as TrackingRouteImport } from './routes/tracking'
@@ -30,6 +31,11 @@ const ChartsRoute = ChartsRouteImport.update({
 const ComponentsRoute = ComponentsRouteImport.update({
   id: '/components',
   path: '/components',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportRoute = ReportRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
   '/components': typeof ComponentsRoute
+  '/login': typeof LoginRoute
   '/report': typeof ReportRoute
   '/setting': typeof SettingRoute
   '/tracking': typeof TrackingRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
   '/components': typeof ComponentsRoute
+  '/login': typeof LoginRoute
   '/report': typeof ReportRoute
   '/setting': typeof SettingRoute
   '/tracking': typeof TrackingRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
   '/components': typeof ComponentsRoute
+  '/login': typeof LoginRoute
   '/report': typeof ReportRoute
   '/setting': typeof SettingRoute
   '/tracking': typeof TrackingRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/charts'
     | '/components'
+    | '/login'
     | '/report'
     | '/setting'
     | '/tracking'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/charts'
     | '/components'
+    | '/login'
     | '/report'
     | '/setting'
     | '/tracking'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/charts'
     | '/components'
+    | '/login'
     | '/report'
     | '/setting'
     | '/tracking'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChartsRoute: typeof ChartsRoute
   ComponentsRoute: typeof ComponentsRoute
+  LoginRoute: typeof LoginRoute
   ReportRoute: typeof ReportRoute
   SettingRoute: typeof SettingRoute
   TrackingRoute: typeof TrackingRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/components'
       fullPath: '/components'
       preLoaderRoute: typeof ComponentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/report': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChartsRoute: ChartsRoute,
   ComponentsRoute: ComponentsRoute,
+  LoginRoute: LoginRoute,
   ReportRoute: ReportRoute,
   SettingRoute: SettingRoute,
   TrackingRoute: TrackingRoute,

@@ -2,8 +2,16 @@ import { RotateCcw, Search, SlidersHorizontal, X } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useDashboard } from "@/dashboard/store";
-import { WIDGET_CATALOG, type WidgetId } from "@/dashboard/widgets";
+import { WIDGET_CATALOG, type WidgetId, type WidgetCategory } from "@/dashboard/widgets";
 import { cn } from "@/lib/utils";
+
+const CATEGORIES: { key: WidgetCategory; label: string }[] = [
+  { key: "HARDWARE & SENSORS", label: "Hardware & Sensors" },
+  { key: "SAFETY & ALERTS", label: "Safety & Alerts" },
+  { key: "OPERATIONS & FLEET", label: "Operations & Fleet" },
+  { key: "DRIVER PERFORMANCE", label: "Driver Performance" },
+  { key: "FUEL & EFFICIENCY", label: "Fuel & Efficiency" },
+];
 
 export type DashboardConfigTarget =
   { mode: "create" } | { mode: "edit"; tabId?: string };
@@ -45,29 +53,19 @@ export function DashboardConfigDrawer({
     }
   }, [target, tabs, activeTab]);
 
-  // Video Telematics Widgets
-  const videoTelematicsWidgets = useMemo(
-    () =>
-      WIDGET_CATALOG.filter(
+  const categorizedWidgets = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return CATEGORIES.map((cat) => ({
+      ...cat,
+      widgets: WIDGET_CATALOG.filter(
         (w) =>
-          w.category === "VIDEO TELEMATICS" &&
-          (query === "" ||
-            w.title.toLowerCase().includes(query.trim().toLowerCase())),
+          w.category === cat.key &&
+          (q === "" ||
+            w.title.toLowerCase().includes(q) ||
+            w.description.toLowerCase().includes(q)),
       ),
-    [query],
-  );
-
-  // Activity Widgets
-  const activityWidgets = useMemo(
-    () =>
-      WIDGET_CATALOG.filter(
-        (w) =>
-          w.category === "ACTIVITY" &&
-          (query === "" ||
-            w.title.toLowerCase().includes(query.trim().toLowerCase())),
-      ),
-    [query],
-  );
+    })).filter((group) => group.widgets.length > 0);
+  }, [query]);
 
   const toggleWidget = (id: WidgetId) => {
     setSelectedWidgets((prev) =>
@@ -157,7 +155,7 @@ export function DashboardConfigDrawer({
               <label className="block text-xs font-semibold text-foreground">
                 Layout Configuration
               </label>
-              <span className="rounded-full bg-[#0089FF]/10 text-[#0089FF] px-2.5 py-0.5 font-semibold text-[10px]">
+              <span className="rounded-full bg-[#0089FF]/10 text-[#0089FF] px-2.5 py-0.5 font-semibold text-[11px]">
                 {selectedWidgets.length} Active
               </span>
             </div>
@@ -184,60 +182,49 @@ export function DashboardConfigDrawer({
               </div>
             </div>
 
-            {/* 1. VIDEO TELEMATICS Category Checklist */}
-            <div className="space-y-1.5 shrink-0">
-              <span className="block text-xs font-semibold text-foreground">
-                Video Telematics
-              </span>
-              <div className="space-y-0.5 rounded-lg border border-border/80 bg-card p-1.5 shadow-2xs">
-                {videoTelematicsWidgets.map((w) => {
-                  const isChecked = selectedWidgets.includes(w.id);
-                  return (
-                    <label
-                      key={w.id}
-                      className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors text-foreground font-medium hover:bg-muted/60"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => toggleWidget(w.id)}
-                        className="rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-                      />
-                      <span className={cn("truncate flex-1", isChecked && "font-semibold")}>
-                        {w.title}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 2. ACTIVITY Category Checklist */}
-            <div className="space-y-1.5 shrink-0">
-              <span className="block text-xs font-semibold text-foreground">
-                Activity
-              </span>
-              <div className="space-y-0.5 rounded-lg border border-border/80 bg-card p-1.5 shadow-2xs">
-                {activityWidgets.map((w) => {
-                  const isChecked = selectedWidgets.includes(w.id);
-                  return (
-                    <label
-                      key={w.id}
-                      className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors text-foreground font-medium hover:bg-muted/60"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => toggleWidget(w.id)}
-                        className="rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
-                      />
-                      <span className={cn("truncate flex-1", isChecked && "font-semibold")}>
-                        {w.title}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
+            {/* Dynamic Category Checklists */}
+            <div className="space-y-3.5 pb-2">
+              {categorizedWidgets.map((group) => (
+                <div key={group.key} className="space-y-1.5 shrink-0">
+                  <div className="flex items-center justify-between">
+                    <span className="block text-xs font-semibold text-foreground">
+                      {group.label}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                      {group.widgets.filter((w) => selectedWidgets.includes(w.id)).length} / {group.widgets.length}
+                    </span>
+                  </div>
+                  <div className="space-y-0.5 rounded-lg border border-border/80 bg-card p-1.5 shadow-2xs">
+                    {group.widgets.map((w) => {
+                      const isChecked = selectedWidgets.includes(w.id);
+                      return (
+                        <label
+                          key={w.id}
+                          className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors text-foreground font-medium hover:bg-muted/60"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleWidget(w.id)}
+                            className="rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
+                          />
+                          <div className="truncate flex-1">
+                            <span className={cn("block truncate", isChecked && "font-semibold")}>
+                              {w.title}
+                            </span>
+                            <span className="block text-[11px] text-muted-foreground truncate">
+                              {w.description}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-muted-foreground font-mono px-1.5 py-0.5 rounded bg-muted/60 shrink-0">
+                            {w.defaultSize === "small" ? "1×1" : w.defaultSize === "large" ? "2×2" : w.defaultSize === "full" ? "3×1" : "2×1"}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

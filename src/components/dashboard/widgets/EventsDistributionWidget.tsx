@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { WidgetCard } from "@/components/dashboard/WidgetCard";
+import { WidgetCard, useWidgetSize } from "@/components/dashboard/WidgetCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDashboard } from "@/dashboard/store";
 import { eventTypes, type EventCategory } from "@/data/fleet";
@@ -8,9 +8,14 @@ import { cn } from "@/lib/utils";
 
 export function EventsDistributionWidget() {
   const { activeTab, setTabRange } = useDashboard();
+  const size = useWidgetSize();
   const range = activeTab.range;
   const [category, setCategory] = useState<EventCategory | "all">("all");
   const [muted, setMuted] = useState<string[]>([]);
+
+  const isLarge = size === "large";
+  const contentHeight = isLarge ? 340 : 140;
+  const outerRadius = isLarge ? 100 : 54;
 
   const rows = eventTypes.filter(
     (e) => category === "all" || e.category === category,
@@ -40,7 +45,7 @@ export function EventsDistributionWidget() {
               type="button"
               onClick={() => setCategory(c)}
               className={cn(
-                "h-7 rounded-lg px-2.5 text-xs font-semibold transition-all cursor-pointer shadow-2xs border",
+                "h-6 rounded-md px-2 text-[11px] font-semibold transition-all cursor-pointer shadow-2xs border",
                 category === c
                   ? "bg-[#155dfc] text-white border-[#155dfc]"
                   : "bg-background text-muted-foreground border-border/80 hover:bg-muted hover:text-foreground",
@@ -53,9 +58,9 @@ export function EventsDistributionWidget() {
       }
     >
       <div className="flex min-w-0 items-center gap-3">
-        <div className="h-[260px] min-w-0 flex-1">
+        <div style={{ height: contentHeight }} className="min-w-0 flex-1">
           {active.length === 0 ? (
-            <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            <p className="flex h-full items-center justify-center text-xs text-muted-foreground">
               All series hidden — re-enable one from the legend.
             </p>
           ) : (
@@ -67,7 +72,7 @@ export function EventsDistributionWidget() {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={100}
+                  outerRadius={outerRadius}
                   paddingAngle={1}
                 >
                   {pieData.map((d) => (
@@ -88,7 +93,7 @@ export function EventsDistributionWidget() {
                     borderRadius: 6,
                     border: "1px solid var(--color-border)",
                     backgroundColor: "var(--color-surface, #fff)",
-                    fontSize: 12,
+                    fontSize: 11,
                   }}
                 />
               </PieChart>
@@ -96,7 +101,7 @@ export function EventsDistributionWidget() {
           )}
         </div>
 
-        <ScrollArea className="h-[260px] w-[210px] shrink-0">
+        <ScrollArea style={{ height: contentHeight }} className="w-[190px] shrink-0">
           <ul className="pr-3">
             {rows.map((e) => {
               const isMuted = muted.includes(e.id);

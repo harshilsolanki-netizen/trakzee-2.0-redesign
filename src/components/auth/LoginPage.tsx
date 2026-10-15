@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Lock, Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { useAuth, AUTH_CREDENTIALS } from "@/auth/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export function LoginPage() {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [userId, setUserId] = useState("design.uffizio.com");
   const [password, setPassword] = useState("Design@123");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +34,9 @@ export function LoginPage() {
       const success = login(userId, password, rememberMe);
       setIsSubmitting(false);
 
-      if (!success) {
+      if (success) {
+        navigate({ to: "/" });
+      } else {
         setErrorMessage(
           `Invalid credentials. Please use ID: ${AUTH_CREDENTIALS.id} and Pass: ${AUTH_CREDENTIALS.password}`,
         );

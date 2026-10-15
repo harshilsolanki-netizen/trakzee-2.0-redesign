@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { useState } from "react";
-import { WidgetCard } from "@/components/dashboard/WidgetCard";
+import { WidgetCard, useWidgetSize } from "@/components/dashboard/WidgetCard";
 import { useDashboard } from "@/dashboard/store";
 import { highlightEvents } from "@/data/fleet";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,9 @@ const CHIPS = [
 
 export function EventsHighlightsWidget() {
   const { activeTab, setTabRange } = useDashboard();
+  const size = useWidgetSize();
   const range = activeTab.range;
+  const isLarge = size === "large";
   const [violationsOnly, setViolationsOnly] = useState(true);
   const [chips, setChips] = useState<string[]>(["Highlights"]);
   const [showAllChips, setShowAllChips] = useState(false);
@@ -28,6 +30,9 @@ export function EventsHighlightsWidget() {
     );
   }
   rows = [...rows].sort((a, b) => b.count - a.count);
+  if (!isLarge) {
+    rows = rows.slice(0, 2);
+  }
 
   const visibleChips = showAllChips ? CHIPS : CHIPS.slice(0, 3);
 

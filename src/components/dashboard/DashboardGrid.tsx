@@ -1,147 +1,113 @@
 import { useState, type ReactElement } from "react";
 import { toast } from "sonner";
 import { useDashboard } from "@/dashboard/store";
-import { CameraStatusWidget } from "./widgets/CameraStatusWidget";
-import { EventsDistributionWidget } from "./widgets/EventsDistributionWidget";
-import { EventsHighlightsWidget } from "./widgets/EventsHighlightsWidget";
-import { FleetScoreWidget } from "./widgets/FleetScoreWidget";
-import { RiskyDriversWidget } from "./widgets/RiskyDriversWidget";
-import { ScoreDistributionWidget } from "./widgets/ScoreDistributionWidget";
-import { WidgetCard } from "./WidgetCard";
-import type { WidgetId } from "@/dashboard/widgets";
+import { widgetMeta, type WidgetId, type WidgetSize } from "@/dashboard/widgets";
 import { cn } from "@/lib/utils";
 
-function EventTrendWidget() {
-  return (
-    <WidgetCard
-      id="event-trend"
-      info="Trend of DMS and ADAS safety events over time"
-    >
-      <div className="h-[260px] flex flex-col justify-center px-1 py-4 space-y-6">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-foreground">
-              DMS Drowsiness & Distraction
-            </span>
-            <span className="font-bold text-rose-500">14 events (-12%)</span>
-          </div>
-          <div className="w-full bg-muted rounded-full h-2">
-            <div className="bg-rose-500 h-2 rounded-full w-[45%]" />
-          </div>
-        </div>
+// Reference Widget Components
+import { FleetStatusWidget } from "./widgets/FleetStatusWidget";
+import { BatteryStatusWidget } from "./widgets/BatteryStatusWidget";
+import { RemoteLockStatusWidget } from "./widgets/RemoteLockStatusWidget";
+import { AlertsBreakdownWidget } from "./widgets/AlertsBreakdownWidget";
+import { AlertHeatmapWidget } from "./widgets/AlertHeatmapWidget";
+import { FleetHealthWidget } from "./widgets/FleetHealthWidget";
+import { ComponentFailureWidget } from "./widgets/ComponentFailureWidget";
+import { FleetStressIndexWidget } from "./widgets/FleetStressIndexWidget";
+import { VehicleStatusAlertsWidget } from "./widgets/VehicleStatusAlertsWidget";
+import { GsmSignalQualityWidget } from "./widgets/GsmSignalQualityWidget";
+import { GeoCalibrationAlertsWidget } from "./widgets/GeoCalibrationAlertsWidget";
+import { EngineEfficiencyWidget } from "./widgets/EngineEfficiencyWidget";
+import { BatteryDegradationWidget } from "./widgets/BatteryDegradationWidget";
+import { FuelLossOpportunityWidget } from "./widgets/FuelLossOpportunityWidget";
+import { JobDeliveryStatusWidget } from "./widgets/JobDeliveryStatusWidget";
+import { FleetUsageWidget } from "./widgets/FleetUsageWidget";
+import { FleetFuelTrendWidget } from "./widgets/FleetFuelTrendWidget";
+import { AlarmStatusTilesWidget } from "./widgets/AlarmStatusTilesWidget";
+import {
+  OverspeedAlarmWidget,
+  HarshCorneringAlarmWidget,
+  AcFreezeAlarmWidget,
+  HighTempAlarmWidget,
+  PanicSosAlarmWidget,
+  CollisionAlarmWidget,
+} from "./widgets/MiniAlarmWidgets";
+import { VehicleTypeWiseWidget } from "./widgets/VehicleTypeWiseWidget";
+import { FleetMetricsSummaryWidget } from "./widgets/FleetMetricsSummaryWidget";
+import { SosAlertsWidget } from "./widgets/SosAlertsWidget";
+import { AlertsDayTimeWidget } from "./widgets/AlertsDayTimeWidget";
+import { AlertsObjectTypeWidget } from "./widgets/AlertsObjectTypeWidget";
+import { RiskyDriversWidget } from "./widgets/RiskyDriversWidget";
+import { FleetScoreWidget } from "./widgets/FleetScoreWidget";
+import { ScoreDistributionWidget } from "./widgets/ScoreDistributionWidget";
+import { CameraStatusWidget } from "./widgets/CameraStatusWidget";
+import { ShiftComplianceWidget } from "./widgets/ShiftComplianceWidget";
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-foreground">
-              ADAS Forward Collision Warning
-            </span>
-            <span className="font-bold text-amber-500">8 events (-25%)</span>
-          </div>
-          <div className="w-full bg-muted rounded-full h-2">
-            <div className="bg-amber-500 h-2 rounded-full w-[28%]" />
-          </div>
-        </div>
-      </div>
-    </WidgetCard>
-  );
-}
+const MAP: Record<WidgetId, (props: { id?: WidgetId }) => ReactElement> = {
+  // Row 1
+  "fleet-status": FleetStatusWidget,
+  "battery-status": BatteryStatusWidget,
+  "remote-lock-status": RemoteLockStatusWidget,
 
-function FleetStatusWidget() {
-  return (
-    <WidgetCard
-      id="fleet-status"
-      info="Real-time vehicle operating status breakdown"
-    >
-      <div className="grid grid-cols-2 gap-2 p-3 text-xs">
-        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5">
-          <span className="text-[10px] text-muted-foreground block font-medium">
-            Running
-          </span>
-          <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">
-            26
-          </span>
-        </div>
-        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-2.5">
-          <span className="text-[10px] text-muted-foreground block font-medium">
-            Idle
-          </span>
-          <span className="text-base font-extrabold text-amber-600 dark:text-amber-400">
-            2
-          </span>
-        </div>
-        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-2.5">
-          <span className="text-[10px] text-muted-foreground block font-medium">
-            Stopped
-          </span>
-          <span className="text-base font-extrabold text-rose-600 dark:text-rose-400">
-            15
-          </span>
-        </div>
-        <div className="rounded-lg border border-indigo-500/20 bg-indigo-500/10 p-2.5">
-          <span className="text-[10px] text-muted-foreground block font-medium">
-            Inactive
-          </span>
-          <span className="text-base font-extrabold text-indigo-600 dark:text-indigo-400">
-            65
-          </span>
-        </div>
-      </div>
-    </WidgetCard>
-  );
-}
+  // Row 2
+  "alerts-breakdown": AlertsBreakdownWidget,
+  "alert-heat-map": AlertHeatmapWidget,
 
-function GenericActivityWidget({ id, title }: { id: WidgetId; title: string }) {
-  return (
-    <WidgetCard id={id} info={title + " live telematics streaming"}>
-      <div className="h-36 flex flex-col items-center justify-center text-center p-3 text-xs text-muted-foreground">
-        <span className="font-semibold text-foreground">{title}</span>
-        <span className="text-[11px] mt-1">
-          Live telemetry streaming across active fleet
-        </span>
-      </div>
-    </WidgetCard>
-  );
-}
+  // Row 3
+  "fleet-health": FleetHealthWidget,
+  "component-failure": ComponentFailureWidget,
+  "fleet-stress-index": FleetStressIndexWidget,
 
-const MAP: Record<WidgetId, () => ReactElement> = {
-  "event-trend": EventTrendWidget,
-  "events-distribution": EventsDistributionWidget,
-  "events-highlights": EventsHighlightsWidget,
+  // Row 4
+  "vehicle-status-alerts": VehicleStatusAlertsWidget,
+  "gsm-signal-quality": GsmSignalQualityWidget,
+  "geo-calibration-alerts": GeoCalibrationAlertsWidget,
+
+  // Row 5
+  "engine-efficiency": EngineEfficiencyWidget,
+  "battery-degradation": BatteryDegradationWidget,
+  "fuel-loss-opportunity": FuelLossOpportunityWidget,
+
+  // Row 6
+  "job-status": JobDeliveryStatusWidget,
+  "fleet-usage": FleetUsageWidget,
+  "fleet-fuel": FleetFuelTrendWidget,
+
+  // Row 7 (6 Individual Mini Alarm Indicators)
+  "overspeed-alarm": OverspeedAlarmWidget,
+  "harsh-cornering-alarm": HarshCorneringAlarmWidget,
+  "ac-freeze-alarm": AcFreezeAlarmWidget,
+  "high-temp-alarm": HighTempAlarmWidget,
+  "panic-sos-alarm": PanicSosAlarmWidget,
+  "collision-alarm": CollisionAlarmWidget,
+  "alarm-status-tiles": AlarmStatusTilesWidget,
+
+  // Row 8
+  "vehicle-type-wise": VehicleTypeWiseWidget,
+  "fleet-metrics-summary": FleetMetricsSummaryWidget,
+  "sos-alerts": SosAlertsWidget,
+
+  // Row 9
+  "alerts-day-time": AlertsDayTimeWidget,
+  "alerts-object-type": AlertsObjectTypeWidget,
+  "risky-drivers": RiskyDriversWidget,
+
+  // Row 10
   "fleet-score": FleetScoreWidget,
   "score-distribution": ScoreDistributionWidget,
-  "risky-drivers": RiskyDriversWidget,
-  "event-heatmap": () => (
-    <GenericActivityWidget id="event-heatmap" title="Event Heatmap" />
-  ),
-  "fleet-status": FleetStatusWidget,
-  "fleet-usage": () => (
-    <GenericActivityWidget id="fleet-usage" title="Fleet Usage" />
-  ),
-  "fleet-idle": () => (
-    <GenericActivityWidget id="fleet-idle" title="Fleet Idle" />
-  ),
-  "fleet-fuel": () => (
-    <GenericActivityWidget id="fleet-fuel" title="Fleet Fuel" />
-  ),
-  "fleet-workload": () => (
-    <GenericActivityWidget id="fleet-workload" title="Fleet Workload" />
-  ),
-  "driver-most-alerts": () => (
-    <GenericActivityWidget
-      id="driver-most-alerts"
-      title="Driver With Most Alerts"
-    />
-  ),
-  "object-most-alerts": () => (
-    <GenericActivityWidget
-      id="object-most-alerts"
-      title="Object With Most Alerts"
-    />
-  ),
-  "object-mode": () => (
-    <GenericActivityWidget id="object-mode" title="Object Mode" />
-  ),
   "camera-status": CameraStatusWidget,
+
+  // Row 11
+  "event-heatmap": AlertHeatmapWidget,
+  "shift-compliance": ShiftComplianceWidget,
+};
+
+const SIZE_CLASSES: Record<WidgetSize, string> = {
+  mini: "col-span-1 md:col-span-1 lg:col-span-1 row-span-1 min-h-[165px] h-[165px]",
+  compact: "col-span-1 md:col-span-1 lg:col-span-2 row-span-1 min-h-[165px] h-[165px]",
+  small: "col-span-1 md:col-span-1 lg:col-span-2 row-span-2 min-h-[340px] h-[340px]",
+  medium: "col-span-1 md:col-span-2 lg:col-span-4 row-span-2 min-h-[340px] h-[340px]",
+  large: "col-span-1 md:col-span-2 lg:col-span-4 row-span-4 min-h-[690px] h-[690px]",
+  full: "col-span-1 md:col-span-2 lg:col-span-6 row-span-1 min-h-[180px]",
 };
 
 export function DashboardGrid() {
@@ -149,7 +115,7 @@ export function DashboardGrid() {
   const [draggedWidgetId, setDraggedWidgetId] = useState<WidgetId | null>(null);
   const [overWidgetId, setOverWidgetId] = useState<WidgetId | null>(null);
 
-  if (activeTab.widgets.length === 0) {
+  if (!activeTab || activeTab.widgets.length === 0) {
     return (
       <div className="m-4 rounded-xl border border-dashed border-border bg-card p-12 text-center text-xs">
         <p className="font-bold text-foreground text-sm">
@@ -164,9 +130,14 @@ export function DashboardGrid() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-[10px] pb-6 w-full auto-rows-[165px] grid-flow-dense">
       {activeTab.widgets.map((id) => {
         const Widget = MAP[id] ?? FleetScoreWidget;
+        const meta = widgetMeta(id);
+        const currentSize: WidgetSize =
+          activeTab?.widgetSizes?.[id] || meta.defaultSize || "small";
+        const sizeClass = SIZE_CLASSES[currentSize] || SIZE_CLASSES.small;
+
         const isDragging = draggedWidgetId === id;
         const isOver = overWidgetId === id && draggedWidgetId !== id;
 
@@ -204,12 +175,13 @@ export function DashboardGrid() {
               setOverWidgetId(null);
             }}
             className={cn(
-              "transition-all duration-200 select-none rounded-xl relative",
+              "transition-all duration-200 select-none rounded-xl relative w-full",
+              sizeClass,
               isDragging && "opacity-30 scale-[0.98] ring-2 ring-[#0089FF]/40",
               isOver && "ring-2 ring-[#0089FF] shadow-xl scale-[1.01] z-10",
             )}
           >
-            <Widget />
+            <Widget id={id} />
           </div>
         );
       })}

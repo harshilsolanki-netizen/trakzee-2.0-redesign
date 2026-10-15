@@ -138,7 +138,7 @@ function UniversalMultiSelectDropdown({
                 {selected[0]}
               </span>
               {selected.length > 1 && (
-                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
+                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.2 rounded text-[11px] font-medium bg-[#0089FF]/10 text-[#0089FF] border border-[#0089FF]/20 shrink-0">
                   +{selected.length - 1}
                 </span>
               )}
@@ -161,7 +161,7 @@ function UniversalMultiSelectDropdown({
               <span className="text-xs font-semibold text-foreground">
                 Select {label}
               </span>
-              <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
                 {draft.length} selected
               </span>
             </div>
@@ -202,7 +202,7 @@ function UniversalMultiSelectDropdown({
 
           {/* Reference Warning Message when 0 items selected */}
           {draft.length === 0 && (
-            <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug">
+            <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[11px] text-red-600 dark:text-red-400 font-medium leading-snug">
               Select at least one item, or all items will be selected by default.
             </div>
           )}
@@ -637,7 +637,7 @@ export function DashboardFilterDrawer({
 
               {/* Reference Warning Message when 0 vehicles selected */}
               {selectedVehicleIds.length === 0 && (
-                <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[10px] text-red-600 dark:text-red-400 font-medium leading-snug shrink-0">
+                <div className="mx-3 my-1.5 px-2.5 py-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200/70 dark:border-red-800/40 text-[11px] text-red-600 dark:text-red-400 font-medium leading-snug shrink-0">
                   Select at least one item, or all items will be selected by default.
                 </div>
               )}
@@ -687,7 +687,7 @@ export function DashboardFilterDrawer({
                             <span className="truncate">{branch}</span>
                           </button>
                         </div>
-                        <span className="text-[10px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full">
+                        <span className="text-[11px] font-semibold text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-full">
                           {selectedBranchCount}/{vehicles.length}
                         </span>
                       </div>
@@ -714,7 +714,7 @@ export function DashboardFilterDrawer({
                                     <span className="block truncate leading-tight text-xs font-semibold">
                                       {v.name}
                                     </span>
-                                    <span className="block text-[10px] text-muted-foreground truncate leading-tight font-normal">
+                                    <span className="block text-[11px] text-muted-foreground truncate leading-tight font-normal">
                                       {v.imei} · {v.driver}
                                     </span>
                                   </div>
