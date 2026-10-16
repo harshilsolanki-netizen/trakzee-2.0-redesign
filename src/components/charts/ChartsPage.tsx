@@ -1,10 +1,14 @@
 import { useLocation, useNavigate, useSearch } from "@tanstack/react-router";
 import {
-  ArrowLeft,
+  Calendar as CalendarIcon,
+  Check,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   Download,
+  Search,
   SlidersHorizontal,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -40,6 +44,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   CHART_CATEGORIES,
   CHART_VEHICLES,
   findChartItem,
@@ -67,6 +76,107 @@ const VEHICLE_GROUPS = [
   { group: "Agarwal Industries", vehicles: CHART_VEHICLES.slice(0, 3) },
   { group: "Balaji Logistics", vehicles: CHART_VEHICLES.slice(3) },
 ];
+
+const PRESET_OPTIONS = [
+  "Today",
+  "Yesterday",
+  "This Week",
+  "Last Week",
+  "Last 7 Days",
+  "This Month",
+  "Last Month",
+  "Custom Range",
+];
+
+const MONTH_FULL_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+const WEEKDAY_NAMES = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+function formatDateToISO(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatDateToDisplayDDMM(isoStr: string): string {
+  if (!isoStr) return "";
+  const parts = isoStr.split("-");
+  if (parts.length !== 3) return isoStr;
+  const [y, m, d] = parts;
+  return `${d}/${m}/${y}`;
+}
+
+function parseISOToDate(isoStr: string): Date {
+  if (!isoStr) return new Date();
+  const parts = isoStr.split("-");
+  if (parts.length === 3) {
+    const y = parseInt(parts[0] || "2024", 10);
+    const m = parseInt(parts[1] || "1", 10) - 1;
+    const d = parseInt(parts[2] || "1", 10);
+    return new Date(y, m, d);
+  }
+  return new Date();
+}
+
+function getDateRangeFromPreset(preset: string): { from: string; to: string } {
+  const now = new Date(2024, 11, 10);
+
+  if (preset === "Today") {
+    const str = formatDateToISO(now);
+    return { from: str, to: str };
+  }
+  if (preset === "Yesterday") {
+    const y = new Date(now);
+    y.setDate(y.getDate() - 1);
+    const str = formatDateToISO(y);
+    return { from: str, to: str };
+  }
+  if (preset === "This Week") {
+    const start = new Date(now);
+    const day = start.getDay();
+    const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+    start.setDate(diff);
+    return { from: formatDateToISO(start), to: formatDateToISO(now) };
+  }
+  if (preset === "Last Week") {
+    const start = new Date(now);
+    const day = start.getDay();
+    const diff = start.getDate() - day - 6 + (day === 0 ? -6 : 1);
+    start.setDate(diff);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return { from: formatDateToISO(start), to: formatDateToISO(end) };
+  }
+  if (preset === "Last 7 Days") {
+    const start = new Date(now);
+    start.setDate(now.getDate() - 6);
+    return { from: formatDateToISO(start), to: formatDateToISO(now) };
+  }
+  if (preset === "This Month") {
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    return { from: formatDateToISO(start), to: formatDateToISO(now) };
+  }
+  if (preset === "Last Month") {
+    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const end = new Date(now.getFullYear(), now.getMonth(), 0);
+    return { from: formatDateToISO(start), to: formatDateToISO(end) };
+  }
+  return { from: formatDateToISO(now), to: formatDateToISO(now) };
+}
 
 type Point = { name: string; value: number; sr?: number; value2?: number };
 
@@ -129,6 +239,47 @@ export function ChartsPage() {
     vehicles: [],
   });
 
+  /* Quick Filter Popover States */
+  const [dateOpen, setDateOpen] = useState(false);
+  const [vehicleOpen, setVehicleOpen] = useState(false);
+  const [presetMenuOpen, setPresetMenuOpen] = useState(false);
+
+  // Date Draft States
+  const [draftPreset, setDraftPreset] = useState(filter.datePreset || "Last 7 Days");
+  const [draftFrom, setDraftFrom] = useState(filter.from || "2024-12-04");
+  const [draftTo, setDraftTo] = useState(filter.to || "2024-12-10");
+  const [selectionStep, setSelectionStep] = useState<"start" | "end">("start");
+  const [hoverDate, setHoverDate] = useState<string | null>(null);
+  const [viewDate, setViewDate] = useState(() => {
+    const d = parseISOToDate(filter.from || "2024-12-04");
+    return new Date(d.getFullYear(), d.getMonth() - 1, 1);
+  });
+
+  // Sync date drafts when popover opens
+  useEffect(() => {
+    if (dateOpen) {
+      setDraftPreset(filter.datePreset || "Last 7 Days");
+      setDraftFrom(filter.from || "2024-12-04");
+      setDraftTo(filter.to || "2024-12-10");
+      setPresetMenuOpen(false);
+      setSelectionStep("start");
+      const d = parseISOToDate(filter.from || "2024-12-04");
+      setViewDate(new Date(d.getFullYear(), d.getMonth() - 1, 1));
+    }
+  }, [dateOpen, filter]);
+
+  // Vehicle Draft States
+  const [draftVehicles, setDraftVehicles] = useState<string[]>([]);
+  const [vehicleSearch, setVehicleSearch] = useState("");
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (vehicleOpen) {
+      setDraftVehicles(filter.vehicles.length > 0 ? [...filter.vehicles] : [...CHART_VEHICLES]);
+      setVehicleSearch("");
+    }
+  }, [vehicleOpen, filter.vehicles]);
+
   /* fuel toggles */
   const [toggles, setToggles] = useState({
     fuel: true,
@@ -137,6 +288,261 @@ export function ChartsPage() {
     speed: false,
     power: false,
   });
+
+  /* Date navigation */
+  const prevMonth = () => {
+    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
+  };
+  const nextMonth = () => {
+    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
+  };
+
+  const handlePresetSelect = (preset: string) => {
+    setDraftPreset(preset);
+    setPresetMenuOpen(false);
+    if (preset === "Custom Range") {
+      setSelectionStep("start");
+      return;
+    }
+    const range = getDateRangeFromPreset(preset);
+    setDraftFrom(range.from);
+    setDraftTo(range.to);
+    const d = parseISOToDate(range.from);
+    setViewDate(new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  };
+
+  const handleDualCalendarDayClick = (isoDate: string) => {
+    setDraftPreset("Custom Range");
+    if (selectionStep === "start") {
+      setDraftFrom(isoDate);
+      setDraftTo(isoDate);
+      setSelectionStep("end");
+    } else {
+      if (isoDate < draftFrom) {
+        setDraftFrom(isoDate);
+        setDraftTo(draftFrom);
+      } else {
+        setDraftTo(isoDate);
+      }
+      setSelectionStep("start");
+    }
+  };
+
+  const handleApplyDate = () => {
+    setFilter((prev) => ({
+      ...prev,
+      datePreset: draftPreset,
+      from: draftFrom,
+      to: draftTo,
+    }));
+    setDateOpen(false);
+    setLevel(0);
+    setDrillVehicle(null);
+    setDrillDate(null);
+    toast.success("Date range updated", {
+      description: `${draftFrom} → ${draftTo}`,
+    });
+  };
+
+  const handleResetDate = () => {
+    const range = getDateRangeFromPreset("Last 7 Days");
+    setDraftPreset("Last 7 Days");
+    setDraftFrom(range.from);
+    setDraftTo(range.to);
+    setPresetMenuOpen(false);
+    const d = parseISOToDate(range.from);
+    setViewDate(new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  };
+
+  // Dual Month Calendar Generator
+  const renderDualMonth = (
+    year: number,
+    month: number,
+    isFromMonth: boolean,
+  ) => {
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const cells: {
+      dateStr: string;
+      dayNum: number;
+      isCurrentMonth: boolean;
+    }[] = [];
+
+    // Prev month trailing days
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const d = daysInPrevMonth - i;
+      const prevM = month === 0 ? 11 : month - 1;
+      const prevY = month === 0 ? year - 1 : year;
+      const dateStr = formatDateToISO(new Date(prevY, prevM, d));
+      cells.push({ dateStr, dayNum: d, isCurrentMonth: false });
+    }
+
+    // Current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = formatDateToISO(new Date(year, month, d));
+      cells.push({ dateStr, dayNum: d, isCurrentMonth: true });
+    }
+
+    // Next month leading days
+    const totalSlots = cells.length > 35 ? 42 : 35;
+    const remaining = totalSlots - cells.length;
+    for (let d = 1; d <= remaining; d++) {
+      const nextM = month === 11 ? 0 : month + 1;
+      const nextY = month === 11 ? year + 1 : year;
+      const dateStr = formatDateToISO(new Date(nextY, nextM, d));
+      cells.push({ dateStr, dayNum: d, isCurrentMonth: false });
+    }
+
+    const monthLabel = `${MONTH_FULL_NAMES[month]} ${year}`;
+
+    return (
+      <div className="flex-1 select-none">
+        <div className="flex items-center justify-between mb-2 px-1">
+          <span className="font-bold text-xs text-foreground">
+            {monthLabel}
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={prevMonth}
+              className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+              title="Previous month"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={nextMonth}
+              className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+              title="Next month"
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] font-bold text-muted-foreground uppercase mb-1">
+          {WEEKDAY_NAMES.map((w) => (
+            <div key={w} className="h-4 flex items-center justify-center">
+              {w}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7 gap-0.5 text-center text-xs">
+          {cells.map(({ dateStr, dayNum, isCurrentMonth }, idx) => {
+            const isStart = dateStr === draftFrom;
+            const isEnd = dateStr === draftTo;
+            const effectiveEnd =
+              selectionStep === "end" && hoverDate && hoverDate >= draftFrom
+                ? hoverDate
+                : draftTo;
+            const inRange =
+              draftFrom &&
+              effectiveEnd &&
+              dateStr > draftFrom &&
+              dateStr < effectiveEnd;
+            const isSelected = isStart || isEnd;
+
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleDualCalendarDayClick(dateStr)}
+                onMouseEnter={() => {
+                  if (selectionStep === "end") setHoverDate(dateStr);
+                }}
+                className={cn(
+                  "h-7 w-full flex items-center justify-center text-xs rounded-md transition-all cursor-pointer relative font-medium",
+                  !isCurrentMonth &&
+                    "text-muted-foreground/30 pointer-events-none",
+                  isCurrentMonth &&
+                    !isSelected &&
+                    !inRange &&
+                    "text-foreground hover:bg-muted",
+                  inRange &&
+                    "bg-[#0089FF]/15 text-[#0089FF] font-semibold rounded-none first:rounded-l-md last:rounded-r-md",
+                  isSelected &&
+                    "bg-[#0089FF] text-white font-bold shadow-xs z-10",
+                )}
+              >
+                {dayNum}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  /* Vehicle handlers */
+  const filteredVehicleGroups = useMemo(() => {
+    const q = vehicleSearch.trim().toLowerCase();
+    return VEHICLE_GROUPS.map((g) => ({
+      group: g.group,
+      vehicles: g.vehicles.filter(
+        (v) =>
+          !q ||
+          v.toLowerCase().includes(q) ||
+          g.group.toLowerCase().includes(q),
+      ),
+    })).filter((g) => g.vehicles.length > 0);
+  }, [vehicleSearch]);
+
+  const isAllVehiclesDraftSelected =
+    draftVehicles.length === CHART_VEHICLES.length && CHART_VEHICLES.length > 0;
+
+  const toggleAllDraftVehicles = () => {
+    if (isAllVehiclesDraftSelected) {
+      setDraftVehicles([]);
+    } else {
+      setDraftVehicles([...CHART_VEHICLES]);
+    }
+  };
+
+  const toggleDraftVehicle = (v: string) => {
+    if (draftVehicles.includes(v)) {
+      setDraftVehicles(draftVehicles.filter((x) => x !== v));
+    } else {
+      setDraftVehicles([...draftVehicles, v]);
+    }
+  };
+
+  const toggleDraftGroupVehicles = (groupVehicles: string[]) => {
+    const allIn = groupVehicles.every((v) => draftVehicles.includes(v));
+    if (allIn) {
+      setDraftVehicles(draftVehicles.filter((v) => !groupVehicles.includes(v)));
+    } else {
+      setDraftVehicles([...new Set([...draftVehicles, ...groupVehicles])]);
+    }
+  };
+
+  const toggleCollapseGroup = (g: string) => {
+    setCollapsedGroups((prev) =>
+      prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g],
+    );
+  };
+
+  const handleApplyVehicles = () => {
+    const isAll =
+      draftVehicles.length === 0 ||
+      draftVehicles.length === CHART_VEHICLES.length;
+    setFilter((prev) => ({
+      ...prev,
+      vehicles: isAll ? [] : draftVehicles,
+    }));
+    setVehicleOpen(false);
+    setLevel(0);
+    setDrillVehicle(null);
+    setDrillDate(null);
+    toast.success("Vehicles updated", {
+      description: isAll
+        ? "All vehicles selected"
+        : `${draftVehicles.length} vehicles selected`,
+    });
+  };
 
   /* ---------------- data ---------------- */
   const baseData: Point[] = useMemo(() => {
@@ -178,42 +584,33 @@ export function ChartsPage() {
     }
   };
 
-  const crumbs: { label: string; onClick?: () => void }[] = [
-    {
-      label: currentChart.categoryLabel,
-    },
-    {
-      label: currentChart.label,
-      ...(level > 0
-        ? {
-            onClick: () => (
-              setLevel(0),
-              setDrillVehicle(null),
-              setDrillDate(null)
-            ),
-          }
-        : {}),
-    },
-  ];
-  if (drillVehicle) {
-    crumbs.push({
-      label: drillVehicle,
-      ...(level === 2
-        ? { onClick: () => (setLevel(1), setDrillDate(null)) }
-        : {}),
-    });
-  }
-  if (drillDate) {
-    crumbs.push({ label: drillDate });
-  }
+  const handleGoBack = () => {
+    if (level === 2) {
+      setLevel(1);
+      setDrillDate(null);
+    } else if (level === 1) {
+      setLevel(0);
+      setDrillVehicle(null);
+      setDrillDate(null);
+    }
+  };
 
-  const chartTitle = isFuel
-    ? `Fuel Fill-Drain · ${drillVehicle ?? CHART_VEHICLES[0]}`
-    : `${currentChart.label} (${currentChart.unit})`;
+  const pageTitle = useMemo(() => {
+    if (isFuel) {
+      return `Fuel Fill-Drain · ${drillVehicle ?? CHART_VEHICLES[0]}`;
+    }
+    if (level === 0) {
+      return currentChart.label;
+    }
+    if (level === 1) {
+      return `${currentChart.label} · ${drillVehicle}`;
+    }
+    return `${currentChart.label} · ${drillVehicle} (${drillDate})`;
+  }, [isFuel, level, currentChart.label, drillVehicle, drillDate]);
 
   const handleDownload = (label: string) =>
     toast.success(`Generating ${label} report…`, {
-      description: `${chartTitle} · ${filter.from} → ${filter.to}`,
+      description: `${pageTitle} · ${filter.from} → ${filter.to}`,
     });
 
   // Explicit, crisp axis styles for high readability
@@ -228,299 +625,618 @@ export function ChartsPage() {
         : "Time (Hours)";
   const yAxisTitle = `${currentChart.label} (${currentChart.unit})`;
 
-  const chartVehicleBadgeLabel = useMemo(() => {
+  const dateRangeTriggerLabel = useMemo(() => {
+    const fDate = formatDateToDisplayDDMM(filter.from || "2024-12-04");
+    const tDate = formatDateToDisplayDDMM(filter.to || "2024-12-10");
+    return `${fDate} 12:00 AM - ${tDate} 11:59 PM`;
+  }, [filter.from, filter.to]);
+
+  const vehicleTriggerLabel = useMemo(() => {
+    if (
+      filter.vehicles.length === 0 ||
+      filter.vehicles.length === CHART_VEHICLES.length
+    ) {
+      return "All";
+    }
     if (filter.vehicles.length === 1) {
       return filter.vehicles[0];
     }
-    if (filter.vehicles.length > 1) {
-      return `${filter.vehicles[0]} +${filter.vehicles.length - 1} more`;
-    }
-    const first = CHART_VEHICLES[0] || "GJ15MM2654";
-    return `${first} +${CHART_VEHICLES.length - 1} more`;
+    return `${filter.vehicles[0]} +${filter.vehicles.length - 1}`;
   }, [filter.vehicles]);
 
+  const activeSideFilterCount = useMemo(() => {
+    let count = 0;
+    if (filter.vehicles.length > 0 && filter.vehicles.length < CHART_VEHICLES.length) count++;
+    if (filter.datePreset && filter.datePreset !== "Last 7 Days") count++;
+    return count;
+  }, [filter.vehicles.length, filter.datePreset]);
+
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col gap-3 p-3 overflow-hidden">
-      {/* Chart action header matching reference image */}
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-surface px-4 py-3 shadow-xs min-h-[64px]">
-        {/* Left: Breadcrumbs on top, Date + Vehicle + Advanced Filter below */}
-        <div className="flex flex-col gap-1.5 min-w-0">
-          {/* Top Level: Primary chart label + secondary grey drilldown text */}
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2">
-            {/* Primary Chart Label */}
-            {level === 0 ? (
-              <h1 className="text-base font-bold text-foreground leading-tight tracking-tight">
-                {currentChart.label}
-              </h1>
-            ) : (
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-[#F0F0F0] dark:bg-slate-950 p-[10px]">
+      {/* Unified Card Container matching Report Screen */}
+      <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB]/80 dark:border-slate-800 shadow-2xs">
+        {/* 1. Title Row matching Report Screen Theme */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-2.5 select-none shrink-0 bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-2">
+            {level > 0 ? (
               <button
                 type="button"
-                onClick={() => {
-                  setLevel(0);
-                  setDrillVehicle(null);
-                  setDrillDate(null);
-                }}
-                className="text-base font-bold text-foreground transition-colors hover:text-brand hover:underline cursor-pointer leading-tight tracking-tight"
+                onClick={handleGoBack}
+                className="p-1 -ml-1 rounded text-slate-700 dark:text-slate-200 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                title="Go Back"
               >
-                {currentChart.label}
+                <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
               </button>
-            )}
+            ) : null}
+            <h1 className="text-[24px] font-medium text-slate-900 dark:text-white tracking-tight">
+              {pageTitle}
+            </h1>
+          </div>
+        </div>
 
-            {/* Level 1: Vehicle Name (Secondary grey text) */}
-            {drillVehicle && level >= 1 && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-                {level === 1 ? (
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {drillVehicle}
+        {/* 2. Toolbar Row matching Report Screen Quick Filter Bar */}
+        <div className="relative z-20 flex min-h-[48px] items-center justify-between gap-4 bg-white dark:bg-slate-900 px-5 pt-1 pb-3.5 shrink-0 select-none">
+          {/* Left Controls: Date Range Popover, Vehicle Popover, Filter CTA */}
+          <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2.5">
+            {/* 1. Date Range Dropdown Popover */}
+            <Popover open={dateOpen} onOpenChange={setDateOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "inline-flex h-7.5 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+                    dateOpen && "bg-muted",
+                  )}
+                >
+                  <CalendarIcon className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    {dateRangeTriggerLabel}
                   </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLevel(1);
-                      setDrillDate(null);
-                    }}
-                    className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline cursor-pointer"
-                  >
-                    {drillVehicle}
-                  </button>
-                )}
-              </>
-            )}
-
-            {/* Level 2: Date (Secondary grey text) */}
-            {drillDate && level === 2 && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  {drillDate}
-                </span>
-              </>
-            )}
-          </nav>
-
-          {/* Bottom Level: Date Badge + Vehicle Badge + Advanced Filter (Border/stroke removed) */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Date Selector Badge (Opens Quick Filter / Date tab) */}
-            <button
-              type="button"
-              title="Click to edit date range"
-              onClick={() => {
-                setFilterOpen(true);
-              }}
-              className="inline-flex h-6.5 items-center gap-1 rounded px-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer font-normal"
-            >
-              <span>
-                {filter.from} 12:00 AM → {filter.to} 11:59 PM
-              </span>
-              <ChevronDown className="h-3 w-3 opacity-60" />
-            </button>
-
-            {/* Vehicle Selector Badge (Opens Quick Filter / Vehicles tab) */}
-            <button
-              type="button"
-              title="Click to select vehicles"
-              onClick={() => {
-                setFilterOpen(true);
-              }}
-              className="inline-flex h-6.5 items-center gap-1 rounded px-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer font-normal"
-            >
-              <span>{chartVehicleBadgeLabel}</span>
-              <ChevronDown className="h-3 w-3 opacity-60" />
-            </button>
-          </div>
-        </div>
-
-        {/* Right Controls: Download & Filter matching Report screen CTA size (h-7) */}
-        <div className="flex items-center gap-1.5">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                aria-label="Download options"
-                className="flex h-7 items-center gap-1 rounded border border-input bg-background px-2 text-[11px] font-medium text-foreground transition-colors hover:bg-muted cursor-pointer select-none shadow-2xs"
-              >
-                <Download className="h-3 w-3 text-muted-foreground" />
-                <span>Download</span>
-                <ChevronDown className="h-2.5 w-2.5 opacity-60 ml-0.5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44 p-1 text-xs">
-              <DropdownMenuItem
-                onClick={() => handleDownload("PDF")}
-                className="cursor-pointer text-xs rounded px-2 py-1.5"
-              >
-                PDF
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleDownload("Excel (XLS)")}
-                className="cursor-pointer text-xs rounded px-2 py-1.5"
-              >
-                Excel (XLS)
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleDownload("CSV")}
-                className="cursor-pointer text-xs rounded px-2 py-1.5"
-              >
-                CSV
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <button
-            type="button"
-            aria-label="Filter"
-            onClick={() => {
-              setFilterOpen(true);
-            }}
-            className="inline-flex h-7 items-center gap-1.5 rounded bg-brand px-2.5 text-[11px] font-semibold text-brand-foreground shadow-2xs transition-opacity duration-150 hover:opacity-90 cursor-pointer"
-          >
-            <SlidersHorizontal className="h-3 w-3" />
-            <span>Filter</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Split-pane main content */}
-      <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[290px_1fr]">
-        {/* left data list */}
-        <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-border bg-surface shadow-xs">
-          <div className="flex items-center justify-between border-b border-border bg-surface-muted/50 px-3 py-2">
-            <h2 className="text-xs font-bold text-foreground">Data</h2>
-            <span className="rounded bg-brand/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand">
-              {currentChart.unit}
-            </span>
-          </div>
-
-          <div className={cn("min-h-0 flex-1 overflow-auto", SCROLL)}>
-            {isFuel ? (
-              <table className="w-full text-xs">
-                <thead className="sticky top-0 bg-surface-muted border-b border-border">
-                  <tr>
-                    <th className="px-2.5 py-1.5 text-left font-semibold text-muted-foreground">
-                      Start Time
-                    </th>
-                    <th className="px-2.5 py-1.5 text-left font-semibold text-muted-foreground">
-                      End Time
-                    </th>
-                    <th className="px-2.5 py-1.5 text-right font-semibold text-muted-foreground">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {fuelEvts.map((e) => (
-                    <tr
-                      key={e.id}
-                      className="border-t border-border hover:bg-muted/60 transition-colors"
-                    >
-                      <td className="px-2.5 py-1.5 tabular-nums font-medium">
-                        {e.start}
-                      </td>
-                      <td className="px-2.5 py-1.5 tabular-nums text-muted-foreground">
-                        {e.end}
-                      </td>
-                      <td className="px-2.5 py-1.5 text-right">
-                        <span
-                          className={cn(
-                            "inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold",
-                            e.valid
-                              ? "bg-success/15 text-success"
-                              : "bg-danger/15 text-danger",
-                          )}
-                        >
-                          {e.valid ? "Valid" : "Invalid"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <table className="w-full text-xs">
-                <thead className="sticky top-0 bg-surface-muted border-b border-border">
-                  <tr>
-                    {level === 0 ? (
-                      <>
-                        <th className="px-2.5 py-1.5 text-left font-semibold text-muted-foreground">
-                          Sr No
-                        </th>
-                        <th className="px-2.5 py-1.5 text-left font-semibold text-muted-foreground">
-                          Object
-                        </th>
-                        <th className="px-2.5 py-1.5 text-right font-semibold text-muted-foreground">
-                          {currentChart.label} ({currentChart.unit})
-                        </th>
-                      </>
-                    ) : (
-                      <>
-                        <th className="px-2.5 py-1.5 text-left font-semibold text-muted-foreground">
-                          {level === 1 ? "Date" : "Time"}
-                        </th>
-                        <th className="px-2.5 py-1.5 text-right font-semibold text-muted-foreground">
-                          {currentChart.label} ({currentChart.unit})
-                        </th>
-                      </>
+                  <ChevronDown
+                    className={cn(
+                      "h-3 w-3 text-slate-500 dark:text-slate-400 shrink-0 transition-transform duration-200",
+                      dateOpen && "rotate-180",
                     )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {baseData.map((r) => (
-                    <tr
-                      key={r.name}
-                      onClick={() => handleBarClick(r)}
+                  />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                sideOffset={4}
+                className={cn(
+                  "p-0 text-xs bg-popover/95 backdrop-blur-md border border-border/80 shadow-lg rounded-lg z-50 select-none overflow-visible transition-all duration-200 space-y-0",
+                  draftPreset === "Custom Range" ? "w-[580px]" : "w-[360px]",
+                )}
+              >
+                <div className="p-4 space-y-3">
+                  <div className="space-y-1.5 relative">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5">
+                        <CalendarIcon className="h-3.5 w-3.5 text-[#0089FF]" />
+                        <span className="text-xs font-semibold text-foreground block">
+                          Date Range
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setDateOpen(false)}
+                        className="rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setPresetMenuOpen((prev) => !prev)}
                       className={cn(
-                        "border-t border-border hover:bg-muted/70 transition-colors",
-                        level < 2 && "cursor-pointer",
+                        "flex h-8.5 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-xs font-medium text-muted-foreground transition-all cursor-pointer shadow-2xs hover:bg-muted/40 hover:border-[#0089FF]/50",
+                        presetMenuOpen && "border-[#0089FF] ring-2 ring-[#0089FF]/20",
                       )}
                     >
+                      <span>{draftPreset}</span>
+                      <ChevronDown
+                        className={cn(
+                          "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+                          presetMenuOpen && "rotate-180",
+                        )}
+                      />
+                    </button>
+
+                    {presetMenuOpen && (
+                      <div className="absolute left-0 top-full mt-1 w-full rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg p-1 z-60 animate-in fade-in zoom-in-95 space-y-0.5">
+                        {PRESET_OPTIONS.map((opt) => {
+                          const isSelected = draftPreset === opt;
+                          return (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => handlePresetSelect(opt)}
+                              className={cn(
+                                "flex w-full items-center justify-between px-2.5 py-1.5 rounded-sm text-xs transition-all cursor-pointer select-none text-left",
+                                isSelected
+                                  ? "bg-[#0089FF]/10 text-[#0089FF] font-bold"
+                                  : "text-foreground hover:bg-muted font-medium",
+                              )}
+                            >
+                              <span>{opt}</span>
+                              {isSelected && (
+                                <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {draftPreset === "Custom Range" ? (
+                    <div className="pt-2 flex gap-4">
+                      {renderDualMonth(
+                        viewDate.getFullYear(),
+                        viewDate.getMonth(),
+                        true,
+                      )}
+                      <div className="w-px bg-border/60 my-1" />
+                      {renderDualMonth(
+                        new Date(
+                          viewDate.getFullYear(),
+                          viewDate.getMonth() + 1,
+                          1,
+                        ).getFullYear(),
+                        new Date(
+                          viewDate.getFullYear(),
+                          viewDate.getMonth() + 1,
+                          1,
+                        ).getMonth(),
+                        false,
+                      )}
+                    </div>
+                  ) : (
+                    <div className="pt-1 grid grid-cols-2 gap-2.5">
+                      <div className="rounded-md border border-input/80 bg-muted/20 p-2.5 space-y-1">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
+                          From Date
+                        </span>
+                        <span className="text-xs font-semibold text-foreground block">
+                          {formatDateToDisplayDDMM(draftFrom)} 12:00 AM
+                        </span>
+                      </div>
+                      <div className="rounded-md border border-input/80 bg-muted/20 p-2.5 space-y-1">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
+                          To Date
+                        </span>
+                        <span className="text-xs font-semibold text-foreground block">
+                          {formatDateToDisplayDDMM(draftTo)} 11:59 PM
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-3 px-4 border-t border-border/70 flex items-center justify-between bg-muted/20">
+                  <button
+                    type="button"
+                    onClick={handleResetDate}
+                    className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors"
+                  >
+                    Clear
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setDateOpen(false)}
+                      className="px-3 py-1.5 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleApplyDate}
+                      className="px-4 py-1.5 text-xs rounded-md bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer font-semibold shadow-xs transition-all active:scale-98"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Divider */}
+            <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0 mx-0.5" />
+
+            {/* 2. Vehicle Selector Popover */}
+            <Popover open={vehicleOpen} onOpenChange={setVehicleOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "inline-flex h-7.5 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+                    vehicleOpen && "bg-muted",
+                  )}
+                >
+                  <span className="font-normal text-slate-500 dark:text-slate-400">
+                    Vehicle:
+                  </span>
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    {vehicleTriggerLabel}
+                  </span>
+                  <ChevronDown className="h-3 w-3 text-slate-500 dark:text-slate-400 shrink-0" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                sideOffset={4}
+                className="w-84 p-0 text-xs bg-popover/95 backdrop-blur-md border border-border/80 shadow-lg rounded-lg z-50 overflow-hidden select-none"
+              >
+                {/* Header with Search */}
+                <div className="p-3 px-4 border-b border-border/70 space-y-2 bg-muted/20">
+                  <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+                    <span>Select Vehicles</span>
+                    <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+                      {draftVehicles.length} / {CHART_VEHICLES.length} selected
+                    </span>
+                  </div>
+                  <div className="flex h-8 items-center gap-2 rounded-md border border-input bg-background px-2.5 focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+                    <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <input
+                      value={vehicleSearch}
+                      onChange={(e) => setVehicleSearch(e.target.value)}
+                      placeholder="Search vehicle..."
+                      className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                    />
+                    {vehicleSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setVehicleSearch("")}
+                        className="rounded-md p-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Select All Option */}
+                <div className="px-4 py-1.5 border-b border-border/60 flex items-center justify-between bg-muted/10">
+                  <label className="flex items-center gap-2 cursor-pointer select-none w-full text-xs font-semibold text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={isAllVehiclesDraftSelected}
+                      onChange={toggleAllDraftVehicles}
+                      className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand accent-[#0089FF] cursor-pointer"
+                    />
+                    <span>Select All Vehicles</span>
+                  </label>
+                </div>
+
+                {/* Grouped Tree List */}
+                <div className="max-h-64 overflow-y-auto p-1.5 space-y-1.5 custom-scrollbar">
+                  {filteredVehicleGroups.map(({ group, vehicles }) => {
+                    const isCollapsed =
+                      collapsedGroups.includes(group) && !vehicleSearch;
+                    const groupSelectedCount = vehicles.filter((v) =>
+                      draftVehicles.includes(v),
+                    ).length;
+                    const allGroupIn =
+                      groupSelectedCount === vehicles.length &&
+                      vehicles.length > 0;
+                    const someGroupIn =
+                      groupSelectedCount > 0 && !allGroupIn;
+
+                    return (
+                      <div
+                        key={group}
+                        className="rounded-md border border-border/70 bg-card/60 overflow-hidden"
+                      >
+                        <div className="flex items-center justify-between px-2.5 py-1.5 bg-muted/30 border-b border-border/50 text-xs">
+                          <label className="flex items-center gap-2 cursor-pointer select-none font-semibold text-foreground">
+                            <input
+                              type="checkbox"
+                              checked={allGroupIn}
+                              ref={(el) => {
+                                if (el) el.indeterminate = someGroupIn;
+                              }}
+                              onChange={() => toggleDraftGroupVehicles(vehicles)}
+                              className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand accent-[#0089FF] cursor-pointer"
+                            />
+                            <span>{group}</span>
+                          </label>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-muted-foreground font-semibold bg-background px-1.5 py-0.5 rounded-sm border border-border/60">
+                              {groupSelectedCount}/{vehicles.length}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => toggleCollapseGroup(group)}
+                              className="p-0.5 rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+                            >
+                              {isCollapsed ? (
+                                <ChevronRight className="h-3.5 w-3.5" />
+                              ) : (
+                                <ChevronDown className="h-3.5 w-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        {!isCollapsed && (
+                          <div className="p-1 space-y-0.5 pl-2.5">
+                            {vehicles.map((v) => {
+                              const checked = draftVehicles.includes(v);
+                              return (
+                                <label
+                                  key={v}
+                                  className={cn(
+                                    "flex items-center gap-2 px-2 py-1 rounded-sm hover:bg-muted cursor-pointer transition-colors text-xs select-none",
+                                    checked && "bg-muted/40",
+                                  )}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={() => toggleDraftVehicle(v)}
+                                    className="h-3.5 w-3.5 rounded border-input text-brand focus:ring-brand accent-[#0089FF] cursor-pointer shrink-0"
+                                  />
+                                  <span
+                                    className={cn(
+                                      "text-xs leading-tight text-foreground",
+                                      checked && "font-semibold text-foreground",
+                                    )}
+                                  >
+                                    {v}
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {filteredVehicleGroups.length === 0 && (
+                    <div className="p-4 text-center text-xs text-muted-foreground">
+                      No vehicles found matching search
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer Actions */}
+                <div className="p-2.5 px-4 border-t border-border/70 flex items-center justify-between bg-muted/20">
+                  <button
+                    type="button"
+                    onClick={() => setDraftVehicles([])}
+                    className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer transition-colors"
+                  >
+                    Clear
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setVehicleOpen(false)}
+                      className="px-3 py-1.5 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleApplyVehicles}
+                      className="px-4 py-1.5 text-xs rounded-md bg-[#0089FF] text-white hover:bg-[#0070d6] cursor-pointer font-semibold shadow-xs transition-all active:scale-98"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Divider */}
+            <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0 mx-0.5" />
+
+            {/* 3. Filter CTA Button matching Report Screen */}
+            <button
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              aria-label="Open Filter Drawer"
+              className="inline-flex h-7.5 items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer select-none shadow-2xs active:scale-98"
+            >
+              <SlidersHorizontal className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+              <span className="font-medium text-slate-700 dark:text-slate-300">
+                Filter
+              </span>
+              {activeSideFilterCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold leading-tight bg-[#0089FF] text-white">
+                  {activeSideFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Right Controls: Download Button matching Report Screen */}
+          <div className="flex items-center gap-2 ml-auto shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Download options"
+                  className="inline-flex h-7.5 items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs font-semibold text-slate-800 dark:text-slate-200 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer active:scale-98"
+                >
+                  <Download className="h-3.5 w-3.5 text-slate-700 dark:text-slate-300 stroke-[2.2]" />
+                  <span>Download</span>
+                  <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-44 p-1 text-xs rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50"
+              >
+                <DropdownMenuItem
+                  onClick={() => handleDownload("PDF")}
+                  className="cursor-pointer text-xs rounded-sm px-2.5 py-1.5 font-medium text-foreground hover:bg-muted"
+                >
+                  PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleDownload("Excel (XLS)")}
+                  className="cursor-pointer text-xs rounded-sm px-2.5 py-1.5 font-medium text-foreground hover:bg-muted"
+                >
+                  Excel (XLS)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleDownload("CSV")}
+                  className="cursor-pointer text-xs rounded-sm px-2.5 py-1.5 font-medium text-foreground hover:bg-muted"
+                >
+                  CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        {/* Horizontal divider with 20px space from left and right */}
+        <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
+
+        {/* 3. Split-pane main content */}
+        <div className="flex min-h-0 flex-1 gap-4 p-5 overflow-hidden bg-white dark:bg-slate-900">
+          {/* Left Data List Card */}
+          <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs w-[310px] shrink-0">
+            <div className="flex items-center justify-between border-b border-[#DFE3EB] dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 px-3.5 py-2.5 shrink-0">
+              <h2 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                Data
+              </h2>
+              <span className="rounded bg-[#0089FF]/10 px-2 py-0.5 text-[10px] font-bold text-[#0089FF]">
+                {currentChart.unit}
+              </span>
+            </div>
+
+            <div className={cn("min-h-0 flex-1 overflow-auto", SCROLL)}>
+              {isFuel ? (
+                <table className="w-full text-xs">
+                  <thead className="sticky top-0 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-xs border-b border-[#DFE3EB] dark:border-slate-800 z-10">
+                    <tr className="h-[34px] text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="px-3 py-1.5 text-left font-semibold">
+                        Start Time
+                      </th>
+                      <th className="px-3 py-1.5 text-left font-semibold">
+                        End Time
+                      </th>
+                      <th className="px-3 py-1.5 text-right font-semibold">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fuelEvts.map((e) => (
+                      <tr
+                        key={e.id}
+                        className="border-b border-[#DFE3EB]/70 dark:border-slate-800/70 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+                      >
+                        <td className="px-3 py-2 tabular-nums font-medium text-slate-900 dark:text-slate-100">
+                          {e.start}
+                        </td>
+                        <td className="px-3 py-2 tabular-nums text-slate-500 dark:text-slate-400">
+                          {e.end}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          <span
+                            className={cn(
+                              "inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold",
+                              e.valid
+                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                                : "bg-rose-500/15 text-rose-600 dark:text-rose-400",
+                            )}
+                          >
+                            {e.valid ? "Valid" : "Invalid"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <table className="w-full text-xs">
+                  <thead className="sticky top-0 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-xs border-b border-[#DFE3EB] dark:border-slate-800 z-10">
+                    <tr className="h-[34px] text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                       {level === 0 ? (
                         <>
-                          <td className="px-2.5 py-2 tabular-nums text-muted-foreground">
-                            {r.sr}
-                          </td>
-                          <td className="px-2.5 py-2 font-medium text-foreground">
-                            {r.name}
-                          </td>
-                          <td className="px-2.5 py-2 text-right tabular-nums font-semibold text-foreground">
-                            {r.value.toFixed(2)}
-                          </td>
+                          <th className="px-3 py-1.5 text-left font-semibold">
+                            Sr No
+                          </th>
+                          <th className="px-3 py-1.5 text-left font-semibold">
+                            Object
+                          </th>
+                          <th className="px-3 py-1.5 text-right font-semibold">
+                            {currentChart.label} ({currentChart.unit})
+                          </th>
                         </>
                       ) : (
                         <>
-                          <td className="px-2.5 py-2 font-medium text-foreground">
-                            {r.name}
-                          </td>
-                          <td className="px-2.5 py-2 text-right tabular-nums font-semibold text-foreground">
-                            {r.value.toFixed(2)}
-                          </td>
+                          <th className="px-3 py-1.5 text-left font-semibold">
+                            {level === 1 ? "Date" : "Time"}
+                          </th>
+                          <th className="px-3 py-1.5 text-right font-semibold">
+                            {currentChart.label} ({currentChart.unit})
+                          </th>
                         </>
                       )}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  </thead>
+                  <tbody>
+                    {baseData.map((r) => (
+                      <tr
+                        key={r.name}
+                        onClick={() => handleBarClick(r)}
+                        className={cn(
+                          "border-b border-[#DFE3EB]/70 dark:border-slate-800/70 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors",
+                          level < 2 && "cursor-pointer",
+                        )}
+                      >
+                        {level === 0 ? (
+                          <>
+                            <td className="px-3 py-2 tabular-nums text-slate-500 dark:text-slate-400">
+                              {r.sr}
+                            </td>
+                            <td className="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+                              {r.name}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums font-semibold text-slate-900 dark:text-slate-100">
+                              {r.value.toFixed(2)}
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td className="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+                              {r.name}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums font-semibold text-slate-900 dark:text-slate-100">
+                              {r.value.toFixed(2)}
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {!isFuel && level < 2 ? (
+              <p className="border-t border-[#DFE3EB] dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/30 px-3 py-2 text-[11px] text-slate-500 shrink-0">
+                💡 Click any vehicle or date row to drill down.
+              </p>
+            ) : null}
           </div>
 
-          {!isFuel && level < 2 ? (
-            <p className="border-t border-border bg-surface-muted/30 px-2.5 py-1.5 text-[11px] text-muted-foreground">
-              💡 Click any vehicle or date row to drill down.
-            </p>
-          ) : null}
-        </div>
-
-        {/* right canvas area with chart type toolbar */}
-        <div className="relative flex min-h-0">
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col rounded-md border border-border bg-surface p-3 shadow-xs">
-            {/* contextual fuel controls */}
+          {/* Right Chart Canvas Card */}
+          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-2xs">
+            {/* Contextual fuel controls */}
             {isFuel ? (
-              <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-border pb-2.5">
+              <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-[#DFE3EB] dark:border-slate-800 pb-2.5 shrink-0">
                 {(
                   [
                     ["fuel", "Fuel Algorithm"],
-                    ["fuelRaw", "Fuel Raw Data"],
+                    ["fuelRaw", "Fuel Raw"],
                     ["ignition", "Ignition"],
                     ["speed", "Speed"],
                     ["power", "Power"],
@@ -528,7 +1244,12 @@ export function ChartsPage() {
                 ).map(([key, label]) => (
                   <label
                     key={key}
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-surface-muted px-2.5 py-1 text-[11px] font-medium transition-colors hover:bg-muted"
+                    className={cn(
+                      "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all select-none",
+                      toggles[key]
+                        ? "border-[#0089FF]/40 bg-[#0089FF]/10 text-[#0089FF] font-semibold"
+                        : "border-[#DFE3EB] dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100",
+                    )}
                   >
                     <input
                       type="checkbox"
@@ -536,22 +1257,23 @@ export function ChartsPage() {
                       onChange={() =>
                         setToggles((t) => ({ ...t, [key]: !t[key] }))
                       }
+                      className="h-3 w-3 accent-[#0089FF] cursor-pointer"
                     />
                     {label}
                   </label>
                 ))}
-                <span className="inline-flex items-center rounded-full bg-brand/15 px-2.5 py-1 text-[11px] font-semibold text-brand">
+                <span className="inline-flex items-center rounded-full bg-[#0089FF]/10 px-2.5 py-1 text-[11px] font-semibold text-[#0089FF] ml-auto">
                   Total correction: {totalCorrection} ltr
                 </span>
               </div>
             ) : null}
 
-            <div className="min-h-0 flex-1">
+            <div className="min-h-0 flex-1 relative">
               <ResponsiveContainer width="100%" height="100%">
                 {isFuel ? (
                   <ComposedChart
                     data={fuelData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 25 }}
+                    margin={{ top: 16, right: 30, left: 20, bottom: 20 }}
                   >
                     <CartesianGrid
                       stroke="#e2e8f0"
@@ -563,13 +1285,13 @@ export function ChartsPage() {
                       stroke={axisStroke}
                       tick={axisTickStyle}
                       tickLine={{ stroke: axisStroke }}
-                      height={42}
+                      height={46}
                       label={{
                         value: "Time (HH:mm)",
                         position: "insideBottom",
-                        offset: -6,
-                        fill: "#334155",
-                        fontSize: 12,
+                        offset: 0,
+                        fill: "#475569",
+                        fontSize: 11,
                         fontWeight: 600,
                       }}
                     />
@@ -619,7 +1341,17 @@ export function ChartsPage() {
                         boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                       }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 12, paddingTop: 6 }} />
+                    <Legend
+                      verticalAlign="top"
+                      align="center"
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        paddingBottom: 16,
+                      }}
+                    />
                     {toggles.ignition ? (
                       <Area
                         yAxisId="right"
@@ -686,7 +1418,17 @@ export function ChartsPage() {
                         border: "1px solid #cbd5e1",
                       }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Legend
+                      verticalAlign="bottom"
+                      align="center"
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        paddingTop: 12,
+                      }}
+                    />
                     <Pie
                       data={baseData}
                       dataKey="value"
@@ -706,7 +1448,7 @@ export function ChartsPage() {
                 ) : chartType === "line" ? (
                   <LineChart
                     data={baseData}
-                    margin={{ top: 20, right: 28, left: 16, bottom: 28 }}
+                    margin={{ top: 16, right: 28, left: 16, bottom: 20 }}
                   >
                     <CartesianGrid
                       stroke="#e2e8f0"
@@ -718,14 +1460,13 @@ export function ChartsPage() {
                       stroke={axisStroke}
                       tick={axisTickStyle}
                       tickLine={{ stroke: axisStroke }}
-                      height={45}
-                      interval={0}
+                      height={46}
                       label={{
                         value: xAxisTitle,
                         position: "insideBottom",
-                        offset: -6,
-                        fill: "#334155",
-                        fontSize: 12,
+                        offset: 0,
+                        fill: "#475569",
+                        fontSize: 11,
                         fontWeight: 600,
                       }}
                     />
@@ -733,7 +1474,7 @@ export function ChartsPage() {
                       stroke={axisStroke}
                       tick={axisTickStyle}
                       tickLine={{ stroke: axisStroke }}
-                      width={65}
+                      width={55}
                       label={{
                         value: yAxisTitle,
                         angle: -90,
@@ -750,133 +1491,165 @@ export function ChartsPage() {
                         fontSize: 12,
                         borderRadius: 8,
                         border: "1px solid #cbd5e1",
-                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                       }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 12, paddingTop: 4 }} />
+                    <Legend
+                      verticalAlign="top"
+                      align="center"
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        paddingBottom: 16,
+                      }}
+                    />
                     <Line
                       type="monotone"
                       dataKey="value"
-                      name={chartTitle}
+                      name={currentChart.label}
                       stroke="#155dfc"
-                      strokeWidth={2.5}
-                      dot={{
-                        r: 4,
-                        fill: "#155dfc",
-                        strokeWidth: 2,
-                        stroke: "#fff",
-                      }}
+                      strokeWidth={2}
                       activeDot={{ r: 6 }}
                     />
                   </LineChart>
+                ) : chartType === "bar-horizontal" ? (
+                  <BarChart
+                    data={baseData}
+                    layout="vertical"
+                    margin={{ top: 16, right: 28, left: 24, bottom: 20 }}
+                  >
+                    <CartesianGrid
+                      stroke="#e2e8f0"
+                      strokeDasharray="3 3"
+                      horizontal={false}
+                    />
+                    <XAxis
+                      type="number"
+                      stroke={axisStroke}
+                      tick={axisTickStyle}
+                      tickLine={{ stroke: axisStroke }}
+                      height={46}
+                      label={{
+                        value: yAxisTitle,
+                        position: "insideBottom",
+                        offset: 0,
+                        fill: "#475569",
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      stroke={axisStroke}
+                      tick={axisTickStyle}
+                      tickLine={{ stroke: axisStroke }}
+                      width={100}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        fontSize: 12,
+                        borderRadius: 8,
+                        border: "1px solid #cbd5e1",
+                      }}
+                    />
+                    <Legend
+                      verticalAlign="top"
+                      align="center"
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        paddingBottom: 16,
+                      }}
+                    />
+                    <Bar
+                      dataKey="value"
+                      name={currentChart.label}
+                      fill="#155dfc"
+                      radius={[0, 4, 4, 0]}
+                      barSize={20}
+                      {...(level < 2
+                        ? {
+                            onClick: (d: unknown) => handleBarClick(d as Point),
+                            cursor: "pointer" as const,
+                          }
+                        : {})}
+                    />
+                  </BarChart>
                 ) : (
                   <BarChart
                     data={baseData}
-                    layout={
-                      chartType === "bar-horizontal" ||
-                      chartType === "stacked-bar"
-                        ? "vertical"
-                        : "horizontal"
-                    }
-                    margin={{ top: 20, right: 28, left: 16, bottom: 28 }}
+                    margin={{ top: 16, right: 28, left: 16, bottom: 20 }}
                   >
                     <CartesianGrid
                       stroke="#e2e8f0"
                       strokeDasharray="3 3"
                       vertical={false}
                     />
-                    {chartType === "bar-horizontal" ||
-                    chartType === "stacked-bar" ? (
-                      <>
-                        <XAxis
-                          type="number"
-                          stroke={axisStroke}
-                          tick={axisTickStyle}
-                          tickLine={{ stroke: axisStroke }}
-                          height={45}
-                          label={{
-                            value: yAxisTitle,
-                            position: "insideBottom",
-                            offset: -6,
-                            fill: "#334155",
-                            fontSize: 12,
-                            fontWeight: 600,
-                          }}
-                        />
-                        <YAxis
-                          type="category"
-                          dataKey="name"
-                          width={100}
-                          stroke={axisStroke}
-                          tick={axisTickStyle}
-                          tickLine={{ stroke: axisStroke }}
-                          label={{
-                            value: xAxisTitle,
-                            angle: -90,
-                            position: "insideLeft",
-                            offset: 12,
-                            fill: "#334155",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            style: { textAnchor: "middle" },
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <XAxis
-                          dataKey="name"
-                          stroke={axisStroke}
-                          tick={axisTickStyle}
-                          tickLine={{ stroke: axisStroke }}
-                          height={45}
-                          interval={0}
-                          label={{
-                            value: xAxisTitle,
-                            position: "insideBottom",
-                            offset: -6,
-                            fill: "#334155",
-                            fontSize: 12,
-                            fontWeight: 600,
-                          }}
-                        />
-                        <YAxis
-                          stroke={axisStroke}
-                          tick={axisTickStyle}
-                          tickLine={{ stroke: axisStroke }}
-                          width={65}
-                          label={{
-                            value: yAxisTitle,
-                            angle: -90,
-                            position: "insideLeft",
-                            offset: 12,
-                            fill: "#334155",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            style: { textAnchor: "middle" },
-                          }}
-                        />
-                      </>
-                    )}
+                    <XAxis
+                      dataKey="name"
+                      stroke={axisStroke}
+                      tick={axisTickStyle}
+                      tickLine={{ stroke: axisStroke }}
+                      height={46}
+                      label={{
+                        value: xAxisTitle,
+                        position: "insideBottom",
+                        offset: 0,
+                        fill: "#475569",
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
+                    />
+                    <YAxis
+                      stroke={axisStroke}
+                      tick={axisTickStyle}
+                      tickLine={{ stroke: axisStroke }}
+                      width={55}
+                      label={{
+                        value: yAxisTitle,
+                        angle: -90,
+                        position: "insideLeft",
+                        offset: 12,
+                        fill: "#334155",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        style: { textAnchor: "middle" },
+                      }}
+                    />
                     <Tooltip
                       contentStyle={{
                         fontSize: 12,
                         borderRadius: 8,
                         border: "1px solid #cbd5e1",
-                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                       }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 12, paddingTop: 4 }} />
+                    <Legend
+                      verticalAlign="top"
+                      align="center"
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        paddingBottom: 16,
+                      }}
+                    />
                     <Bar
                       dataKey="value"
-                      name={chartTitle}
+                      name={currentChart.label}
                       fill="#155dfc"
                       radius={[4, 4, 0, 0]}
                       barSize={28}
-                      {...(chartType === "stacked-column" ||
-                      chartType === "stacked-bar"
-                        ? { stackId: "s" }
-                        : {})}
+                      stackId={
+                        chartType === "stacked-column" ||
+                        chartType === "stacked-bar"
+                          ? "s"
+                          : undefined
+                      }
                       {...(level < 2
                         ? {
                             onClick: (d: unknown) => handleBarClick(d as Point),
@@ -899,13 +1672,14 @@ export function ChartsPage() {
                 )}
               </ResponsiveContainer>
             </div>
-          </div>
 
-          {/* right chart-type toolbar */}
-          <ChartTypeToolbar chartType={chartType} onChange={setChartType} />
+            {/* Right chart-type toolbar */}
+            <ChartTypeToolbar chartType={chartType} onChange={setChartType} />
+          </div>
         </div>
       </div>
 
+      {/* Filter Drawer */}
       <ChartFilterDrawer
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
