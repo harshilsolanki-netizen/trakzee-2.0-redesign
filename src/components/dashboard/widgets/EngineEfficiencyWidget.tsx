@@ -7,7 +7,7 @@ export function EngineEfficiencyWidget() {
       id="engine-efficiency"
       info="Combustion efficiency and RPM duty operating bands."
     >
-      <div className="flex flex-col h-full min-h-0 justify-around select-none py-1">
+      <div className="flex flex-col h-full min-h-0 justify-between select-none py-1">
         {/* Top Big Metric with Status Badge */}
         <div className="flex items-center justify-between pb-3 border-b border-border/50">
           <div>
@@ -18,7 +18,7 @@ export function EngineEfficiencyWidget() {
               Fleet Average
             </span>
           </div>
-          <span className="text-xs font-bold text-emerald-600 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
+          <span className="text-xs font-bold text-emerald-600 bg-emerald-500/10 px-3 py-1 rounded-full">
             {ENGINE_EFFICIENCY_DATA.status}
           </span>
         </div>

@@ -38,7 +38,7 @@ export function FleetUsageWidget() {
         </div>
 
         {/* Smooth Area Wave Chart */}
-        <div className="h-[230px] w-full pt-1">
+        <div className="flex-1 w-full min-h-[220px] pt-1">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={USAGE_POINTS} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
               <defs>

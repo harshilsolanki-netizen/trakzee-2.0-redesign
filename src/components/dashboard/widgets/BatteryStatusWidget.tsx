@@ -75,7 +75,7 @@ export function BatteryStatusWidget() {
                       <span className="text-xs font-bold text-foreground">{bucket.level}</span>
                     </div>
                     <div className="flex items-baseline gap-1.5 font-mono">
-                      <span className="text-base font-black text-foreground">{bucket.count} vh</span>
+                      <span className="text-base font-black text-foreground">{bucket.count} Vehicles</span>
                       <span className="text-xs text-muted-foreground font-semibold">({pct}%)</span>
                     </div>
                   </TooltipContent>
@@ -94,16 +94,17 @@ export function BatteryStatusWidget() {
                     <button
                       type="button"
                       onClick={() => handleOpenDrilldown(bucket.level)}
-                      className="flex flex-col items-center p-1.5 rounded-lg border border-border/40 bg-muted/20 hover:bg-muted/60 hover:border-border/80 transition-all duration-150 cursor-pointer"
+                      className="flex flex-col items-center p-1.5 rounded-lg hover:bg-muted/40 transition-all duration-150 cursor-pointer"
                     >
                       <span className="text-[12px] font-semibold text-foreground whitespace-nowrap">
                         {bucket.level.replace(" / Charging", "")}
                       </span>
                       <span
-                        className="text-[14px] font-mono font-semibold mt-0.5"
+                        className="text-xs font-semibold mt-0.5 inline-flex items-baseline gap-1"
                         style={{ color: bucket.color }}
                       >
-                        {bucket.count} vh
+                        <span className="font-mono text-sm font-bold">{bucket.count}</span>
+                        <span className="font-sans text-[11px] font-medium text-muted-foreground">Vehicles</span>
                       </span>
                     </button>
                   </TooltipTrigger>

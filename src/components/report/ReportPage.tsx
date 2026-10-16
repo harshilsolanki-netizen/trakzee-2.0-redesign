@@ -811,8 +811,8 @@ export function ReportPage() {
           />
 
           {/* Tabbed Toolbar */}
-          <div className="relative z-20 flex min-h-[42px] items-center justify-between gap-3 bg-white dark:bg-slate-900 px-5 pb-3.5 shrink-0 select-none">
-            <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2">
+          <div className="relative z-20 flex min-h-[48px] items-center justify-between gap-4 bg-white dark:bg-slate-900 px-5 pt-3.5 pb-3.5 shrink-0 select-none">
+            <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2.5">
               <ReportQuickFilterBar
                 filters={filters}
                 onChange={(patch) => {
@@ -955,9 +955,9 @@ export function ReportPage() {
           </div>
 
           {/* Single Screen Toolbar Row */}
-          <div className="relative z-20 flex min-h-[42px] items-center justify-between gap-3 bg-white dark:bg-slate-900 px-5 pb-3.5 shrink-0 select-none">
+          <div className="relative z-20 flex min-h-[48px] items-center justify-between gap-4 bg-white dark:bg-slate-900 px-5 pt-1 pb-3.5 shrink-0 select-none">
             {/* Left Filters */}
-            <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2">
+            <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2.5">
               <ReportQuickFilterBar
                 filters={filters}
                 onChange={(patch) => {

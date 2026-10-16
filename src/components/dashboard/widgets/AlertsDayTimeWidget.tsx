@@ -19,17 +19,17 @@ export function AlertsDayTimeWidget() {
     >
       <div className="flex flex-col h-full min-h-0 justify-between select-none py-1">
         {/* Simple Legend at Top */}
-        <div className="flex items-center justify-end gap-3 text-[11px] pb-1">
-          <span className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 font-semibold">
-            <span className="h-2.5 w-2.5 rounded-sm bg-[#7c3aed]" /> Alerts
+        <div className="flex items-center justify-end gap-4 text-xs font-medium pb-1 text-slate-700 dark:text-slate-300">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-xs bg-[#7c3aed] shrink-0" /> Alerts
           </span>
-          <span className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-semibold">
-            <span className="h-2 w-2 rounded-full bg-rose-500" /> Severity
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" /> Severity
           </span>
         </div>
 
         {/* Tall Composed Chart */}
-        <div className="h-[230px] w-full pt-1">
+        <div className="flex-1 w-full min-h-[220px] pt-1">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={ALERTS_DAY_TIME} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-border/40" />

@@ -111,13 +111,16 @@ export function EventHeatmapWidget() {
             {HOTSPOTS.map((h, idx) => (
               <div
                 key={idx}
-                className="rounded-md border border-border/70 bg-card p-1.5 flex flex-col justify-between hover:border-primary/50 transition-colors"
+                className="rounded-lg bg-muted/40 p-2 flex flex-col justify-between hover:bg-muted/60 transition-colors"
               >
                 <span className="text-[11px] font-semibold text-foreground truncate" title={h.name}>
                   {h.name}
                 </span>
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-[11px] text-muted-foreground font-mono">{h.alerts} alerts</span>
+                  <span className="text-[11px] text-muted-foreground inline-flex items-baseline gap-1">
+                    <span className="font-mono font-bold text-foreground">{h.alerts}</span>
+                    <span className="font-sans font-medium">{h.alerts === 1 ? "Alert" : "Alerts"}</span>
+                  </span>
                   <span
                     className={cn(
                       "text-[11px] font-bold px-1 rounded",

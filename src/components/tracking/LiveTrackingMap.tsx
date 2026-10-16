@@ -182,6 +182,7 @@ export function LiveTrackingMap({
   isTelemetryDrawerOpen,
   isHealthTelemetryOnly = false,
   onToggleTelemetryDrawer,
+  activeTab,
   onSelectVehicle,
   onToggleFollowPanel,
   isFollowPanelOpen = false,
@@ -224,6 +225,7 @@ export function LiveTrackingMap({
   const [zoomLevel, setZoomLevel] = useState(12);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeHealthTab, setActiveHealthTab] = useState<"safety" | "efficiency" | "risk" | "discipline">("safety");
+  const isHealthScorePage = activeTab === "health" || isHealthTelemetryOnly;
 
   // Cluster hover and click popover state
   const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
@@ -811,18 +813,15 @@ export function LiveTrackingMap({
 
 
 
-      {/* 3. Right Floating Map Controls Vertical Stack */}
-      <div
-        className={cn(
-          "absolute top-2.5 z-20 flex flex-col items-center gap-2 transition-all duration-200 select-none",
-          isTelemetryDrawerOpen
-            ? isHealthTelemetryOnly
-              ? "right-[316px]"
-              : "right-[244px]"
-            : "right-2.5",
-        )}
-      >
-        {/* 1. Top Card: Telemetry Drawer Toggle Chevron Button (Matching Reference Image 1:1: 44px Light Sky-Blue Card with Blue Chevron) */}
+      {/* 3. Right Floating Map Controls Vertical Stack (Hidden on vehicle health score page) */}
+      {!isHealthScorePage && (
+        <div
+          className={cn(
+            "absolute top-2.5 z-20 flex flex-col items-center gap-2 transition-all duration-200 select-none",
+            isTelemetryDrawerOpen ? "right-[244px]" : "right-2.5",
+          )}
+        >
+          {/* 1. Top Card: Telemetry Drawer Toggle Chevron Button (Matching Reference Image 1:1: 44px Light Sky-Blue Card with Blue Chevron) */}
         <TooltipProvider delayDuration={150}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -1143,6 +1142,7 @@ export function LiveTrackingMap({
           </TooltipProvider>
         </div>
       </div>
+      )}
 
       {/* 4. Bottom Map Scale & Coordinates */}
       <div

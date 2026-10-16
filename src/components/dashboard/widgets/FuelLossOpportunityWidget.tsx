@@ -7,7 +7,7 @@ export function FuelLossOpportunityWidget() {
       id="fuel-loss-opportunity"
       info="Unaccounted fuel drain, siphoning loss, and financial cost impact."
     >
-      <div className="flex flex-col h-full min-h-0 justify-around select-none py-1">
+      <div className="flex flex-col h-full min-h-0 justify-between select-none py-1">
         {/* Top 2 Primary Stats */}
         <div className="grid grid-cols-2 gap-4 pb-3 border-b border-border/50">
           <div>
@@ -45,12 +45,14 @@ export function FuelLossOpportunityWidget() {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
-          <span className="flex items-center gap-1.5 font-medium text-orange-600 dark:text-orange-400">
-            <span className="h-2.5 w-2.5 rounded-full bg-orange-500" /> Preventable ({FUEL_LOSS_OPPORTUNITY.preventablePct}%)
+        <div className="flex items-center justify-center gap-6 text-xs pt-2 border-t border-border/50">
+          <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+            <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
+            Preventable: <span className="font-semibold text-foreground font-mono">{FUEL_LOSS_OPPORTUNITY.preventablePct}%</span>
           </span>
-          <span className="flex items-center gap-1.5 font-medium text-rose-600 dark:text-rose-400">
-            <span className="h-2.5 w-2.5 rounded-full bg-rose-600" /> Drain / Theft ({FUEL_LOSS_OPPORTUNITY.operationalPct}%)
+          <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+            <span className="h-2 w-2 rounded-full bg-rose-600 shrink-0" />
+            Drain / Theft: <span className="font-semibold text-foreground font-mono">{FUEL_LOSS_OPPORTUNITY.operationalPct}%</span>
           </span>
         </div>
       </div>

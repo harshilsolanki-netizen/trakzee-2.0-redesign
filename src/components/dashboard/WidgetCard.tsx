@@ -30,6 +30,7 @@ export function WidgetCard({
   id,
   info,
   className,
+  headerClassName,
   children,
   range,
   onRangeChange,
@@ -38,6 +39,7 @@ export function WidgetCard({
   id: WidgetId;
   info?: string;
   className?: string;
+  headerClassName?: string;
   children: ReactNode;
   range?: Range;
   onRangeChange?: (r: Range) => void;
@@ -54,8 +56,9 @@ export function WidgetCard({
   const header = (
     <div
       className={cn(
-        "flex items-center justify-between border-b border-border/60 bg-card/60 backdrop-blur-xs select-none shrink-0 cursor-grab active:cursor-grabbing",
+        "flex items-center justify-between border-b border-border/60 bg-transparent rounded-t-xl select-none shrink-0 cursor-grab active:cursor-grabbing",
         isMini ? "px-2 py-1 min-h-[32px] gap-1" : "px-3 py-1.5 min-h-[38px] gap-1.5",
+        headerClassName,
       )}
     >
       <div className="flex items-center gap-1 min-w-0">
@@ -142,7 +145,7 @@ export function WidgetCard({
         {header}
         <div
           className={cn(
-            "min-w-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:thin]",
+            "min-w-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:thin] rounded-b-xl",
             currentSize === "compact" || currentSize === "mini"
               ? "p-2.5"
               : settings.density === "compact"

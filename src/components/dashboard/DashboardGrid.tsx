@@ -31,6 +31,12 @@ import {
   PanicSosAlarmWidget,
   CollisionAlarmWidget,
 } from "./widgets/MiniAlarmWidgets";
+import {
+  FleetEfficiencyWidget,
+  TollExpenseWidget,
+  CarbonEmissionWidget,
+  ActiveAlertsWidget,
+} from "./widgets/OperationalMetricWidgets";
 import { VehicleTypeWiseWidget } from "./widgets/VehicleTypeWiseWidget";
 import { FleetMetricsSummaryWidget } from "./widgets/FleetMetricsSummaryWidget";
 import { SosAlertsWidget } from "./widgets/SosAlertsWidget";
@@ -81,7 +87,11 @@ const MAP: Record<WidgetId, (props: { id?: WidgetId }) => ReactElement> = {
   "collision-alarm": CollisionAlarmWidget,
   "alarm-status-tiles": AlarmStatusTilesWidget,
 
-  // Row 8
+  // Row 8 (Individual 0.5x0.5 Operational Metric Widgets)
+  "fleet-efficiency": FleetEfficiencyWidget,
+  "toll-expense": TollExpenseWidget,
+  "carbon-emission": CarbonEmissionWidget,
+  "active-alerts": ActiveAlertsWidget,
   "vehicle-type-wise": VehicleTypeWiseWidget,
   "fleet-metrics-summary": FleetMetricsSummaryWidget,
   "sos-alerts": SosAlertsWidget,
@@ -102,12 +112,12 @@ const MAP: Record<WidgetId, (props: { id?: WidgetId }) => ReactElement> = {
 };
 
 const SIZE_CLASSES: Record<WidgetSize, string> = {
-  mini: "col-span-1 md:col-span-1 lg:col-span-1 row-span-1 min-h-[165px] h-[165px]",
-  compact: "col-span-1 md:col-span-1 lg:col-span-2 row-span-1 min-h-[165px] h-[165px]",
-  small: "col-span-1 md:col-span-1 lg:col-span-2 row-span-2 min-h-[340px] h-[340px]",
-  medium: "col-span-1 md:col-span-2 lg:col-span-4 row-span-2 min-h-[340px] h-[340px]",
-  large: "col-span-1 md:col-span-2 lg:col-span-4 row-span-4 min-h-[690px] h-[690px]",
-  full: "col-span-1 md:col-span-2 lg:col-span-6 row-span-1 min-h-[180px]",
+  mini: "col-span-1 md:col-span-1 lg:col-span-1 row-span-1 min-h-[192.75px] h-[192.75px]",
+  compact: "col-span-1 md:col-span-1 lg:col-span-2 row-span-1 min-h-[192.75px] h-[192.75px]",
+  small: "col-span-1 md:col-span-1 lg:col-span-2 row-span-2 min-h-[395.5px] h-[395.5px]",
+  medium: "col-span-1 md:col-span-2 lg:col-span-4 row-span-2 min-h-[395.5px] h-[395.5px]",
+  large: "col-span-1 md:col-span-2 lg:col-span-4 row-span-4 min-h-[801px] h-[801px]",
+  full: "col-span-1 md:col-span-2 lg:col-span-6 row-span-1 min-h-[192.75px]",
 };
 
 export function DashboardGrid() {
@@ -130,7 +140,7 @@ export function DashboardGrid() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-[10px] pb-6 w-full auto-rows-[165px] grid-flow-dense">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-[10px] pb-6 w-full auto-rows-[192.75px] grid-flow-dense">
       {activeTab.widgets.map((id) => {
         const Widget = MAP[id] ?? FleetScoreWidget;
         const meta = widgetMeta(id);

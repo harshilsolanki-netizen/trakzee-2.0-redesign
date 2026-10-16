@@ -31,7 +31,7 @@ export function EventsHighlightsWidget() {
   }
   rows = [...rows].sort((a, b) => b.count - a.count);
   if (!isLarge) {
-    rows = rows.slice(0, 2);
+    rows = rows.slice(0, 5);
   }
 
   const visibleChips = showAllChips ? CHIPS : CHIPS.slice(0, 3);
@@ -105,11 +105,11 @@ export function EventsHighlightsWidget() {
           No events match these filters.
         </p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="divide-y divide-border/50">
           {rows.map((e) => (
             <li
               key={e.id}
-              className="flex items-center gap-3.5 rounded-lg bg-muted/40 p-2 transition-colors hover:bg-muted/70 cursor-pointer"
+              className="flex items-center gap-3.5 py-2.5 px-1 transition-colors hover:bg-muted/30 cursor-pointer"
             >
               <span
                 className="h-10 w-14 shrink-0 rounded bg-slate-700/80 dark:bg-slate-800"

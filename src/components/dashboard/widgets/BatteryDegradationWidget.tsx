@@ -12,8 +12,8 @@ export function BatteryDegradationWidget() {
           {BATTERY_DEGRADATION_DATA.map((item) => (
             <div
               key={item.period}
-              className="rounded-xl border p-4 flex flex-col items-center justify-center text-center bg-card shadow-xs transition-shadow"
-              style={{ borderColor: `${item.color}40`, backgroundColor: `${item.color}08` }}
+              className="rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all"
+              style={{ backgroundColor: `${item.color}14` }}
             >
               <span className="text-xs font-bold text-foreground leading-tight">
                 {item.period}

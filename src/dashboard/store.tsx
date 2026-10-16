@@ -65,9 +65,12 @@ export const ALL_REFERENCE_WIDGETS: WidgetId[] = [
   "high-temp-alarm",
   "panic-sos-alarm",
   "collision-alarm",
-  // Row 8 (2 + 1 = 3)
+  // Row 8 (Fleet Usage + 4 Individual 0.5x0.5 Operational Metric Widgets)
   "fleet-usage",
-  "fleet-metrics-summary",
+  "fleet-efficiency",
+  "toll-expense",
+  "carbon-emission",
+  "active-alerts",
   // Row 9 (1 + 1 + 1 = 3)
   "vehicle-type-wise",
   "sos-alerts",
@@ -117,6 +120,10 @@ export const DEFAULT_WIDGET_SIZES: Record<string, WidgetSize> = {
   "alarm-status-tiles": "full",
   // Row 8
   "fleet-usage": "medium",
+  "fleet-efficiency": "mini",
+  "toll-expense": "mini",
+  "carbon-emission": "mini",
+  "active-alerts": "mini",
   "fleet-metrics-summary": "small",
   // Row 9
   "vehicle-type-wise": "small",
@@ -213,7 +220,10 @@ const DEFAULT_STATE: State = {
         "fleet-usage",
         "fuel-loss-opportunity",
         "vehicle-type-wise",
-        "fleet-metrics-summary",
+        "fleet-efficiency",
+        "toll-expense",
+        "carbon-emission",
+        "active-alerts",
         "fleet-status",
       ],
       widgetSizes: DEFAULT_WIDGET_SIZES,
@@ -231,7 +241,7 @@ const DEFAULT_STATE: State = {
   favorites: ["today-activity"],
 };
 
-const STORAGE_KEY = "fleet-dashboard-state-v8";
+const STORAGE_KEY = "fleet-dashboard-state-v9";
 
 type Ctx = State & {
   visibleTabs: DashboardTab[];
@@ -291,6 +301,13 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                   "high-temp-alarm",
                   "panic-sos-alarm",
                   "collision-alarm",
+                );
+              } else if (id === ("fleet-metrics-summary" as any)) {
+                expandedWidgets.push(
+                  "fleet-efficiency",
+                  "toll-expense",
+                  "carbon-emission",
+                  "active-alerts",
                 );
               } else if (validIds.has(id)) {
                 expandedWidgets.push(id);

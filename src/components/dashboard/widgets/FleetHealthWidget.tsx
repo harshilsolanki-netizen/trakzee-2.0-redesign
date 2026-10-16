@@ -48,16 +48,19 @@ export function FleetHealthWidget() {
           ))}
         </div>
 
-        {/* Bottom Legend Dots */}
-        <div className="flex items-center justify-between pt-2 border-t border-border/50 text-[14px]">
-          <span className="flex items-center gap-1.5 font-medium text-emerald-600">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Healthy: {FLEET_HEALTH_DATA.healthy}
+        {/* Bottom Legend */}
+        <div className="flex items-center justify-center gap-4 pt-2 border-t border-border/50 text-xs">
+          <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+            Healthy: <span className="font-semibold text-foreground font-mono">{FLEET_HEALTH_DATA.healthy}</span>
           </span>
-          <span className="flex items-center gap-1.5 font-medium text-amber-600">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-500" /> Warning: {FLEET_HEALTH_DATA.warning}
+          <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+            <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+            Warning: <span className="font-semibold text-foreground font-mono">{FLEET_HEALTH_DATA.warning}</span>
           </span>
-          <span className="flex items-center gap-1.5 font-medium text-rose-600">
-            <span className="h-2.5 w-2.5 rounded-full bg-rose-500" /> Critical: {FLEET_HEALTH_DATA.critical}
+          <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+            <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
+            Critical: <span className="font-semibold text-foreground font-mono">{FLEET_HEALTH_DATA.critical}</span>
           </span>
         </div>
       </div>

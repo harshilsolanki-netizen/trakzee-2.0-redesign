@@ -15,7 +15,7 @@ export function FleetIdleWidget() {
   const size = useWidgetSize();
   const range = activeTab.range;
   const isLarge = size === "large";
-  const offenders = isLarge ? IDLE_OFFENDERS : IDLE_OFFENDERS.slice(0, 2);
+  const offenders = IDLE_OFFENDERS;
 
   return (
     <WidgetCard
@@ -27,7 +27,7 @@ export function FleetIdleWidget() {
       <div className="flex flex-col h-full min-h-0 justify-between gap-1 select-none">
         {/* KPI Strip */}
         <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-2">
+          <div className="rounded-lg bg-amber-500/10 p-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] text-muted-foreground font-medium">Idle Duration</span>
               <Clock className="h-3.5 w-3.5 text-amber-500" />
@@ -40,7 +40,7 @@ export function FleetIdleWidget() {
             </span>
           </div>
 
-          <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-2">
+          <div className="rounded-lg bg-rose-500/10 p-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] text-muted-foreground font-medium">Wasted Fuel</span>
               <Fuel className="h-3.5 w-3.5 text-rose-500" />
@@ -53,7 +53,7 @@ export function FleetIdleWidget() {
             </span>
           </div>
 
-          <div className="rounded-lg border border-border/70 bg-card p-2">
+          <div className="rounded-lg bg-muted/30 p-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] text-muted-foreground font-medium">Idling Ratio</span>
               <AlertOctagon className="h-3.5 w-3.5 text-indigo-500" />
@@ -68,7 +68,7 @@ export function FleetIdleWidget() {
         </div>
 
         {/* Runtime Ratio Bar */}
-        <div className="rounded-lg border border-border/70 bg-card p-2 space-y-1.5">
+        <div className="rounded-lg bg-muted/30 p-2 space-y-1.5">
           <div className="flex items-center justify-between text-[11px]">
             <span className="font-semibold text-foreground">Engine Runtime Split</span>
             <span className="text-[11px] text-muted-foreground font-mono">642h total run</span>
@@ -77,12 +77,14 @@ export function FleetIdleWidget() {
             <div className="h-full bg-emerald-500 w-[92.6%]" title="Moving 92.6%" />
             <div className="h-full bg-amber-500 w-[7.4%]" title="Idling 7.4%" />
           </div>
-          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-1 font-medium">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" /> Moving: 593h 38m (92.6%)
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-0.5">
+            <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+              Moving: <span className="font-semibold text-foreground font-mono">593h 38m (92.6%)</span>
             </span>
-            <span className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
-              <span className="h-2 w-2 rounded-full bg-amber-500 inline-block" /> Idling: 48h 22m (7.4%)
+            <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+              <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+              Idling: <span className="font-semibold text-foreground font-mono">48h 22m (7.4%)</span>
             </span>
           </div>
         </div>
@@ -93,11 +95,11 @@ export function FleetIdleWidget() {
             <span>Vehicles With Highest Idling</span>
             <span className="text-[11px] text-muted-foreground font-mono">Fuel penalty</span>
           </div>
-          <div className="space-y-1">
+          <div className="divide-y divide-border/50">
             {offenders.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between py-1 px-2 rounded-md bg-muted/20 border border-border/50 text-xs hover:bg-muted/40 transition-colors"
+                className="flex items-center justify-between py-1.5 px-1 text-xs hover:bg-muted/30 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-bold text-foreground font-mono">{item.plate}</span>

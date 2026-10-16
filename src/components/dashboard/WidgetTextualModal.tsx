@@ -5,6 +5,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 import {
   Dialog,
@@ -326,6 +327,71 @@ export function WidgetTextualModal({
           })),
         };
 
+      case "fleet-efficiency":
+        return {
+          columns: [
+            { key: "metric", label: "Efficiency Metric" },
+            { key: "value", label: "Value", align: "right" },
+            { key: "benchmark", label: "Fleet Benchmark", align: "right" },
+            { key: "status", label: "Status", isBadge: true },
+          ],
+          rows: [
+            { metric: "Overall Fleet Operating Efficiency", value: `${OPERATIONAL_METRICS_DATA.fleetEfficiencyPct}%`, benchmark: "65%", status: "Good" },
+            { metric: "Route Optimization Adherence", value: "88%", benchmark: "80%", status: "Optimal" },
+            { metric: "Engine On vs Idle Efficiency", value: "76%", benchmark: "70%", status: "Good" },
+            { metric: "Dispatch Punctuality Score", value: "92%", benchmark: "85%", status: "Optimal" },
+          ],
+        };
+
+      case "toll-expense":
+        return {
+          columns: [
+            { key: "plaza", label: "Toll Plaza / Gate" },
+            { key: "vehicle", label: "Vehicle Number" },
+            { key: "time", label: "Transaction Time", align: "right" },
+            { key: "amount", label: "Amount", align: "right" },
+            { key: "tag", label: "FASTag Status", isBadge: true },
+          ],
+          rows: [
+            { plaza: "Khed-Shivapur Plaza", vehicle: "MH-12-RN-4821", time: "08:14 AM", amount: "₹ 140", tag: "Debited" },
+            { plaza: "Talegaon Toll Plaza", vehicle: "MH-14-BT-9902", time: "08:45 AM", amount: "₹ 210", tag: "Debited" },
+            { plaza: "Khalapur Toll Plaza", vehicle: "MH-04-AZ-3312", time: "09:02 AM", amount: "₹ 320", tag: "Debited" },
+            { plaza: "Vashi Toll Naka", vehicle: "MH-43-BB-1120", time: "09:25 AM", amount: "₹ 85", tag: "Debited" },
+            { plaza: "Charoti Toll Plaza", vehicle: "GJ-01-XX-5544", time: "09:40 AM", amount: "₹ 190", tag: "Debited" },
+          ],
+        };
+
+      case "carbon-emission":
+        return {
+          columns: [
+            { key: "scope", label: "Emissions Scope / Factor" },
+            { key: "tonnage", label: "CO2 Offset", align: "right" },
+            { key: "trend", label: "MoM Reduction", align: "right" },
+            { key: "compliance", label: "ESG Rating", isBadge: true },
+          ],
+          rows: [
+            { scope: "Idle Fuel Cutoff Saved", tonnage: "2.1 Tons", trend: "-14%", compliance: "Certified" },
+            { scope: "Eco-Routing Distance Reduction", tonnage: "1.8 Tons", trend: "-18%", compliance: "Certified" },
+            { scope: "EV & Hybrid Fleet Miles", tonnage: "1.1 Tons", trend: "+24%", compliance: "Exceeds" },
+          ],
+        };
+
+      case "active-alerts":
+        return {
+          columns: [
+            { key: "severity", label: "Severity", isBadge: true },
+            { key: "category", label: "Alert Category" },
+            { key: "count", label: "Active Triggers", align: "right" },
+            { key: "action", label: "Recommended Action" },
+          ],
+          rows: [
+            { severity: "Critical", category: "Overspeed Alarms", count: 220, action: "Driver Warning" },
+            { severity: "Warning", category: "Harsh Braking & Cornering", count: 48, action: "Driver Coaching" },
+            { severity: "Warning", category: "Geofence Breaches", count: 32, action: "Supervisor Review" },
+            { severity: "Critical", category: "SOS / Panic Buttons", count: 8, action: "Emergency Response" },
+          ],
+        };
+
       case "fleet-metrics-summary":
         return {
           columns: [
@@ -539,21 +605,16 @@ export function WidgetTextualModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl p-6 z-50">
-        <DialogHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/60">
-          <div>
-            <DialogTitle className="text-base font-bold text-foreground">
-              {meta.title} — Data Details
-            </DialogTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Exact tabular records extracted from dashboard telemetry.
-            </p>
-          </div>
+        <DialogHeader className="pb-3 border-b border-border/60">
+          <DialogTitle className="text-base font-bold text-foreground">
+            {meta.title} — Data Details
+          </DialogTitle>
         </DialogHeader>
 
-        {/* Toolbar: Search input + Export Dropdown */}
-        <div className="flex items-center justify-between gap-3 pt-2">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        {/* Toolbar: Full length Search input with Theme focus state */}
+        <div className="pt-2">
+          <div className="flex h-9 w-full items-center gap-2 rounded-lg border border-border/80 bg-background px-3 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
             <input
               type="text"
               placeholder="Search data..."
@@ -562,33 +623,21 @@ export function WidgetTextualModal({
                 setSearchTerm(e.target.value);
                 setPage(1);
               }}
-              className="w-full h-8 pl-8 pr-3 text-xs rounded-lg border border-border bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/70 focus:outline-none font-medium"
             />
-          </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            {searchTerm && (
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer shadow-2xs"
+                onClick={() => {
+                  setSearchTerm("");
+                  setPage(1);
+                }}
+                className="p-1 rounded-md text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
               >
-                <Download className="h-3.5 w-3.5 text-[#0089FF]" />
-                <span>Export</span>
-                <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
+                <X className="h-3.5 w-3.5" />
               </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-36 text-xs p-1">
-              <DropdownMenuItem onClick={exportCSV} className="cursor-pointer">
-                Export CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={exportXLS} className="cursor-pointer">
-                Export XLS
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={exportPDF} className="cursor-pointer">
-                Export PDF
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            )}
+          </div>
         </div>
 
         {/* Table View */}
@@ -689,9 +738,9 @@ export function WidgetTextualModal({
           </table>
         </div>
 
-        {/* Pagination Controls */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-3">
-          <span>
+        {/* Footer: Showing count, Theme Pagination, Export CTA */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground pt-3 border-t border-border/50">
+          <span className="font-medium text-slate-600 dark:text-slate-400">
             Showing{" "}
             <strong className="text-foreground">
               {filteredRows.length > 0 ? (page - 1) * pageSize + 1 : 0}
@@ -704,27 +753,77 @@ export function WidgetTextualModal({
             entries
           </span>
 
-          <div className="flex items-center gap-1.5">
+          {/* Theme Pagination (Matches Trakzee 2.0 Design System) */}
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            {/* Prev Button */}
             <button
               type="button"
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="p-1.5 rounded border border-border hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors px-1.5 py-1 rounded"
             >
-              <ChevronLeft className="h-3.5 w-3.5" />
+              <ChevronLeft className="h-3.5 w-3.5 stroke-[2.2]" />
+              <span>Prev</span>
             </button>
-            <span className="font-mono text-xs px-2">
-              Page {page} of {totalPages}
-            </span>
+
+            {/* Page Number Pills */}
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                const isActive = p === page;
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPage(p)}
+                    className={cn(
+                      "h-6 min-w-[24px] px-1 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center justify-center",
+                      isActive
+                        ? "border border-slate-400 dark:border-slate-500 bg-transparent text-slate-900 dark:text-white font-bold"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
+                    )}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Next Button */}
             <button
               type="button"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="p-1.5 rounded border border-border hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors px-1.5 py-1 rounded"
             >
-              <ChevronRight className="h-3.5 w-3.5" />
+              <span>Next</span>
+              <ChevronRight className="h-3.5 w-3.5 stroke-[2.2]" />
             </button>
           </div>
+
+          {/* Export CTA Button */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer shadow-2xs"
+              >
+                <Download className="h-3.5 w-3.5 text-[#0089FF]" />
+                <span>Export</span>
+                <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-28 text-xs p-1 z-50">
+              <DropdownMenuItem onClick={exportCSV} className="cursor-pointer font-medium">
+                CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportXLS} className="cursor-pointer font-medium">
+                XLS
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportPDF} className="cursor-pointer font-medium">
+                PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </DialogContent>
     </Dialog>

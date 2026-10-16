@@ -15,7 +15,7 @@ export function FleetWorkloadWidget() {
   const size = useWidgetSize();
   const range = activeTab.range;
   const isLarge = size === "large";
-  const assets = isLarge ? WORKLOAD_ASSETS : WORKLOAD_ASSETS.slice(0, 2);
+  const assets = WORKLOAD_ASSETS;
 
   return (
     <WidgetCard
@@ -27,7 +27,7 @@ export function FleetWorkloadWidget() {
       <div className="flex flex-col h-full min-h-0 justify-between gap-1 select-none">
         {/* KPI Strip */}
         <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-lg border border-border/70 bg-card p-2">
+          <div className="rounded-lg bg-muted/30 p-2">
             <span className="text-[11px] text-muted-foreground block font-medium">Fleet Utilization</span>
             <div className="flex items-baseline gap-1 mt-0.5">
               <span className="text-base font-extrabold text-[#0089FF] font-mono">84.6%</span>
@@ -36,7 +36,7 @@ export function FleetWorkloadWidget() {
             <span className="text-[11px] text-emerald-600 font-semibold mt-0.5 block">● Healthy Capacity</span>
           </div>
 
-          <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-2">
+          <div className="rounded-lg bg-rose-500/10 p-2">
             <span className="text-[11px] text-muted-foreground block font-medium">Overworked Assets</span>
             <span className="text-base font-extrabold text-rose-600 dark:text-rose-400 font-mono block mt-0.5">
               12 Units
@@ -44,7 +44,7 @@ export function FleetWorkloadWidget() {
             <span className="text-[11px] text-rose-600 font-semibold mt-0.5 block">&gt; 10h/day limit</span>
           </div>
 
-          <div className="rounded-lg border border-border/70 bg-card p-2">
+          <div className="rounded-lg bg-muted/30 p-2">
             <span className="text-[11px] text-muted-foreground block font-medium">Available Assets</span>
             <span className="text-base font-extrabold text-foreground font-mono block mt-0.5">
               20 Units
@@ -54,7 +54,7 @@ export function FleetWorkloadWidget() {
         </div>
 
         {/* Capacity Distribution Progress Bar */}
-        <div className="rounded-lg border border-border/70 bg-card p-2 space-y-1.5">
+        <div className="rounded-lg bg-muted/30 p-2 space-y-1.5">
           <div className="flex items-center justify-between text-[11px]">
             <span className="font-semibold text-foreground">Duty Cycle Distribution</span>
             <span className="text-[11px] text-muted-foreground font-mono">108 Fleet Assets</span>
@@ -64,15 +64,18 @@ export function FleetWorkloadWidget() {
             <div className="h-full bg-rose-500 w-[11.1%]" title="Overworked: 12 vehicles" />
             <div className="h-full bg-blue-500 w-[18.5%]" title="Underutilized: 20 vehicles" />
           </div>
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="flex items-center gap-1 text-emerald-600 font-semibold">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" /> Optimal (70%)
+          <div className="flex items-center justify-between text-xs pt-0.5">
+            <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+              Optimal <span className="font-semibold text-foreground font-mono">(70%)</span>
             </span>
-            <span className="flex items-center gap-1 text-rose-600 font-semibold">
-              <span className="h-2 w-2 rounded-full bg-rose-500 inline-block" /> Overworked (11%)
+            <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+              <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
+              Overworked <span className="font-semibold text-foreground font-mono">(11%)</span>
             </span>
-            <span className="flex items-center gap-1 text-blue-600 font-semibold">
-              <span className="h-2 w-2 rounded-full bg-blue-500 inline-block" /> Idle / Standby (19%)
+            <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+              <span className="h-2 w-2 rounded-full bg-blue-500 shrink-0" />
+              Idle <span className="font-semibold text-foreground font-mono">(19%)</span>
             </span>
           </div>
         </div>
@@ -83,11 +86,11 @@ export function FleetWorkloadWidget() {
             <span>Shift Duty Monitoring</span>
             <span className="text-[11px] text-muted-foreground font-mono">Hours logged</span>
           </div>
-          <div className="space-y-1">
+          <div className="divide-y divide-border/50">
             {assets.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between py-1 px-2 rounded-md bg-muted/20 border border-border/50 text-xs hover:bg-muted/40 transition-colors"
+                className="flex items-center justify-between py-1.5 px-1 text-xs hover:bg-muted/30 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-bold text-foreground font-mono">{item.plate}</span>

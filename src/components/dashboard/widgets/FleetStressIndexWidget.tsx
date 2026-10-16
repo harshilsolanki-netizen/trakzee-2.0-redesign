@@ -14,7 +14,7 @@ export function FleetStressIndexWidget() {
       id="fleet-stress-index"
       info="Fleet mechanical stress index and weekly telemetry load."
     >
-      <div className="flex flex-col h-full min-h-0 justify-around items-center select-none py-1">
+      <div className="flex flex-col h-full min-h-0 justify-between items-center select-none py-1">
         {/* Semi-circular Speedometer Gauge */}
         <div className="relative h-[150px] w-full max-w-[280px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -47,19 +47,19 @@ export function FleetStressIndexWidget() {
 
         {/* Min / Avg / Max Stress Triplets */}
         <div className="grid grid-cols-3 gap-2 w-full text-center border-t border-border/50 pt-2">
-          <div className="flex flex-col p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+          <div className="flex flex-col py-1.5 px-2 rounded-lg bg-emerald-500/10">
             <span className="text-[11px] text-muted-foreground uppercase font-semibold">Min</span>
             <span className="text-sm font-mono font-bold text-emerald-600">
               {FLEET_STRESS_INDEX.minStress}
             </span>
           </div>
-          <div className="flex flex-col p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 border-x">
+          <div className="flex flex-col py-1.5 px-2 rounded-lg bg-amber-500/10">
             <span className="text-[11px] text-muted-foreground uppercase font-semibold">Avg</span>
             <span className="text-sm font-mono font-bold text-amber-600">
               {FLEET_STRESS_INDEX.avgStress}
             </span>
           </div>
-          <div className="flex flex-col p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
+          <div className="flex flex-col py-1.5 px-2 rounded-lg bg-rose-500/10">
             <span className="text-[11px] text-muted-foreground uppercase font-semibold">Max</span>
             <span className="text-sm font-mono font-bold text-rose-600">
               {FLEET_STRESS_INDEX.maxStress}
@@ -68,15 +68,15 @@ export function FleetStressIndexWidget() {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground pt-1">
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> Low (0-50)
+        <div className="flex items-center justify-center gap-4 pt-2 border-t border-border/50 text-xs">
+          <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" /> Low (0-50)
           </span>
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-amber-500" /> Med (51-75)
+          <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+            <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" /> Med (51-75)
           </span>
-          <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-rose-500" /> High (76-100)
+          <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+            <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" /> High (76-100)
           </span>
         </div>
       </div>

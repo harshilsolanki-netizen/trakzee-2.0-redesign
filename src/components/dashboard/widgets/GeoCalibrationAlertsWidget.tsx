@@ -8,8 +8,8 @@ export function GeoCalibrationAlertsWidget() {
       id="geo-calibration-alerts"
       info="Geofence entry, exit, and perimeter boundary deviation alerts."
     >
-      <div className="flex flex-col h-full min-h-0 justify-around select-none py-1">
-        <div className="space-y-3.5 my-auto">
+      <div className="flex flex-col h-full min-h-0 select-none">
+        <div className="flex-1 flex flex-col justify-between py-1">
           {GEO_CALIBRATION_DATA.map((item) => {
             const pct = Math.round((item.count / item.max) * 100);
             return (
@@ -19,8 +19,9 @@ export function GeoCalibrationAlertsWidget() {
                     <MapPin className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
                     <span className="text-[12px] font-medium text-foreground truncate">{item.zone}</span>
                   </div>
-                  <span className="font-mono text-[14px] font-semibold text-[#0089FF] shrink-0">
-                    {item.count} alerts
+                  <span className="text-xs font-semibold text-[#0089FF] shrink-0 inline-flex items-baseline gap-1">
+                    <span className="font-mono text-sm font-bold">{item.count}</span>
+                    <span className="font-sans font-medium">{item.count === 1 ? "Alert" : "Alerts"}</span>
                   </span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden">

@@ -147,7 +147,7 @@ function MiniAlarmBase({ widgetKey }: { widgetKey: string }) {
         <div className={cn("flex items-end justify-between mt-auto", isMini ? "pt-1" : "pt-4")}>
           <Icon className={cn(isMini ? "h-6 w-6" : "h-10 w-10", "opacity-85 shrink-0", theme.iconColor)} />
           <div className="flex flex-col items-end">
-            <span className={cn("font-black font-mono leading-none tracking-tight", isMini ? "text-3xl" : "text-5xl", theme.text)}>
+            <span className={cn("font-black font-mono leading-none tracking-tight text-[32px]", theme.text)}>
               {rawData.count}
             </span>
             {!isMini && (

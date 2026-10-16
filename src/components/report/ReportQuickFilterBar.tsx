@@ -1030,7 +1030,7 @@ export function ReportQuickFilterBar({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 text-xs text-muted-foreground shrink-0",
+        "flex items-center gap-2.5 text-xs text-muted-foreground shrink-0",
         className,
       )}
     >
@@ -1040,7 +1040,7 @@ export function ReportQuickFilterBar({
           <button
             type="button"
             className={cn(
-              "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+              "inline-flex h-7.5 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
               dateOpen && "bg-muted",
             )}
           >
@@ -1212,13 +1212,16 @@ export function ReportQuickFilterBar({
         </PopoverContent>
       </Popover>
 
+      {/* Divider */}
+      <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0 mx-0.5" />
+
       {/* 2. Company Quick Filter */}
       <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
         <PopoverTrigger asChild>
           <button
             type="button"
             className={cn(
-              "inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+              "inline-flex h-7.5 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
               companyOpen && "bg-muted",
             )}
           >
@@ -1334,13 +1337,16 @@ export function ReportQuickFilterBar({
         </PopoverContent>
       </Popover>
 
+      {/* Divider */}
+      <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0 mx-0.5" />
+
       {/* 3. Branch Quick Filter (Single functional filter, Cascades to Vehicles) */}
       <Popover open={branchOpen} onOpenChange={setBranchOpen}>
         <PopoverTrigger asChild>
           <button
             type="button"
             className={cn(
-              "inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+              "inline-flex h-7.5 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
               branchOpen && "bg-muted",
             )}
           >
@@ -1456,13 +1462,16 @@ export function ReportQuickFilterBar({
         </PopoverContent>
       </Popover>
 
+      {/* Divider */}
+      <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0 mx-0.5" />
+
       {/* 4. Vehicle / Object Quick Filter */}
       <Popover open={vehicleOpen} onOpenChange={setVehicleOpen}>
         <PopoverTrigger asChild>
           <button
             type="button"
             className={cn(
-              "inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
+              "inline-flex h-7.5 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors cursor-pointer select-none hover:bg-muted/70",
               vehicleOpen && "bg-muted",
             )}
           >
@@ -1645,12 +1654,15 @@ export function ReportQuickFilterBar({
         </PopoverContent>
       </Popover>
 
+      {/* Divider */}
+      <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700 shrink-0 mx-0.5" />
+
       {/* 5. Filter Button */}
       <button
         type="button"
         onClick={onOpenFilterDrawer}
         aria-label="Open Filter Drawer"
-        className="inline-flex h-7 items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer select-none shadow-2xs active:scale-98"
+        className="inline-flex h-7.5 items-center gap-1.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer select-none shadow-2xs active:scale-98"
       >
         <SlidersHorizontal className="h-3 w-3 text-slate-500 dark:text-slate-400" />
         <span className="font-medium text-slate-700 dark:text-slate-300">Filter</span>

@@ -36,7 +36,7 @@ export function AlarmStatusTilesWidget() {
 
               <div className="flex items-end justify-between mt-2">
                 <Icon className="h-6 w-6 opacity-80" />
-                <span className="text-2xl font-black font-mono leading-none">
+                <span className="text-[32px] font-black font-mono leading-none">
                   {tile.count}
                 </span>
               </div>

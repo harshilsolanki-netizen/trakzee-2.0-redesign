@@ -24,7 +24,7 @@ export function FleetScoreWidget() {
   const { color } = band(score);
 
   const isLarge = size === "large";
-  const gaugeHeight = isLarge ? 240 : 160;
+  const gaugeHeight = isLarge ? 260 : 210;
 
   return (
     <WidgetCard
@@ -33,8 +33,8 @@ export function FleetScoreWidget() {
       range={range}
       onRangeChange={(r) => setTabRange(activeTab.id, r)}
     >
-      <div className="flex flex-col items-center justify-between h-full min-h-0 select-none py-1">
-        <div style={{ height: gaugeHeight }} className="relative w-full max-w-[300px]">
+      <div className="flex flex-col items-center justify-around h-full min-h-0 select-none py-2">
+        <div style={{ height: gaugeHeight }} className="relative w-full max-w-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <RadialBarChart
               data={[{ name: "score", value: score, fill: color }]}

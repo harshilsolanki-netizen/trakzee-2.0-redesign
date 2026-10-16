@@ -7,8 +7,8 @@ export function AlertsBreakdownWidget() {
       id="alerts-breakdown"
       info="Volume breakdown of primary driving and system alarms."
     >
-      <div className="flex flex-col h-full min-h-0 justify-around select-none py-1">
-        <div className="space-y-3">
+      <div className="flex flex-col h-full min-h-0 select-none">
+        <div className="flex-1 flex flex-col justify-between py-1">
           {ALERTS_BREAKDOWN_DATA.map((item) => {
             const pct = Math.round((item.count / item.max) * 100);
             return (

@@ -18,8 +18,7 @@ export function ScoreDistributionWidget() {
   const size = useWidgetSize();
 
   const isLarge = size === "large";
-  const chartHeight = isLarge ? 580 : 260;
-  const barSize = isLarge ? 22 : 12;
+  const barSize = isLarge ? 22 : 16;
   const fontSize = isLarge ? 12 : 10;
 
   return (
@@ -29,7 +28,7 @@ export function ScoreDistributionWidget() {
       range={range}
       onRangeChange={(r) => setTabRange(activeTab.id, r)}
     >
-      <div style={{ height: chartHeight }} className="w-full">
+      <div className="w-full h-full min-h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}

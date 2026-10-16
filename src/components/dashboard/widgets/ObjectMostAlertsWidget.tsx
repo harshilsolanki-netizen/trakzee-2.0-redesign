@@ -56,7 +56,7 @@ export function ObjectMostAlertsWidget() {
   const size = useWidgetSize();
   const range = activeTab.range;
   const isLarge = size === "large";
-  const objects = isLarge ? OBJECT_ALERTS : OBJECT_ALERTS.slice(0, 2);
+  const objects = OBJECT_ALERTS;
 
   return (
     <WidgetCard
@@ -65,9 +65,9 @@ export function ObjectMostAlertsWidget() {
       range={range}
       onRangeChange={(r) => setTabRange(activeTab.id, r)}
     >
-      <div className="flex flex-col h-full min-h-0 justify-between gap-1 select-none">
+      <div className="flex flex-col h-full min-h-0 select-none">
         {/* Header alert summary banner */}
-        <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs">
+        <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-xs mb-1">
           <div className="flex items-center gap-1.5">
             <Radio className="h-4 w-4 text-amber-500 shrink-0" />
             <span className="font-semibold text-amber-800 dark:text-amber-400">Total Vehicle Triggers:</span>
@@ -77,11 +77,11 @@ export function ObjectMostAlertsWidget() {
         </div>
 
         {/* Object Leaderboard List */}
-        <div className="space-y-1.5 py-1 overflow-y-auto">
+        <div className="divide-y divide-border/50 overflow-y-auto flex-1 min-h-0">
           {objects.map((obj, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-2 rounded-lg border border-border/70 bg-card hover:border-primary/40 transition-colors text-xs"
+              className="flex items-center justify-between py-2.5 px-1 hover:bg-muted/30 transition-colors text-xs"
             >
               {/* Left: Rank & Vehicle Info */}
               <div className="flex items-center gap-2.5 min-w-0">

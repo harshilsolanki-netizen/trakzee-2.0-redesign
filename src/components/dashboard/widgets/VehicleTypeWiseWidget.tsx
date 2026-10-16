@@ -45,13 +45,13 @@ export function VehicleTypeWiseWidget() {
           {VEHICLE_TYPE_DATA.types.map((item) => (
             <div
               key={item.name}
-              className="flex items-center justify-between py-1.5 px-2 rounded-lg border border-border/40 bg-muted/20"
+              className="flex items-center justify-between py-2 px-2 rounded-md hover:bg-muted/40 transition-colors"
             >
               <div className="flex items-center gap-1.5 min-w-0">
-                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                <span className="text-[12px] font-medium text-foreground truncate">{item.name}</span>
+                <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                <span className="text-xs font-medium text-foreground truncate">{item.name}</span>
               </div>
-              <span className="font-mono text-[14px] font-semibold text-foreground shrink-0 ml-1.5">
+              <span className="font-mono text-xs font-semibold text-foreground shrink-0 ml-1.5">
                 {item.count}
               </span>
             </div>

@@ -136,22 +136,11 @@ export function WidgetDrilldownModal({
                     {pct ? ` (${pct}%)` : ""}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Detailed vehicle roster currently categorized under <strong className="text-foreground">{category}</strong>
-                </p>
               </div>
             </div>
 
             {/* Quick Actions */}
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleExportCSV}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/80 bg-background hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
-              >
-                <Download className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>Export CSV</span>
-              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -287,34 +276,69 @@ export function WidgetDrilldownModal({
           )}
         </div>
 
-        {/* Footer with Pagination */}
-        <div className="p-3.5 border-t border-border/70 bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
-          <span>
+        {/* Footer with Theme Pagination & Export CTA */}
+        <div className="p-3.5 border-t border-border/70 bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span className="font-medium text-slate-600 dark:text-slate-400">
             Showing <strong className="text-foreground">{paginated.length}</strong> of{" "}
             <strong className="text-foreground">{filtered.length}</strong> vehicles
           </span>
 
-          <div className="flex items-center gap-2">
+          {/* Theme Pagination */}
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            {/* Prev */}
             <button
               type="button"
               disabled={currentPage <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="p-1.5 rounded-md border border-border/80 bg-background hover:bg-muted disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+              className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors px-1.5 py-1 rounded"
             >
-              <ChevronLeft className="h-3.5 w-3.5" />
+              <ChevronLeft className="h-3.5 w-3.5 stroke-[2.2]" />
+              <span>Prev</span>
             </button>
-            <span className="font-mono font-semibold text-foreground text-[11px]">
-              Page {currentPage} of {totalPages}
-            </span>
+
+            {/* Page number pills */}
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                const isActive = p === currentPage;
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPage(p)}
+                    className={cn(
+                      "h-6 min-w-[24px] px-1 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center justify-center",
+                      isActive
+                        ? "border border-slate-400 dark:border-slate-500 bg-transparent text-slate-900 dark:text-white font-bold"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
+                    )}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Next */}
             <button
               type="button"
               disabled={currentPage >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="p-1.5 rounded-md border border-border/80 bg-background hover:bg-muted disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+              className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors px-1.5 py-1 rounded"
             >
-              <ChevronRight className="h-3.5 w-3.5" />
+              <span>Next</span>
+              <ChevronRight className="h-3.5 w-3.5 stroke-[2.2]" />
             </button>
           </div>
+
+          {/* Export CSV CTA */}
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer shadow-2xs"
+          >
+            <Download className="h-3.5 w-3.5 text-[#0089FF]" />
+            <span>Export CSV</span>
+          </button>
         </div>
       </DialogContent>
     </Dialog>

@@ -56,7 +56,7 @@ export function DriverMostAlertsWidget() {
   const size = useWidgetSize();
   const range = activeTab.range;
   const isLarge = size === "large";
-  const drivers = isLarge ? DRIVER_ALERTS : DRIVER_ALERTS.slice(0, 2);
+  const drivers = DRIVER_ALERTS;
 
   return (
     <WidgetCard
@@ -65,9 +65,9 @@ export function DriverMostAlertsWidget() {
       range={range}
       onRangeChange={(r) => setTabRange(activeTab.id, r)}
     >
-      <div className="flex flex-col h-full min-h-0 justify-between gap-1 select-none">
+      <div className="flex flex-col h-full min-h-0 select-none">
         {/* Header alert summary banner */}
-        <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs">
+        <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-rose-500/10 text-xs mb-1">
           <div className="flex items-center gap-1.5">
             <ShieldAlert className="h-4 w-4 text-rose-500 shrink-0" />
             <span className="font-semibold text-rose-700 dark:text-rose-400">Total Safety Alarms:</span>
@@ -77,11 +77,11 @@ export function DriverMostAlertsWidget() {
         </div>
 
         {/* Driver Leaderboard List */}
-        <div className="space-y-1.5 py-1 overflow-y-auto">
+        <div className="divide-y divide-border/50 overflow-y-auto flex-1 min-h-0">
           {drivers.map((d, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-2 rounded-lg border border-border/70 bg-card hover:border-primary/40 transition-colors text-xs"
+              className="flex items-center justify-between py-2.5 px-1 hover:bg-muted/30 transition-colors text-xs"
             >
               {/* Left: Rank & Driver Info */}
               <div className="flex items-center gap-2.5 min-w-0">

@@ -92,7 +92,7 @@ export function ReportTabStrip({
       <div className="absolute left-0 right-0 bottom-0 h-px bg-[#DFE3EB] dark:bg-slate-800 z-0" />
 
       {/* Tab bar list */}
-      <div className="relative z-10 flex min-w-0 flex-1 items-end overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden h-full pl-[10px]">
+      <div className="relative z-10 flex min-w-0 flex-1 items-end overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden h-full pl-[10px] gap-1">
         {tabs.map((tab, tabIndex) => {
           const isActive = tab.id === activeTabId;
           const isFirstTab = tabIndex === 0;
@@ -107,17 +107,25 @@ export function ReportTabStrip({
             }
           }
 
+          const prevTab = tabIndex > 0 ? tabs[tabIndex - 1] : null;
+          const isPrevActive = prevTab?.id === activeTabId;
+          const showDividerBefore = !isActive && !isPrevActive && tabIndex > 0;
+
           return (
-            <div
-              key={tab.id}
-              onClick={() => onSelectTab(tab.id)}
-              className={cn(
-                "group relative flex shrink-0 cursor-pointer items-center gap-2 text-xs transition-all duration-150 select-none",
-                isActive
-                  ? "h-[35px] px-4 rounded-t-lg bg-white dark:bg-slate-900 border-t border-l border-r border-[#DFE3EB] dark:border-slate-800 text-slate-800 dark:text-white font-semibold mb-[-1px] z-20 shadow-2xs"
-                  : "h-[32px] px-3 rounded-t-md bg-transparent hover:bg-slate-200/60 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 font-medium mb-0 z-10",
+            <React.Fragment key={tab.id}>
+              {showDividerBefore && (
+                <div className="h-3.5 w-px bg-slate-300 dark:bg-slate-700/80 my-auto shrink-0 self-center mx-0.5" />
               )}
-            >
+              <div
+                onClick={() => onSelectTab(tab.id)}
+                className={cn(
+                  "group relative flex shrink-0 cursor-pointer items-center gap-2 text-xs transition-all duration-150 select-none",
+                  isActive
+                    ? "h-[35px] px-4 rounded-t-lg bg-white dark:bg-slate-900 border-t border-l border-r border-[#DFE3EB] dark:border-slate-800 text-slate-800 dark:text-white font-semibold mb-[-1px] z-20 shadow-2xs mr-2"
+                    : "h-[32px] px-3.5 rounded-t-md bg-transparent hover:bg-slate-200/60 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 font-medium mb-0 z-10",
+                  isActive && !isFirstTab && "ml-2",
+                )}
+              >
               {/* Left Inverted Concave Fillet for Active Tab (curving into baseline) */}
               {isActive && (
                 <div className="absolute -left-[8px] bottom-0 w-[8px] h-[8px] overflow-hidden pointer-events-none z-20">
@@ -209,8 +217,14 @@ export function ReportTabStrip({
                 </button>
               )}
             </div>
+          </React.Fragment>
           );
         })}
+
+        {/* Divider before + New if last tab wasn't active */}
+        {tabs.length > 0 && tabs[tabs.length - 1]?.id !== activeTabId && (
+          <div className="h-3.5 w-px bg-slate-300 dark:bg-slate-700/80 my-auto shrink-0 self-center mx-0.5" />
+        )}
 
         {/* + New Button with Dropdown Popover */}
         <Popover open={newMenuOpen} onOpenChange={setNewMenuOpen}>
@@ -218,7 +232,7 @@ export function ReportTabStrip({
             <button
               type="button"
               className={cn(
-                "inline-flex shrink-0 items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-colors cursor-pointer rounded-md self-center z-10 ml-2",
+                "inline-flex shrink-0 items-center gap-1.5 px-3 py-1 text-xs font-semibold text-[#0089FF] hover:text-[#0070d6] hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-colors cursor-pointer rounded-md self-center z-10 ml-1.5",
                 newMenuOpen && "bg-slate-200/80",
               )}
             >

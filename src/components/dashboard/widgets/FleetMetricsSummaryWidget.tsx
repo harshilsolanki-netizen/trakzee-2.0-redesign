@@ -10,7 +10,7 @@ export function FleetMetricsSummaryWidget() {
     >
       <div className="grid grid-cols-2 gap-3 h-full min-h-0 select-none py-1">
         {/* Metric 1: Fleet Efficiency */}
-        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3 flex flex-col justify-between shadow-2xs">
+        <div className="rounded-xl bg-emerald-500/10 p-3 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-bold">Fleet Efficiency</span>
             <Gauge className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -22,7 +22,7 @@ export function FleetMetricsSummaryWidget() {
         </div>
 
         {/* Metric 2: Toll Expenses */}
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 p-3 flex flex-col justify-between shadow-2xs">
+        <div className="rounded-xl bg-amber-500/10 p-3 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-bold">Toll</span>
             <Landmark className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -34,7 +34,7 @@ export function FleetMetricsSummaryWidget() {
         </div>
 
         {/* Metric 3: Carbon Emission */}
-        <div className="rounded-xl border border-teal-500/20 bg-teal-500/8 p-3 flex flex-col justify-between shadow-2xs">
+        <div className="rounded-xl bg-teal-500/10 p-3 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-bold">Carbon Emission</span>
             <Cloud className="h-4 w-4 text-teal-600 dark:text-teal-400" />
@@ -46,7 +46,7 @@ export function FleetMetricsSummaryWidget() {
         </div>
 
         {/* Metric 4: Active Alerts */}
-        <div className="rounded-xl border border-rose-500/20 bg-rose-500/8 p-3 flex flex-col justify-between shadow-2xs">
+        <div className="rounded-xl bg-rose-500/10 p-3 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-bold">Alerts</span>
             <ShieldAlert className="h-4 w-4 text-rose-600 dark:text-rose-400" />

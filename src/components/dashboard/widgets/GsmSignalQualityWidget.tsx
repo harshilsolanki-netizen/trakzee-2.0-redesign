@@ -158,28 +158,28 @@ export function GsmSignalQualityWidget() {
                   onMouseEnter={() => setActiveIndex(idx)}
                   onMouseLeave={() => setActiveIndex(null)}
                   title={`${item.name} (${item.value}%)`}
-                  className={`flex items-center justify-between py-1.5 px-2.5 rounded-lg border transition-all duration-150 cursor-pointer ${
+                  className={`flex items-center justify-between py-1.5 px-2.5 rounded-md transition-all duration-150 cursor-pointer ${
                     isHovered
-                      ? "border-primary/60 bg-muted/80 shadow-xs scale-[1.02]"
-                      : "border-border/40 bg-muted/20 hover:bg-muted/50 hover:border-border/80"
+                      ? "bg-muted font-bold"
+                      : "hover:bg-muted/40"
                   }`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className={`h-2.5 w-2.5 rounded-full shrink-0 transition-transform ${
+                      className={`h-2 w-2 rounded-full shrink-0 transition-transform ${
                         isHovered ? "scale-125" : ""
                       }`}
                       style={{ backgroundColor: item.color }}
                     />
                     <span
-                      className={`text-[12px] truncate ${
+                      className={`text-xs truncate ${
                         isHovered ? "font-bold text-foreground" : "font-medium text-foreground"
                       }`}
                     >
                       {item.name}
                     </span>
                   </div>
-                  <span className="font-mono text-[14px] font-semibold text-foreground shrink-0 ml-2">
+                  <span className="font-mono text-xs font-semibold text-foreground shrink-0 ml-2">
                     {item.value}%
                   </span>
                 </div>

@@ -64,7 +64,7 @@ export function AlertHeatmapWidget({ id = "alert-heat-map" }: { id?: WidgetId })
                         getHeatColor(val),
                         hovered?.day === day && hovered?.hour === hour && "ring-2 ring-primary scale-110 z-10 shadow-sm",
                       )}
-                      title={`${day} ${hour}:00 - ${val} alerts`}
+                      title={`${day} ${hour}:00 - ${val} Alerts`}
                     />
                   );
                 })}

@@ -22,7 +22,7 @@ export const WIDGET_SIZE_META: Record<
     label: "0.5×0.5",
     dim: "0.5 Col × 0.5 Row",
     colSpanClass: "col-span-1 md:col-span-1 lg:col-span-1 row-span-1",
-    heightClass: "h-[165px]",
+    heightClass: "h-[192.75px]",
     colSpan: 0.5,
     rowSpan: 0.5,
   },
@@ -30,7 +30,7 @@ export const WIDGET_SIZE_META: Record<
     label: "1×0.5",
     dim: "1 Col × 0.5 Row",
     colSpanClass: "col-span-1 md:col-span-1 lg:col-span-2 row-span-1",
-    heightClass: "h-[165px]",
+    heightClass: "h-[192.75px]",
     colSpan: 1,
     rowSpan: 0.5,
   },
@@ -38,7 +38,7 @@ export const WIDGET_SIZE_META: Record<
     label: "1×1",
     dim: "1 Col × 1 Row",
     colSpanClass: "col-span-1 md:col-span-1 lg:col-span-2 row-span-2",
-    heightClass: "h-[340px]",
+    heightClass: "h-[395.5px]",
     colSpan: 1,
     rowSpan: 1,
   },
@@ -46,7 +46,7 @@ export const WIDGET_SIZE_META: Record<
     label: "2×1",
     dim: "2 Col × 1 Row",
     colSpanClass: "col-span-1 md:col-span-2 lg:col-span-4 row-span-2",
-    heightClass: "h-[340px]",
+    heightClass: "h-[395.5px]",
     colSpan: 2,
     rowSpan: 1,
   },
@@ -54,7 +54,7 @@ export const WIDGET_SIZE_META: Record<
     label: "2×2",
     dim: "2 Col × 2 Row",
     colSpanClass: "col-span-1 md:col-span-2 lg:col-span-4 row-span-4",
-    heightClass: "h-[690px]",
+    heightClass: "h-[801px]",
     colSpan: 2,
     rowSpan: 2,
   },
@@ -100,7 +100,11 @@ export type WidgetId =
   | "high-temp-alarm"
   | "panic-sos-alarm"
   | "collision-alarm"
-  // Row 8
+  // Row 8 (Individual 0.5x0.5 Operational Metric Widgets)
+  | "fleet-efficiency"
+  | "toll-expense"
+  | "carbon-emission"
+  | "active-alerts"
   | "vehicle-type-wise"
   | "fleet-metrics-summary"
   | "sos-alerts"
@@ -341,13 +345,38 @@ export const WIDGET_CATALOG: WidgetDefinition[] = [
     hasRange: false,
     defaultSize: "small",
   },
+  // Row 8 (Individual 0.5x0.5 Operational Metric Widgets)
   {
-    id: "fleet-metrics-summary",
-    title: "Operational Quick Metrics",
+    id: "fleet-efficiency",
+    title: "Fleet Efficiency",
     category: "OPERATIONS & FLEET",
-    description: "Efficiency, Carbon saved, Toll expenses, and Active alerts",
+    description: "Overall fleet operational and dispatch performance efficiency score",
     hasRange: false,
-    defaultSize: "small",
+    defaultSize: "mini",
+  },
+  {
+    id: "toll-expense",
+    title: "Toll",
+    category: "OPERATIONS & FLEET",
+    description: "Daily accumulated highway FASTag and toll gate expenses",
+    hasRange: false,
+    defaultSize: "mini",
+  },
+  {
+    id: "carbon-emission",
+    title: "Carbon Emission",
+    category: "OPERATIONS & FLEET",
+    description: "Fleet environmental carbon offset and emissions saved",
+    hasRange: false,
+    defaultSize: "mini",
+  },
+  {
+    id: "active-alerts",
+    title: "Alerts",
+    category: "OPERATIONS & FLEET",
+    description: "Total real-time active system alarms and trigger notifications",
+    hasRange: false,
+    defaultSize: "mini",
   },
   {
     id: "sos-alerts",

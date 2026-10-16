@@ -16,10 +16,10 @@ const CAMERA_DATA = {
 };
 
 const CARDS = [
-  { key: "online", label: "Online", count: CAMERA_DATA.online, color: "#10b981", className: "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400", icon: Video },
-  { key: "offline", label: "Offline", count: CAMERA_DATA.offline, color: "#ef4444", className: "bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-400", icon: VideoOff },
-  { key: "videoLoss", label: "Video Loss", count: CAMERA_DATA.videoLoss, color: "#f59e0b", className: "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400", icon: VideoOff },
-  { key: "tampered", label: "Tampered", count: CAMERA_DATA.tampered, color: "#64748b", className: "bg-slate-500/10 border-slate-500/30 text-slate-700 dark:text-slate-400", icon: AlertTriangle },
+  { key: "online", label: "Online", count: CAMERA_DATA.online, color: "#10b981", className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", icon: Video },
+  { key: "offline", label: "Offline", count: CAMERA_DATA.offline, color: "#ef4444", className: "bg-rose-500/10 text-rose-700 dark:text-rose-400", icon: VideoOff },
+  { key: "videoLoss", label: "Video Loss", count: CAMERA_DATA.videoLoss, color: "#f59e0b", className: "bg-amber-500/10 text-amber-700 dark:text-amber-400", icon: VideoOff },
+  { key: "tampered", label: "Tampered", count: CAMERA_DATA.tampered, color: "#64748b", className: "bg-slate-500/10 text-slate-700 dark:text-slate-400", icon: AlertTriangle },
 ];
 
 function CustomCameraTooltip({ active, payload, coordinate }: any) {
@@ -102,7 +102,7 @@ export function CameraStatusWidget() {
                 {CAMERA_DATA.pctOnline}%
               </span>
               <span className="text-[12px] text-muted-foreground uppercase font-bold tracking-wider text-center leading-tight mt-0.5">
-                online cameras
+                Online Cameras
               </span>
             </div>
           </div>
@@ -118,7 +118,7 @@ export function CameraStatusWidget() {
                   onClick={() => handleCardClick(c)}
                   title={`${c.label} (${c.count})`}
                   className={cn(
-                    "flex w-full items-center justify-between rounded-lg border py-1.5 px-2.5 text-left transition-all cursor-pointer",
+                    "flex w-full items-center justify-between rounded-lg py-1.5 px-2.5 text-left transition-all cursor-pointer",
                     c.className,
                     focus === c.key ? "ring-1 ring-primary/40 shadow-xs scale-[1.02]" : "opacity-90 hover:opacity-100 hover:scale-[1.01]",
                   )}

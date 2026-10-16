@@ -90,10 +90,10 @@ export function ObjectModeWidget() {
                   type="button"
                   onClick={() => setActiveMode(m.name)}
                   className={cn(
-                    "w-full flex items-center justify-between px-2 py-1.5 rounded-md border text-left transition-all cursor-pointer text-xs",
+                    "w-full flex items-center justify-between px-2 py-1.5 rounded-md text-left transition-all cursor-pointer text-xs",
                     isSelected
-                      ? "border-primary bg-primary/5 shadow-2xs"
-                      : "border-border/60 bg-card hover:bg-muted/40",
+                      ? "bg-primary/10 font-semibold"
+                      : "hover:bg-muted/40",
                   )}
                 >
                   <div className="flex items-center gap-1.5 min-w-0">
