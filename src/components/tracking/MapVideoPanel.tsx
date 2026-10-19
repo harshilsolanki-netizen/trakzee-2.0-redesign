@@ -543,57 +543,55 @@ export function MapVideoPanel({
         )}
       >
         {/* Top Video Header Overlay Area */}
-        <div className="absolute top-0 left-0 right-0 p-3.5 bg-gradient-to-b from-black/90 via-black/50 to-transparent text-white flex flex-col gap-2 z-20 pointer-events-none">
-          {/* Row 1: Object Name (Top-Left) + Close Button X (Top-Right) */}
-          <div className="flex items-center justify-between w-full pointer-events-auto">
+        <div className="absolute top-0 left-0 right-0 p-3.5 bg-gradient-to-b from-black/90 via-black/50 to-transparent text-white flex flex-col gap-1.5 z-20 pointer-events-none">
+          {/* Row 1: Object Name (Left) + Channel Badge & Close Button X (Right) */}
+          <div className="flex items-center justify-between w-full pointer-events-auto gap-2">
             <h3
-              className="font-bold text-sm sm:text-base text-white tracking-tight drop-shadow-md truncate max-w-[calc(100%-44px)]"
+              className="font-bold text-sm sm:text-base text-white tracking-tight drop-shadow-md truncate min-w-0"
               title={`Object: ${feed.deviceName}`}
             >
               {feed.deviceName}
             </h3>
 
-            {/* Close Button X Container */}
-            <button
-              type="button"
-              onClick={() => onCloseChannel(feed.id)}
-              className="p-1.5 rounded-xl bg-black/60 backdrop-blur-md text-white/90 hover:text-white hover:bg-rose-600/80 transition-all cursor-pointer shadow-md shrink-0"
-              title={`Close ${feed.deviceName} ${feed.channelName}`}
-            >
-              <X className="h-4 w-4 stroke-[2.5]" />
-            </button>
-          </div>
-
-          {/* Row 2: Channel Badge + Active Status (Left) & Technical Metrics Pill (Right) */}
-          <div className="flex items-start justify-between w-full pointer-events-auto min-w-0">
-            {/* Left: Channel Name Badge + Status Dot */}
-            <div className="flex items-center gap-2 min-w-0 pr-2 pt-0.5">
+            {/* Right: Channel Name Badge + Close Button X */}
+            <div className="flex items-center gap-1.5 shrink-0">
               <span
-                className="px-2 py-0.5 rounded-lg border border-sky-400/40 bg-sky-500/20 text-sky-300 font-mono text-[11px] font-bold shrink-0 truncate max-w-[140px] shadow-xs"
+                className="px-2 py-0.5 rounded-lg border border-sky-400/40 bg-sky-500/20 text-sky-300 font-mono text-[11px] font-bold shrink-0 truncate max-w-[150px] shadow-xs"
                 title={`Channel: ${feed.channelName}`}
               >
                 {feed.channelName}
               </span>
 
-              <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px] shrink-0 whitespace-nowrap">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                Active
-              </div>
+              <button
+                type="button"
+                onClick={() => onCloseChannel(feed.id)}
+                className="p-1 rounded-lg bg-black/40 hover:bg-rose-600/80 text-white/80 hover:text-white transition-all cursor-pointer shrink-0"
+                title={`Close ${feed.deviceName} ${feed.channelName}`}
+              >
+                <X className="h-3.5 w-3.5 stroke-[2.2]" />
+              </button>
+            </div>
+          </div>
+
+          {/* Row 2: Active Status (Left) & Single-Line Technical Metrics (Right) */}
+          <div className="flex items-center justify-between w-full pointer-events-auto min-w-0">
+            {/* Left: Status Dot & Active Label */}
+            <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px] shrink-0 whitespace-nowrap drop-shadow-sm">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Active</span>
             </div>
 
-            {/* Right: Technical Metrics Pill (Bitrate default; FPS & MB expand ON HOVER) */}
-            <div className="bg-black/65 backdrop-blur-md px-2.5 py-1 rounded-xl text-right font-mono transition-all duration-200 pointer-events-none shrink-0 shadow-md">
-              {/* Line 1 (ALWAYS VISIBLE): Bitrate */}
-              <div className="text-emerald-400 text-[11px] sm:text-xs font-bold font-mono">
-                {feed.bitrate ?? "1/41.21 kbps"}
-              </div>
-
-              {/* Line 2 (HOVER ONLY): FPS & Data MB */}
-              <div className="hidden group-hover:flex items-center justify-end gap-1.5 text-white text-[10px] sm:text-[11px] font-semibold font-mono mt-0.5 border-t border-white/10 pt-0.5">
+            {/* Right: Technical Metrics in Single Horizontal Line */}
+            <div className="flex items-center gap-1.5 text-right font-mono text-[11px] text-white/90 drop-shadow-md pointer-events-none shrink-0 font-medium">
+              <div className="hidden group-hover:flex items-center gap-1.5 text-white/80">
                 <span>{feed.fps ?? 25} fps</span>
                 <span className="text-white/40">|</span>
-                <span>{feed.dataUsed ?? "7.50 MB"}</span>
+                <span>{feed.dataUsed ?? "3.39 MB"}</span>
+                <span className="text-white/40">|</span>
               </div>
+              <span className="text-white/90 font-bold font-mono">
+                {feed.bitrate ?? "1/40.34 kbps"}
+              </span>
             </div>
           </div>
         </div>

@@ -78,11 +78,13 @@ import {
   Tooltip as RechartsTooltip,
   CartesianGrid,
 } from "recharts";
+import { CustomDateRangeModal } from "./CustomDateRangeModal";
 
 interface RoutePlaybackBarProps {
   vehicle: FleetObject;
   allVehicles?: FleetObject[];
   timeframe?: string;
+  customDateRange?: string | null;
   onSelectVehicle?: (vehicle: FleetObject) => void;
   onClose: () => void;
   className?: string;
@@ -247,12 +249,23 @@ export function RoutePlaybackBar({
   vehicle,
   allVehicles = [],
   timeframe = "Today",
+  customDateRange = null,
   onSelectVehicle,
   onClose,
   className,
 }: RoutePlaybackBarProps) {
   // Current Active Vehicle
   const [currentVehicle, setCurrentVehicle] = useState<FleetObject>(vehicle);
+
+  // Custom Date Range State
+  const [currentCustomRange, setCurrentCustomRange] = useState<string | null>(customDateRange || null);
+  const [isCustomDateModalOpen, setIsCustomDateModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (customDateRange) {
+      setCurrentCustomRange(customDateRange);
+    }
+  }, [customDateRange]);
 
   useEffect(() => {
     setCurrentVehicle(vehicle);
@@ -472,6 +485,9 @@ export function RoutePlaybackBar({
 
   // Timeframe date range text
   const dateRangeText = useMemo(() => {
+    if (currentCustomRange) {
+      return currentCustomRange;
+    }
     switch (timeframe) {
       case "Today":
         return "30/09/2026 00:00:00 AM To 30/09/2026 11:59:59 PM";
@@ -490,7 +506,7 @@ export function RoutePlaybackBar({
       default:
         return "29/09/2026 01:41 PM To 30/09/2026 01:41 PM";
     }
-  }, [timeframe]);
+  }, [timeframe, currentCustomRange]);
 
   // Playback timer simulation
   useEffect(() => {
@@ -822,11 +838,16 @@ export function RoutePlaybackBar({
 
           <span className="text-slate-300 dark:text-slate-700">|</span>
 
-          {/* Date Range Display */}
-          <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-600 dark:text-slate-300">
-            <Calendar className="h-3.5 w-3.5 text-[#0089FF]" />
+          {/* Date Range Display (Clickable to change date range) */}
+          <button
+            type="button"
+            onClick={() => setIsCustomDateModalOpen(true)}
+            className="flex items-center gap-1.5 text-[11px] font-mono text-slate-600 dark:text-slate-300 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 px-1.5 py-0.5 rounded-md transition-colors cursor-pointer group/daterange"
+            title="Click to change playback date range"
+          >
+            <Calendar className="h-3.5 w-3.5 text-[#0089FF] group-hover/daterange:scale-110 transition-transform" />
             <span className="whitespace-nowrap">{dateRangeText}</span>
-          </div>
+          </button>
 
           <span className="text-slate-300 dark:text-slate-700">|</span>
 
@@ -1721,6 +1742,20 @@ export function RoutePlaybackBar({
           </div>
         )}
       </div>
+
+      {/* Custom Date Range Modal for changing playback timeframe */}
+      <CustomDateRangeModal
+        open={isCustomDateModalOpen}
+        onClose={() => setIsCustomDateModalOpen(false)}
+        initialPreset={timeframe === "Custom" ? "Custom Range" : timeframe}
+        onApply={(result) => {
+          setIsCustomDateModalOpen(false);
+          setCurrentCustomRange(result.formattedRange);
+          toast.success("Playback date range updated", {
+            description: result.formattedRange,
+          });
+        }}
+      />
     </div>
   );
 }

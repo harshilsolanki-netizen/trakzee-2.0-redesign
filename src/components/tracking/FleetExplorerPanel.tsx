@@ -192,7 +192,7 @@ export function FleetExplorerPanel({
   const [healthSearch, setHealthSearch] = useState("");
   const [healthSortOrder, setHealthSortOrder] = useState<"asc" | "desc">("desc");
 
-  const { mode: trackingViewMode, isTree: isTrackingViewTree } = useTrackingViewMode();
+  const { trackingViewMode, isTree: isTrackingViewTree } = useTrackingViewMode();
 
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({
     Company: false,
@@ -1706,7 +1706,16 @@ export function FleetExplorerPanel({
       list.push(v);
       map.set(v.branch, list);
     }
-    return [...map.entries()];
+    const entries = [...map.entries()];
+    const priorityOrder = ["Ruptela", "Thailand", "Shivam Test", "Indonesia", "Valsad", "Itriangle"];
+    return entries.sort(([a], [b]) => {
+      const idxA = priorityOrder.indexOf(a);
+      const idxB = priorityOrder.indexOf(b);
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return a.localeCompare(b);
+    });
   }, [filteredVehicles]);
 
   const allChecked =
@@ -3594,27 +3603,22 @@ export function FleetExplorerPanel({
             <span>Object / Name</span>
           </div>
           {selectedColumns.includes("speed") && (
-            <div className="w-[50px] shrink-0 text-right">Speed</div>
+            <div className="w-[48px] shrink-0 text-center">Speed</div>
           )}
           {(selectedColumns.includes("ignition") || selectedColumns.includes("gps")) && (
-            <div className="w-[48px] shrink-0 text-center">Status</div>
+            <div className="w-[54px] shrink-0 text-center">Status</div>
           )}
           {(selectedColumns.includes("driver") || selectedColumns.includes("driver_mobile")) && (
-            <div
-              className={cn(
-                "shrink-0 truncate",
-                selectedColumns.includes("driver") && selectedColumns.includes("driver_mobile")
-                  ? "w-[140px]"
-                  : "w-[125px]"
-              )}
-            >
+            <div className="w-[130px] shrink-0 text-left">
               Driver Info
             </div>
           )}
           {selectedColumns.includes("address") && (
-            <div className="flex-1 min-w-[140px] truncate">Location / Address</div>
+            <div className="flex-1 min-w-[140px] truncate text-left">Location / Address</div>
           )}
-          <div className="w-[75px] shrink-0 text-right pr-1">Actions</div>
+          {!isTrackingViewTree && (
+            <div className="w-[75px] shrink-0 text-right pr-1">Actions</div>
+          )}
         </div>
       )}
 
@@ -4016,12 +4020,17 @@ export function FleetExplorerPanel({
 
             {/* Slide-Up Animated Save CTA Overlay (Appears on Select All) */}
             {allChecked && !isHealthScoreSaved && (
-              <div className="absolute inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-2 flex items-center justify-between gap-3 animate-in slide-in-from-bottom duration-300 z-10">
-                <div className="flex items-center gap-2 min-w-0">
+              <div className="absolute inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-2 flex items-center justify-between gap-2 animate-in slide-in-from-bottom duration-300 z-10">
+                <div className="flex items-center gap-2 min-w-0 shrink-0">
                   <span className="h-2 w-2 rounded-full bg-[#0089FF] animate-pulse shrink-0" />
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
                     All {vehicles.length} objects selected
                   </span>
+                </div>
+                <div className="hidden sm:flex items-center gap-3 text-xs">
+                  <span className="text-slate-500 font-medium">Efficiency <strong className="text-amber-600">72%</strong> &gt;</span>
+                  <span className="text-slate-500 font-medium flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-rose-500 inline shrink-0" /> Risk <strong className="text-rose-600">15%</strong> &gt;</span>
+                  <span className="text-slate-500 font-medium flex items-center gap-1"><ThumbsUp className="h-3 w-3 text-[#0089FF] inline shrink-0" /> Discipline <strong className="text-[#0089FF]">98%</strong></span>
                 </div>
                 <button
                   type="button"
@@ -4264,7 +4273,7 @@ export function FleetExplorerPanel({
             <div
               className={cn(
                 "w-full h-full relative transition-transform duration-700 ease-in-out [transform-style:preserve-3d]",
-                selectedJobDetail ? "[transform:rotateY(-180deg)]" : "[transform:rotateY(0deg)]"
+                selectedJobDetail && !isTrackingViewTree ? "[transform:rotateY(-180deg)]" : "[transform:rotateY(0deg)]"
               )}
             >
               {/* FRONT FACE: Default Jobs List View */}
@@ -4280,9 +4289,24 @@ export function FleetExplorerPanel({
                     onToggleCheckAll={onToggleCheckAll}
                     onOpenTelemetry={onOpenTelemetry}
                     query={query}
+                    activeJobStatus={activeJobStatus}
                     onSelectJob={(job) => {
-                      setSelectedJobDetail(job);
-                      if (onOpenTelemetry) onOpenTelemetry(vehicles[0] || {} as any, false, job);
+                      if (!isTrackingViewTree) {
+                        setSelectedJobDetail(job);
+                      }
+                      if (onOpenTelemetry) {
+                        onOpenTelemetry(vehicles[0] || ({} as any), false, {
+                          ...job,
+                          isObjectHalt: true,
+                          title: job.title || "TEST SCM",
+                          qrCode: job.qrCode || "QI-8549281",
+                          itemQuantity: job.quantity ? `${job.quantity} Pcs` : "120 Pcs",
+                          weight: job.weight ? `${job.weight} Ton` : "2.4 Ton",
+                          load: job.load || "92% Capacity",
+                          permissibleHalt: job.permissibleHalt || "02:00:00",
+                          actualHalt: job.actualHalt || "03:45:12",
+                        });
+                      }
                     }}
                     jobData={jobData}
                   />

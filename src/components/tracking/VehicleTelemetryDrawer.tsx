@@ -74,6 +74,7 @@ import { TpmsDrawerCards } from "./TpmsDrawerCards";
 import { EngineParametersCard } from "./EngineParametersCard";
 import { TpmsIcon, EngineIcon } from "./AutomotiveIcons";
 import { VehicleModeModal, type VehicleModeData } from "./VehicleModeModal";
+import { CustomDateRangeModal } from "./CustomDateRangeModal";
 
 const DRAWER_TABS = [
   { id: "details", label: "Details", icon: MapPin },
@@ -154,7 +155,7 @@ export function VehicleTelemetryDrawer({
   onClose: () => void;
   onSelectVehicle: (id: string) => void;
   allVehicles: FleetObject[];
-  onOpenPlayback?: (timeframe?: string) => void;
+  onOpenPlayback?: (timeframe?: string, customDateRange?: string) => void;
   isHealthOnly?: boolean;
   onToggleFollow?: (vehicleId: string) => void;
   isFollowed?: boolean;
@@ -181,6 +182,7 @@ export function VehicleTelemetryDrawer({
   const [showWidgetSettings, setShowWidgetSettings] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showModeModal, setShowModeModal] = useState<boolean>(false);
+  const [isCustomDateModalOpen, setIsCustomDateModalOpen] = useState(false);
   const [internalModeData, setInternalModeData] = useState<Record<string, VehicleModeData | null>>({});
   const activeVehicleMode = currentModeData !== undefined ? currentModeData : (internalModeData[vehicle.id] || null);
 
@@ -413,13 +415,13 @@ export function VehicleTelemetryDrawer({
             switch (cardId) {
               case "object_halt_info":
                 const haltInfo = selectedJob || {
-                  title: "Lorem Ipsum",
-                  qrCode: "1111146456",
-                  itemQuantity: "100",
-                  weight: "1000 tn",
-                  load: "1000",
-                  permissibleHalt: "10 min",
-                  actualHalt: "15 min",
+                  title: "TEST SCM",
+                  qrCode: "QI-8549281",
+                  itemQuantity: "120 Pcs",
+                  weight: "2.4 Ton",
+                  load: "92% Capacity",
+                  permissibleHalt: "02:00:00",
+                  actualHalt: "03:45:12",
                 };
 
                 return (
@@ -429,14 +431,14 @@ export function VehicleTelemetryDrawer({
                       <div className="flex items-center gap-[6px] min-w-0">
                         <SquarePen className="h-4 w-4 text-[#0089FF] stroke-[1.8] shrink-0" />
                         <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
-                          {haltInfo.title || "Lorem Ipsum"}
+                          {haltInfo.title || "TEST SCM"}
                         </h3>
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
                           isRefreshing={isRefreshingThis}
-                          onClick={() => handleRefreshCard(haltInfo.title || "Lorem Ipsum", cardId)}
-                          cardName={haltInfo.title || "Lorem Ipsum"}
+                          onClick={() => handleRefreshCard(haltInfo.title || "TEST SCM", cardId)}
+                          cardName={haltInfo.title || "TEST SCM"}
                         />
                       </div>
                     </div>
@@ -449,7 +451,7 @@ export function VehicleTelemetryDrawer({
                           QR Code
                         </span>
                         <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-mono tracking-tight text-right truncate">
-                          {haltInfo.qrCode || "1111146456"}
+                          {haltInfo.qrCode || "QI-8549281"}
                         </span>
                       </div>
 
@@ -459,7 +461,7 @@ export function VehicleTelemetryDrawer({
                           Item Quantity
                         </span>
                         <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
-                          {haltInfo.itemQuantity || "100"}
+                          {haltInfo.itemQuantity || "120 Pcs"}
                         </span>
                       </div>
 
@@ -469,7 +471,7 @@ export function VehicleTelemetryDrawer({
                           Weight
                         </span>
                         <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
-                          {haltInfo.weight || "1000 tn"}
+                          {haltInfo.weight || "2.4 Ton"}
                         </span>
                       </div>
 
@@ -479,7 +481,7 @@ export function VehicleTelemetryDrawer({
                           Load
                         </span>
                         <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
-                          {haltInfo.load || "1000"}
+                          {haltInfo.load || "92% Capacity"}
                         </span>
                       </div>
 
@@ -492,7 +494,7 @@ export function VehicleTelemetryDrawer({
                           Permissible Halt
                         </span>
                         <span className="text-[12px] font-bold text-[#0F172B] dark:text-slate-100 font-sans tracking-tight text-right truncate">
-                          {haltInfo.permissibleHalt || "10 min"}
+                          {haltInfo.permissibleHalt || "02:00:00"}
                         </span>
                       </div>
 
@@ -502,7 +504,7 @@ export function VehicleTelemetryDrawer({
                           Actual Halt
                         </span>
                         <span className="text-[12px] font-bold text-rose-500 font-sans tracking-tight text-right truncate">
-                          {haltInfo.actualHalt || "15 min"}
+                          {haltInfo.actualHalt || "03:45:12"}
                         </span>
                       </div>
 
@@ -964,7 +966,13 @@ export function VehicleTelemetryDrawer({
                               ].map((tf) => (
                                 <DropdownMenuItem
                                   key={tf}
-                                  onClick={() => onOpenPlayback?.(tf)}
+                                  onClick={() => {
+                                    if (tf === "Custom") {
+                                      setIsCustomDateModalOpen(true);
+                                    } else {
+                                      onOpenPlayback?.(tf);
+                                    }
+                                  }}
                                   className="text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:text-[#0089FF] dark:hover:text-[#0089FF] hover:bg-[#0089FF]/10 dark:hover:bg-[#0089FF]/20 rounded-lg px-2 py-1.5 cursor-pointer flex items-center justify-between"
                                 >
                                   <span>{tf}</span>
@@ -2039,6 +2047,20 @@ export function VehicleTelemetryDrawer({
         vehicle={vehicle}
         currentModeData={activeVehicleMode}
         onSaveMode={handleSaveMode}
+      />
+
+      {/* Playback Custom Date Range Modal */}
+      <CustomDateRangeModal
+        open={isCustomDateModalOpen}
+        onClose={() => setIsCustomDateModalOpen(false)}
+        initialPreset="Custom Range"
+        onApply={(result) => {
+          setIsCustomDateModalOpen(false);
+          onOpenPlayback?.(
+            result.timeframe === "Custom Range" ? "Custom" : result.timeframe,
+            result.formattedRange
+          );
+        }}
       />
     </>
   );

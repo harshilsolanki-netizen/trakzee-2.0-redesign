@@ -121,7 +121,7 @@ export function AvoidServiceInterruptionModal({
           <button
             type="button"
             onClick={handleRechargeNow}
-            className="w-full sm:w-[220px] h-10 px-6 rounded-xl bg-[#0089FF] hover:bg-[#0076DC] text-white font-semibold text-xs tracking-wide shadow-md shadow-[#0089FF]/25 hover:shadow-lg hover:shadow-[#0089FF]/35 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="h-9 px-6 rounded-lg bg-[#0089FF] hover:bg-[#0076DC] text-white font-semibold text-xs shadow-xs shadow-[#0089FF]/20 hover:shadow-sm hover:shadow-[#0089FF]/30 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
             Recharge Now
           </button>

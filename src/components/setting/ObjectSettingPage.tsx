@@ -1911,8 +1911,8 @@ export function ObjectSettingPage({
         <>
           {/* 2. Top Single-Row Filter & Utilities Toolbar (Visible only in List Mode) */}
           <div className="relative z-20 flex min-h-[42px] items-center justify-between gap-3 bg-white dark:bg-slate-900 px-5 pb-3.5 shrink-0 select-none">
-        {/* Left: Filter Pills */}
-        <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-3 text-xs select-none">
+        {/* Left Toolbar: Filter Pills */}
+        <div className="flex items-center min-w-0 overflow-x-auto scrollbar-none gap-3 text-xs select-none">
           {/* Company Filter Pill */}
           <div className="flex items-center gap-1.5 font-medium shrink-0">
             <span className="text-slate-500 dark:text-slate-400 font-normal">Company:</span>
@@ -1966,95 +1966,95 @@ export function ObjectSettingPage({
           </button>
         </div>
 
-        {/* Right Toolbar: Search & + Object */}
-        <div className="flex items-center gap-2 ml-auto shrink-0">
+        {/* Right Toolbar: Search & + Object & Utilities */}
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
           {/* Field Search */}
-              <div className="relative flex h-7.5 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      title="Select specific column to search"
-                      className="flex h-full items-center gap-1 border-r border-border/60 bg-muted/30 px-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0 select-none"
-                    >
-                      <span className="max-w-[76px] truncate">
-                        {searchField === "all" ? "All fields" : selectedSearchFieldLabel}
-                      </span>
-                      <ChevronDown className="h-3 w-3 opacity-60" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="start"
-                    className="max-h-64 w-52 overflow-y-auto text-xs p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50 select-none"
-                  >
+          <div className="relative flex h-7.5 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  title="Select specific column to search"
+                  className="flex h-full items-center gap-1 border-r border-border/60 bg-muted/30 px-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0 select-none"
+                >
+                  <span className="max-w-[76px] truncate">
+                    {searchField === "all" ? "All fields" : selectedSearchFieldLabel}
+                  </span>
+                  <ChevronDown className="h-3 w-3 opacity-60" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="max-h-64 w-52 overflow-y-auto text-xs p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50 select-none"
+              >
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSearchField("all");
+                    setCurrentPage(1);
+                  }}
+                  className={cn(
+                    "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
+                    searchField === "all"
+                      ? "bg-muted font-semibold text-foreground"
+                      : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
+                  )}
+                >
+                  <span>All fields</span>
+                  {searchField === "all" && (
+                    <Check className="h-3.5 w-3.5 text-[#0089FF]" />
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="my-1 -mx-1" />
+                {VEHICLE_SEARCH_FIELDS.filter((f) => f.id !== "all").map((f) => {
+                  const isSelected = searchField === f.id;
+                  return (
                     <DropdownMenuItem
+                      key={f.id}
                       onClick={() => {
-                        setSearchField("all");
+                        setSearchField(f.id);
                         setCurrentPage(1);
                       }}
                       className={cn(
                         "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
-                        searchField === "all"
+                        isSelected
                           ? "bg-muted font-semibold text-foreground"
                           : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
                       )}
                     >
-                      <span>All fields</span>
-                      {searchField === "all" && (
-                        <Check className="h-3.5 w-3.5 text-[#0089FF]" />
-                      )}
+                      <span className="truncate">{f.label}</span>
+                      {isSelected && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="my-1 -mx-1" />
-                    {VEHICLE_SEARCH_FIELDS.filter((f) => f.id !== "all").map((f) => {
-                      const isSelected = searchField === f.id;
-                      return (
-                        <DropdownMenuItem
-                          key={f.id}
-                          onClick={() => {
-                            setSearchField(f.id);
-                            setCurrentPage(1);
-                          }}
-                          className={cn(
-                            "cursor-pointer text-xs flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors select-none",
-                            isSelected
-                              ? "bg-muted font-semibold text-foreground"
-                              : "text-foreground hover:bg-muted/80 hover:text-foreground font-medium",
-                          )}
-                        >
-                          <span className="truncate">{f.label}</span>
-                          {isSelected && <Check className="h-3.5 w-3.5 text-[#0089FF]" />}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-                <Search className="ml-2.5 h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  placeholder="Search in all fields..."
-                  className="h-full w-32 sm:w-44 bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setCurrentPage(1);
-                    }}
-                    className="mr-1.5 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer rounded-full transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                )}
-              </div>
+            <Search className="ml-2.5 h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search in all fields..."
+              className="h-full w-32 sm:w-44 bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }}
+                className="mr-1.5 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer rounded-full transition-colors"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
 
-              {/* Primary Action Button: + Object */}
+          {/* Primary Action Button: + Object */}
           <button
             type="button"
             onClick={openCreateForm}

@@ -115,6 +115,7 @@ export function TrackingPage() {
   const [selectedJobForDrawer, setSelectedJobForDrawer] = useState<any | null>(null);
   const [playbackOpen, setPlaybackOpen] = useState(false);
   const [playbackTimeframe, setPlaybackTimeframe] = useState("Today");
+  const [playbackCustomRange, setPlaybackCustomRange] = useState<string | null>(null);
   const [dashcamVehicle, setDashcamVehicle] = useState<FleetObject | null>(
     null,
   );
@@ -409,8 +410,9 @@ export function TrackingPage() {
     setIsResizingFollowCol(true);
   };
 
-  const handleOpenPlayback = (tf?: string) => {
+  const handleOpenPlayback = (tf?: string, customRange?: string) => {
     if (tf) setPlaybackTimeframe(tf);
+    setPlaybackCustomRange(customRange || null);
     if (!selectedVehicleId && vehiclesList.length > 0) {
       setSelectedVehicleIdState(vehiclesList[0].id);
     }
@@ -621,7 +623,7 @@ export function TrackingPage() {
             onClose={() => setIsTelemetryDrawerOpen(false)}
             onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
             allVehicles={fleetObjects}
-            onOpenPlayback={(tf) => handleOpenPlayback(tf)}
+            onOpenPlayback={(tf, customRange) => handleOpenPlayback(tf, customRange)}
             isHealthOnly={isHealthTelemetryOnly}
             selectedJob={selectedJobForDrawer}
             onToggleFollow={handleToggleFollowVehicle}
@@ -672,6 +674,7 @@ export function TrackingPage() {
           vehicle={selectedVehicle}
           allVehicles={fleetObjects}
           timeframe={playbackTimeframe}
+          customDateRange={playbackCustomRange}
           onSelectVehicle={(v) => setSelectedVehicleIdState(v.id)}
           onClose={handleClosePlayback}
         />

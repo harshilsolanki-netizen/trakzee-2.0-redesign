@@ -812,6 +812,7 @@ export function ReportPage() {
 
           {/* Tabbed Toolbar */}
           <div className="relative z-20 flex min-h-[48px] items-center justify-between gap-4 bg-white dark:bg-slate-900 px-5 pt-3.5 pb-3.5 shrink-0 select-none">
+            {/* Left: Quick Filters */}
             <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2.5">
               <ReportQuickFilterBar
                 filters={filters}
@@ -823,7 +824,8 @@ export function ReportPage() {
               />
             </div>
 
-            <div className="flex items-center gap-2 ml-auto shrink-0">
+            {/* Right: Search + Utilities */}
+            <div className="flex items-center gap-2.5 shrink-0 ml-auto">
               <div className="relative flex h-7.5 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -904,8 +906,7 @@ export function ReportPage() {
                 )}
               </div>
 
-              <div className="flex items-center gap-0.5">
-                
+              <div className="flex items-center gap-0.5 shrink-0">
                 <IconButton label="Schedule report" onClick={() => setScheduleOpen(true)}>
                   <CalendarClock className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
                 </IconButton>
@@ -956,7 +957,7 @@ export function ReportPage() {
 
           {/* Single Screen Toolbar Row */}
           <div className="relative z-20 flex min-h-[48px] items-center justify-between gap-4 bg-white dark:bg-slate-900 px-5 pt-1 pb-3.5 shrink-0 select-none">
-            {/* Left Filters */}
+            {/* Left: Quick Filters */}
             <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2.5">
               <ReportQuickFilterBar
                 filters={filters}
@@ -968,9 +969,8 @@ export function ReportPage() {
               />
             </div>
 
-            {/* Right Controls: All fields search, Download, Schedule, Column settings, Refresh, + Object Button */}
-            <div className="flex items-center gap-2 ml-auto shrink-0">
-              {/* Field Search */}
+            {/* Right: Search + Utilities */}
+            <div className="flex items-center gap-2.5 shrink-0 ml-auto">
               <div className="relative flex h-7.5 items-center rounded-md border border-border/80 bg-background shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all overflow-hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -1051,9 +1051,7 @@ export function ReportPage() {
                 )}
               </div>
 
-              {/* Utility Icon Buttons */}
-              <div className="flex items-center gap-0.5">
-                
+              <div className="flex items-center gap-0.5 shrink-0">
                 <IconButton label="Schedule report" onClick={() => setScheduleOpen(true)}>
                   <CalendarClock className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
                 </IconButton>
@@ -1061,8 +1059,6 @@ export function ReportPage() {
                   <Settings className="h-[18px] w-[18px] text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white stroke-[2.2] transition-colors" />
                 </IconButton>
               </div>
-
-
             </div>
           </div>
           {/* Horizontal divider with 20px space from left and right */}
@@ -1070,10 +1066,8 @@ export function ReportPage() {
         </>
       )}
 
-      {/* Table & Inline Filter Drawer Area */}
-      <div className="relative min-h-0 flex-1 flex overflow-hidden bg-white dark:bg-slate-900">
-        {/* Table Scroll Area */}
-        <div className="relative min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth pt-1 mx-5">
+      {/* Table Scroll Area */}
+      <div className="relative min-h-0 flex-1 overflow-auto overscroll-contain scroll-smooth pt-1 mx-5 bg-white dark:bg-slate-900">
         {level === 0 ? (
             <table className="w-full min-w-[1000px] text-xs border-collapse">
               <thead className="sticky top-0 z-20 shadow-xs">
@@ -1556,25 +1550,6 @@ export function ReportPage() {
         ) : null}
       </div>
 
-      {/* Inline Right-Side Filter Panel */}
-      <ReportConfigPanel
-        open={configOpen}
-        onClose={() => setConfigOpen(false)}
-        filters={filters}
-        onChange={patchFilters}
-        objectOptions={objectOptions}
-        onApply={() => {
-          setConfigOpen(false);
-          setPage(1);
-          resetToRoot();
-          load("Filters applied — report loaded");
-        }}
-        onExport={(format, exportScope) =>
-          handleExport(format, exportScope, "downloaded without loading")
-        }
-      />
-    </div>
-
       {/* Horizontal divider with 20px space from left and right */}
           <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
 
@@ -1609,6 +1584,24 @@ export function ReportPage() {
         onClose={() => setScheduleOpen(false)}
         currentFilters={filters}
         reportTitle="Travel Summary"
+      />
+
+      {/* Filter Options Side Panel with Backdrop Blur (matching Schedule Report) */}
+      <ReportConfigPanel
+        open={configOpen}
+        onClose={() => setConfigOpen(false)}
+        filters={filters}
+        onChange={patchFilters}
+        objectOptions={objectOptions}
+        onApply={() => {
+          setConfigOpen(false);
+          setPage(1);
+          resetToRoot();
+          load("Filters applied — report loaded");
+        }}
+        onExport={(format, exportScope) =>
+          handleExport(format, exportScope, "downloaded without loading")
+        }
       />
 
       <ReportModals

@@ -674,10 +674,10 @@ export function ChartsPage() {
           </div>
         </div>
 
-        {/* 2. Toolbar Row matching Report Screen Quick Filter Bar */}
-        <div className="relative z-20 flex min-h-[48px] items-center justify-between gap-4 bg-white dark:bg-slate-900 px-5 pt-1 pb-3.5 shrink-0 select-none">
+        {/* 2. Toolbar Row with Quick Filters aligned to the left */}
+        <div className="relative z-20 flex min-h-[48px] items-center justify-start gap-4 bg-white dark:bg-slate-900 px-5 pt-1 pb-3.5 shrink-0 select-none">
           {/* Left Controls: Date Range Popover, Vehicle Popover, Filter CTA */}
-          <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2.5">
+          <div className="flex items-center min-w-0 overflow-x-auto scrollbar-none gap-2.5">
             {/* 1. Date Range Dropdown Popover */}
             <Popover open={dateOpen} onOpenChange={setDateOpen}>
               <PopoverTrigger asChild>
@@ -1052,53 +1052,13 @@ export function ChartsPage() {
               )}
             </button>
           </div>
-
-          {/* Right Controls: Download Button matching Report Screen */}
-          <div className="flex items-center gap-2 ml-auto shrink-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Download options"
-                  className="inline-flex h-7.5 items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs font-semibold text-slate-800 dark:text-slate-200 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer active:scale-98"
-                >
-                  <Download className="h-3.5 w-3.5 text-slate-700 dark:text-slate-300 stroke-[2.2]" />
-                  <span>Download</span>
-                  <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-44 p-1 text-xs rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50"
-              >
-                <DropdownMenuItem
-                  onClick={() => handleDownload("PDF")}
-                  className="cursor-pointer text-xs rounded-sm px-2.5 py-1.5 font-medium text-foreground hover:bg-muted"
-                >
-                  PDF
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleDownload("Excel (XLS)")}
-                  className="cursor-pointer text-xs rounded-sm px-2.5 py-1.5 font-medium text-foreground hover:bg-muted"
-                >
-                  Excel (XLS)
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleDownload("CSV")}
-                  className="cursor-pointer text-xs rounded-sm px-2.5 py-1.5 font-medium text-foreground hover:bg-muted"
-                >
-                  CSV
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
         </div>
 
         {/* Horizontal divider with 20px space from left and right */}
         <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
 
         {/* 3. Split-pane main content */}
-        <div className="flex min-h-0 flex-1 gap-4 p-5 overflow-hidden bg-white dark:bg-slate-900">
+        <div className="flex min-h-0 flex-1 gap-4 px-5 pt-4 pb-2 overflow-hidden bg-white dark:bg-slate-900">
           {/* Left Data List Card */}
           <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs w-[310px] shrink-0">
             <div className="flex items-center justify-between border-b border-[#DFE3EB] dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 px-3.5 py-2.5 shrink-0">
@@ -1220,12 +1180,6 @@ export function ChartsPage() {
                 </table>
               )}
             </div>
-
-            {!isFuel && level < 2 ? (
-              <p className="border-t border-[#DFE3EB] dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/30 px-3 py-2 text-[11px] text-slate-500 shrink-0">
-                💡 Click any vehicle or date row to drill down.
-              </p>
-            ) : null}
           </div>
 
           {/* Right Chart Canvas Card */}
@@ -1342,14 +1296,14 @@ export function ChartsPage() {
                       }}
                     />
                     <Legend
-                      verticalAlign="top"
+                      verticalAlign="bottom"
                       align="center"
                       iconType="circle"
                       iconSize={8}
                       wrapperStyle={{
                         fontSize: 12,
                         fontWeight: 500,
-                        paddingBottom: 16,
+                        paddingTop: 12,
                       }}
                     />
                     {toggles.ignition ? (
@@ -1494,14 +1448,14 @@ export function ChartsPage() {
                       }}
                     />
                     <Legend
-                      verticalAlign="top"
+                      verticalAlign="bottom"
                       align="center"
                       iconType="circle"
                       iconSize={8}
                       wrapperStyle={{
                         fontSize: 12,
                         fontWeight: 500,
-                        paddingBottom: 16,
+                        paddingTop: 12,
                       }}
                     />
                     <Line
@@ -1555,14 +1509,14 @@ export function ChartsPage() {
                       }}
                     />
                     <Legend
-                      verticalAlign="top"
+                      verticalAlign="bottom"
                       align="center"
                       iconType="circle"
                       iconSize={8}
                       wrapperStyle={{
                         fontSize: 12,
                         fontWeight: 500,
-                        paddingBottom: 16,
+                        paddingTop: 12,
                       }}
                     />
                     <Bar
@@ -1628,14 +1582,14 @@ export function ChartsPage() {
                       }}
                     />
                     <Legend
-                      verticalAlign="top"
+                      verticalAlign="bottom"
                       align="center"
                       iconType="circle"
                       iconSize={8}
                       wrapperStyle={{
                         fontSize: 12,
                         fontWeight: 500,
-                        paddingBottom: 16,
+                        paddingTop: 12,
                       }}
                     />
                     <Bar
@@ -1677,6 +1631,48 @@ export function ChartsPage() {
             <ChartTypeToolbar chartType={chartType} onChange={setChartType} />
           </div>
         </div>
+
+        {/* Bottom Footer Bar with Download on the right matching Travel Summary Report */}
+        <footer className="flex items-center justify-end px-5 pt-1 pb-3 bg-white dark:bg-slate-900 shrink-0 select-none">
+          <div className="flex items-center gap-2 ml-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Download options"
+                  className="inline-flex h-7.5 items-center gap-1.5 rounded-md border border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs font-semibold text-slate-800 dark:text-slate-200 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white transition-all cursor-pointer active:scale-98"
+                >
+                  <Download className="h-3.5 w-3.5 text-slate-700 dark:text-slate-300 stroke-[2.2]" />
+                  <span>Download</span>
+                  <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-44 p-1 text-xs rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg z-50"
+              >
+                <DropdownMenuItem
+                  onClick={() => handleDownload("PDF")}
+                  className="cursor-pointer text-xs rounded-sm px-2.5 py-1.5 font-medium text-foreground hover:bg-muted"
+                >
+                  PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleDownload("Excel (XLS)")}
+                  className="cursor-pointer text-xs rounded-sm px-2.5 py-1.5 font-medium text-foreground hover:bg-muted"
+                >
+                  Excel (XLS)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleDownload("CSV")}
+                  className="cursor-pointer text-xs rounded-sm px-2.5 py-1.5 font-medium text-foreground hover:bg-muted"
+                >
+                  CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </footer>
       </div>
 
       {/* Filter Drawer */}

@@ -6,14 +6,14 @@ const STORAGE_KEY = "trakzee-tracking-view-mode";
 const EVENT_KEY = "trakzee-tracking-view-mode-changed";
 
 export function getStoredTrackingViewMode(): TrackingViewMode {
-  if (typeof window === "undefined") return "standard";
+  if (typeof window === "undefined") return "tree";
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === "standard" || stored === "tree") {
       return stored;
     }
   } catch {}
-  return "standard";
+  return "tree";
 }
 
 export function setStoredTrackingViewMode(mode: TrackingViewMode) {

@@ -19,6 +19,9 @@ import {
   Package,
   Weight,
   ShieldAlert,
+  UserCheck,
+  Route,
+  Box,
   MoreVertical,
   Pencil,
   Trash2,
@@ -59,6 +62,7 @@ export interface TrackingTreeViewProps {
   trailerData?: any[];
   beaconData?: any[];
   videoTelematicsData?: any[];
+  activeJobStatus?: string;
 }
 
 export function TrackingTreeView({
@@ -90,9 +94,13 @@ export function TrackingTreeView({
   trailerData = [],
   beaconData = [],
   videoTelematicsData = [],
+  activeJobStatus = "all",
 }: TrackingTreeViewProps) {
   // Collapsed state tracking
   const [collapsedNodes, setCollapsedNodes] = useState<Record<string, boolean>>({});
+  const [selectedJobIdState, setSelectedJobIdState] = useState<string>("j-50284");
+  const [selectedEntityType, setSelectedEntityType] = useState<"job" | "vehicle">("job");
+  const [selectedVehicleObjId, setSelectedVehicleObjId] = useState<string>("");
 
   const toggleNode = (nodeId: string) => {
     setCollapsedNodes((prev) => ({
@@ -174,9 +182,13 @@ export function TrackingTreeView({
             return (
               <div key={branch} className="relative mb-0.5">
                 {/* Branch Header Row */}
-                <div className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors select-none">
+                <div className="relative flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors select-none">
+                  {/* Top connector stub running from bottom of chevron down to the bottom of the header row */}
+                  {!isBranchCollapsed && branchVehicles.length > 0 && (
+                    <div className="absolute left-[40px] top-[22px] bottom-0 w-px bg-[#BDC5CF] pointer-events-none" />
+                  )}
                   <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                    {/* Branch Checkbox (aligned at pl-0.5) */}
+                    {/* Branch Checkbox */}
                     <input
                       type="checkbox"
                       checked={isGroupAllChecked}
@@ -197,7 +209,7 @@ export function TrackingTreeView({
                     <button
                       type="button"
                       onClick={() => toggleNode(branchKey)}
-                      className="p-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
+                      className="w-4 h-4 flex items-center justify-center rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
                     >
                       <ChevronDown
                         className={cn(
@@ -225,9 +237,6 @@ export function TrackingTreeView({
                 {/* Branch Vehicles (Leaves) with Tree Guide Lines */}
                 {!isBranchCollapsed && (
                   <div className="relative">
-                    {/* Continuous vertical trunk line from parent checkbox center */}
-                    <div className="absolute left-[18px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
-
                     {branchVehicles.map((v, idx) => {
                       const isSelected = v.id === selectedVehicleId;
                       const isChecked = checkedVehicleIds.includes(v.id);
@@ -241,24 +250,27 @@ export function TrackingTreeView({
                             if (onOpenTelemetry) onOpenTelemetry(v);
                           }}
                           className={cn(
-                            "relative flex items-center gap-2 pr-3 py-1.5 text-xs transition-colors cursor-pointer select-none min-h-[44px]",
+                            "relative flex items-center gap-2 pr-3 py-1.5 text-xs transition-colors cursor-pointer select-none min-h-[46px]",
                             isSelected
                               ? "bg-sky-50/90 dark:bg-sky-950/50"
                               : "hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
                           )}
                         >
-                          {/* Tree Elbow connector */}
-                          <div
-                            className={cn(
-                              "absolute left-[18px] top-0 pointer-events-none",
-                              isLast
-                                ? "h-[22px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
-                                : "h-[22px] w-[14px] border-b border-slate-300 dark:border-slate-700"
-                            )}
-                          />
+                          {/* Tree Guide Lines in elegant thin #BDC5CF */}
+                          {!isLast ? (
+                            <>
+                              {/* Continuous vertical trunk line */}
+                              <div className="absolute left-[40px] top-0 bottom-0 w-px bg-[#BDC5CF] pointer-events-none" />
+                              {/* Horizontal branch line reaching directly to child checkbox */}
+                              <div className="absolute left-[40px] top-1/2 -translate-y-1/2 w-[16px] h-px bg-[#BDC5CF] pointer-events-none" />
+                            </>
+                          ) : (
+                            /* Last child: vertical trunk down to center, turning right with curved corner */
+                            <div className="absolute left-[40px] top-0 h-1/2 w-[16px] border-l border-b border-[#BDC5CF] rounded-bl-[4px] pointer-events-none" />
+                          )}
 
-                          {/* Col 1: Indented Checkbox + Status Dot + Name & Timestamp */}
-                          <div className="flex items-center gap-1.5 shrink-0 w-[210px] pl-[34px]">
+                          {/* Col 1: Indented Checkbox + Name & Timestamp */}
+                          <div className="flex items-center gap-2 shrink-0 w-[210px] pl-[56px]">
                             <input
                               type="checkbox"
                               checked={isChecked}
@@ -267,21 +279,14 @@ export function TrackingTreeView({
                               className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
                             />
 
-                            {/* Status Dot */}
-                            <span
-                              title={Boolean(v.status) ? `Status: ${v.status.toUpperCase()}` : "Status: UNKNOWN"}
-                              style={{ backgroundColor: getStatusColor(v.status) }}
-                              className="h-2 w-2 rounded-full shrink-0 shadow-2xs"
-                            />
-
                             {/* Name & Timestamp */}
                             <div className="flex flex-col min-w-0 truncate">
-                              <span className="truncate text-xs font-semibold leading-tight text-slate-900 dark:text-slate-100">
+                              <span className="truncate text-xs font-bold leading-tight text-slate-900 dark:text-slate-100">
                                 {v.name}
                               </span>
                               {selectedColumns.includes("last_updated") && (
-                                <span className="font-mono text-[10px] text-slate-400 dark:text-slate-500 truncate leading-none mt-0.5">
-                                  {v.timestamp || "21-09-2026 03:03:09 PM"}
+                                <span className="font-mono text-[10px] text-slate-400 dark:text-slate-500 truncate leading-none mt-1">
+                                  {v.timestamp || "21-09-2026 11:25:40 AM"}
                                 </span>
                               )}
                             </div>
@@ -289,12 +294,12 @@ export function TrackingTreeView({
 
                           {/* Col 2: Speed */}
                           {selectedColumns.includes("speed") && (
-                            <div className="shrink-0 w-[50px] text-right font-mono font-bold text-xs text-slate-700 dark:text-slate-300 tabular-nums">
+                            <div className="shrink-0 w-[48px] text-center font-mono font-bold text-xs tabular-nums">
                               <span
                                 className={
                                   v.speed > 0
                                     ? "text-emerald-600 dark:text-emerald-400"
-                                    : "text-slate-400"
+                                    : "text-slate-400 dark:text-slate-500"
                                 }
                               >
                                 {v.speed}
@@ -305,13 +310,13 @@ export function TrackingTreeView({
                           {/* Col 3: Ignition & GPS Status Icons */}
                           {(selectedColumns.includes("ignition") ||
                             selectedColumns.includes("gps")) && (
-                            <div className="flex items-center gap-1.5 shrink-0 w-[48px] justify-center">
+                            <div className="flex items-center gap-1.5 shrink-0 w-[54px] justify-center">
                               {selectedColumns.includes("ignition") && (
                                 <span title={"Ignition: " + (v.ignition !== false ? "ON" : "OFF")}>
                                   <Key
                                     className={cn(
                                       "h-3.5 w-3.5 stroke-[2.2]",
-                                      v.ignition !== false
+                                      v.speed > 0 || (v.ignition !== false && v.status !== "stopped")
                                         ? "text-emerald-600 dark:text-emerald-400"
                                         : "text-slate-400 dark:text-slate-500"
                                     )}
@@ -326,114 +331,27 @@ export function TrackingTreeView({
                             </div>
                           )}
 
-                          {/* Col 4: Driver Name & Mobile Column */}
+                          {/* Col 4: Driver Name (Single Clean Line) */}
                           {(selectedColumns.includes("driver") ||
                             selectedColumns.includes("driver_mobile")) && (
                             <div
-                              className={cn(
-                                "shrink-0 truncate text-xs flex flex-col justify-center",
-                                selectedColumns.includes("driver") &&
-                                  selectedColumns.includes("driver_mobile")
-                                  ? "w-[140px]"
-                                  : "w-[125px]"
-                              )}
-                              title={`${v.driver || "No Driver"}${v.driverPhone ? ` (${v.driverPhone})` : ""}`}
+                              className="shrink-0 truncate w-[130px] flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300"
+                              title={v.driver || "No Driver"}
                             >
-                              {selectedColumns.includes("driver") &&
-                              selectedColumns.includes("driver_mobile") ? (
-                                <>
-                                  <div className="flex items-center gap-1 font-semibold text-slate-800 dark:text-slate-200 text-[11px] truncate leading-tight">
-                                    <User className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 stroke-[2.2] shrink-0" />
-                                    <span className="truncate">{v.driver || "Unassigned"}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1 font-mono text-[10px] text-slate-500 dark:text-slate-400 truncate leading-none mt-0.5">
-                                    <Phone className="h-3 w-3 text-emerald-600 dark:text-emerald-400 stroke-[2.2] shrink-0" />
-                                    <span className="truncate">
-                                      {v.driverPhone || "+91 98765 43210"}
-                                    </span>
-                                  </div>
-                                </>
-                              ) : selectedColumns.includes("driver_mobile") ? (
-                                <div className="flex items-center gap-1 font-mono text-[11px] text-slate-700 dark:text-slate-300 truncate">
-                                  <Phone className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 stroke-[2.2] shrink-0" />
-                                  <span className="truncate">
-                                    {v.driverPhone || "+91 98765 43210"}
-                                  </span>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-1 text-[11px] font-medium text-slate-700 dark:text-slate-300 truncate">
-                                  <User className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 stroke-[2.2] shrink-0" />
-                                  <span className="truncate">{v.driver || "—"}</span>
-                                </div>
-                              )}
+                              <User className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400 stroke-[2] shrink-0" />
+                              <span className="truncate">{v.driver || "—"}</span>
                             </div>
                           )}
 
                           {/* Col 5: Address / Location Column */}
                           {selectedColumns.includes("address") && (
                             <div
-                              className="flex-1 min-w-[140px] line-clamp-2 break-words leading-tight text-[10.5px] text-slate-600 dark:text-slate-400"
+                              className="flex-1 min-w-[140px] line-clamp-2 break-words leading-tight text-[11px] text-slate-600 dark:text-slate-400 pr-2"
                               title={v.address || v.branch}
                             >
                               {v.address || `At ${v.branch} Location`}
                             </div>
                           )}
-
-                          {/* Col 6: Action Buttons */}
-                          <div className="flex items-center gap-1.5 shrink-0 w-[75px] justify-end pr-1">
-                            {selectedColumns.includes("live_streaming") && (
-                              <button
-                                type="button"
-                                title="Live Video Camera"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (onOpenDashcam) onOpenDashcam(v);
-                                }}
-                                className="p-0.5 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition-colors cursor-pointer"
-                              >
-                                <Video className="h-3.5 w-3.5 stroke-[2.2]" />
-                              </button>
-                            )}
-                            {(selectedColumns.includes("immobilize") ||
-                              selectedColumns.includes("elock")) && (
-                              <button
-                                type="button"
-                                title="Engine Lock / Immobilizer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (onOpenTelemetry) onOpenTelemetry(v);
-                                }}
-                                className="p-0.5 text-rose-500 dark:text-rose-400 hover:text-rose-600 transition-colors cursor-pointer"
-                              >
-                                <Lock className="h-3.5 w-3.5 stroke-[2.2]" />
-                              </button>
-                            )}
-                            {(selectedColumns.includes("reports") ||
-                              selectedColumns.includes("timeline_chart")) && (
-                              <button
-                                type="button"
-                                title="Trace on Map"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (onTraceVehicle) onTraceVehicle(v);
-                                }}
-                                className="p-0.5 text-[#0089FF] dark:text-sky-400 hover:text-[#0070d6] transition-colors cursor-pointer"
-                              >
-                                <Eye className="h-3.5 w-3.5 stroke-[2.2]" />
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              title="Telemetry Details"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (onOpenTelemetry) onOpenTelemetry(v);
-                              }}
-                              className="p-0.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
-                            >
-                              <Info className="h-3.5 w-3.5 stroke-[2.2]" />
-                            </button>
-                          </div>
                         </div>
                       );
                     })}
@@ -460,14 +378,21 @@ export function TrackingTreeView({
           const filteredSubgroups = (group.subgroups || [])
             .map((sub: any) => {
               const filteredJobs = (sub.jobs || []).filter((j: any) => {
+                let matchesStatus = true;
+                if (activeJobStatus === "running") matchesStatus = j.statusType === "running" || j.status.toLowerCase() === "running";
+                else if (activeJobStatus === "completed") matchesStatus = j.statusType === "completed" || j.status.toLowerCase().includes("completed");
+                else if (activeJobStatus === "upcoming") matchesStatus = j.statusType === "upcoming" || j.status.toLowerCase() === "upcoming";
+                else if (activeJobStatus === "fail") matchesStatus = j.statusType === "fail" || j.status.toLowerCase() === "failed" || j.status.toLowerCase() === "fail";
+
                 const q = query.trim().toLowerCase();
-                return (
+                const matchesQuery =
                   q === "" ||
                   j.code.toLowerCase().includes(q) ||
                   j.title.toLowerCase().includes(q) ||
                   j.object.toLowerCase().includes(q) ||
-                  (j.rep && j.rep.toLowerCase().includes(q))
-                );
+                  (j.rep && j.rep.toLowerCase().includes(q));
+
+                return matchesStatus && matchesQuery;
               });
               return { ...sub, jobs: filteredJobs };
             })
@@ -485,7 +410,7 @@ export function TrackingTreeView({
               {/* Company Level Header (e.g. HP Company [8]) */}
               <div
                 onClick={() => toggleNode(bKey)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
+                className="flex items-center justify-between px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-200 dark:border-slate-800"
               >
                 <div className="flex items-center gap-1.5">
                   <ChevronDown
@@ -514,7 +439,7 @@ export function TrackingTreeView({
                       {/* Branch Level Header (e.g. HP Branch 1 [8]) */}
                       <div
                         onClick={() => toggleNode(subKey)}
-                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
+                        className="flex items-center justify-between pl-6 pr-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-200 dark:border-slate-800"
                       >
                         <div className="flex items-center gap-1.5">
                           <ChevronDown
@@ -534,7 +459,7 @@ export function TrackingTreeView({
 
                       {/* Job Cards with Hierarchy Connector */}
                       {!isSubCollapsed && (
-                        <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                        <div className="flex flex-col">
                           {sub.jobs.map((job: any) => {
                             const matchedVehicle =
                               vehicles.find(
@@ -544,153 +469,222 @@ export function TrackingTreeView({
                                   job.object.toLowerCase().includes(v.name.toLowerCase())
                               ) || vehicles[0];
 
+                            const isJobSelected =
+                              selectedJobIdState === job.id && selectedEntityType === "job";
+                            const isVehicleSelected =
+                              (selectedJobIdState === job.id && selectedEntityType === "vehicle") ||
+                              (selectedVehicleId === matchedVehicle?.id && selectedEntityType === "vehicle");
+
+                            const handleJobClick = (e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              setSelectedJobIdState(job.id);
+                              setSelectedEntityType("job");
+                              if (onSelectJob) onSelectJob(job);
+                              if (onOpenTelemetry) {
+                                onOpenTelemetry(matchedVehicle, false, {
+                                  ...job,
+                                  isObjectHalt: true,
+                                  title: job.title || "TEST SCM",
+                                  qrCode: job.qrCode || "QI-8549281",
+                                  itemQuantity: job.quantity ? `${job.quantity} Pcs` : "120 Pcs",
+                                  weight: job.weight ? `${job.weight} Ton` : "2.4 Ton",
+                                  load: job.load || "92% Capacity",
+                                  permissibleHalt: job.permissibleHalt || "02:00:00",
+                                  actualHalt: job.actualHalt || "03:45:12",
+                                });
+                              }
+                            };
+
+                            const handleVehicleClick = (e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              setSelectedJobIdState(job.id);
+                              setSelectedEntityType("vehicle");
+                              setSelectedVehicleObjId(matchedVehicle?.id || "");
+                              if (matchedVehicle) {
+                                if (onSelectVehicle) onSelectVehicle(matchedVehicle.id);
+                                if (onOpenTelemetry) {
+                                  onOpenTelemetry(
+                                    {
+                                      ...matchedVehicle,
+                                      name: job.object || matchedVehicle.name,
+                                    },
+                                    false,
+                                    undefined
+                                  );
+                                }
+                              }
+                            };
+
                             return (
                               <div
                                 key={job.id}
-                                className="relative px-3 py-2 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors"
+                                className="relative border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 select-none flex flex-col"
                               >
-                                {/* Hierarchy connector line dropping from '#' down to object dot */}
-                                <div className="absolute left-[15px] top-[18px] h-[22px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px] pointer-events-none" />
-
-                                {/* LINE 1: JOB INFORMATION */}
+                                {/* ROW 1: THE JOB (Individual Click Area & Information) */}
                                 <div
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onSelectJob) onSelectJob(job);
-                                    if (onOpenTelemetry && matchedVehicle) {
-                                      onOpenTelemetry(matchedVehicle, false, job);
-                                    }
-                                  }}
-                                  className="flex items-center justify-between gap-2 cursor-pointer mb-1.5"
+                                  onClick={handleJobClick}
+                                  title="Click to view Job Details & Halt information"
+                                  className={cn(
+                                    "relative px-4 py-3 flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 cursor-pointer transition-colors",
+                                    isJobSelected
+                                      ? "bg-sky-50/70 dark:bg-sky-950/40"
+                                      : "hover:bg-slate-50/70 dark:hover:bg-slate-800/40"
+                                  )}
                                 >
                                   {/* Left: # code title [status] */}
-                                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                                    <span className="text-slate-400 text-xs font-mono font-semibold shrink-0">
-                                      #
-                                    </span>
-                                    <span className="font-mono text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0">
-                                      {job.code}
+                                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    <div className="w-[18px] flex justify-center shrink-0">
+                                      <span className="font-mono text-xs font-semibold text-slate-400 dark:text-slate-500">
+                                        #
+                                      </span>
+                                    </div>
+                                    <span className="font-mono text-xs font-semibold text-slate-600 dark:text-slate-300 shrink-0">
+                                      {job.code ? job.code.replace("#", "") : ""}
                                     </span>
                                     <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate">
                                       {job.title}
                                     </span>
                                     <span
                                       className={cn(
-                                        "text-[10px] font-extrabold px-1.5 py-0.5 rounded leading-none shrink-0 border",
+                                        "text-[10px] font-semibold px-2 py-0.5 rounded-md leading-none shrink-0 border",
                                         job.status.toLowerCase().includes("completed")
-                                          ? "bg-sky-50 text-[#0089FF] border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800"
-                                          : job.statusType === "running"
-                                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
-                                          : job.statusType === "fail"
-                                          ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800"
-                                          : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
+                                          ? "bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE] dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800"
+                                          : job.statusType === "running" || job.status.toLowerCase() === "running"
+                                          ? "bg-[#ECFDF5] text-[#10B981] border-[#A7F3D0] dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+                                          : job.statusType === "fail" || job.status.toLowerCase() === "failed" || job.status.toLowerCase() === "fail"
+                                          ? "bg-[#FEF2F2] text-[#EF4444] border-[#FECACA] dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800"
+                                          : "bg-[#FFFBEB] text-[#D97706] border-[#FDE68A] dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
                                       )}
                                     >
                                       {job.status}
                                     </span>
                                   </div>
 
-                                  {/* Right: Assigned Rep + Route, Attach, Share */}
+                                  {/* Right: Assigned Rep (NO PILL) + Vertical Separator + Route, Attach, Share */}
                                   <div className="flex items-center gap-2 shrink-0">
                                     <div
-                                      className="flex items-center gap-1 px-1.5 py-0.5 rounded border border-emerald-300 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0"
+                                      className={cn(
+                                        "flex items-center gap-1 shrink-0 text-xs",
+                                        job.statusType === "fail" || job.status.toLowerCase() === "failed" || job.status.toLowerCase() === "fail"
+                                          ? "text-[#EF4444]"
+                                          : "text-[#10B981]"
+                                      )}
                                       title="Assigned Representative"
                                     >
-                                      <User className="h-3 w-3 stroke-[2.2] text-emerald-600 dark:text-emerald-400 shrink-0" />
-                                      <span className="text-[11px] font-mono font-bold">
+                                      <UserCheck className="h-4 w-4 stroke-[2] shrink-0" />
+                                      <span className="text-slate-800 dark:text-slate-200 font-bold font-mono text-xs">
                                         {job.representatives?.length || job.repCount || 1}
                                       </span>
                                     </div>
 
-                                    <div className="flex items-center gap-1 text-slate-400">
+                                    <div className="h-4 w-[1px] bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+                                    <div className="flex items-center gap-2.5 text-slate-500 dark:text-slate-400">
                                       <button
                                         type="button"
                                         title="Job Route & Configuration"
-                                        className="p-1 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
                                       >
-                                        <SlidersHorizontal className="h-3.5 w-3.5 stroke-[2]" />
+                                        <Route className="h-4 w-4 stroke-[1.8]" />
                                       </button>
                                       <button
                                         type="button"
                                         title="Download Attachment Document"
-                                        className="p-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
                                       >
-                                        <Paperclip className="h-3.5 w-3.5 stroke-[2]" />
+                                        <Paperclip className="h-4 w-4 stroke-[1.8]" />
                                       </button>
                                       <button
                                         type="button"
                                         title="Share Job"
-                                        className="p-1 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-colors cursor-pointer"
                                       >
-                                        <Share2 className="h-3.5 w-3.5 stroke-[2]" />
+                                        <Share2 className="h-4 w-4 stroke-[1.8]" />
                                       </button>
                                     </div>
                                   </div>
                                 </div>
 
-                                {/* LINE 2: VEHICLE & OBJECT INFORMATION (Connected via elbow) */}
+                                {/* ROW 2: THE VEHICLE / OBJECT (Individual Click Area & Information) */}
                                 <div
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onSelectJob) onSelectJob(job);
-                                    if (onOpenTelemetry && matchedVehicle) {
-                                      onOpenTelemetry(matchedVehicle, false, job);
-                                    }
-                                  }}
-                                  className="flex items-center justify-between gap-2 pl-5 cursor-pointer"
+                                  onClick={handleVehicleClick}
+                                  title={`Click to view ${job.object} telemetry & live tracking`}
+                                  className={cn(
+                                    "relative px-4 py-3 flex items-center justify-between gap-2 cursor-pointer transition-colors",
+                                    isVehicleSelected
+                                      ? "bg-sky-50/70 dark:bg-sky-950/40"
+                                      : "hover:bg-slate-50/70 dark:hover:bg-slate-800/40"
+                                  )}
                                 >
-                                  {/* Left: Green Dot + Object Name + State Badge */}
-                                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                                    <span className="h-2 w-2 rounded-full shrink-0 bg-emerald-500 ring-2 ring-emerald-500/20" />
-                                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                                  {/* Left: Tree Connector + Green Dot + Object Name + State Badge */}
+                                  <div className="flex items-center min-w-0 flex-1">
+                                    <div className="relative w-[34px] h-[16px] flex items-center shrink-0">
+                                      {/* Integrated SVG hierarchy connector: drops under '#' and turns seamlessly into green dot with 0 gap */}
+                                      <svg
+                                        className="absolute -top-[25px] left-0 w-[34px] h-[41px] pointer-events-none overflow-visible"
+                                        viewBox="0 0 34 41"
+                                        fill="none"
+                                      >
+                                        <path
+                                          d="M 9,0 L 9,25 Q 9,33 17,33 L 24,33"
+                                          stroke="#BDC5CF"
+                                          strokeWidth="1"
+                                          fill="none"
+                                        />
+                                        {/* Green Dot Outer Soft Halo */}
+                                        <circle cx="28.5" cy="33" r="5" fill="#10B981" fillOpacity="0.2" />
+                                        {/* Green Dot Solid Center */}
+                                        <circle cx="28.5" cy="33" r="3.2" fill="#10B981" />
+                                      </svg>
+                                    </div>
+
+                                    {/* Object information starts immediately where the line and dot end */}
+                                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate ml-1.5">
                                       {job.object}
                                     </span>
                                     <span
                                       className={cn(
-                                        "text-[9.5px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0 border",
+                                        "text-[10px] font-semibold px-2 py-0.5 rounded-md leading-none shrink-0 border ml-2",
                                         job.objectState === "Loaded"
-                                          ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200/80 dark:border-emerald-800/60"
-                                          : job.objectState === "Unloaded"
-                                          ? "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border-amber-200/80 dark:border-amber-800/60"
-                                          : "text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 border-sky-200/80 dark:border-sky-800/60"
+                                          ? "text-[#059669] bg-[#ECFDF5] border-[#D1FAE5] dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60"
+                                          : job.objectState === "In Transit" || job.objectState === "transit"
+                                          ? "text-[#2563EB] bg-[#EFF6FF] border-[#DBEAFE] dark:bg-sky-950/60 dark:text-sky-400 dark:border-sky-800/60"
+                                          : "text-[#B45309] bg-[#FFFBEB] border-[#FDE68A] dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60"
                                       )}
                                     >
                                       {job.objectState || "Unloaded"}
                                     </span>
                                   </div>
 
-                                  {/* Right: Quantity, Weight, Violation, Convoy Pill */}
-                                  <div className="flex items-center gap-2 text-xs font-mono font-medium text-slate-600 dark:text-slate-300 shrink-0 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-0.5 bg-slate-50/50 dark:bg-slate-900/40">
+                                  {/* Right: Quantity, Weight, Violation, Convoy (NO PILL CONTAINER) */}
+                                  <div className="flex items-center gap-2 text-xs font-mono text-slate-700 dark:text-slate-300 shrink-0">
                                     <div className="flex items-center gap-1" title="Quantity">
-                                      <Package className="h-3 w-3 text-slate-400 stroke-[2]" />
-                                      <span className="text-[11px] font-bold">{job.quantity || 0}</span>
+                                      <Box className="h-3.5 w-3.5 text-slate-500 stroke-[1.8]" />
+                                      <span className="font-semibold text-slate-800 dark:text-slate-200">{job.quantity || 0}</span>
                                     </div>
-                                    <span className="text-slate-300 dark:text-slate-700">|</span>
+                                    <div className="h-3 w-[1px] bg-slate-200 dark:bg-slate-700 mx-0.5" />
                                     <div className="flex items-center gap-1" title="Weight">
-                                      <Weight className="h-3 w-3 text-slate-400 stroke-[2]" />
-                                      <span className="text-[11px] font-bold">{job.weight || 0}</span>
+                                      <Weight className="h-3.5 w-3.5 text-slate-500 stroke-[1.8]" />
+                                      <span className="font-semibold text-slate-800 dark:text-slate-200">{job.weight || 0}</span>
                                     </div>
-                                    <span className="text-slate-300 dark:text-slate-700">|</span>
+                                    <div className="h-3 w-[1px] bg-slate-200 dark:bg-slate-700 mx-0.5" />
                                     <div className="flex items-center gap-1" title="Violations & Alerts">
                                       <ShieldAlert
-                                        className={cn(
-                                          "h-3 w-3 stroke-[2]",
-                                          job.violation > 0 ? "text-rose-500" : "text-rose-500/80"
-                                        )}
+                                        className="h-3.5 w-3.5 stroke-[1.8] text-rose-500"
                                       />
-                                      <span
-                                        className={cn(
-                                          "text-[11px] font-bold",
-                                          job.violation > 0 ? "text-rose-600" : "text-slate-600 dark:text-slate-300"
-                                        )}
-                                      >
+                                      <span className="font-semibold text-slate-800 dark:text-slate-200">
                                         {job.violation || 0}
                                       </span>
                                     </div>
-                                    <span className="text-slate-300 dark:text-slate-700">|</span>
+                                    <div className="h-3 w-[1px] bg-slate-200 dark:bg-slate-700 mx-0.5" />
                                     <div className="flex items-center gap-1" title="Convoy Group">
-                                      <Caravan className="h-3 w-3 text-slate-400 stroke-[2]" />
-                                      <span className="text-[11px] font-bold">{job.convoy || "--"}</span>
+                                      <Caravan className="h-3.5 w-3.5 text-slate-500 stroke-[1.8]" />
+                                      <span className="font-semibold text-slate-800 dark:text-slate-200">
+                                        {job.convoy || "--"}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
