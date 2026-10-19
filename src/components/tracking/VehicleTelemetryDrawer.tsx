@@ -100,22 +100,33 @@ function formatDuration(raw?: string): string {
 }
 
 function WidgetActionButton({
+  isRefreshing,
   onClick,
   cardName,
 }: {
-  onClick: () => void;
+  isRefreshing?: boolean;
+  onClick?: () => void;
   cardName: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group/btn relative w-6 h-6 flex items-center justify-center rounded-md text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-all duration-200 cursor-pointer active:scale-90 shrink-0"
-      title={`Close ${cardName}`}
+      className="group/btn relative w-6 h-6 flex items-center justify-center rounded-md text-slate-400 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-sky-950/50 transition-all duration-200 cursor-pointer active:scale-90 shrink-0"
+      title={`Refresh ${cardName}`}
     >
+      {isRefreshing && (
+        <span className="absolute inset-0 rounded-md bg-[#0089FF]/30 animate-ping pointer-events-none" />
+      )}
       <div className="relative w-3.5 h-3.5 flex items-center justify-center">
-        <GripVertical className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400 group-hover/btn:opacity-0 group-hover/btn:scale-75 transition-all duration-200 absolute" />
-        <X className="h-3.5 w-3.5 text-rose-500 opacity-0 scale-75 group-hover/btn:opacity-100 group-hover/btn:scale-100 transition-all duration-200 absolute stroke-[2.5]" />
+        {isRefreshing ? (
+          <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#0089FF]" />
+        ) : (
+          <>
+            <GripVertical className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400 group-hover/btn:opacity-0 group-hover/btn:scale-75 transition-all duration-200 absolute" />
+            <RefreshCw className="h-3.5 w-3.5 text-[#0089FF] opacity-0 scale-75 group-hover/btn:opacity-100 group-hover/btn:scale-100 group-hover/btn:rotate-180 transition-all duration-300 absolute stroke-[2.2]" />
+          </>
+        )}
       </div>
     </button>
   );
@@ -423,7 +434,8 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          onClick={onClose}
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard(haltInfo.title || "Lorem Ipsum", cardId)}
                           cardName={haltInfo.title || "Lorem Ipsum"}
                         />
                       </div>
@@ -531,7 +543,8 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          onClick={onClose}
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Job Information", cardId)}
                           cardName="Job Information"
                         />
                       </div>
@@ -608,7 +621,8 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          onClick={onClose}
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Health Score Details", cardId)}
                           cardName="Health Score Details"
                         />
                       </div>
@@ -816,7 +830,8 @@ export function VehicleTelemetryDrawer({
                           <Info className="h-[14px] w-[14px] stroke-[1.8]" />
                         </button>
                         <WidgetActionButton
-                          onClick={onClose}
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard(vehicle.name || "Vehicle Card", cardId)}
                           cardName={vehicle.name || "Vehicle Card"}
                         />
                       </div>
@@ -1172,7 +1187,8 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          onClick={onClose}
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Documents", cardId)}
                           cardName="Documents"
                         />
                       </div>
@@ -1421,7 +1437,8 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          onClick={onClose}
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Location", cardId)}
                           cardName="Location"
                         />
                       </div>
@@ -1524,8 +1541,9 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          onClick={onClose}
-                          cardName="Fuel Widget"
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Fuel", cardId)}
+                          cardName="Fuel"
                         />
                       </div>
                     </div>
@@ -1818,7 +1836,8 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          onClick={onClose}
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Fuel Consumption", cardId)}
                           cardName="Fuel Consumption"
                         />
                       </div>
@@ -1875,7 +1894,8 @@ export function VehicleTelemetryDrawer({
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
-                          onClick={onClose}
+                          isRefreshing={isRefreshingThis}
+                          onClick={() => handleRefreshCard("Temperature & Sensors", cardId)}
                           cardName="Temperature & Sensors"
                         />
                       </div>

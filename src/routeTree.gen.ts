@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as ComponentsRouteImport } from './routes/components'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as RechargeRouteImport } from './routes/recharge'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as SettingRouteImport } from './routes/setting'
 import { Route as TrackingRouteImport } from './routes/tracking'
@@ -36,6 +37,11 @@ const ComponentsRoute = ComponentsRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RechargeRoute = RechargeRouteImport.update({
+  id: '/recharge',
+  path: '/recharge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportRoute = ReportRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/charts': typeof ChartsRoute
   '/components': typeof ComponentsRoute
   '/login': typeof LoginRoute
+  '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
   '/setting': typeof SettingRoute
   '/tracking': typeof TrackingRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/charts': typeof ChartsRoute
   '/components': typeof ComponentsRoute
   '/login': typeof LoginRoute
+  '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
   '/setting': typeof SettingRoute
   '/tracking': typeof TrackingRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/charts': typeof ChartsRoute
   '/components': typeof ComponentsRoute
   '/login': typeof LoginRoute
+  '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
   '/setting': typeof SettingRoute
   '/tracking': typeof TrackingRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/charts'
     | '/components'
     | '/login'
+    | '/recharge'
     | '/report'
     | '/setting'
     | '/tracking'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/charts'
     | '/components'
     | '/login'
+    | '/recharge'
     | '/report'
     | '/setting'
     | '/tracking'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/charts'
     | '/components'
     | '/login'
+    | '/recharge'
     | '/report'
     | '/setting'
     | '/tracking'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   ChartsRoute: typeof ChartsRoute
   ComponentsRoute: typeof ComponentsRoute
   LoginRoute: typeof LoginRoute
+  RechargeRoute: typeof RechargeRoute
   ReportRoute: typeof ReportRoute
   SettingRoute: typeof SettingRoute
   TrackingRoute: typeof TrackingRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recharge': {
+      id: '/recharge'
+      path: '/recharge'
+      fullPath: '/recharge'
+      preLoaderRoute: typeof RechargeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/report': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChartsRoute: ChartsRoute,
   ComponentsRoute: ComponentsRoute,
   LoginRoute: LoginRoute,
+  RechargeRoute: RechargeRoute,
   ReportRoute: ReportRoute,
   SettingRoute: SettingRoute,
   TrackingRoute: TrackingRoute,

@@ -1832,7 +1832,7 @@ export function FleetExplorerPanel({
         )}
       </div>
 
-      {/* Sleek Floating Right-Edge Collapse Handle (Centered vertically with the top 44px tab header bar) */}
+      {/* Sleek Floating Right-Edge Collapse Handle (Moved downside past the rounded corner to eliminate gap) */}
       {onToggleCollapse && (
         <button
           type="button"
@@ -1840,7 +1840,7 @@ export function FleetExplorerPanel({
             e.stopPropagation();
             onToggleCollapse();
           }}
-          className="absolute left-full top-[2px] z-50 flex h-10 w-5 items-center justify-center rounded-r-xl border border-l-0 border-[#DFE3EB] dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-600 dark:text-slate-300 shadow-md hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-all cursor-pointer active:scale-95 pointer-events-auto"
+          className="absolute left-[calc(100%-1px)] top-[18px] z-50 flex h-10 w-5 items-center justify-center rounded-r-xl border border-l-0 border-[#DFE3EB] dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-600 dark:text-slate-300 shadow-md hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-all cursor-pointer active:scale-95 pointer-events-auto"
           title="Collapse Object Panel"
         >
           <ChevronLeft className="h-4 w-4 stroke-[2.5]" />

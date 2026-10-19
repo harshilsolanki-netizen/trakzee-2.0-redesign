@@ -540,7 +540,7 @@ export function TrackingPage() {
           />
         </div>
       ) : (
-        <div className="absolute left-0 top-3 z-30 animate-in slide-in-from-left duration-200">
+        <div className="absolute left-0 top-[28px] z-30 animate-in slide-in-from-left duration-200">
           <button
             type="button"
             onClick={() => setIsLeftPanelOpen(true)}

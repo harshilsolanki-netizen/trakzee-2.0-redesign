@@ -24,6 +24,7 @@ import { ZioProvider, useZio } from "@/zio/ZioContext";
 import { cn } from "@/lib/utils";
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import { LoginPage } from "@/components/auth/LoginPage";
+import { AvoidServiceInterruptionModal } from "@/components/recharge/AvoidServiceInterruptionModal";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -162,6 +163,7 @@ function AppLayout() {
   const { isAuthenticated } = useAuth();
   const { isOpen, mode, openZio } = useZio();
   const location = useRouterState({ select: (s) => s.location });
+  const [showInterruptionModal, setShowInterruptionModal] = useState(true);
 
   useEffect(() => {
     try {
@@ -170,6 +172,12 @@ function AppLayout() {
       const savedUi = localStorage.getItem("trakzee-ui-style") as UiElementStyle;
       if (savedUi) applyUiStyle(savedUi);
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    const handleOpenModal = () => setShowInterruptionModal(true);
+    window.addEventListener("open-avoid-service-interruption", handleOpenModal);
+    return () => window.removeEventListener("open-avoid-service-interruption", handleOpenModal);
   }, []);
 
   if (!isAuthenticated || location.pathname === "/login") {
@@ -222,6 +230,12 @@ function AppLayout() {
           <ZioPanel mode="floating" />
         </div>
       )}
+
+      {/* Avoid Service Interruption Modal (Pops up on application opening) */}
+      <AvoidServiceInterruptionModal
+        open={showInterruptionModal && !location.pathname.startsWith("/recharge")}
+        onOpenChange={setShowInterruptionModal}
+      />
     </div>
   );
 }
