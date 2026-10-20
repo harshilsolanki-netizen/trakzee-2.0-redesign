@@ -48,7 +48,7 @@ type ZioContextType = {
   closeZio: () => void;
   setMode: (mode: ZioPanelMode) => void;
   toggleFullscreen: () => void;
-  sendMessage: (text: string) => Promise<void>;
+  sendMessage: (text: string, displayText?: string) => Promise<void>;
   clearMessages: () => void;
   // History state & operations
   sessions: ZioChatSession[];
@@ -307,13 +307,13 @@ export function ZioProvider({ children }: { children: ReactNode }) {
   }, [activeSessionId]);
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string, displayText?: string) => {
       if (!text.trim() || isStreaming) return;
 
       const userMsg: ZioMessage = {
         id: "user-" + Date.now(),
         role: "user",
-        content: text.trim(),
+        content: (displayText || text).trim(),
         timestamp: new Date(),
       };
 
@@ -336,7 +336,7 @@ export function ZioProvider({ children }: { children: ReactNode }) {
         currentSessionId = "session-" + Date.now();
         setActiveSessionId(currentSessionId);
         // Generate neat title from first user prompt
-        const rawTitle = text.trim().replace(/^###?\s*/, "");
+        const rawTitle = (displayText || text).trim().replace(/^###?\s*/, "");
         const formattedTitle =
           rawTitle.length > 38 ? rawTitle.slice(0, 38) + "..." : rawTitle;
 

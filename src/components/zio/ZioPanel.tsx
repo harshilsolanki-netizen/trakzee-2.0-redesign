@@ -937,6 +937,15 @@ export function ZioPanel({
                     {/* Markdown text response with typewriter cursor */}
                     {msg.content && (
                       <div className="relative">
+                        {msg.content.includes("AI Insights") && (
+                          <div className="flex flex-col gap-0.5 mb-2.5 select-none pb-2 border-b border-violet-100/60 dark:border-violet-900/40">
+                            <span className="text-[10px] text-muted-foreground/80">Worked for 2s</span>
+                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-700 dark:text-slate-300">
+                              <span className="text-violet-600 dark:text-violet-400 font-bold text-xs">✦</span>
+                              <span>Analyzing this widget</span>
+                            </div>
+                          </div>
+                        )}
                         <FormattedZioMessage
                           content={msg.content}
                           isFullscreen={isFullscreen}

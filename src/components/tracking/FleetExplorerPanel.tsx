@@ -4821,29 +4821,29 @@ export function FleetExplorerPanel({
                           <tr>
                             <th className="py-2 px-2.5">Index</th>
                             <th className="py-2 px-2">Status</th>
-                            <th className="py-2 px-2">Type</th>
                             <th className="py-2 px-2">Est. Arrival</th>
                             <th className="py-2 px-2">Act. Arrival</th>
                             <th className="py-2 px-2">Checkpoint</th>
+                            <th className="py-2 px-2">Checkpoint State</th>
                             <th className="py-2 px-2">Address</th>
                             <th className="py-2 px-2.5">Driver</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
                           {[
-                            { idx: "01", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "02", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "03", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "04", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "05", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "06", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "07", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "08", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "09", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "10", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "11", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "12", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
-                            { idx: "13", status: "Visited", type: "Planned", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "01", status: "Visited", checkpointState: "Delivery", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "02", status: "Visited", checkpointState: "Delivery", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "03", status: "Visited", checkpointState: "Collection of items", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "04", status: "Visited", checkpointState: "Submission of Documents", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "05", status: "Visited", checkpointState: "Work Done", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "06", status: "Visited", checkpointState: "Delivery", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "07", status: "Visited", checkpointState: "Delivery", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "08", status: "Visited", checkpointState: "Collection of items", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "09", status: "Visited", checkpointState: "Submission of Documents", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "10", status: "Visited", checkpointState: "Work Done", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "11", status: "Visited", checkpointState: "Delivery", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "12", status: "Visited", checkpointState: "Collection of items", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
+                            { idx: "13", status: "Visited", checkpointState: "Work Done", estDate: "02-10-2026", estTime: "03:00 PM", actDate: "02-10-2026", actTime: "03:15 PM", chkLine1: "Croma,", chkLine2: "Valsad", addr: "Dharampur Rd, opp. S.T. Workshop, Abr...", drvLine1: "Sukesh", drvLine2: "Gupta" },
                           ].map((r, i) => (
                             <tr key={i} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors border-b border-slate-100 dark:border-slate-800/40">
                               <td className="py-1.5 px-2.5 font-mono font-bold text-slate-700 dark:text-slate-300 align-top">{r.idx}</td>
@@ -4852,7 +4852,6 @@ export function FleetExplorerPanel({
                                   {r.status}
                                 </span>
                               </td>
-                              <td className="py-1.5 px-2 text-slate-500 align-top">{r.type}</td>
                               <td className="py-1.5 px-2 font-mono text-[10.5px] text-slate-600 dark:text-slate-400 leading-tight align-top">
                                 <div>{r.estDate}</div>
                                 <div>{r.estTime}</div>
@@ -4864,6 +4863,9 @@ export function FleetExplorerPanel({
                               <td className="py-1.5 px-2 font-bold text-[11px] text-slate-800 dark:text-slate-200 leading-tight align-top">
                                 <div>{r.chkLine1}</div>
                                 <div>{r.chkLine2}</div>
+                              </td>
+                              <td className="py-1.5 px-2 text-slate-700 dark:text-slate-300 text-[11px] leading-tight align-top">
+                                {r.checkpointState}
                               </td>
                               <td className="py-1.5 px-2 text-slate-500 text-[10.5px] leading-tight truncate max-w-[130px] align-top" title={r.addr}>
                                 {r.addr}

@@ -102,17 +102,69 @@ export async function streamZioResponse(
         ? "B"
         : "C";
 
+  // ── WIDGET TELEMETRY INSIGHTS (HubSpot Breeze Style) ──
+  const isWidgetInsightsQuery =
+    q.includes("insight") ||
+    q.includes("insights") ||
+    q.includes("analyze this widget") ||
+    q.includes("insights of this widget") ||
+    q.includes("insights on this widget");
+
+  if (isWidgetInsightsQuery) {
+    appScreenType = "dashboard";
+    if (q.includes("battery")) {
+      fullResponse =
+        "### 🔋 AI Insights — **Battery Status**\n\n" +
+        "Telemetry analysis across **24 registered assets**:\n\n" +
+        "1. **Critical Health Alert**: **5 vehicles** are operating below **20% charge** (< 11.8V). Recommend routing units `GJ01AZ9821` and `MH04CD4412` to nearest charging/maintenance bays.\n" +
+        "2. **Optimal Charge Tier**: **7 vehicles** (> 80%) are fully operational with optimal alternator output.\n" +
+        "3. **Battery Degradation Trend**: 2 older lead-acid units show rapid voltage drop during idle periods.\n\n" +
+        "💡 *Actionable Recommendation*: Schedule battery health diagnostic for the 5 low-tier assets before next long-haul dispatch.";
+    } else if (q.includes("lock") || q.includes("remote")) {
+      fullResponse =
+        "### 🔒 AI Insights — **Remotely Lock Status**\n\n" +
+        "Immobilization and lock telemetry for **100 objects**:\n\n" +
+        "1. **Unlocked in Operation**: **98 vehicles (98%)** are actively unlocked and authorized for transit.\n" +
+        "2. **Locked / Immobilized**: **2 vehicles (2%)** are secured under depot remote immobilizer protocol.\n" +
+        "3. **Security Audit**: 0 unauthorized unlock attempts or relay tampering events detected in the last 24h.\n\n" +
+        "💡 *Actionable Recommendation*: Confirm release authorization for unit `DL01EB5678` scheduled for 04:00 PM shift.";
+    } else if (q.includes("alert") || q.includes("breakdown")) {
+      fullResponse =
+        "### 🚨 AI Insights — **Alerts Breakdown**\n\n" +
+        "Analysis of **35 logged alerts** today:\n\n" +
+        "1. **Top Event**: **Harsh Acceleration** represents 40% of all violations (14 events), concentrated around NH48 toll ramps.\n" +
+        "2. **Emergency Alarms**: 8 SOS alerts triggered and acknowledged by central dispatcher team.\n" +
+        "3. **Power Cuts & Towing**: 2 power disconnects and 1 tow alert resolved without vehicle loss.\n\n" +
+        "💡 *Actionable Recommendation*: Issue automated in-cab coaching notifications for aggressive acceleration on highway merges.";
+    } else if (q.includes("heat") || q.includes("heatmap") || q.includes("event")) {
+      fullResponse =
+        "### 📈 AI Insights — **Event Heatmap**\n\n" +
+        "Spatial-temporal event clustering analysis:\n\n" +
+        "1. **Peak Violation Window**: Tuesdays & Wednesdays between **11:00 AM – 03:00 PM** exhibit 3.2× higher event density.\n" +
+        "2. **Weekend Safety**: Saturdays and Sundays show an **82% reduction** in harsh events.\n" +
+        "3. **Driver Shift Correlation**: Afternoon shift changeover coincides with peak sudden braking logs.\n\n" +
+        "💡 *Actionable Recommendation*: Stagger departure windows to reduce midday congestion exposure.";
+    } else {
+      fullResponse =
+        "### 📊 AI Insights — **Fleet Status**\n\n" +
+        "Real-time operational analysis across **11,150 fleet objects**:\n\n" +
+        "1. **Active Fleet Utilization**: **450 objects (40.4%)** are currently **Running** with optimal fuel burn rates.\n" +
+        "2. **Idling Optimization**: **150 vehicles (13.5%)** are currently in **Idle** state (> 15 min). Estimated idle fuel wastage is **48.2 Liters/day** across North Hub.\n" +
+        "3. **Depot Standby**: **350 stopped** and **200 inactive** units ready for dispatch in next operational cycle.\n" +
+        "4. **Connectivity**: **100 units (0.9%)** reporting **No Data** due to fringe network zones on coastal corridors.\n\n" +
+        "💡 *Actionable Recommendation*: Send automated idling cutoff alerts to 4 high-idle delivery routes to save up to ₹4,200 daily.";
+    }
+  }
   // ── COMPANY WALKTHROUGH & GUIDANCE ──
-  const isCompanyQuery =
+  else if (
     q.includes("company") &&
     (q.includes("create") ||
       q.includes("add") ||
       q.includes("how") ||
       q.includes("new") ||
       q.includes("account") ||
-      q.includes("walkthrough"));
-
-  if (isCompanyQuery) {
+      q.includes("walkthrough"))
+  ) {
     appScreenType = "company-walkthrough";
     fullResponse =
       "### 🏢 Create a Company Account\n\n" +
