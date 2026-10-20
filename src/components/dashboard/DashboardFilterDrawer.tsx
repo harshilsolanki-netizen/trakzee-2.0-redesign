@@ -17,6 +17,7 @@ import {
   VEHICLE_TYPES,
 } from "@/data/reports";
 import { fleetObjects } from "@/data/fleet";
+import { useSidebarState } from "@/lib/useSidebarState";
 import { cn } from "@/lib/utils";
 
 interface UniversalMultiSelectDropdownProps {
@@ -285,6 +286,7 @@ export function DashboardFilterDrawer({
   onClose: () => void;
   onApply?: (filters: DashboardFilterState) => void;
 }) {
+  const { isCollapsed } = useSidebarState();
   // 1. Company Filter
   const companyOptions = useMemo(
     () => COMPANIES.filter((c) => c !== "All"),
@@ -496,7 +498,10 @@ export function DashboardFilterDrawer({
           type="button"
           aria-label="Close filter"
           onClick={onClose}
-          className="fixed top-[45px] bottom-0 left-0 sm:left-[68px] right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
+          className={cn(
+            "fixed top-[45px] bottom-0 right-0 z-40 bg-black/40 backdrop-blur-xs transition-all duration-300 cursor-pointer",
+            isCollapsed ? "left-0 sm:left-[60px]" : "left-0 sm:left-[200px]"
+          )}
         />
       ) : null}
 
@@ -504,7 +509,7 @@ export function DashboardFilterDrawer({
         aria-hidden={!open}
         aria-label="Dashboard Filter Options"
         className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-[45px] bottom-0 z-50 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >

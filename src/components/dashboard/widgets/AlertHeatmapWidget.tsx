@@ -27,7 +27,7 @@ function getHeatColor(val: number) {
   return "bg-muted/40 text-transparent";
 }
 
-export function AlertHeatmapWidget({ id = "alert-heat-map" }: { id?: WidgetId }) {
+export function AlertHeatmapWidget({ id = "event-heatmap" }: { id?: WidgetId }) {
   const [hovered, setHovered] = useState<{ day: string; hour: string; val: number } | null>(null);
 
   return (

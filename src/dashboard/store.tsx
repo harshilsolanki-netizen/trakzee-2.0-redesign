@@ -40,9 +40,8 @@ export const ALL_REFERENCE_WIDGETS: WidgetId[] = [
   "fleet-status",
   "battery-status",
   "remote-lock-status",
-  // Row 2 (1 + 2 = 3)
+  // Row 2
   "alerts-breakdown",
-  "alert-heat-map",
   // Row 3 (1 + 1 + 1 = 3)
   "fleet-health",
   "component-failure",
@@ -85,6 +84,8 @@ export const ALL_REFERENCE_WIDGETS: WidgetId[] = [
   // Row 12 (2 + 1 = 3 - matching production screenshot)
   "event-heatmap",
   "shift-compliance",
+  // Row 13
+  "tariff",
 ];
 
 export const DEFAULT_WIDGET_SIZES: Record<string, WidgetSize> = {
@@ -94,7 +95,6 @@ export const DEFAULT_WIDGET_SIZES: Record<string, WidgetSize> = {
   "remote-lock-status": "small",
   // Row 2
   "alerts-breakdown": "small",
-  "alert-heat-map": "medium",
   // Row 3
   "fleet-health": "small",
   "component-failure": "small",
@@ -139,6 +139,8 @@ export const DEFAULT_WIDGET_SIZES: Record<string, WidgetSize> = {
   // Row 12
   "event-heatmap": "medium",
   "shift-compliance": "small",
+  // Row 13
+  "tariff": "mini",
 };
 
 const DEFAULT_STATE: State = {
@@ -184,7 +186,6 @@ const DEFAULT_STATE: State = {
         "panic-sos-alarm",
         "collision-alarm",
         "alerts-breakdown",
-        "alert-heat-map",
         "geo-calibration-alerts",
         "sos-alerts",
         "alerts-day-time",
@@ -241,7 +242,7 @@ const DEFAULT_STATE: State = {
   favorites: ["today-activity"],
 };
 
-const STORAGE_KEY = "fleet-dashboard-state-v9";
+const STORAGE_KEY = "fleet-dashboard-state-v11";
 
 type Ctx = State & {
   visibleTabs: DashboardTab[];
@@ -313,13 +314,22 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                 expandedWidgets.push(id);
               }
             }
+            const cleanSizes: Record<string, WidgetSize> = {
+              ...DEFAULT_WIDGET_SIZES,
+              ...(t.widgetSizes || {}),
+            };
+            // Strictly enforce fleet-score as small (1x1) if legacy medium/large was stored
+            if (
+              cleanSizes["fleet-score"] === "medium" ||
+              cleanSizes["fleet-score"] === "large" ||
+              cleanSizes["fleet-score"] === "full"
+            ) {
+              cleanSizes["fleet-score"] = "small";
+            }
             return {
               ...t,
               widgets: expandedWidgets,
-              widgetSizes: {
-                ...DEFAULT_WIDGET_SIZES,
-                ...(t.widgetSizes || {}),
-              },
+              widgetSizes: cleanSizes,
             };
           });
           setState((prev) => ({

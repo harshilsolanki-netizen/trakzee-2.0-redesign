@@ -4027,11 +4027,6 @@ export function FleetExplorerPanel({
                     All {vehicles.length} objects selected
                   </span>
                 </div>
-                <div className="hidden sm:flex items-center gap-3 text-xs">
-                  <span className="text-slate-500 font-medium">Efficiency <strong className="text-amber-600">72%</strong> &gt;</span>
-                  <span className="text-slate-500 font-medium flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-rose-500 inline shrink-0" /> Risk <strong className="text-rose-600">15%</strong> &gt;</span>
-                  <span className="text-slate-500 font-medium flex items-center gap-1"><ThumbsUp className="h-3 w-3 text-[#0089FF] inline shrink-0" /> Discipline <strong className="text-[#0089FF]">98%</strong></span>
-                </div>
                 <button
                   type="button"
                   onClick={() => {

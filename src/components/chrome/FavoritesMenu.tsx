@@ -25,6 +25,7 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
   const [open, setOpen] = useState(false);
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [menuTop, setMenuTop] = useState<number>(105);
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
@@ -47,9 +48,16 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
     );
   }, [allFavoriteItems, query]);
 
-  // Click outside and ESC listeners
+  // Click outside, ESC listeners, and trigger position update
   useEffect(() => {
     if (!open) return;
+    const updatePosition = () => {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        setMenuTop(rect.top);
+      }
+    };
+    updatePosition();
     const handleClickOutside = (e: MouseEvent) => {
       if (
         menuRef.current &&
@@ -65,9 +73,13 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
     };
     document.addEventListener("mousedown", handleClickOutside);
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
     };
   }, [open]);
 
@@ -103,7 +115,13 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
       ref={triggerRef}
       type="button"
       aria-label="Favourites"
-      onClick={() => setOpen((prev) => !prev)}
+      onClick={() => {
+        if (triggerRef.current) {
+          const rect = triggerRef.current.getBoundingClientRect();
+          setMenuTop(rect.top);
+        }
+        setOpen((prev) => !prev);
+      }}
       className={cn(
         "group flex w-full h-10 items-center rounded-xl px-2.5 transition-colors duration-200 cursor-pointer select-none overflow-hidden",
         open
@@ -168,10 +186,11 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
             onClick={() => setOpen(false)}
           />
 
-          {/* Bottom-Anchored Flyout Panel with 10px bottom & left margin */}
+          {/* Top-Anchored Flyout Panel positioned beside the Favourites tab on top */}
           <div
             ref={menuRef}
-            className={cn("fixed bottom-[10px] z-50 flex flex-col w-[320px] max-h-[calc(100vh-65px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
+            style={{ top: `${menuTop}px` }}
+            className={cn("fixed z-50 flex flex-col w-[320px] max-h-[calc(100vh-120px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
           >
             {/* Search Bar */}
             <div className="border-b border-slate-800/80 bg-slate-950/60 p-2.5">

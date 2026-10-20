@@ -55,6 +55,7 @@ import {
   type ReportColumnSettings,
 } from "@/components/report/ColumnConfigModal";
 import { SelectDropdown, type DropdownOption } from "@/components/ui/select-dropdown";
+import { useSidebarState } from "@/lib/useSidebarState";
 import { cn } from "@/lib/utils";
 
 export type ScheduleItem = {
@@ -636,6 +637,7 @@ export function ScheduleModal({
   currentFilters?: ReportFilters;
   reportTitle?: string;
 }) {
+  const { isCollapsed } = useSidebarState();
   const [schedules, setSchedules] = useState<ScheduleItem[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -1187,7 +1189,10 @@ export function ScheduleModal({
           type="button"
           aria-label="Close scheduled reports panel"
           onClick={onClose}
-          className="fixed top-[45px] bottom-0 left-0 sm:left-[68px] right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
+          className={cn(
+            "fixed top-[45px] bottom-0 right-0 z-40 bg-black/40 backdrop-blur-xs transition-all duration-300 cursor-pointer",
+            isCollapsed ? "left-0 sm:left-[60px]" : "left-0 sm:left-[200px]"
+          )}
         />
       ) : null}
 
@@ -1196,7 +1201,7 @@ export function ScheduleModal({
         aria-hidden={!open}
         aria-label="Scheduled Reports"
         className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[480px] xl:max-w-[500px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden",
+          "fixed right-0 top-[45px] bottom-0 z-50 flex w-full max-w-[480px] xl:max-w-[500px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >

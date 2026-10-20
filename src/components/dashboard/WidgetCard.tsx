@@ -49,8 +49,13 @@ export function WidgetCard({
   const { settings, activeTab, setWidgetSize } = useDashboard();
   const [textualViewOpen, setTextualViewOpen] = useState(false);
 
+  const rawSize: WidgetSize =
+    activeTab?.widgetSizes?.[id] || meta.defaultSize || "small";
   const currentSize: WidgetSize =
-    activeTab?.widgetSizes?.[id] || meta.defaultSize || "medium";
+    id === "fleet-score" &&
+    (rawSize === "medium" || rawSize === "large" || rawSize === "full")
+      ? "small"
+      : rawSize;
   const isMini = currentSize === "mini";
 
   const header = (
@@ -104,16 +109,14 @@ export function WidgetCard({
           </div>
         ) : null}
 
-        {/* Widget Size Selector (0.5x0.5, 1x0.5, 1x1, 2x1, 2x2) */}
+        {/* Widget Size Selector (0.5x0.5, 1x0.5, 1x1) */}
         <div className={isMini ? "w-[56px]" : "w-[72px]"}>
           <SelectDropdown
-            value={currentSize === "full" ? "medium" : currentSize}
+            value={currentSize === "full" ? "small" : currentSize === "medium" || currentSize === "large" ? "small" : currentSize}
             options={[
               { label: "0.5×0.5", value: "mini" },
               { label: "1×0.5", value: "compact" },
               { label: "1×1", value: "small" },
-              { label: "2×1", value: "medium" },
-              { label: "2×2", value: "large" },
             ]}
             onChange={(v) => setWidgetSize(activeTab.id, id, v as WidgetSize)}
             triggerClassName={isMini ? "h-6 px-1 text-[10px] font-mono" : "h-6 px-1.5 text-[11px] font-mono"}

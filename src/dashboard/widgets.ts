@@ -75,7 +75,6 @@ export type WidgetId =
   | "remote-lock-status"
   // Row 2
   | "alerts-breakdown"
-  | "alert-heat-map"
   // Row 3
   | "fleet-health"
   | "component-failure"
@@ -118,7 +117,9 @@ export type WidgetId =
   | "camera-status"
   // Row 11
   | "event-heatmap"
-  | "shift-compliance";
+  | "shift-compliance"
+  // Row 12
+  | "tariff";
 
 export type WidgetDefinition = {
   id: WidgetId;
@@ -164,14 +165,6 @@ export const WIDGET_CATALOG: WidgetDefinition[] = [
     description: "Volume breakdown of primary driving & system alarms",
     hasRange: false,
     defaultSize: "small",
-  },
-  {
-    id: "alert-heat-map",
-    title: "Alert Heat Map",
-    category: "SAFETY & ALERTS",
-    description: "7 days × 24 hours temporal incident density matrix",
-    hasRange: true,
-    defaultSize: "medium",
   },
 
   // Row 3
@@ -455,6 +448,16 @@ export const WIDGET_CATALOG: WidgetDefinition[] = [
     description: "Duty hours compliance, overtime violations, and daily curve",
     hasRange: false,
     defaultSize: "small",
+  },
+
+  // Row 12
+  {
+    id: "tariff",
+    title: "Tariff",
+    category: "OPERATIONS & FLEET",
+    description: "SIM tariff expiry status: Expired and Expiring Soon counts with quick recharge",
+    hasRange: false,
+    defaultSize: "mini",
   },
 ];
 

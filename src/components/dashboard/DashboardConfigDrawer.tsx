@@ -3,6 +3,7 @@ import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useDashboard } from "@/dashboard/store";
 import { WIDGET_CATALOG, type WidgetId, type WidgetCategory } from "@/dashboard/widgets";
+import { useSidebarState } from "@/lib/useSidebarState";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES: { key: WidgetCategory; label: string }[] = [
@@ -25,6 +26,7 @@ export function DashboardConfigDrawer({
 }) {
   const { tabs, activeTab, addTab, renameTab, setTabWidgets, setActiveTab } =
     useDashboard();
+  const { isCollapsed } = useSidebarState();
 
   const isCreateMode = target?.mode === "create";
   const editingTab =
@@ -107,14 +109,17 @@ export function DashboardConfigDrawer({
           type="button"
           aria-label="Close configuration"
           onClick={onClose}
-          className="fixed top-[45px] bottom-0 left-0 sm:left-[68px] right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
+          className={cn(
+            "fixed top-[45px] bottom-0 right-0 z-40 bg-black/40 backdrop-blur-xs transition-all duration-300 cursor-pointer",
+            isCollapsed ? "left-0 sm:left-[60px]" : "left-0 sm:left-[200px]"
+          )}
         />
       ) : null}
       <aside
         aria-hidden={!open}
         aria-label="Dashboard configuration"
         className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-[45px] bottom-0 z-50 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
@@ -200,6 +205,7 @@ export function DashboardConfigDrawer({
                       return (
                         <label
                           key={w.id}
+                          title={w.description}
                           className="flex items-center gap-2.5 py-1.5 px-2.5 rounded-md text-xs cursor-pointer select-none transition-colors text-foreground font-medium hover:bg-muted/60"
                         >
                           <input
@@ -208,16 +214,11 @@ export function DashboardConfigDrawer({
                             onChange={() => toggleWidget(w.id)}
                             className="rounded border-input text-brand cursor-pointer h-3.5 w-3.5 accent-[#0089FF]"
                           />
-                          <div className="truncate flex-1">
-                            <span className={cn("block truncate", isChecked && "font-semibold")}>
-                              {w.title}
-                            </span>
-                            <span className="block text-[11px] text-muted-foreground truncate">
-                              {w.description}
-                            </span>
-                          </div>
+                          <span className={cn("truncate flex-1 text-xs", isChecked ? "font-semibold text-foreground" : "text-foreground/90")}>
+                            {w.title}
+                          </span>
                           <span className="text-[11px] text-muted-foreground font-mono px-1.5 py-0.5 rounded bg-muted/60 shrink-0">
-                            {w.defaultSize === "small" ? "1×1" : w.defaultSize === "large" ? "2×2" : w.defaultSize === "full" ? "3×1" : "2×1"}
+                            {w.defaultSize === "mini" ? "0.5×0.5" : w.defaultSize === "compact" ? "1×0.5" : "1×1"}
                           </span>
                         </label>
                       );

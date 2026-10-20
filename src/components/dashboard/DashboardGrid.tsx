@@ -47,6 +47,7 @@ import { FleetScoreWidget } from "./widgets/FleetScoreWidget";
 import { ScoreDistributionWidget } from "./widgets/ScoreDistributionWidget";
 import { CameraStatusWidget } from "./widgets/CameraStatusWidget";
 import { ShiftComplianceWidget } from "./widgets/ShiftComplianceWidget";
+import { TariffWidget } from "./widgets/TariffWidget";
 
 const MAP: Record<WidgetId, (props: { id?: WidgetId }) => ReactElement> = {
   // Row 1
@@ -56,7 +57,6 @@ const MAP: Record<WidgetId, (props: { id?: WidgetId }) => ReactElement> = {
 
   // Row 2
   "alerts-breakdown": AlertsBreakdownWidget,
-  "alert-heat-map": AlertHeatmapWidget,
 
   // Row 3
   "fleet-health": FleetHealthWidget,
@@ -109,6 +109,9 @@ const MAP: Record<WidgetId, (props: { id?: WidgetId }) => ReactElement> = {
   // Row 11
   "event-heatmap": AlertHeatmapWidget,
   "shift-compliance": ShiftComplianceWidget,
+
+  // Row 12
+  "tariff": TariffWidget,
 };
 
 const SIZE_CLASSES: Record<WidgetSize, string> = {
@@ -144,8 +147,13 @@ export function DashboardGrid() {
       {activeTab.widgets.map((id) => {
         const Widget = MAP[id] ?? FleetScoreWidget;
         const meta = widgetMeta(id);
-        const currentSize: WidgetSize =
+        const rawSize: WidgetSize =
           activeTab?.widgetSizes?.[id] || meta.defaultSize || "small";
+        const currentSize: WidgetSize =
+          id === "fleet-score" &&
+          (rawSize === "medium" || rawSize === "large" || rawSize === "full")
+            ? "small"
+            : rawSize;
         const sizeClass = SIZE_CLASSES[currentSize] || SIZE_CLASSES.small;
 
         const isDragging = draggedWidgetId === id;

@@ -26,6 +26,7 @@ import {
   getVehiclesForBranches,
 } from "@/data/reports";
 import { fleetObjects } from "@/data/fleet";
+import { useSidebarState } from "@/lib/useSidebarState";
 import { cn } from "@/lib/utils";
 
 export type ReportFilters = {
@@ -422,6 +423,7 @@ export function ReportConfigPanel({
   onApply: () => void;
   onExport?: (format: ExportFormat, scope: ExportScope) => void;
 }) {
+  const { isCollapsed } = useSidebarState();
   const selectedCompanies = filters.companies || [];
   const selectedBranches = filters.branches || [];
   const selectedGroups = filters.groups || [];
@@ -726,7 +728,10 @@ export function ReportConfigPanel({
           type="button"
           aria-label="Close filter panel"
           onClick={onClose}
-          className="fixed top-[45px] bottom-0 left-0 sm:left-[68px] right-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity cursor-pointer animate-in fade-in duration-200"
+          className={cn(
+            "fixed top-[45px] bottom-0 right-0 z-40 bg-black/40 backdrop-blur-sm transition-all duration-300 cursor-pointer animate-in fade-in duration-200",
+            isCollapsed ? "left-0 sm:left-[60px]" : "left-0 sm:left-[200px]"
+          )}
         />
       ) : null}
 
@@ -735,7 +740,7 @@ export function ReportConfigPanel({
         aria-hidden={!open}
         aria-label="Report filter options"
         className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[460px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden select-none",
+          "fixed right-0 top-[45px] bottom-0 z-50 flex w-full max-w-[460px] xl:max-w-[480px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out overflow-hidden select-none",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >

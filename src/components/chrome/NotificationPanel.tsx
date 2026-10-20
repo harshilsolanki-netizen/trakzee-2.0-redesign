@@ -1,6 +1,7 @@
 import { Car, MapPin, TriangleAlert, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useSidebarState } from "@/lib/useSidebarState";
 import { cn } from "@/lib/utils";
 
 type Severity = "high" | "medium" | "low";
@@ -89,12 +90,6 @@ const COUNTS: {
   },
 ];
 
-const SEV_BAR: Record<Severity, string> = {
-  high: "bg-red-500",
-  medium: "bg-amber-500",
-  low: "bg-emerald-500",
-};
-
 export function NotificationPanel({
   open,
   onOpenChange,
@@ -102,6 +97,7 @@ export function NotificationPanel({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { isCollapsed } = useSidebarState();
   const [tab, setTab] = useState<"notification" | "announcements">(
     "notification",
   );
@@ -132,7 +128,10 @@ export function NotificationPanel({
           type="button"
           aria-label="Close notifications overlay"
           onClick={() => onOpenChange(false)}
-          className="fixed top-[45px] bottom-0 left-0 sm:left-14 right-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer animate-in fade-in duration-200"
+          className={cn(
+            "fixed top-[45px] bottom-0 right-0 z-40 bg-black/40 backdrop-blur-xs transition-all duration-300 cursor-pointer animate-in fade-in duration-200",
+            isCollapsed ? "left-0 sm:left-[60px]" : "left-0 sm:left-[200px]"
+          )}
         />
       )}
 
@@ -141,7 +140,7 @@ export function NotificationPanel({
         aria-hidden={!open}
         aria-label="Notifications panel"
         className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[390px] xl:max-w-[410px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-[45px] bottom-0 z-50 flex w-full max-w-[390px] xl:max-w-[410px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
@@ -240,13 +239,7 @@ export function NotificationPanel({
                     key={a.id}
                     className="relative overflow-hidden rounded-lg border border-border bg-card p-3 shadow-2xs transition-all hover:border-border/80 hover:shadow-xs"
                   >
-                    <span
-                      className={cn(
-                        "absolute top-0 right-0 h-1.5 w-10 rounded-bl-md",
-                        SEV_BAR[a.severity],
-                      )}
-                    />
-                    <div className="flex items-center justify-between pr-8">
+                    <div className="flex items-center justify-between">
                       <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
                         <Car className="h-3.5 w-3.5 text-muted-foreground shrink-0" />{" "}
                         {a.vehicle}
