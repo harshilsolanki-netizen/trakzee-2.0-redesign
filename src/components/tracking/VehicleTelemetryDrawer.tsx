@@ -612,26 +612,29 @@ export function VehicleTelemetryDrawer({
 
               case "health_score":
                 return (
-                  <div key={cardId} {...dragProps} className={cn("w-[300px] shrink-0 group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden text-xs transition-all relative", draggedCardId === cardId && "opacity-50 border-dashed border-[#0089FF]")}>
+                  <div key={cardId} {...dragProps} className={cn("w-[400px] shrink-0 group rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden text-xs transition-all relative", draggedCardId === cardId && "opacity-50 border-dashed border-[#0089FF]")}>
                     {/* 1. Header Row */}
                     <div className="flex h-[39px] items-center justify-between px-[10px] py-[8px] bg-white dark:bg-slate-900 border-b border-[#F1F5F9] dark:border-slate-800">
                       <div className="flex items-center gap-[6px] min-w-0">
                         <ShieldCheck className="h-4 w-4 text-[#0089FF] stroke-[1.8] shrink-0" />
-                        <h3 className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate">
-                          Health Score Details
+                        <h3
+                          className="text-[12px] font-semibold text-[#0F172B] dark:text-slate-100 tracking-[-0.3px] truncate"
+                          title={vehicle.name || "Health Score Details"}
+                        >
+                          {vehicle.name || "Health Score Details"}
                         </h3>
                       </div>
                       <div className="flex items-center gap-0.5 shrink-0">
                         <WidgetActionButton
                           isRefreshing={isRefreshingThis}
-                          onClick={() => handleRefreshCard("Health Score Details", cardId)}
-                          cardName="Health Score Details"
+                          onClick={() => handleRefreshCard(vehicle.name || "Health Score Details", cardId)}
+                          cardName={vehicle.name || "Health Score Details"}
                         />
                       </div>
                     </div>
 
                     {/* 2. Category Filter Switcher Pills */}
-                    <div className="p-1.5 bg-slate-50 dark:bg-slate-950/50 border-b border-[#F1F5F9] dark:border-slate-800 grid grid-cols-4 gap-1">
+                    <div className="p-1.5 bg-slate-50 dark:bg-slate-950/50 border-b border-[#F1F5F9] dark:border-slate-800 grid grid-cols-4 gap-1.5">
                       <button
                         type="button"
                         onClick={() => setActiveHealthCategory("safety")}
@@ -642,7 +645,7 @@ export function VehicleTelemetryDrawer({
                             : "bg-[#EBF9F0] dark:bg-emerald-950/40 border-emerald-200/60 text-slate-800 dark:text-slate-200 hover:bg-emerald-100/70"
                         )}
                       >
-                        <span>Safety</span>
+                        <span className="truncate max-w-full">Safety</span>
                         <span className="font-mono text-[12px] font-extrabold" style={{ color: activeHealthCategory === "safety" ? "#ffffff" : "#10B981" }}>85</span>
                       </button>
 
@@ -656,7 +659,7 @@ export function VehicleTelemetryDrawer({
                             : "bg-[#FFFBEB] dark:bg-amber-950/40 border-amber-200/60 text-slate-800 dark:text-slate-200 hover:bg-amber-100/70"
                         )}
                       >
-                        <span>Effic.</span>
+                        <span className="truncate max-w-full">Efficiency</span>
                         <span className="font-mono text-[12px] font-extrabold" style={{ color: activeHealthCategory === "efficiency" ? "#ffffff" : "#D97706" }}>72</span>
                       </button>
 
@@ -670,7 +673,7 @@ export function VehicleTelemetryDrawer({
                             : "bg-[#FEF2F2] dark:bg-rose-950/40 border-rose-200/60 text-slate-800 dark:text-slate-200 hover:bg-rose-100/70"
                         )}
                       >
-                        <span>Risk</span>
+                        <span className="truncate max-w-full">Risk</span>
                         <span className="font-mono text-[12px] font-extrabold" style={{ color: activeHealthCategory === "risk" ? "#ffffff" : "#EF4444" }}>15</span>
                       </button>
 
@@ -684,7 +687,7 @@ export function VehicleTelemetryDrawer({
                             : "bg-[#F0F9FF] dark:bg-sky-950/40 border-sky-200/60 text-slate-800 dark:text-slate-200 hover:bg-sky-100/70"
                         )}
                       >
-                        <span>Discip.</span>
+                        <span className="truncate max-w-full">Discipline</span>
                         <span className="font-mono text-[12px] font-extrabold" style={{ color: activeHealthCategory === "discipline" ? "#ffffff" : "#0089FF" }}>98</span>
                       </button>
                     </div>

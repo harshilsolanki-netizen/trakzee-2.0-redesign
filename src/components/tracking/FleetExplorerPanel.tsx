@@ -589,17 +589,17 @@ export function FleetExplorerPanel({
   // Dynamic Driver Dataset state
   const [driverData, setDriverData] = useState([
     {
-      branch: "Surya Travels",
+      branch: "Surya Travels Company",
       count: 5,
       subgroups: [
         {
-          name: "Kalwa",
+          name: "Surya Branch 1",
           count: 5,
           drivers: [
-            { id: "d-1", name: "Prabhu Jadhav", vehicle: "MH 14 KQ 4446", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: true },
-            { id: "d-2", name: "Shrikant Waghmare", vehicle: "MH 14 KA 6985", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: true },
-            { id: "d-3", name: "Vishal Gaikwad", vehicle: "MH 14 KA 9125", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
-            { id: "d-4", name: "Kiran Ghodke", vehicle: "MH 12 QW 5286", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
+            { id: "d-1", name: "Prabhu Jadhav", vehicle: "MH 14 EQ 4446", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: true },
+            { id: "d-2", name: "Shrikant Waghmare", vehicle: "MH 14 EA 6665", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: true },
+            { id: "d-3", name: "Vishal Gaikwad", vehicle: "MH 14 KN 9125", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
+            { id: "d-4", name: "Kiran Ghodke", vehicle: "MH 12 QM 5386", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
             { id: "d-5", name: "Ajinkya Bharge", vehicle: "MH 14 HU 4181", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
           ],
         },
@@ -613,9 +613,9 @@ export function FleetExplorerPanel({
           name: "Bhatrai",
           count: 5,
           drivers: [
-            { id: "d-6", name: "Shivaji Yadav", vehicle: "GJ 05 CU 1936", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: true },
-            { id: "d-7", name: "Raymal Vasawa", vehicle: "GJ 21 OP 5624", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
-            { id: "d-8", name: "Dilip Nayak", vehicle: "GJ 18 MP 8823", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
+            { id: "d-6", name: "Shivaji Yadav", vehicle: "GJ 05 CJ 1936", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: true },
+            { id: "d-7", name: "Raymal Vasawa", vehicle: "GJ 21 DF 5824", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
+            { id: "d-8", name: "Dilip Nayak", vehicle: "GJ 18 MP 6823", status: "Allocated Via", type: "Default", driverStatus: "Available", allocated: true, isRunning: false },
             { id: "d-9", name: "Hitesh Rathod", vehicle: "Unassigned", status: "Not Allocated", type: "Default", driverStatus: "Not available", allocated: false, isRunning: false },
             { id: "d-10", name: "Pushpendra Kushwa", vehicle: "Unassigned", status: "Not Allocated", type: "Default", driverStatus: "On Leave", allocated: false, isRunning: false },
           ],
@@ -675,37 +675,37 @@ export function FleetExplorerPanel({
     toast.success(`Driver status updated to "${newStatus}"`);
   };
 
-  // Dynamic Address Dataset state (1:1 with reference screenshot media_1791281186715.png)
+  // Dynamic Address Dataset state (1:1 with reference screenshot media_1792499205461_690f6679.png)
   const [addressData, setAddressData] = useState([
     {
       group: "Ha Company",
-      checked: true,
+      checked: false,
       subgroups: [
         {
-          name: "HS - Bank Branch",
+          name: "HS - Bank",
           checked: true,
           addresses: [
-            { id: "a-1", name: "HS - Bank", checked: true, category: "Financial / Bank" },
-            { id: "a-2", name: "Zin - AI Studio", checked: true, category: "Tech Hub" },
-            { id: "a-3", name: "Vortex - Safety Operations Hub", checked: false, category: "Safety" },
-            { id: "a-4", name: "Aegis - Security Assessment Area", checked: false, category: "Security" },
-            { id: "a-5", name: "Sentinel - Emergency Response Zone", checked: false, category: "Emergency" },
-            { id: "a-6", name: "Fortress - Threat Analysis Division", checked: false, category: "Analysis" },
-            { id: "a-7", name: "Haven - Cautionary Measures Facility", checked: false, category: "Facility" },
-            { id: "a-8", name: "Outpost - Hazard Evaluation Grounds", checked: false, category: "Evaluation" },
-            { id: "a-9", name: "Nexus - High-Risk Operations Center", checked: false, category: "High-Risk" },
-            { id: "a-10", name: "Bastion - Vulnerability Assessment Zone", checked: false, category: "Assessment" },
-            { id: "a-11", name: "Beacon - Warning Response Area", checked: false, category: "Warning" },
-            { id: "a-12", name: "Pinnacle - Alert Management Zone", checked: false, category: "Alert" },
-            { id: "a-13", name: "Horizon - Unsafe Assessment Grounds", checked: false, category: "Grounds" },
-            { id: "a-14", name: "Elysium - Threat Monitoring Area", checked: false, category: "Monitoring" },
-            { id: "a-15", name: "Apex - Risk Evaluation Zone", checked: false, category: "Risk" },
-            { id: "a-16", name: "Citadel - Dangerous Territory Hub", checked: false, category: "Territory" },
-            { id: "a-17", name: "Crisis Point - Emergency Zone", checked: false, category: "Emergency" },
-            { id: "a-18", name: "Peril Point - Risk Assessment Zone", checked: false, category: "Assessment" },
-            { id: "a-19", name: "Hazard Haven - Safety Zone", checked: false, category: "Safety" },
-            { id: "a-20", name: "Unsafe Haven - Risk Management Zone", checked: false, category: "Management" },
-            { id: "a-21", name: "Alpha Base - Danger Zone", checked: false, category: "Base" },
+            { id: "a-1", name: "Vortex - Safety Operations Hub", checked: false, category: "Safety" },
+            { id: "a-2", name: "Aegis - Security Assessment Area", checked: false, category: "Security" },
+            { id: "a-3", name: "Sentinel - Emergency Response Zone", checked: false, category: "Emergency" },
+            { id: "a-4", name: "Fortress - Threat Analysis Division", checked: false, category: "Analysis" },
+            { id: "a-5", name: "Haven - Cautionary Measures Facility", checked: false, category: "Facility" },
+            { id: "a-6", name: "Outpost - Hazard Evaluation Grounds", checked: false, category: "Evaluation" },
+            { id: "a-7", name: "Nexus - High-Risk Operations Center", checked: false, category: "High-Risk" },
+            { id: "a-8", name: "Bastion - Vulnerability Assessment Zone", checked: false, category: "Assessment" },
+            { id: "a-9", name: "Beacon - Warning Response Area", checked: false, category: "Warning" },
+            { id: "a-10", name: "Pinnacle - Alert Management Zone", checked: false, category: "Alert" },
+            { id: "a-11", name: "Horizon - Unsafe Assessment Grounds", checked: false, category: "Grounds" },
+            { id: "a-12", name: "Elysium - Threat Monitoring Area", checked: false, category: "Monitoring" },
+            { id: "a-13", name: "Apex - Risk Evaluation Zone", checked: false, category: "Risk" },
+            { id: "a-14", name: "Citadel - Dangerous Territory Hub", checked: false, category: "Territory" },
+            { id: "a-15", name: "Crisis Point - Emergency Zone", checked: false, category: "Emergency" },
+            { id: "a-16", name: "Peril Point - Risk Assessment Zone", checked: false, category: "Assessment" },
+            { id: "a-17", name: "Hazard Haven - Safety Zone", checked: false, category: "Safety" },
+            { id: "a-18", name: "Unsafe Haven - Risk Management Zone", checked: false, category: "Management" },
+            { id: "a-19", name: "Alpha Base - Danger Zone", checked: false, category: "Base" },
+            { id: "a-20", name: "Omega Station - Security Depot", checked: false, category: "Security" },
+            { id: "a-21", name: "Delta Sector - Primary Storage Facility", checked: false, category: "Storage" },
           ],
         },
       ],
@@ -803,14 +803,14 @@ export function FleetExplorerPanel({
     );
   };
 
-  // Dynamic Trailer Dataset state (1:1 with reference screenshot media_1791350803265.png)
+  // Dynamic Trailer Dataset state (1:1 with reference screenshot media_1792553915747_5000603d.png)
   const [trailerData, setTrailerData] = useState([
     {
       group: "Company",
       count: 2,
       subgroups: [
         {
-          name: "Valsad",
+          name: "Branch",
           count: 2,
           trailers: [
             { id: "tr-1", name: "TVS trailer", code: "998715", isAttached: true, vehicle: "MH 14 KQ 4446" },
@@ -824,7 +824,7 @@ export function FleetExplorerPanel({
       count: 1,
       subgroups: [
         {
-          name: "TKDN",
+          name: "Branch",
           count: 1,
           trailers: [
             { id: "tr-3", name: "Eye Beacon", code: "D001", isAttached: false, vehicle: "Unassigned" },
@@ -837,7 +837,7 @@ export function FleetExplorerPanel({
       count: 1,
       subgroups: [
         {
-          name: "VALSAD BRANCH",
+          name: "Branch",
           count: 1,
           trailers: [
             { id: "tr-4", name: "B&B frozen trailer", code: "1234567890", isAttached: true, vehicle: "GJ 05 CU 1936" },
@@ -1293,6 +1293,24 @@ export function FleetExplorerPanel({
     return { running, idle, stopped, inactive, total };
   }, [videoTelematicsData]);
 
+  const isVideoAllChecked = useMemo(() => {
+    return videoTelematicsData.every((g) =>
+      g.subgroups.every((s) => s.devices.every((item) => item.checked !== false)),
+    );
+  }, [videoTelematicsData]);
+
+  const toggleAllVideoTelematics = (checked: boolean) => {
+    setVideoTelematicsData((prev) =>
+      prev.map((g) => ({
+        ...g,
+        subgroups: g.subgroups.map((s) => ({
+          ...s,
+          devices: s.devices.map((item) => ({ ...item, checked })),
+        })),
+      })),
+    );
+  };
+
   const beaconCounts = useMemo(() => {
     let connected = 0;
     let disconnected = 0;
@@ -1308,6 +1326,24 @@ export function FleetExplorerPanel({
     }
     return { connected, disconnected, total };
   }, [beaconData]);
+
+  const isBeaconAllChecked = useMemo(() => {
+    return beaconData.every((g) =>
+      g.subgroups.every((s) => s.beacons.every((item) => item.checked !== false)),
+    );
+  }, [beaconData]);
+
+  const toggleAllBeacons = (checked: boolean) => {
+    setBeaconData((prev) =>
+      prev.map((g) => ({
+        ...g,
+        subgroups: g.subgroups.map((s) => ({
+          ...s,
+          beacons: s.beacons.map((item) => ({ ...item, checked })),
+        })),
+      })),
+    );
+  };
 
   const trailerCounts = useMemo(() => {
     let attached = 0;
@@ -2029,9 +2065,17 @@ export function FleetExplorerPanel({
                 activeTrailerStatus === "attached" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {trailerCounts.attached}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeTrailerStatus === "attached" ? "#FFFFFF" : "#008446",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {trailerCounts.attached}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 ATTACHED
               </span>
@@ -2055,9 +2099,17 @@ export function FleetExplorerPanel({
                 activeTrailerStatus === "notAttached" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {trailerCounts.notAttached}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeTrailerStatus === "notAttached" ? "#FFFFFF" : "#C70036",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {trailerCounts.notAttached}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 NOT ATTACHED
               </span>
@@ -2077,9 +2129,17 @@ export function FleetExplorerPanel({
                 activeTrailerStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {trailerCounts.total}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeTrailerStatus === "all" ? "#FFFFFF" : "#64748B",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {trailerCounts.total}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 TOTAL
               </span>
@@ -2107,9 +2167,17 @@ export function FleetExplorerPanel({
                 activeBeaconStatus === "connected" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {beaconCounts.connected}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeBeaconStatus === "connected" ? "#FFFFFF" : "#008446",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {beaconCounts.connected}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 CONNECTED
               </span>
@@ -2133,9 +2201,17 @@ export function FleetExplorerPanel({
                 activeBeaconStatus === "disconnected" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {beaconCounts.disconnected}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeBeaconStatus === "disconnected" ? "#FFFFFF" : "#C70036",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {beaconCounts.disconnected}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 DISCONNECTED
               </span>
@@ -2155,9 +2231,17 @@ export function FleetExplorerPanel({
                 activeBeaconStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {beaconCounts.total}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeBeaconStatus === "all" ? "#FFFFFF" : "#64748B",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {beaconCounts.total}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 TOTAL
               </span>
@@ -2185,9 +2269,17 @@ export function FleetExplorerPanel({
                 activeVideoStatus === "running" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {videoCounts.running}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeVideoStatus === "running" ? "#FFFFFF" : "#008446",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {videoCounts.running}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 RUNNING
               </span>
@@ -2211,9 +2303,17 @@ export function FleetExplorerPanel({
                 activeVideoStatus === "idle" && "shadow-sm shadow-[#C46F37]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {videoCounts.idle}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeVideoStatus === "idle" ? "#FFFFFF" : "#C46F37",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {videoCounts.idle}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 IDLE
               </span>
@@ -2237,9 +2337,17 @@ export function FleetExplorerPanel({
                 activeVideoStatus === "stopped" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {videoCounts.stopped}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeVideoStatus === "stopped" ? "#FFFFFF" : "#C70036",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {videoCounts.stopped}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 STOPPED
               </span>
@@ -2263,9 +2371,17 @@ export function FleetExplorerPanel({
                 activeVideoStatus === "inactive" && "shadow-sm shadow-[#372AAC]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {videoCounts.inactive}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeVideoStatus === "inactive" ? "#FFFFFF" : "#372AAC",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {videoCounts.inactive}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 INACTIVE
               </span>
@@ -2285,9 +2401,17 @@ export function FleetExplorerPanel({
                 activeVideoStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {videoCounts.total}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeVideoStatus === "all" ? "#FFFFFF" : "#64748B",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {videoCounts.total}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 TOTAL
               </span>
@@ -2315,9 +2439,17 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "allocated" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {driverCounts.allocated}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeDriverStatus === "allocated" ? "#FFFFFF" : "#008446",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {driverCounts.allocated}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 ALLOCATED
               </span>
@@ -2343,9 +2475,17 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "not_allocated" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {driverCounts.notAllocated}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeDriverStatus === "not_allocated" ? "#FFFFFF" : "#C70036",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {driverCounts.notAllocated}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 NOT ALLOC
               </span>
@@ -2369,9 +2509,17 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "available" && "shadow-sm shadow-[#0089FF]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {driverCounts.available}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeDriverStatus === "available" ? "#FFFFFF" : "#0089FF",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {driverCounts.available}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 AVAILABLE
               </span>
@@ -2397,9 +2545,17 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "not_available" && "shadow-sm shadow-[#C46F37]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {driverCounts.notAvailable}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeDriverStatus === "not_available" ? "#FFFFFF" : "#C46F37",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {driverCounts.notAvailable}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 NOT AVAIL
               </span>
@@ -2423,9 +2579,17 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "on_leave" && "shadow-sm shadow-[#372AAC]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {driverCounts.onLeave}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeDriverStatus === "on_leave" ? "#FFFFFF" : "#372AAC",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {driverCounts.onLeave}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 ON LEAVE
               </span>
@@ -2445,9 +2609,17 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <span className="text-[13px] font-bold tabular-nums leading-none">
-                {driverCounts.total}
-              </span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: activeDriverStatus === "all" ? "#FFFFFF" : "#64748B",
+                  }}
+                />
+                <span className="text-[13px] font-bold tabular-nums leading-none">
+                  {driverCounts.total}
+                </span>
+              </div>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 TOTAL
               </span>
@@ -2614,6 +2786,10 @@ export function FleetExplorerPanel({
                 ? "Select / Deselect all geofences on map"
                 : activeTab === "address"
                 ? "Select / Deselect all addresses on map"
+                : activeTab === "beacon"
+                ? "Select / Deselect all beacons on map"
+                : activeTab === "video_telematics"
+                ? "Select / Deselect all video telematics devices"
                 : "Select / Deselect all vehicles on map"
             }
           >
@@ -2624,6 +2800,10 @@ export function FleetExplorerPanel({
                   ? isGeofenceAllChecked
                   : activeTab === "address"
                   ? isAddressAllChecked
+                  : activeTab === "beacon"
+                  ? isBeaconAllChecked
+                  : activeTab === "video_telematics"
+                  ? isVideoAllChecked
                   : allChecked
               }
               onChange={(e) => {
@@ -2631,6 +2811,10 @@ export function FleetExplorerPanel({
                   toggleAllGeofences(e.target.checked);
                 } else if (activeTab === "address") {
                   toggleAllAddresses(e.target.checked);
+                } else if (activeTab === "beacon") {
+                  toggleAllBeacons(e.target.checked);
+                } else if (activeTab === "video_telematics") {
+                  toggleAllVideoTelematics(e.target.checked);
                 } else if (onToggleCheckAll) {
                   onToggleCheckAll(e);
                   if (!e.target.checked) {
@@ -4264,15 +4448,15 @@ export function FleetExplorerPanel({
     </div>
   )}
         {activeTab === "jobs" && (
-          <div className="flex-1 min-h-0 relative [perspective:1200px] bg-white dark:bg-slate-900 overflow-hidden">
+          <div className="flex-1 min-h-0 relative [perspective:1200px] bg-white dark:bg-slate-900 overflow-hidden rounded-b-2xl">
             <div
               className={cn(
                 "w-full h-full relative transition-transform duration-700 ease-in-out [transform-style:preserve-3d]",
-                selectedJobDetail && !isTrackingViewTree ? "[transform:rotateY(-180deg)]" : "[transform:rotateY(0deg)]"
+                selectedJobDetail ? "[transform:rotateY(-180deg)]" : "[transform:rotateY(0deg)]"
               )}
             >
               {/* FRONT FACE: Default Jobs List View */}
-              <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden]">
+              <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden] rounded-b-2xl overflow-hidden">
                 {isTrackingViewTree ? (
                   <TrackingTreeView
                     activeTab="jobs"
@@ -4286,27 +4470,41 @@ export function FleetExplorerPanel({
                     query={query}
                     activeJobStatus={activeJobStatus}
                     onSelectJob={(job) => {
-                      if (!isTrackingViewTree) {
-                        setSelectedJobDetail(job);
-                      }
+                      setSelectedJobDetail({
+                        id: job.id,
+                        code: job.code,
+                        title: job.title,
+                        object: job.object,
+                        status: job.status,
+                        ...job,
+                      });
                       if (onOpenTelemetry) {
-                        onOpenTelemetry(vehicles[0] || ({} as any), false, {
-                          ...job,
-                          isObjectHalt: true,
+                        const matched = vehicles.find(
+                          (v) =>
+                            v.id === job.vehicleId ||
+                            v.plateNumber === job.plateNumber ||
+                            (job.object && (v.name.toLowerCase().includes(job.object.toLowerCase()) || job.object.toLowerCase().includes(v.name.toLowerCase())))
+                        ) || vehicles[0];
+                        onOpenTelemetry(matched || ({} as any), false, {
+                          id: job.id,
+                          code: job.code,
                           title: job.title || "TEST SCM",
-                          qrCode: job.qrCode || "QI-8549281",
+                          object: job.object,
+                          isObjectHalt: true,
+                          qrCode: "QR-8849201",
                           itemQuantity: job.quantity ? `${job.quantity} Pcs` : "120 Pcs",
                           weight: job.weight ? `${job.weight} Ton` : "2.4 Ton",
                           load: job.load || "92% Capacity",
                           permissibleHalt: job.permissibleHalt || "02:00:00",
                           actualHalt: job.actualHalt || "03:45:12",
+                          ...job,
                         });
                       }
                     }}
                     jobData={jobData}
                   />
                 ) : (
-                  <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-200/60 dark:divide-slate-800/60 select-none">
+                  <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-200/60 dark:divide-slate-800/60 select-none rounded-b-2xl">
                     {jobData.map((group) => {
                     const isBranchCollapsed = collapsedJobBranches[group.branch];
 
@@ -4662,7 +4860,7 @@ export function FleetExplorerPanel({
               </div>
 
               {/* BACK FACE: Flipped Object Checkpoint Details View (1:1 with media_1791279242339.png) */}
-              <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+              <div className="absolute inset-0 flex flex-col min-h-0 bg-white dark:bg-slate-900 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-b-2xl overflow-hidden">
                 {/* 1. Status KPI Pills Summary Bar */}
                 <div className="px-2 py-1.5 bg-slate-50/50 dark:bg-slate-950/40 select-none shrink-0 border-b border-slate-200/60 dark:border-slate-800/60">
                   <div className="grid grid-cols-4 gap-1.5">
@@ -4888,7 +5086,7 @@ export function FleetExplorerPanel({
 
                 {/* Reference-Matched Driver Tab View (1:1 with media_1790833871737.png & media_1790835635015.png) */}
         {activeTab === "driver" && (
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden rounded-b-2xl">
             {isTrackingViewTree ? (
               <TrackingTreeView
                 activeTab="driver"
@@ -4900,8 +5098,10 @@ export function FleetExplorerPanel({
                 onToggleCheckAll={onToggleCheckAll}
                 onOpenTelemetry={onOpenTelemetry}
                 query={query}
+                activeDriverStatus={activeDriverStatus}
+                onUpdateDriverStatus={updateDriverStatus}
                 onSelectDriver={(drv) => {
-                  toast.info(`Selected Driver: ${drv.name} (${drv.phone})`);
+                  toast.info(`Selected Driver: ${drv.name} (${drv.phone || drv.vehicle})`);
                 }}
                 onOpenIntercom={(drv) => {
                   if (onOpenIntercom) onOpenIntercom(drv);
@@ -4910,9 +5110,8 @@ export function FleetExplorerPanel({
                 driverData={driverData}
               />
             ) : (
-              <>
-                {/* Drivers Tree List */}
-                <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none">
+                /* Drivers Tree List */
+                <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none rounded-b-2xl">
                   {driverData.map((group) => {
                 const isBranchCollapsed = collapsedDriverBranches[group.branch];
 
@@ -5222,50 +5421,43 @@ export function FleetExplorerPanel({
                   </div>
                 );
               })}
-            </div>
-
-            {/* Clean Export Action Footer Bar */}
-            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none">
-              <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Export
               </div>
+            )}
 
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() =>
-                    toast.success("Exporting Driver List to XLS (.xlsx)...", {
-                      description: `${driverCounts.allocated} allocated drivers generated.`,
-                    })
-                  }
-                  className="h-8 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
-                >
-                  <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
-                  <span>XLS</span>
-                </button>
+            {/* Clean Export Action Footer Bar (Exact match to media_1792497531775_9b2353f4.png) */}
+            <div className="shrink-0 px-3 py-2 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-end gap-2.5 select-none rounded-b-2xl">
+              <button
+                type="button"
+                onClick={() =>
+                  toast.success("Exporting Driver List to XLS (.xlsx)...", {
+                    description: `${driverCounts.allocated} allocated drivers generated.`,
+                  })
+                }
+                className="h-[30px] px-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/80 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95"
+              >
+                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>XLS</span>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    toast.success("Exporting Driver List to PDF...", {
-                      description: "Printable driver allocation report generated.",
-                    })
-                  }
-                  className="h-8 px-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-200/80 dark:border-rose-800/60 hover:border-rose-600 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95 group"
-                >
-                  <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 group-hover:text-white transition-colors" />
-                  <span>PDF</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  toast.success("Exporting Driver List to PDF...", {
+                    description: "Printable driver allocation report generated.",
+                  })
+                }
+                className="h-[30px] px-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700/80 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-95"
+              >
+                <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                <span>PDF</span>
+              </button>
             </div>
-          </>
+          </div>
         )}
-      </div>
-    )}
 
         {/* Reference-Matched Address Tab View (1:1 with media_1791281186715.png) */}
         {activeTab === "address" && (
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-slate-900">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-slate-900 rounded-b-2xl">
             {isTrackingViewTree ? (
               <TrackingTreeView
                 activeTab="address"
@@ -5281,11 +5473,12 @@ export function FleetExplorerPanel({
                   toast.info(`Selected Address: ${addr.name}`);
                 }}
                 addressData={addressData}
+                onUpdateAddressData={setAddressData}
               />
             ) : (
               <>
                 {/* Address Tree List */}
-                <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none custom-scrollbar">
+                <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[#DFE3EB]/40 dark:divide-slate-800/40 select-none custom-scrollbar rounded-b-2xl">
                   {addressData.map((group) => {
                 const isGroupCollapsed = collapsedAddressGroups[group.group];
 
@@ -5516,7 +5709,7 @@ export function FleetExplorerPanel({
             </div>
 
             {/* Clean Export Action Footer Bar */}
-            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none">
+            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none rounded-b-2xl">
               <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 Export
               </div>
@@ -5556,7 +5749,7 @@ export function FleetExplorerPanel({
 
         {/* Geofences Tab View (1:1 with reference screenshot media_1791282117663.png) */}
         {activeTab === "geofence" && (
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-slate-900">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white dark:bg-slate-900 rounded-b-2xl">
             {isTrackingViewTree ? (
               <TrackingTreeView
                 activeTab="geofence"
@@ -5838,7 +6031,7 @@ export function FleetExplorerPanel({
             </div>
 
             {/* Clean Export Action Footer Bar */}
-            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none">
+            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none rounded-b-2xl">
               <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 Export
               </div>
@@ -5889,9 +6082,20 @@ export function FleetExplorerPanel({
       </div>
     )}
 
-        {/* Trailer Tab View (Standard Trakzee 2.0 Format) */}
+        {/* Trailer Tab View (1:1 with reference screenshot media_1792553915747_5000603d.png) */}
         {activeTab === "trailer" && (
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900">
+          <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-white dark:bg-slate-900 rounded-b-2xl">
+            {/* 1. Column Table Header Bar (shown in both Tree and Standard View matching media_1792553915747_5000603d.png) */}
+            <div className="px-3 py-1.5 bg-slate-100/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center shrink-0 select-none">
+              <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                <span>Trailer</span>
+              </div>
+              <div className="w-32 text-left">Vehicle</div>
+              <div className="w-24 text-left">Code</div>
+              <div className="w-16 text-right pr-1">Actions</div>
+            </div>
+
+            {/* 2. Tree View / Standard Accordion View */}
             {isTrackingViewTree ? (
               <TrackingTreeView
                 activeTab="trailer"
@@ -5907,183 +6111,175 @@ export function FleetExplorerPanel({
                   toast.info(`Selected Trailer: ${tr.name} (${tr.code})`);
                 }}
                 trailerData={trailerData}
+                activeTrailerStatus={activeTrailerStatus}
+                onEditTrailer={handleOpenEditTrailer}
+                onAllocateVehicle={handleOpenAllocateVehicle}
               />
             ) : (
-              <>
-                {/* 1. Column Table Header Bar */}
-                <div className="px-3 py-2 bg-slate-100/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center shrink-0">
-                  <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                    <span>Trailer</span>
-                  </div>
-                  <div className="w-32 text-left">Vehicle</div>
-                  <div className="w-24 text-left">Code</div>
-                  <div className="w-16 text-right pr-1">Actions</div>
-                </div>
+              <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+                {trailerData.map((groupItem, gIdx) => {
+                  const isGroupCollapsed = collapsedTrailerGroups[groupItem.group];
+                  const filteredSubgroups = groupItem.subgroups
+                    .map((sub) => ({
+                      ...sub,
+                      trailers: sub.trailers.filter((tr) => {
+                        const matchesQuery =
+                          tr.name.toLowerCase().includes(query.toLowerCase()) ||
+                          tr.code.toLowerCase().includes(query.toLowerCase()) ||
+                          (tr.vehicle && tr.vehicle.toLowerCase().includes(query.toLowerCase())) ||
+                          groupItem.group.toLowerCase().includes(query.toLowerCase()) ||
+                          sub.name.toLowerCase().includes(query.toLowerCase());
 
-            {/* 2. Grouped Accordion List */}
-            <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
-              {trailerData.map((groupItem, gIdx) => {
-                const isGroupCollapsed = collapsedTrailerGroups[groupItem.group];
-                const filteredSubgroups = groupItem.subgroups
-                  .map((sub) => ({
-                    ...sub,
-                    trailers: sub.trailers.filter((tr) => {
-                      const matchesQuery =
-                        tr.name.toLowerCase().includes(query.toLowerCase()) ||
-                        tr.code.toLowerCase().includes(query.toLowerCase()) ||
-                        (tr.vehicle && tr.vehicle.toLowerCase().includes(query.toLowerCase())) ||
-                        groupItem.group.toLowerCase().includes(query.toLowerCase()) ||
-                        sub.name.toLowerCase().includes(query.toLowerCase());
+                        const matchesStatus =
+                          activeTrailerStatus === "all"
+                            ? true
+                            : activeTrailerStatus === "attached"
+                            ? tr.isAttached
+                            : !tr.isAttached;
 
-                      const matchesStatus =
-                        activeTrailerStatus === "all"
-                          ? true
-                          : activeTrailerStatus === "attached"
-                          ? tr.isAttached
-                          : !tr.isAttached;
+                        return matchesQuery && matchesStatus;
+                      }),
+                    }))
+                    .filter((sub) => sub.trailers.length > 0 || (query === "" && activeTrailerStatus === "all"));
 
-                      return matchesQuery && matchesStatus;
-                    }),
-                  }))
-                  .filter((sub) => sub.trailers.length > 0 || (query === "" && activeTrailerStatus === "all"));
+                  const groupTotalTrailers = filteredSubgroups.reduce((acc, sub) => acc + sub.trailers.length, 0);
+                  if ((query !== "" || activeTrailerStatus !== "all") && groupTotalTrailers === 0) return null;
 
-                const groupTotalTrailers = filteredSubgroups.reduce((acc, sub) => acc + sub.trailers.length, 0);
-                if ((query !== "" || activeTrailerStatus !== "all") && groupTotalTrailers === 0) return null;
-
-                return (
-                  <div key={gIdx} className="bg-white dark:bg-slate-900">
-                    {/* Top Group Accordion Header (e.g. Company, TKDN, Jaideep Test Account) */}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setCollapsedTrailerGroups((prev) => ({
-                          ...prev,
-                          [groupItem.group]: !prev[groupItem.group],
-                        }))
-                      }
-                      className="w-full px-3 py-2 bg-slate-50/80 dark:bg-slate-800/40 hover:bg-slate-100/80 dark:hover:bg-slate-800/70 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between text-left transition-colors cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        {isGroupCollapsed ? (
-                          <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
-                        )}
-                        <span className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
-                          {groupItem.group}
+                  return (
+                    <div key={gIdx} className="bg-white dark:bg-slate-900">
+                      {/* Top Group Accordion Header (e.g. Company, TKDN, Jaideep Test Account) */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCollapsedTrailerGroups((prev) => ({
+                            ...prev,
+                            [groupItem.group]: !prev[groupItem.group],
+                          }))
+                        }
+                        className="w-full px-3 py-2 bg-slate-50/80 dark:bg-slate-800/40 hover:bg-slate-100/80 dark:hover:bg-slate-800/70 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between text-left transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          {isGroupCollapsed ? (
+                            <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
+                          )}
+                          <span className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
+                            {groupItem.group}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
+                          [{groupTotalTrailers}]
                         </span>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
-                        [{groupTotalTrailers}]
-                      </span>
-                    </button>
+                      </button>
 
-                    {/* Subgroups & Trailers */}
-                    {!isGroupCollapsed && (
-                      <div className="divide-y divide-slate-100 dark:divide-slate-800/40">
-                        {filteredSubgroups.map((subGroup, sIdx) => (
-                          <div key={sIdx} className="bg-white dark:bg-slate-900">
-                            {/* Subgroup Header (e.g. Valsad, VALSAD BRANCH) */}
-                            <div className="px-3 py-1.5 pl-6 bg-slate-50/40 dark:bg-slate-900/50 flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400 border-b border-slate-100/60 dark:border-slate-800/30">
-                              <span className="truncate font-semibold text-slate-700 dark:text-slate-300">
-                                {subGroup.name}
-                              </span>
-                              <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
-                                [{subGroup.trailers.length}]
-                              </span>
-                            </div>
+                      {/* Subgroups & Trailers */}
+                      {!isGroupCollapsed && (
+                        <div className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                          {filteredSubgroups.map((subGroup, sIdx) => (
+                            <div key={sIdx} className="bg-white dark:bg-slate-900">
+                              {/* Subgroup Header */}
+                              <div className="px-3 py-1.5 pl-6 bg-slate-50/40 dark:bg-slate-900/50 flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400 border-b border-slate-100/60 dark:border-slate-800/30">
+                                <span className="truncate font-semibold text-slate-700 dark:text-slate-300">
+                                  {subGroup.name}
+                                </span>
+                                <span className="text-[10px] font-mono text-slate-500 shrink-0 font-semibold">
+                                  [{subGroup.trailers.length}]
+                                </span>
+                              </div>
 
-                            {/* Trailer Row List */}
-                            <div className="divide-y divide-slate-100/60 dark:divide-slate-800/30">
-                              {subGroup.trailers.map((tr) => (
-                                <div
-                                  key={tr.id}
-                                  className="px-3 py-2 pl-8 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center text-xs transition-colors group"
-                                >
-                                  {/* Col 1: Trailer Name */}
-                                  <div className="flex-1 min-w-0 pr-2">
-                                    <div
-                                      onClick={() => handleOpenEditTrailer(tr, groupItem.group, subGroup.name)}
-                                      className="font-semibold text-slate-800 dark:text-slate-200 truncate hover:text-[#0089FF] cursor-pointer"
-                                      title="Edit Trailer Details"
-                                    >
-                                      {tr.name}
+                              {/* Trailer Row List */}
+                              <div className="divide-y divide-slate-100/60 dark:divide-slate-800/30">
+                                {subGroup.trailers.map((tr) => (
+                                  <div
+                                    key={tr.id}
+                                    className="px-3 py-2 pl-8 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center text-xs transition-colors group"
+                                  >
+                                    {/* Col 1: Trailer Name */}
+                                    <div className="flex-1 min-w-0 pr-2">
+                                      <div
+                                        onClick={() => handleOpenEditTrailer(tr, groupItem.group, subGroup.name)}
+                                        className="font-semibold text-slate-800 dark:text-slate-200 truncate hover:text-[#0089FF] cursor-pointer"
+                                        title="Edit Trailer Details"
+                                      >
+                                        {tr.name}
+                                      </div>
+                                    </div>
+
+                                    {/* Col 2: Vehicle */}
+                                    <div className="w-32 text-left pr-2 truncate">
+                                      {tr.vehicle && tr.vehicle !== "Unassigned" ? (
+                                        <div
+                                          onClick={() => handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name)}
+                                          className="truncate flex items-center gap-1.5 hover:text-[#0089FF] cursor-pointer"
+                                          title={`Assigned Vehicle: ${tr.vehicle}`}
+                                        >
+                                          <span
+                                            style={{ backgroundColor: "#008446" }}
+                                            className="h-2 w-2 rounded-full shrink-0 shadow-2xs"
+                                            title="Status: Running"
+                                          />
+                                          <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">
+                                            {tr.vehicle}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <div
+                                          onClick={() => handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name)}
+                                          className="truncate flex items-center gap-1.5 hover:text-[#0089FF] cursor-pointer text-slate-400"
+                                          title="Allocate Vehicle"
+                                        >
+                                          <span className="h-2 w-2 rounded-full shrink-0 bg-slate-300 dark:bg-slate-600 ring-2 ring-slate-300/30" />
+                                          <span className="italic text-slate-400">Unassigned</span>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {/* Col 3: Code */}
+                                    <div className="w-24 text-left font-mono text-[11px] text-slate-600 dark:text-slate-400 truncate">
+                                      {tr.code}
+                                    </div>
+
+                                    {/* Col 4: Action Buttons: Allocate Vehicle + Edit Trailer */}
+                                    <div className="w-16 flex items-center justify-end gap-1.5 text-slate-400">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name);
+                                        }}
+                                        className="p-1 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                        title="Allocate / Change Vehicle Object"
+                                      >
+                                        <Link2 className="h-3.5 w-3.5 stroke-[2]" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleOpenEditTrailer(tr, groupItem.group, subGroup.name);
+                                        }}
+                                        className="p-1 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                        title="Edit Trailer Details"
+                                      >
+                                        <Edit3 className="h-3.5 w-3.5 stroke-[2]" />
+                                      </button>
                                     </div>
                                   </div>
-
-                                  {/* Col 2: Vehicle */}
-                                  <div className="w-32 text-left pr-2 truncate">
-                                    {tr.vehicle && tr.vehicle !== "Unassigned" ? (
-                                      <div
-                                        onClick={() => handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name)}
-                                        className="truncate flex items-center gap-1.5 hover:text-[#0089FF] cursor-pointer"
-                                        title={`Assigned Vehicle: ${tr.vehicle}`}
-                                      >
-                                        <span
-                                          style={{ backgroundColor: "#008446" }}
-                                          className="h-2 w-2 rounded-full shrink-0 shadow-2xs"
-                                          title="Status: Running"
-                                        />
-                                        <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">
-                                          {tr.vehicle}
-                                        </span>
-                                      </div>
-                                    ) : (
-                                      <div
-                                        onClick={() => handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name)}
-                                        className="truncate flex items-center gap-1.5 hover:text-[#0089FF] cursor-pointer text-slate-400"
-                                        title="Allocate Vehicle"
-                                      >
-                                        <span className="h-2 w-2 rounded-full shrink-0 bg-slate-300 dark:bg-slate-600 ring-2 ring-slate-300/30" />
-                                        <span className="italic text-slate-400">Unassigned</span>
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Col 3: Code */}
-                                  <div className="w-24 text-left font-mono text-[11px] text-slate-600 dark:text-slate-400 truncate">
-                                    {tr.code}
-                                  </div>
-
-                                  {/* Col 4: Action Buttons: Allocate Vehicle + Edit Trailer */}
-                                  <div className="w-16 flex items-center justify-end gap-1.5 text-slate-400">
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleOpenAllocateVehicle(tr, groupItem.group, subGroup.name);
-                                      }}
-                                      className="p-1 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
-                                      title="Allocate / Change Vehicle Object"
-                                    >
-                                      <Link2 className="h-3.5 w-3.5 stroke-[2]" />
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleOpenEditTrailer(tr, groupItem.group, subGroup.name);
-                                      }}
-                                      className="p-1 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
-                                      title="Edit Trailer Details"
-                                    >
-                                      <Edit3 className="h-3.5 w-3.5 stroke-[2]" />
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
-            {/* Clean Export Action Footer Bar */}
-            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none">
+            {/* 3. Clean Export Action Footer Bar (shown in both Tree and Standard View) */}
+            <div className="shrink-0 px-3 py-2 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 select-none rounded-b-2xl">
               <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 Export
               </div>
@@ -6116,14 +6312,21 @@ export function FleetExplorerPanel({
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )}
-      </div>
-    )}
 
-        {/* Beacon Tab View (1:1 with reference screenshot media_1791362670674.png) */}
+        {/* Beacon Tab View (1:1 with reference screenshot media_1792555852256_8fbefc9d.png) */}
         {activeTab === "beacon" && (
-          <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900">
+          <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-b-2xl overflow-hidden">
+            {/* 1. Five Column Table Header Bar (shown in both Tree and Standard View matching media_1792555852256_8fbefc9d.png) */}
+            <div className="flex items-center px-3 py-1.5 bg-slate-100/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-400 shrink-0 select-none">
+              <div className="flex-1 min-w-0 pr-2">Beacon Name</div>
+              <div className="w-28 text-left pr-2">Object</div>
+              <div className="w-36 text-left pr-2">Location</div>
+              <div className="w-14 text-right pr-2">RSSI</div>
+              <div className="w-16 text-right pr-3">Distance</div>
+            </div>
+
             {isTrackingViewTree ? (
               <TrackingTreeView
                 activeTab="beacon"
@@ -6139,41 +6342,11 @@ export function FleetExplorerPanel({
                   toast.info(`Selected Beacon: ${bcn.name}`);
                 }}
                 beaconData={beaconData}
+                activeBeaconStatus={activeBeaconStatus}
+                onUpdateBeaconData={setBeaconData}
               />
             ) : (
-              <>
-                {/* 1. Five Column Headers with Text Names: 1. Beacon Name, 2. Object, 3. Location, 4. RSSI, 5. Distance */}
-                <div className="flex items-center px-3 py-2 bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 select-none">
-                  <div className="w-10 shrink-0" />
-                  
-                  {/* 1. Beacon Name */}
-                  <div className="flex-1 min-w-0 font-extrabold text-slate-700 dark:text-slate-200 truncate">
-                    Beacon Name
-                  </div>
-
-              {/* 2. Object */}
-              <div className="w-24 text-left font-extrabold text-slate-700 dark:text-slate-200 truncate">
-                Object
-              </div>
-
-              {/* 3. Location */}
-              <div className="w-28 text-left font-extrabold text-slate-700 dark:text-slate-200 truncate">
-                Location
-              </div>
-
-              {/* 4. RSSI */}
-              <div className="w-16 text-right font-extrabold text-slate-700 dark:text-slate-200 truncate">
-                RSSI
-              </div>
-
-              {/* 5. Distance */}
-              <div className="w-16 text-right font-extrabold text-slate-700 dark:text-slate-200 truncate">
-                Distance
-              </div>
-            </div>
-
-            {/* 2. Group & Subgroup Tree List with Beacons */}
-            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 select-none">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 select-none rounded-b-2xl">
               {beaconData.map((groupItem) => {
                 const isGroupCollapsed = collapsedBeaconGroups[groupItem.group] ?? false;
 
@@ -6357,14 +6530,13 @@ export function FleetExplorerPanel({
                 );
               })}
             </div>
-          </>
-        )}
-      </div>
-    )}
+          )}
+        </div>
+      )}
 
         {/* Video Telematics Tab View (1:1 with reference screenshot media_1791365930946.png) */}
         {activeTab === "video_telematics" && (
-          <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900 select-none">
+          <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900 select-none rounded-b-2xl overflow-hidden">
             {isTrackingViewTree ? (
               <TrackingTreeView
                 activeTab="video_telematics"
@@ -6380,9 +6552,14 @@ export function FleetExplorerPanel({
                   toast.info(`Selected Device: ${dev.name}`);
                 }}
                 videoTelematicsData={videoTelematicsData}
+                activeVideoStatus={activeVideoStatus}
+                onUpdateVideoTelematicsData={setVideoTelematicsData}
+                onOpenVideoChannel={onOpenVideoChannel}
+                onOpenPlayback={onOpenPlayback}
+                onOpenIntercom={onOpenIntercom}
               />
             ) : (
-              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-[#DFE3EB]/60 dark:divide-slate-800/60 rounded-b-2xl">
                 {videoTelematicsData.map((groupItem) => {
                 const isGroupCollapsed = collapsedVideoGroups[groupItem.group] ?? false;
 

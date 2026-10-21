@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   ChevronDown,
+  ChevronRight,
   Key,
   Wifi,
   Video,
@@ -25,7 +26,18 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  Link2,
+  Edit3,
+  RotateCw,
+  Clock,
+  Camera,
 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { FleetObject, ObjectStatus } from "@/data/fleet";
 import type { TrackingTab } from "./FleetExplorerPanel";
@@ -63,6 +75,18 @@ export interface TrackingTreeViewProps {
   beaconData?: any[];
   videoTelematicsData?: any[];
   activeJobStatus?: string;
+  activeDriverStatus?: string;
+  activeTrailerStatus?: "all" | "attached" | "notAttached";
+  activeBeaconStatus?: "all" | "connected" | "disconnected";
+  activeVideoStatus?: string;
+  onUpdateDriverStatus?: (driverId: string, newStatus: string) => void;
+  onUpdateAddressData?: React.Dispatch<React.SetStateAction<any[]>> | ((updater: any) => void);
+  onUpdateBeaconData?: React.Dispatch<React.SetStateAction<any[]>> | ((updater: any) => void);
+  onUpdateVideoTelematicsData?: React.Dispatch<React.SetStateAction<any[]>> | ((updater: any) => void);
+  onOpenVideoChannel?: (feed: any) => void;
+  onOpenPlayback?: (playback: any) => void;
+  onEditTrailer?: (trailer: any, groupName?: string, subName?: string) => void;
+  onAllocateVehicle?: (trailer: any, groupName?: string, subName?: string) => void;
 }
 
 export function TrackingTreeView({
@@ -87,6 +111,7 @@ export function TrackingTreeView({
   onSelectTrailer,
   onSelectBeacon,
   onSelectVideoDevice,
+  onOpenIntercom,
   jobData = [],
   driverData = [],
   addressData = [],
@@ -95,12 +120,26 @@ export function TrackingTreeView({
   beaconData = [],
   videoTelematicsData = [],
   activeJobStatus = "all",
+  activeDriverStatus = "all",
+  activeTrailerStatus = "all",
+  activeBeaconStatus = "all",
+  activeVideoStatus = "all",
+  onUpdateDriverStatus,
+  onUpdateAddressData,
+  onUpdateBeaconData,
+  onUpdateVideoTelematicsData,
+  onOpenVideoChannel,
+  onOpenPlayback,
+  onEditTrailer,
+  onAllocateVehicle,
 }: TrackingTreeViewProps) {
   // Collapsed state tracking
   const [collapsedNodes, setCollapsedNodes] = useState<Record<string, boolean>>({});
   const [selectedJobIdState, setSelectedJobIdState] = useState<string>("j-50284");
   const [selectedEntityType, setSelectedEntityType] = useState<"job" | "vehicle">("job");
   const [selectedVehicleObjId, setSelectedVehicleObjId] = useState<string>("");
+  const [openDriverMenuId, setOpenDriverMenuId] = useState<string | null>(null);
+  const [openStatusSubmenuId, setOpenStatusSubmenuId] = useState<string | null>(null);
 
   const toggleNode = (nodeId: string) => {
     setCollapsedNodes((prev) => ({
@@ -166,7 +205,7 @@ export function TrackingTreeView({
   // ==========================================
   if (activeTab === "object" || activeTab === "health") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans rounded-b-2xl">
         {effectiveBranchGroups.length === 0 ? (
           <div className="p-8 text-center text-xs text-slate-400">No matching objects found</div>
         ) : (
@@ -370,7 +409,7 @@ export function TrackingTreeView({
   // ==========================================
   if (activeTab === "jobs") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans rounded-b-2xl">
         {jobData.map((group) => {
           const bKey = "job-branch-" + group.branch;
           const isBranchCollapsed = isCollapsed(bKey);
@@ -439,7 +478,7 @@ export function TrackingTreeView({
                       {/* Branch Level Header (e.g. HP Branch 1 [8]) */}
                       <div
                         onClick={() => toggleNode(subKey)}
-                        className="flex items-center justify-between pl-6 pr-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-200 dark:border-slate-800"
+                        className="flex items-center justify-between px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-200 dark:border-slate-800"
                       >
                         <div className="flex items-center gap-1.5">
                           <ChevronDown
@@ -479,18 +518,18 @@ export function TrackingTreeView({
                               e.stopPropagation();
                               setSelectedJobIdState(job.id);
                               setSelectedEntityType("job");
-                              if (onSelectJob) onSelectJob(job);
-                              if (onOpenTelemetry) {
+                              if (onOpenTelemetry && matchedVehicle) {
                                 onOpenTelemetry(matchedVehicle, false, {
-                                  ...job,
-                                  isObjectHalt: true,
-                                  title: job.title || "TEST SCM",
-                                  qrCode: job.qrCode || "QI-8549281",
-                                  itemQuantity: job.quantity ? `${job.quantity} Pcs` : "120 Pcs",
-                                  weight: job.weight ? `${job.weight} Ton` : "2.4 Ton",
-                                  load: job.load || "92% Capacity",
-                                  permissibleHalt: job.permissibleHalt || "02:00:00",
-                                  actualHalt: job.actualHalt || "03:45:12",
+                                  id: job.id,
+                                  code: job.code,
+                                  title: job.title,
+                                  status: job.status,
+                                  shipmentNo: `SHP-${job.code ? job.code.replace("#", "") : ""}-A`,
+                                  invoiceNo: "INV-99201",
+                                  consigneeNo: "CNS-10482",
+                                  quantity: `${job.quantity || 120} Units`,
+                                  product: "Test SCM Material",
+                                  isObjectHalt: false,
                                 });
                               }
                             };
@@ -500,18 +539,32 @@ export function TrackingTreeView({
                               setSelectedJobIdState(job.id);
                               setSelectedEntityType("vehicle");
                               setSelectedVehicleObjId(matchedVehicle?.id || "");
-                              if (matchedVehicle) {
-                                if (onSelectVehicle) onSelectVehicle(matchedVehicle.id);
-                                if (onOpenTelemetry) {
-                                  onOpenTelemetry(
-                                    {
-                                      ...matchedVehicle,
-                                      name: job.object || matchedVehicle.name,
-                                    },
-                                    false,
-                                    undefined
-                                  );
-                                }
+                              if (onSelectJob) {
+                                onSelectJob({
+                                  id: job.id,
+                                  code: job.code,
+                                  title: job.title,
+                                  object: job.object,
+                                  status: job.status,
+                                  vehicleId: matchedVehicle?.id,
+                                  ...job,
+                                });
+                              }
+                              if (onOpenTelemetry && matchedVehicle) {
+                                onOpenTelemetry(matchedVehicle, false, {
+                                  id: job.id,
+                                  code: job.code,
+                                  title: job.title || "TEST SCM",
+                                  object: job.object,
+                                  isObjectHalt: true,
+                                  qrCode: "QR-8849201",
+                                  itemQuantity: `${job.quantity || 120} Pcs`,
+                                  weight: job.weight ? `${job.weight} Ton` : "2.4 Ton",
+                                  load: job.load || "92% Capacity",
+                                  permissibleHalt: "02:00:00",
+                                  actualHalt: "03:45:12",
+                                  ...job,
+                                });
                               }
                             };
 
@@ -611,7 +664,7 @@ export function TrackingTreeView({
                                 {/* ROW 2: THE VEHICLE / OBJECT (Individual Click Area & Information) */}
                                 <div
                                   onClick={handleVehicleClick}
-                                  title={`Click to view ${job.object} telemetry & live tracking`}
+                                  title={`Click to view object checkpoints and halt details for ${job.object}`}
                                   className={cn(
                                     "relative px-4 py-3 flex items-center justify-between gap-2 cursor-pointer transition-colors",
                                     isVehicleSelected
@@ -708,7 +761,7 @@ export function TrackingTreeView({
   // ==========================================
   if (activeTab === "driver") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans rounded-b-2xl">
         {driverData.map((group) => {
           const bKey = "drv-branch-" + group.branch;
           const isBranchCollapsed = isCollapsed(bKey);
@@ -716,14 +769,22 @@ export function TrackingTreeView({
           const filteredSubgroups = (group.subgroups || [])
             .map((sub: any) => {
               const filteredDrivers = (sub.drivers || []).filter((drv: any) => {
+                let matchesStatus = true;
+                if (activeDriverStatus === "available") matchesStatus = drv.driverStatus === "Available";
+                else if (activeDriverStatus === "not_available") matchesStatus = drv.driverStatus === "Not available" || drv.driverStatus === "Not Avail";
+                else if (activeDriverStatus === "on_leave") matchesStatus = drv.driverStatus === "On Leave";
+                else if (activeDriverStatus === "allocated") matchesStatus = drv.allocated;
+                else if (activeDriverStatus === "not_allocated") matchesStatus = !drv.allocated;
+
                 const q = query.trim().toLowerCase();
-                return (
+                const matchesQuery =
                   q === "" ||
                   drv.name.toLowerCase().includes(q) ||
                   (drv.vehicle && drv.vehicle.toLowerCase().includes(q)) ||
                   group.branch.toLowerCase().includes(q) ||
-                  sub.name.toLowerCase().includes(q)
-                );
+                  sub.name.toLowerCase().includes(q);
+
+                return matchesStatus && matchesQuery;
               });
               return { ...sub, drivers: filteredDrivers };
             })
@@ -770,7 +831,7 @@ export function TrackingTreeView({
                       {/* Branch Level Header (e.g. Surya Branch 1 [5]) */}
                       <div
                         onClick={() => toggleNode(subKey)}
-                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
+                        className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
                       >
                         <div className="flex items-center gap-1.5">
                           <ChevronDown
@@ -791,82 +852,216 @@ export function TrackingTreeView({
                       {/* Driver rows with vertical guide trunk and elbows */}
                       {!isSubCollapsed && (
                         <div className="relative">
-                          {/* Vertical guide line dropping from branch chevron */}
-                          <div className="absolute left-[30px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
-
                           {sub.drivers.map((drv: any, idx: number) => {
                             const isLast = idx === sub.drivers.length - 1;
-                            const isAllocated = Boolean(drv.vehicle && drv.vehicle !== "Unallocated");
+                            const isAllocated = Boolean(
+                              drv.allocated &&
+                              drv.vehicle &&
+                              drv.vehicle !== "Unassigned" &&
+                              drv.vehicle !== "Unallocated"
+                            );
+
+                            // Color matching reference image (media_1792497531775_9b2353f4.png) 1:1
+                            let dotColor = "#008446";
+                            let nameColor = "text-[#008446] dark:text-emerald-400";
+
+                            if (drv.driverStatus === "On Leave") {
+                              dotColor = "#372AAC";
+                              nameColor = "text-[#372AAC] dark:text-purple-400";
+                            } else if (
+                              drv.driverStatus === "Not available" ||
+                              drv.driverStatus === "Not Avail" ||
+                              !isAllocated
+                            ) {
+                              dotColor = "#C46F37";
+                              nameColor = "text-[#C46F37] dark:text-amber-500";
+                            } else {
+                              dotColor = "#008446";
+                              nameColor = "text-[#008446] dark:text-emerald-400";
+                            }
 
                             return (
                               <div
                                 key={drv.id}
-                                onClick={() => onSelectDriver && onSelectDriver(drv)}
-                                className="relative flex items-center justify-between pl-[48px] pr-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
+                                onClick={() => {
+                                  if (onSelectDriver) onSelectDriver(drv);
+                                  if (onOpenTelemetry) {
+                                    const matched = vehicles.find(
+                                      (v) =>
+                                        v.plateNumber?.toLowerCase() === drv.vehicle?.toLowerCase() ||
+                                        v.name?.toLowerCase() === drv.vehicle?.toLowerCase() ||
+                                        (drv.name && v.driver?.toLowerCase().includes(drv.name.toLowerCase()))
+                                    ) || vehicles[0];
+                                    if (matched) onOpenTelemetry(matched);
+                                  }
+                                }}
+                                className="relative flex items-center justify-between pl-[36px] pr-3 h-9 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                               >
-                                {/* Tree Elbow connector to driver status dot */}
-                                <div
-                                  className={cn(
-                                    "absolute left-[30px] top-0 pointer-events-none",
-                                    isLast
-                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
-                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
-                                  )}
-                                />
+                                {/* Tree guide line: trunk & branch */}
+                                {!isLast ? (
+                                  <>
+                                    <div className="absolute left-[19px] top-0 bottom-0 w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                    <div className="absolute left-[19px] top-1/2 -translate-y-1/2 w-[15px] h-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                  </>
+                                ) : (
+                                  <div className="absolute left-[19px] top-0 h-1/2 w-[15px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px] pointer-events-none" />
+                                )}
 
                                 {/* Col 1: Status Dot + Driver Name + Vehicle Registration */}
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                   <span
                                     className="h-2 w-2 rounded-full shrink-0"
-                                    style={{
-                                      backgroundColor: drv.isRunning
-                                        ? "#008446"
-                                        : drv.driverStatus === "Available"
-                                        ? "#0089FF"
-                                        : drv.driverStatus === "On Leave"
-                                        ? "#9333EA"
-                                        : drv.driverStatus === "Not Avail"
-                                        ? "#D97706"
-                                        : isAllocated
-                                        ? "#008446"
-                                        : "#D97706",
-                                    }}
+                                    style={{ backgroundColor: dotColor }}
                                   />
-                                  <span
-                                    className={cn(
-                                      "font-bold text-xs truncate",
-                                      isAllocated
-                                        ? "text-slate-900 dark:text-slate-100"
-                                        : drv.driverStatus === "On Leave"
-                                        ? "text-purple-600 dark:text-purple-400"
-                                        : "text-amber-600 dark:text-amber-400"
-                                    )}
-                                  >
+                                  <span className={cn("font-bold text-xs truncate", nameColor)}>
                                     {drv.name}
                                   </span>
-                                  <span className="font-mono text-xs text-slate-500 dark:text-slate-400 shrink-0 uppercase">
+                                  <span
+                                    className={cn(
+                                      "shrink-0",
+                                      isAllocated
+                                        ? "font-mono text-xs font-semibold text-slate-800 dark:text-slate-200 uppercase"
+                                        : "text-[11px] font-sans font-normal text-slate-400 dark:text-slate-500"
+                                    )}
+                                  >
                                     {drv.vehicle || "Unassigned"}
                                   </span>
                                 </div>
 
-                                {/* Col 2: Allocated Status */}
-                                <div className="w-[110px] text-xs text-slate-700 dark:text-slate-300 shrink-0">
-                                  {isAllocated ? "Allocated Via" : "Not Allocated"}
-                                </div>
+                                {/* Right Side Columns */}
+                                <div className="flex items-center gap-3 shrink-0">
+                                  {/* Col 2: Allocated Status */}
+                                  <span className="w-[100px] text-xs text-slate-700 dark:text-slate-300 font-normal">
+                                    {isAllocated ? "Allocated Via" : "Not Allocated"}
+                                  </span>
 
-                                {/* Col 3: Default */}
-                                <div className="w-[80px] text-xs text-slate-700 dark:text-slate-300 shrink-0">
-                                  Default
-                                </div>
+                                  {/* Col 3: Default */}
+                                  <span className="w-[60px] text-xs text-slate-700 dark:text-slate-300 font-normal">
+                                    Default
+                                  </span>
 
-                                {/* Col 4: Action More menu */}
-                                <div className="w-[24px] flex justify-end shrink-0">
-                                  <button
-                                    type="button"
-                                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
-                                  >
-                                    <MoreVertical className="h-3.5 w-3.5" />
-                                  </button>
+                                  {/* Col 4: Action More menu with Popover */}
+                                  <div className="w-[24px] flex justify-end shrink-0 relative">
+                                    <Popover
+                                      open={openDriverMenuId === drv.id}
+                                      onOpenChange={(open) => {
+                                        if (!open) {
+                                          setOpenDriverMenuId(null);
+                                          setOpenStatusSubmenuId(null);
+                                        } else {
+                                          setOpenDriverMenuId(drv.id);
+                                        }
+                                      }}
+                                    >
+                                      <PopoverTrigger asChild>
+                                        <button
+                                          type="button"
+                                          onClick={(e) => e.stopPropagation()}
+                                          className="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                                        >
+                                          <MoreVertical className="h-3.5 w-3.5" />
+                                        </button>
+                                      </PopoverTrigger>
+                                      <PopoverContent
+                                        align="end"
+                                        sideOffset={4}
+                                        className="w-40 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-xl text-xs z-50 select-none"
+                                      >
+                                        {/* Allocate Option */}
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenDriverMenuId(null);
+                                            toast.success(`Allocating ${drv.name}...`, {
+                                              description: `Vehicle: ${drv.vehicle}`,
+                                            });
+                                          }}
+                                          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] font-medium transition-colors cursor-pointer"
+                                        >
+                                          <span>Allocate</span>
+                                        </button>
+
+                                        {/* Change Status Option with Submenu */}
+                                        <div className="relative">
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setOpenStatusSubmenuId(
+                                                openStatusSubmenuId === drv.id ? null : drv.id
+                                              );
+                                            }}
+                                            onMouseEnter={() => setOpenStatusSubmenuId(drv.id)}
+                                            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] font-medium transition-colors cursor-pointer"
+                                          >
+                                            <span>Change Status</span>
+                                            <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                                          </button>
+
+                                          {/* Submenu Popover Flyout */}
+                                          {openStatusSubmenuId === drv.id && (
+                                            <div className="absolute left-full top-0 ml-1 w-36 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-xl text-xs z-50 space-y-0.5">
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  if (onUpdateDriverStatus) onUpdateDriverStatus(drv.id, "Available");
+                                                  setOpenDriverMenuId(null);
+                                                  setOpenStatusSubmenuId(null);
+                                                  toast.success(`${drv.name} status updated to Available`);
+                                                }}
+                                                className={cn(
+                                                  "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] font-medium transition-colors cursor-pointer",
+                                                  drv.driverStatus === "Available" && "bg-sky-50 dark:bg-slate-800 text-[#0089FF] font-bold"
+                                                )}
+                                              >
+                                                <span className="h-2 w-2 rounded-full bg-[#0089FF] shrink-0" />
+                                                <span>Available</span>
+                                              </button>
+
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  if (onUpdateDriverStatus) onUpdateDriverStatus(drv.id, "Not available");
+                                                  setOpenDriverMenuId(null);
+                                                  setOpenStatusSubmenuId(null);
+                                                  toast.success(`${drv.name} status updated to Not available`);
+                                                }}
+                                                className={cn(
+                                                  "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-600 font-medium transition-colors cursor-pointer",
+                                                  (drv.driverStatus === "Not available" || drv.driverStatus === "Not Avail") &&
+                                                    "bg-amber-50 dark:bg-slate-800 text-amber-600 font-bold"
+                                                )}
+                                              >
+                                                <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                                                <span>Not available</span>
+                                              </button>
+
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  if (onUpdateDriverStatus) onUpdateDriverStatus(drv.id, "On Leave");
+                                                  setOpenDriverMenuId(null);
+                                                  setOpenStatusSubmenuId(null);
+                                                  toast.success(`${drv.name} status updated to On Leave`);
+                                                }}
+                                                className={cn(
+                                                  "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-800 hover:text-purple-600 font-medium transition-colors cursor-pointer",
+                                                  drv.driverStatus === "On Leave" && "bg-purple-50 dark:bg-slate-800 text-purple-600 font-bold"
+                                                )}
+                                              >
+                                                <span className="h-2 w-2 rounded-full bg-purple-600 shrink-0" />
+                                                <span>On Leave</span>
+                                              </button>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
+                                  </div>
                                 </div>
                               </div>
                             );
@@ -884,11 +1079,83 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Address Tab Tree View (100% matched to media_1791552765493.png)
+  // RENDER: Address Tab Tree View (100% matched to media_1792499205461_690f6679.png)
   // ==========================================
   if (activeTab === "address") {
+    const toggleGroupAddressCheck = (groupName: string, checked: boolean) => {
+      if (onUpdateAddressData) {
+        onUpdateAddressData((prev: any[]) =>
+          prev.map((g) =>
+            g.group === groupName
+              ? {
+                  ...g,
+                  checked,
+                  subgroups: (g.subgroups || []).map((sub: any) => ({
+                    ...sub,
+                    checked,
+                    addresses: (sub.addresses || []).map((a: any) => ({ ...a, checked })),
+                  })),
+                }
+              : g
+          )
+        );
+      }
+    };
+
+    const toggleSubgroupAddressCheck = (groupName: string, subName: string, checked: boolean) => {
+      if (onUpdateAddressData) {
+        onUpdateAddressData((prev: any[]) =>
+          prev.map((g) =>
+            g.group === groupName
+              ? {
+                  ...g,
+                  subgroups: (g.subgroups || []).map((sub: any) =>
+                    sub.name === subName
+                      ? {
+                          ...sub,
+                          checked,
+                          addresses: (sub.addresses || []).map((a: any) => ({ ...a, checked })),
+                        }
+                      : sub
+                  ),
+                }
+              : g
+          )
+        );
+      }
+    };
+
+    const toggleSingleAddressCheck = (
+      groupName: string,
+      subName: string,
+      addrId: string,
+      checked: boolean
+    ) => {
+      if (onUpdateAddressData) {
+        onUpdateAddressData((prev: any[]) =>
+          prev.map((g) =>
+            g.group === groupName
+              ? {
+                  ...g,
+                  subgroups: (g.subgroups || []).map((sub: any) =>
+                    sub.name === subName
+                      ? {
+                          ...sub,
+                          addresses: (sub.addresses || []).map((a: any) =>
+                            a.id === addrId ? { ...a, checked } : a
+                          ),
+                        }
+                      : sub
+                  ),
+                }
+              : g
+          )
+        );
+      }
+    };
+
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans rounded-b-2xl">
         {addressData.map((group) => {
           const gKey = "addr-group-" + group.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -900,7 +1167,7 @@ export function TrackingTreeView({
                 return (
                   q === "" ||
                   addr.name.toLowerCase().includes(q) ||
-                  addr.address.toLowerCase().includes(q) ||
+                  (addr.category && addr.category.toLowerCase().includes(q)) ||
                   group.group.toLowerCase().includes(q) ||
                   sub.name.toLowerCase().includes(q)
                 );
@@ -926,6 +1193,11 @@ export function TrackingTreeView({
                 <div className="flex items-center gap-1.5">
                   <input
                     type="checkbox"
+                    checked={Boolean(group.checked)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      toggleGroupAddressCheck(group.group, e.target.checked);
+                    }}
                     onClick={(e) => e.stopPropagation()}
                     className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
                   />
@@ -946,7 +1218,7 @@ export function TrackingTreeView({
                   <ChevronDown
                     className={cn(
                       "h-3.5 w-3.5 text-slate-400 transition-transform duration-200",
-                      isGroupCollapsed && "-rotate-180"
+                      !isGroupCollapsed && "rotate-180"
                     )}
                   />
                 </div>
@@ -963,14 +1235,24 @@ export function TrackingTreeView({
                       {/* Subgroup Header (e.g. checkbox + blue dot + HS - Bank + actions) */}
                       <div
                         onClick={() => toggleNode(subKey)}
-                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                        className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                       >
                         <div className="flex items-center gap-1.5">
                           <input
                             type="checkbox"
-                            defaultChecked
+                            checked={Boolean(sub.checked)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              toggleSubgroupAddressCheck(group.group, sub.name, e.target.checked);
+                            }}
                             onClick={(e) => e.stopPropagation()}
                             className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                          />
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
+                              isSubCollapsed && "-rotate-90"
+                            )}
                           />
                           <span className="h-2 w-2 rounded-full bg-[#0089FF] shrink-0" />
                           <span className="font-bold text-xs text-[#0089FF]">
@@ -980,19 +1262,31 @@ export function TrackingTreeView({
                         <div className="flex items-center gap-2 text-slate-400">
                           <button
                             type="button"
-                            className="p-0.5 hover:text-[#0089FF] transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toast.info(`Showing ${sub.name} on map...`);
+                            }}
+                            className="p-0.5 hover:text-[#0089FF] transition-colors cursor-pointer"
                           >
                             <MapPin className="h-3.5 w-3.5" />
                           </button>
                           <button
                             type="button"
-                            className="p-0.5 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toast.info(`Editing ${sub.name}...`);
+                            }}
+                            className="p-0.5 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </button>
                           <button
                             type="button"
-                            className="p-0.5 hover:text-rose-500 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toast.success(`${sub.name} removed`);
+                            }}
+                            className="p-0.5 hover:text-rose-500 transition-colors cursor-pointer"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -1002,9 +1296,6 @@ export function TrackingTreeView({
                       {/* Address Items with Tree Connector Lines */}
                       {!isSubCollapsed && (
                         <div className="relative">
-                          {/* Continuous vertical trunk line dropping from parent checkbox center */}
-                          <div className="absolute left-[31px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
-
                           {sub.addresses.map((addr: any, idx: number) => {
                             const isLast = idx === sub.addresses.length - 1;
 
@@ -1012,26 +1303,36 @@ export function TrackingTreeView({
                               <div
                                 key={addr.id}
                                 onClick={() => onSelectAddress && onSelectAddress(addr)}
-                                className="relative flex items-center justify-between pl-[48px] pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
+                                className="relative flex items-center justify-between pl-[55px] pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                               >
-                                {/* Tree Elbow connector */}
-                                <div
-                                  className={cn(
-                                    "absolute left-[31px] top-0 pointer-events-none",
-                                    isLast
-                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
-                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
-                                  )}
-                                />
+                                {/* Tree guide line: vertical trunk & horizontal elbow directly below expand/collapse icon */}
+                                {!isLast ? (
+                                  <>
+                                    <div className="absolute left-[39px] top-0 bottom-0 w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                    <div className="absolute left-[39px] top-1/2 -translate-y-1/2 w-[16px] h-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                  </>
+                                ) : (
+                                  <div className="absolute left-[39px] top-0 h-1/2 w-[16px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px] pointer-events-none" />
+                                )}
 
                                 {/* Left: Checkbox + Status Dot + Address Name */}
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                   <input
                                     type="checkbox"
+                                    checked={Boolean(addr.checked)}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      toggleSingleAddressCheck(
+                                        group.group,
+                                        sub.name,
+                                        addr.id,
+                                        e.target.checked
+                                      );
+                                    }}
                                     onClick={(e) => e.stopPropagation()}
                                     className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
                                   />
-                                  <span className="h-2 w-2 rounded-full bg-slate-400 shrink-0" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-slate-400 shrink-0" />
                                   <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate">
                                     {addr.name}
                                   </span>
@@ -1041,19 +1342,31 @@ export function TrackingTreeView({
                                 <div className="flex items-center gap-2 text-slate-400 shrink-0">
                                   <button
                                     type="button"
-                                    className="p-0.5 hover:text-[#0089FF] transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toast.info(`Locating ${addr.name}...`);
+                                    }}
+                                    className="p-0.5 hover:text-[#0089FF] transition-colors cursor-pointer"
                                   >
                                     <MapPin className="h-3.5 w-3.5" />
                                   </button>
                                   <button
                                     type="button"
-                                    className="p-0.5 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toast.info(`Editing ${addr.name}...`);
+                                    }}
+                                    className="p-0.5 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
                                   >
                                     <Pencil className="h-3.5 w-3.5" />
                                   </button>
                                   <button
                                     type="button"
-                                    className="p-0.5 hover:text-rose-500 transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toast.success(`${addr.name} deleted`);
+                                    }}
+                                    className="p-0.5 hover:text-rose-500 transition-colors cursor-pointer"
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
                                   </button>
@@ -1078,7 +1391,7 @@ export function TrackingTreeView({
   // ==========================================
   if (activeTab === "geofence") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans rounded-b-2xl">
         {geofenceData.map((groupData) => {
           const gKey = "gf-group-" + groupData.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -1134,12 +1447,9 @@ export function TrackingTreeView({
                 </span>
               </div>
 
-              {/* Geofence items under company with tree connector line */}
+              {/* Geofence items under company with tree connector line directly below expand/collapse chevron */}
               {!isGroupCollapsed && (
                 <div className="relative">
-                  {/* Continuous vertical trunk line */}
-                  <div className="absolute left-[19px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
-
                   {allGeofences.map((gf: any, idx: number) => {
                     const isLast = idx === allGeofences.length - 1;
                     const isChecked = idx < 5; // Top 5 checked in reference image
@@ -1148,17 +1458,17 @@ export function TrackingTreeView({
                       <div
                         key={gf.id}
                         onClick={() => onSelectGeofence && onSelectGeofence(gf)}
-                        className="relative flex items-center justify-between pl-[36px] pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
+                        className="relative flex items-center justify-between pl-[55px] pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                       >
-                        {/* Tree Elbow connector */}
-                        <div
-                          className={cn(
-                            "absolute left-[19px] top-0 pointer-events-none",
-                            isLast
-                              ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
-                              : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
-                          )}
-                        />
+                        {/* Tree guide line: vertical trunk & horizontal elbow directly below expand/collapse icon */}
+                        {!isLast ? (
+                          <>
+                            <div className="absolute left-[39px] top-0 bottom-0 w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                            <div className="absolute left-[39px] top-1/2 -translate-y-1/2 w-[16px] h-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                          </>
+                        ) : (
+                          <div className="absolute left-[39px] top-0 h-1/2 w-[16px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px] pointer-events-none" />
+                        )}
 
                         {/* Left: Checkbox + Status Dot / Ring + Name */}
                         <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -1220,11 +1530,11 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Trailer Tab Tree View
+  // RENDER: Trailer Tab Tree View (1:1 with media_1792553915747_5000603d.png)
   // ==========================================
   if (activeTab === "trailer") {
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-0.5 font-sans divide-y divide-slate-100 dark:divide-slate-800/40 rounded-b-2xl">
         {trailerData.map((groupItem) => {
           const gKey = "tr-group-" + groupItem.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -1234,47 +1544,57 @@ export function TrackingTreeView({
               ...sub,
               trailers: (sub.trailers || []).filter((tr: any) => {
                 const q = query.trim().toLowerCase();
-                return (
+                const matchesQuery =
                   q === "" ||
                   tr.name.toLowerCase().includes(q) ||
                   tr.code.toLowerCase().includes(q) ||
                   (tr.vehicle && tr.vehicle.toLowerCase().includes(q)) ||
                   groupItem.group.toLowerCase().includes(q) ||
-                  sub.name.toLowerCase().includes(q)
-                );
+                  sub.name.toLowerCase().includes(q);
+
+                const matchesStatus =
+                  activeTrailerStatus === "all"
+                    ? true
+                    : activeTrailerStatus === "attached"
+                    ? tr.isAttached
+                    : !tr.isAttached;
+
+                return matchesQuery && matchesStatus;
               }),
             }))
-            .filter((sub: any) => sub.trailers.length > 0);
-
-          if (filteredSubgroups.length === 0) return null;
+            .filter((sub: any) => sub.trailers.length > 0 || (query === "" && activeTrailerStatus === "all"));
 
           const groupTotalCount = filteredSubgroups.reduce(
             (acc: number, sub: any) => acc + sub.trailers.length,
             0
           );
 
+          if ((query !== "" || activeTrailerStatus !== "all") && groupTotalCount === 0) return null;
+
           return (
-            <div key={groupItem.group} className="mb-1">
+            <div key={groupItem.group} className="bg-white dark:bg-slate-900">
+              {/* 1. Company / Top Group Header Row */}
               <div
                 onClick={() => toggleNode(gKey)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
               >
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <ChevronDown
                     className={cn(
-                      "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
+                      "h-3.5 w-3.5 text-slate-500 transition-transform duration-200 shrink-0",
                       isGroupCollapsed && "-rotate-90"
                     )}
                   />
-                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate">
                     {groupItem.group}
                   </span>
                 </div>
-                <span className="text-[11px] font-mono font-medium text-slate-500">
+                <span className="text-[11px] font-mono font-medium text-slate-500 shrink-0">
                   [{groupTotalCount}]
                 </span>
               </div>
 
+              {/* 2. Subgroups & Trailers */}
               {!isGroupCollapsed &&
                 filteredSubgroups.map((sub: any) => {
                   const subKey = "tr-sub-" + groupItem.group + "-" + sub.name;
@@ -1282,30 +1602,30 @@ export function TrackingTreeView({
 
                   return (
                     <div key={sub.name}>
+                      {/* Subgroup Header (e.g. Branch) - Flush directly under company header with zero extra indentation */}
                       <div
                         onClick={() => toggleNode(subKey)}
-                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                        className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                       >
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 min-w-0">
                           <ChevronDown
                             className={cn(
-                              "h-3 w-3 text-slate-400 transition-transform duration-200",
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-200 shrink-0",
                               isSubCollapsed && "-rotate-90"
                             )}
                           />
-                          <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
+                          <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate">
                             {sub.name}
                           </span>
                         </div>
-                        <span className="text-[10px] font-mono text-slate-400">
+                        <span className="text-[11px] font-mono font-medium text-slate-500 shrink-0">
                           [{sub.trailers.length}]
                         </span>
                       </div>
 
+                      {/* Tree Branch with 4-Column Aligned Items */}
                       {!isSubCollapsed && (
                         <div className="relative">
-                          <div className="absolute left-[30px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
-
                           {sub.trailers.map((tr: any, idx: number) => {
                             const isLast = idx === sub.trailers.length - 1;
 
@@ -1313,38 +1633,77 @@ export function TrackingTreeView({
                               <div
                                 key={tr.id}
                                 onClick={() => onSelectTrailer && onSelectTrailer(tr)}
-                                className="relative flex items-center justify-between pl-[48px] pr-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
+                                className="relative flex items-center pl-[36px] pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer select-none group"
                               >
-                                <div
-                                  className={cn(
-                                    "absolute left-[30px] top-0 pointer-events-none",
-                                    isLast
-                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
-                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
-                                  )}
-                                />
+                                {/* Tree guide line: vertical trunk & horizontal elbow directly below Branch chevron */}
+                                {!isLast ? (
+                                  <>
+                                    <div className="absolute left-[19px] top-0 bottom-0 w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                    <div className="absolute left-[19px] top-1/2 -translate-y-1/2 w-[14px] h-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                  </>
+                                ) : (
+                                  <div className="absolute left-[19px] top-0 h-1/2 w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px] pointer-events-none" />
+                                )}
 
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                  <Caravan className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
-                                      {tr.name}
-                                    </div>
-                                    <div className="text-[10px] text-slate-400 truncate">
-                                      Code: {tr.code} • Vehicle: {tr.vehicle || "Unlinked"}
-                                    </div>
+                                {/* Col 1: Trailer Name */}
+                                <div className="flex-1 min-w-0 pr-2">
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (onEditTrailer) onEditTrailer(tr, groupItem.group, sub.name);
+                                    }}
+                                    className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate hover:text-[#0089FF] cursor-pointer"
+                                    title="Edit Trailer Details"
+                                  >
+                                    {tr.name}
                                   </div>
                                 </div>
-                                <span
-                                  className={cn(
-                                    "text-[10px] font-bold px-2 py-0.5 rounded border shrink-0",
-                                    tr.isAttached
-                                      ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                      : "bg-slate-50 text-slate-500 border-slate-200"
+
+                                {/* Col 2: Vehicle */}
+                                <div className="w-32 text-left pr-2 truncate">
+                                  {tr.vehicle && tr.vehicle !== "Unassigned" ? (
+                                    <div className="flex items-center gap-1.5 font-semibold text-xs text-slate-800 dark:text-slate-200">
+                                      <span className="h-2 w-2 rounded-full shrink-0 bg-[#008446] ring-2 ring-[#008446]/20" />
+                                      <span className="truncate">{tr.vehicle}</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-medium">
+                                      <span className="h-2 w-2 rounded-full shrink-0 bg-slate-300 dark:bg-slate-600 ring-2 ring-slate-300/30" />
+                                      <span className="italic text-slate-400">Unassigned</span>
+                                    </div>
                                   )}
-                                >
-                                  {tr.isAttached ? "Attached" : "Detached"}
-                                </span>
+                                </div>
+
+                                {/* Col 3: Code */}
+                                <div className="w-24 text-left font-mono text-xs text-slate-500 dark:text-slate-400 truncate">
+                                  {tr.code}
+                                </div>
+
+                                {/* Col 4: Action Buttons (Link & Edit) */}
+                                <div className="w-16 flex items-center justify-end gap-1.5 text-slate-400 pr-1">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (onAllocateVehicle) onAllocateVehicle(tr, groupItem.group, sub.name);
+                                    }}
+                                    className="p-1 hover:text-[#0089FF] hover:bg-sky-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                    title="Allocate / Change Vehicle Object"
+                                  >
+                                    <Link2 className="h-3.5 w-3.5 stroke-[2]" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (onEditTrailer) onEditTrailer(tr, groupItem.group, sub.name);
+                                    }}
+                                    className="p-1 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                                    title="Edit Trailer Details"
+                                  >
+                                    <Edit3 className="h-3.5 w-3.5 stroke-[2]" />
+                                  </button>
+                                </div>
                               </div>
                             );
                           })}
@@ -1361,11 +1720,78 @@ export function TrackingTreeView({
   }
 
   // ==========================================
-  // RENDER: Beacon Tab Tree View
+  // RENDER: Beacon Tab Tree View (1:1 with media_1792555852256_8fbefc9d.png)
   // ==========================================
   if (activeTab === "beacon") {
+    const toggleSingleBeaconCheck = (groupName: string, subName: string, beaconId: string, checked: boolean) => {
+      if (onUpdateBeaconData) {
+        onUpdateBeaconData((prev: any[]) =>
+          prev.map((g) => {
+            if (g.group === groupName) {
+              return {
+                ...g,
+                subgroups: g.subgroups.map((sub: any) => {
+                  if (sub.name === subName) {
+                    return {
+                      ...sub,
+                      beacons: sub.beacons.map((b: any) => (b.id === beaconId ? { ...b, checked } : b)),
+                    };
+                  }
+                  return sub;
+                }),
+              };
+            }
+            return g;
+          })
+        );
+      }
+    };
+
+    const toggleSubgroupCheck = (groupName: string, subName: string, checked: boolean) => {
+      if (onUpdateBeaconData) {
+        onUpdateBeaconData((prev: any[]) =>
+          prev.map((g) => {
+            if (g.group === groupName) {
+              return {
+                ...g,
+                subgroups: g.subgroups.map((sub: any) => {
+                  if (sub.name === subName) {
+                    return {
+                      ...sub,
+                      beacons: sub.beacons.map((b: any) => ({ ...b, checked })),
+                    };
+                  }
+                  return sub;
+                }),
+              };
+            }
+            return g;
+          })
+        );
+      }
+    };
+
+    const toggleGroupCheck = (groupName: string, checked: boolean) => {
+      if (onUpdateBeaconData) {
+        onUpdateBeaconData((prev: any[]) =>
+          prev.map((g) => {
+            if (g.group === groupName) {
+              return {
+                ...g,
+                subgroups: g.subgroups.map((sub: any) => ({
+                  ...sub,
+                  beacons: sub.beacons.map((b: any) => ({ ...b, checked })),
+                })),
+              };
+            }
+            return g;
+          })
+        );
+      }
+    };
+
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-0.5 font-sans divide-y divide-slate-100 dark:divide-slate-800/40 rounded-b-2xl">
         {beaconData.map((groupItem) => {
           const gKey = "bcn-group-" + groupItem.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -1375,76 +1801,119 @@ export function TrackingTreeView({
               ...subGroup,
               beacons: (subGroup.beacons || []).filter((b: any) => {
                 const q = query.trim().toLowerCase();
-                return (
+                const matchesQuery =
                   q === "" ||
                   b.name.toLowerCase().includes(q) ||
                   b.object.toLowerCase().includes(q) ||
-                  (b.location && b.location.toLowerCase().includes(q))
-                );
+                  (b.location && b.location.toLowerCase().includes(q)) ||
+                  groupItem.group.toLowerCase().includes(q) ||
+                  subGroup.name.toLowerCase().includes(q);
+
+                const matchesStatus =
+                  activeBeaconStatus === "all" ||
+                  (activeBeaconStatus === "connected" && b.isConnected) ||
+                  (activeBeaconStatus === "disconnected" && !b.isConnected);
+
+                return matchesQuery && matchesStatus;
               }),
             }))
-            .filter((subGroup: any) => subGroup.beacons.length > 0);
-
-          if (filteredSubgroups.length === 0) return null;
+            .filter((subGroup: any) => subGroup.beacons.length > 0 || (query === "" && activeBeaconStatus === "all"));
 
           const groupTotalCount = filteredSubgroups.reduce(
             (acc: number, sub: any) => acc + sub.beacons.length,
             0
           );
 
+          if ((query !== "" || activeBeaconStatus !== "all") && groupTotalCount === 0) return null;
+
+          const allBeaconsInGroup = (groupItem.subgroups || []).flatMap((s: any) => s.beacons || []);
+          const isGroupAllChecked = allBeaconsInGroup.length > 0 && allBeaconsInGroup.every((b: any) => b.checked !== false);
+          const isGroupSomeChecked = allBeaconsInGroup.some((b: any) => b.checked !== false) && !isGroupAllChecked;
+
           return (
-            <div key={groupItem.group} className="mb-1">
+            <div key={groupItem.group} className="bg-white dark:bg-slate-900">
+              {/* 1. Company / Top Group Header Row */}
               <div
                 onClick={() => toggleNode(gKey)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
               >
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <input
+                    type="checkbox"
+                    checked={isGroupAllChecked}
+                    ref={(el) => {
+                      if (el) el.indeterminate = isGroupSomeChecked;
+                    }}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      toggleGroupCheck(groupItem.group, e.target.checked);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                  />
                   <ChevronDown
                     className={cn(
-                      "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
+                      "h-3.5 w-3.5 text-slate-500 transition-transform duration-200 shrink-0",
                       isGroupCollapsed && "-rotate-90"
                     )}
                   />
-                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate">
                     {groupItem.group}
                   </span>
                 </div>
-                <span className="text-[11px] font-mono font-medium text-slate-500">
+                <span className="text-[11px] font-mono font-medium text-slate-500 shrink-0">
                   [{groupTotalCount}]
                 </span>
               </div>
 
+              {/* 2. Subgroups & Beacon Rows */}
               {!isGroupCollapsed &&
                 filteredSubgroups.map((subGroup: any) => {
                   const subKey = "bcn-sub-" + groupItem.group + "-" + subGroup.name;
                   const isSubCollapsed = isCollapsed(subKey);
 
+                  const isSubAllChecked = subGroup.beacons.length > 0 && subGroup.beacons.every((b: any) => b.checked !== false);
+                  const isSubSomeChecked = subGroup.beacons.some((b: any) => b.checked !== false) && !isSubAllChecked;
+
                   return (
                     <div key={subGroup.name}>
+                      {/* Subgroup Header (e.g. HP Branch 1) - Flush directly under company header with zero extra indentation */}
                       <div
                         onClick={() => toggleNode(subKey)}
-                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                        className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                       >
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={isSubAllChecked}
+                            ref={(el) => {
+                              if (el) el.indeterminate = isSubSomeChecked;
+                            }}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              toggleSubgroupCheck(groupItem.group, subGroup.name, e.target.checked);
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                          />
                           <ChevronDown
                             className={cn(
-                              "h-3 w-3 text-slate-400 transition-transform duration-200",
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-200 shrink-0",
                               isSubCollapsed && "-rotate-90"
                             )}
                           />
-                          <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
+                          <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate">
                             {subGroup.name}
                           </span>
                         </div>
-                        <span className="text-[10px] font-mono text-slate-400">
+                        <span className="text-[11px] font-mono font-medium text-slate-500 shrink-0">
                           [{subGroup.beacons.length}]
                         </span>
                       </div>
 
+                      {/* Tree Branch with 5-Column Aligned Items */}
                       {!isSubCollapsed && (
                         <div className="relative">
-                          <div className="absolute left-[30px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
-
                           {subGroup.beacons.map((bcn: any, idx: number) => {
                             const isLast = idx === subGroup.beacons.length - 1;
 
@@ -1452,31 +1921,67 @@ export function TrackingTreeView({
                               <div
                                 key={bcn.id}
                                 onClick={() => onSelectBeacon && onSelectBeacon(bcn)}
-                                className="relative flex items-center justify-between pl-[48px] pr-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
+                                className="relative flex items-center pl-[55px] pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer select-none group"
                               >
-                                <div
-                                  className={cn(
-                                    "absolute left-[30px] top-0 pointer-events-none",
-                                    isLast
-                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
-                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
-                                  )}
-                                />
+                                {/* Tree guide line: vertical trunk & horizontal elbow directly below Subgroup chevron */}
+                                {!isLast ? (
+                                  <>
+                                    <div className="absolute left-[39px] top-0 bottom-0 w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                    <div className="absolute left-[39px] top-1/2 -translate-y-1/2 w-[16px] h-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                  </>
+                                ) : (
+                                  <div className="absolute left-[39px] top-0 h-1/2 w-[16px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px] pointer-events-none" />
+                                )}
 
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                  <Radio className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
+                                {/* Col 1: Checkbox + Status Dot + Beacon Name & Timestamp */}
+                                <div className="flex-1 min-w-0 pr-2 flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={bcn.checked !== false}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      toggleSingleBeaconCheck(groupItem.group, subGroup.name, bcn.id, e.target.checked);
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                  />
+                                  <span
+                                    className={cn(
+                                      "h-2 w-2 rounded-full shrink-0",
+                                      bcn.isConnected
+                                        ? "bg-[#008446] ring-2 ring-[#008446]/20"
+                                        : "bg-[#C70036] ring-2 ring-[#C70036]/20"
+                                    )}
+                                  />
+                                  <div className="flex flex-col min-w-0 truncate">
+                                    <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-tight">
                                       {bcn.name}
-                                    </div>
-                                    <div className="text-[10px] font-mono text-slate-400 truncate">
-                                      Target: {bcn.object} • RSSI: {bcn.rssi || "-60 dBm"}
-                                    </div>
+                                    </span>
+                                    <span className="font-mono text-[10px] text-slate-400 dark:text-slate-500 truncate leading-tight mt-0.5">
+                                      {bcn.timestamp}
+                                    </span>
                                   </div>
                                 </div>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 shrink-0">
-                                  {bcn.battery || "95%"}
-                                </span>
+
+                                {/* Col 2: Object */}
+                                <div className="w-28 text-left pr-2 truncate text-xs text-slate-700 dark:text-slate-300" title={bcn.object}>
+                                  {bcn.object}
+                                </div>
+
+                                {/* Col 3: Location */}
+                                <div className="w-36 text-left pr-2 truncate text-xs text-slate-600 dark:text-slate-400" title={bcn.location}>
+                                  {bcn.location}
+                                </div>
+
+                                {/* Col 4: RSSI */}
+                                <div className="w-14 text-right pr-2 truncate font-mono text-xs text-slate-600 dark:text-slate-400">
+                                  {bcn.rssi}
+                                </div>
+
+                                {/* Col 5: Distance */}
+                                <div className="w-16 text-right pr-3 truncate font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                  {bcn.distance}
+                                </div>
                               </div>
                             );
                           })}
@@ -1496,8 +2001,92 @@ export function TrackingTreeView({
   // RENDER: Video Telematics Tab Tree View
   // ==========================================
   if (activeTab === "video_telematics") {
+    const toggleGroupCheck = (groupName: string, checked: boolean) => {
+      if (onUpdateVideoTelematicsData) {
+        onUpdateVideoTelematicsData((prev: any[]) =>
+          prev.map((g) => {
+            if (g.group === groupName) {
+              return {
+                ...g,
+                subgroups: (g.subgroups || []).map((sub: any) => ({
+                  ...sub,
+                  devices: (sub.devices || []).map((d: any) => ({ ...d, checked })),
+                })),
+              };
+            }
+            return g;
+          })
+        );
+      }
+    };
+
+    const toggleSubgroupCheck = (groupName: string, subName: string, checked: boolean) => {
+      if (onUpdateVideoTelematicsData) {
+        onUpdateVideoTelematicsData((prev: any[]) =>
+          prev.map((g) => {
+            if (g.group === groupName) {
+              return {
+                ...g,
+                subgroups: (g.subgroups || []).map((sub: any) => {
+                  if (sub.name === subName) {
+                    return {
+                      ...sub,
+                      devices: (sub.devices || []).map((d: any) => ({ ...d, checked })),
+                    };
+                  }
+                  return sub;
+                }),
+              };
+            }
+            return g;
+          })
+        );
+      }
+    };
+
+    const toggleSingleDeviceCheck = (groupName: string, subName: string, devId: string, checked: boolean) => {
+      if (onUpdateVideoTelematicsData) {
+        onUpdateVideoTelematicsData((prev: any[]) =>
+          prev.map((g) => {
+            if (g.group === groupName) {
+              return {
+                ...g,
+                subgroups: (g.subgroups || []).map((sub: any) => {
+                  if (sub.name === subName) {
+                    return {
+                      ...sub,
+                      devices: (sub.devices || []).map((d: any) =>
+                        d.id === devId ? { ...d, checked } : d
+                      ),
+                    };
+                  }
+                  return sub;
+                }),
+              };
+            }
+            return g;
+          })
+        );
+      }
+    };
+
+    const getDeviceStatusDot = (status: string) => {
+      switch (status) {
+        case "running":
+          return "bg-[#008446] ring-2 ring-[#008446]/20";
+        case "idle":
+          return "bg-[#C46F37] ring-2 ring-[#C46F37]/20";
+        case "stopped":
+          return "bg-[#C70036] ring-2 ring-[#C70036]/20";
+        case "inactive":
+          return "bg-[#372AAC] ring-2 ring-[#372AAC]/20";
+        default:
+          return "bg-slate-400 ring-2 ring-slate-400/20";
+      }
+    };
+
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar select-none bg-white dark:bg-slate-900 py-1 font-sans rounded-b-2xl">
         {videoTelematicsData.map((groupItem) => {
           const gKey = "vid-group-" + groupItem.group;
           const isGroupCollapsed = isCollapsed(gKey);
@@ -1506,12 +2095,16 @@ export function TrackingTreeView({
             .map((subGroup: any) => ({
               ...subGroup,
               devices: (subGroup.devices || []).filter((d: any) => {
+                const matchesStatus =
+                  !activeVideoStatus || activeVideoStatus === "all" || d.status === activeVideoStatus;
+
                 const q = query.trim().toLowerCase();
-                return (
+                const matchesQuery =
                   q === "" ||
                   d.name.toLowerCase().includes(q) ||
-                  (d.channels && d.channels.some((c: any) => c.name.toLowerCase().includes(q)))
-                );
+                  (d.channels && d.channels.some((c: any) => c.name.toLowerCase().includes(q)));
+
+                return matchesStatus && matchesQuery;
               }),
             }))
             .filter((subGroup: any) => subGroup.devices.length > 0);
@@ -1523,91 +2116,314 @@ export function TrackingTreeView({
             0
           );
 
+          const allDevices = filteredSubgroups.flatMap((s: any) => s.devices);
+          const isGroupAllChecked = allDevices.length > 0 && allDevices.every((d: any) => d.checked !== false);
+          const isGroupSomeChecked = allDevices.some((d: any) => d.checked !== false) && !isGroupAllChecked;
+
           return (
-            <div key={groupItem.group} className="mb-1">
+            <div key={groupItem.group} className="bg-white dark:bg-slate-900">
+              {/* 1. Company / Top Group Header Row */}
               <div
                 onClick={() => toggleNode(gKey)}
-                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
+                className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
               >
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <input
+                    type="checkbox"
+                    checked={isGroupAllChecked}
+                    ref={(el) => {
+                      if (el) el.indeterminate = isGroupSomeChecked;
+                    }}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      toggleGroupCheck(groupItem.group, e.target.checked);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                  />
                   <ChevronDown
                     className={cn(
-                      "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
+                      "h-3.5 w-3.5 text-slate-500 transition-transform duration-200 shrink-0",
                       isGroupCollapsed && "-rotate-90"
                     )}
                   />
-                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                  <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate">
                     {groupItem.group}
                   </span>
                 </div>
-                <span className="text-[11px] font-mono font-medium text-slate-500">
+                <span className="text-[11px] font-mono font-medium text-slate-500 shrink-0">
                   [{groupTotalCount}]
                 </span>
               </div>
 
+              {/* 2. Subgroups & Video Telematics Devices */}
               {!isGroupCollapsed &&
                 filteredSubgroups.map((subGroup: any) => {
                   const subKey = "vid-sub-" + groupItem.group + "-" + subGroup.name;
                   const isSubCollapsed = isCollapsed(subKey);
 
+                  const isSubAllChecked = subGroup.devices.length > 0 && subGroup.devices.every((d: any) => d.checked !== false);
+                  const isSubSomeChecked = subGroup.devices.some((d: any) => d.checked !== false) && !isSubAllChecked;
+
                   return (
                     <div key={subGroup.name}>
+                      {/* Subgroup Header (e.g. HP Branch 1) - Flush directly under company header with zero extra indentation */}
                       <div
                         onClick={() => toggleNode(subKey)}
-                        className="flex items-center justify-between pl-6 pr-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                        className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                       >
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={isSubAllChecked}
+                            ref={(el) => {
+                              if (el) el.indeterminate = isSubSomeChecked;
+                            }}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              toggleSubgroupCheck(groupItem.group, subGroup.name, e.target.checked);
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                          />
                           <ChevronDown
                             className={cn(
-                              "h-3 w-3 text-slate-400 transition-transform duration-200",
+                              "h-3.5 w-3.5 text-slate-500 transition-transform duration-200 shrink-0",
                               isSubCollapsed && "-rotate-90"
                             )}
                           />
-                          <span className="font-semibold text-xs text-slate-700 dark:text-slate-300">
+                          <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate">
                             {subGroup.name}
                           </span>
                         </div>
-                        <span className="text-[10px] font-mono text-slate-400">
+                        <span className="text-[11px] font-mono font-medium text-slate-500 shrink-0">
                           [{subGroup.devices.length}]
                         </span>
                       </div>
 
+                      {/* Level 3: Device Rows & Nested Channels */}
                       {!isSubCollapsed && (
-                        <div className="relative">
-                          <div className="absolute left-[30px] top-0 bottom-[18px] w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
-
-                          {subGroup.devices.map((dev: any, idx: number) => {
-                            const isLast = idx === subGroup.devices.length - 1;
+                        <div>
+                          {subGroup.devices.map((dev: any) => {
+                            const devKey = "vid-dev-" + dev.id;
+                            const isDevCollapsed = isCollapsed(devKey, false);
+                            const isDeviceActive = dev.status === "running" || dev.status === "idle";
 
                             return (
-                              <div
-                                key={dev.id}
-                                onClick={() => onSelectVideoDevice && onSelectVideoDevice(dev)}
-                                className="relative flex items-center justify-between pl-[48px] pr-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
-                              >
+                              <div key={dev.id} className="relative">
+                                {/* Device Item Row */}
                                 <div
-                                  className={cn(
-                                    "absolute left-[30px] top-0 pointer-events-none",
-                                    isLast
-                                      ? "h-[20px] w-[14px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px]"
-                                      : "h-[20px] w-[14px] border-b border-slate-300 dark:border-slate-700"
-                                  )}
-                                />
+                                  onClick={() => onSelectVideoDevice && onSelectVideoDevice(dev)}
+                                  className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer select-none group"
+                                >
+                                  {/* Left: Checkbox + ChevronDown + Status Dot + Device Name & Timestamp */}
+                                  <div className="flex items-center gap-1.5 min-w-0 flex-1 pr-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={dev.checked !== false}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        toggleSingleDeviceCheck(groupItem.group, subGroup.name, dev.id, e.target.checked);
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-600 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                                    />
 
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                  <Video className="h-3.5 w-3.5 text-[#0089FF] shrink-0" />
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">
-                                      {dev.name}
-                                    </div>
-                                    <div className="text-[10px] font-mono text-slate-400 truncate">
-                                      Model: {dev.model || "Dual Cam"} • Status: {dev.status}
+                                    {/* Expand / Collapse Chevron directly aligned above channel tree guide lines */}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleNode(devKey);
+                                      }}
+                                      className="p-0.5 rounded text-slate-400 hover:text-[#0089FF] transition-colors cursor-pointer shrink-0"
+                                      title={isDevCollapsed ? "Expand Channels" : "Collapse Channels"}
+                                    >
+                                      <ChevronDown
+                                        className={cn(
+                                          "h-3.5 w-3.5 text-slate-500 transition-transform duration-200 shrink-0",
+                                          isDevCollapsed && "-rotate-90"
+                                        )}
+                                      />
+                                    </button>
+
+                                    {/* Status Dot */}
+                                    <span
+                                      title={`Status: ${dev.status.toUpperCase()}`}
+                                      className={cn("h-2 w-2 rounded-full shrink-0 shadow-2xs", getDeviceStatusDot(dev.status))}
+                                    />
+
+                                    {/* Device Name & Timestamp */}
+                                    <div className="flex flex-col min-w-0 truncate">
+                                      <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-tight">
+                                        {dev.name}
+                                      </span>
+                                      <span className="font-mono text-[10px] text-slate-400 dark:text-slate-500 truncate leading-tight mt-0.5">
+                                        {dev.timestamp}
+                                      </span>
                                     </div>
                                   </div>
+
+                                  {/* Right: Live Intercom Broadcast Button ((•)) */}
+                                  <div className="flex items-center shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (onOpenIntercom) {
+                                          onOpenIntercom({
+                                            id: dev.id,
+                                            name: dev.name,
+                                            location: "At Uffizio - Head Office",
+                                          });
+                                        } else {
+                                          toast.info(`Starting Intercom session with ${dev.name}...`);
+                                        }
+                                      }}
+                                      className={cn(
+                                        "p-1 rounded-md transition-colors cursor-pointer",
+                                        isDeviceActive
+                                          ? "text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                                          : "text-rose-500 hover:text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                                      )}
+                                      title={`Live Intercom / Two-Way Audio - ${dev.name}`}
+                                    >
+                                      <Radio className="h-3.5 w-3.5 stroke-[2]" />
+                                    </button>
+                                  </div>
                                 </div>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 shrink-0">
-                                  ● LIVE
-                                </span>
+
+                                {/* Channel Sub-items with clean tree lines dropping from Chevron at left-[39px] */}
+                                {!isDevCollapsed && dev.channels && dev.channels.length > 0 && (
+                                  <div className="relative">
+                                    {dev.channels.map((channel: any, cIdx: number) => {
+                                      const isLast = cIdx === dev.channels.length - 1;
+
+                                      return (
+                                        <div
+                                          key={channel.id}
+                                          className="relative flex items-center justify-between pl-[58px] pr-3 py-1 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors select-none group"
+                                        >
+                                          {/* Tree guide line: vertical trunk & horizontal elbow directly below device chevron */}
+                                          {!isLast ? (
+                                            <>
+                                              <div className="absolute left-[39px] top-0 bottom-0 w-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                              <div className="absolute left-[39px] top-1/2 -translate-y-1/2 w-[16px] h-px bg-slate-300 dark:bg-slate-700 pointer-events-none" />
+                                            </>
+                                          ) : (
+                                            <div className="absolute left-[39px] top-0 h-1/2 w-[16px] border-l border-b border-slate-300 dark:border-slate-700 rounded-bl-[4px] pointer-events-none" />
+                                          )}
+
+                                          {/* Channel Name */}
+                                          <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                            {channel.name}
+                                          </span>
+
+                                          {/* 4 Action Icons matching reference screenshot: RotateCw, Video, Clock, Camera */}
+                                          <div className="flex items-center gap-2 shrink-0">
+                                            {/* 1. Reload Stream */}
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                toast.success(`Reloaded stream for ${dev.name} (${channel.name})`);
+                                              }}
+                                              className={cn(
+                                                "p-0.5 rounded transition-colors cursor-pointer",
+                                                isDeviceActive
+                                                  ? "text-emerald-500 hover:text-emerald-600 dark:text-emerald-400"
+                                                  : "text-rose-500 hover:text-rose-600 dark:text-rose-400"
+                                              )}
+                                              title={`Reload Stream - ${channel.name}`}
+                                            >
+                                              <RotateCw className="h-3.5 w-3.5 stroke-[2.2]" />
+                                            </button>
+
+                                            {/* 2. Live Camera Feed */}
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                const feed = {
+                                                  id: `${dev.id}-${channel.id}`,
+                                                  deviceName: dev.name,
+                                                  channelName: channel.name,
+                                                  location: "At Uffizio - Head Office",
+                                                  status: "Active" as const,
+                                                  fps: dev.status === "running" ? 25 : 15,
+                                                  dataUsed: "3.39 MB",
+                                                  bitrate: "1/40.34 kbps",
+                                                  resolution: "704x576 px",
+                                                  coordinates: "20.594105N 72.930708E",
+                                                  speed: "0 km/h",
+                                                };
+                                                if (onOpenVideoChannel) {
+                                                  onOpenVideoChannel(feed);
+                                                } else {
+                                                  toast.success(`Starting Live Stream on ${dev.name} (${channel.name})`);
+                                                }
+                                              }}
+                                              className={cn(
+                                                "p-0.5 rounded transition-colors cursor-pointer",
+                                                isDeviceActive
+                                                  ? "text-emerald-500 hover:text-emerald-600 dark:text-emerald-400"
+                                                  : "text-rose-500 hover:text-rose-600 dark:text-rose-400"
+                                              )}
+                                              title={`Live Stream - ${channel.name}`}
+                                            >
+                                              <Video className="h-3.5 w-3.5 stroke-[2.2]" />
+                                            </button>
+
+                                            {/* 3. Playback / History */}
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (onOpenPlayback) {
+                                                  onOpenPlayback({
+                                                    deviceName: dev.name,
+                                                    channelName: channel.name,
+                                                    location: "At Uffizio - Head Office",
+                                                    channels: dev.channels.map((c: any) => c.name),
+                                                  });
+                                                } else {
+                                                  toast.info(`Opening Playback for ${dev.name} (${channel.name})`);
+                                                }
+                                              }}
+                                              className={cn(
+                                                "p-0.5 rounded transition-colors cursor-pointer",
+                                                isDeviceActive
+                                                  ? "text-emerald-500 hover:text-emerald-600 dark:text-emerald-400"
+                                                  : "text-rose-500 hover:text-rose-600 dark:text-rose-400"
+                                              )}
+                                              title={`Playback - ${channel.name}`}
+                                            >
+                                              <Clock className="h-3.5 w-3.5 stroke-[2.2]" />
+                                            </button>
+
+                                            {/* 4. Snapshot */}
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                toast.success(`Snapshot captured for ${dev.name} (${channel.name})`);
+                                              }}
+                                              className={cn(
+                                                "p-0.5 rounded transition-colors cursor-pointer",
+                                                isDeviceActive
+                                                  ? "text-emerald-500 hover:text-emerald-600 dark:text-emerald-400"
+                                                  : "text-rose-500 hover:text-rose-600 dark:text-rose-400"
+                                              )}
+                                              title={`Take Snapshot - ${channel.name}`}
+                                            >
+                                              <Camera className="h-3.5 w-3.5 stroke-[2.2]" />
+                                            </button>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </div>
                             );
                           })}

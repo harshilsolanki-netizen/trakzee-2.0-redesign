@@ -634,7 +634,7 @@ export function TrackingPage() {
             currentModeData={vehicleModes[selectedVehicle.id]}
             onSaveModeData={(vId, data) => setVehicleModes((prev) => ({ ...prev, [vId]: data }))}
             className={cn(
-              isHealthTelemetryOnly ? "w-[300px] sm:w-[300px]" : "w-[228px] sm:w-[228px]",
+              isHealthTelemetryOnly ? "w-[400px] sm:w-[400px]" : "w-[228px] sm:w-[228px]",
               "h-full pointer-events-auto bg-transparent border-0 shadow-none",
             )}
           />

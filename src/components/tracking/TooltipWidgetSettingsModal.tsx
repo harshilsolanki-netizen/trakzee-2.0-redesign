@@ -2,12 +2,11 @@ import {
   Activity,
   Bluetooth,
   Check,
+  ChevronDown,
   Disc,
   Gauge,
   GripVertical,
   MapPin,
-  Minus,
-  Plus,
   RotateCcw,
   Search,
   Settings,
@@ -436,9 +435,27 @@ export function TooltipWidgetSettingsModal({
                   )}
                 >
                   {/* Category Card Header */}
-                  <div className="flex items-center justify-between px-2.5 py-2 bg-slate-50 dark:bg-slate-800/60 border-b border-[#DFE3EB]/60 dark:border-slate-800/60">
+                  <div
+                    onClick={() => toggleCategoryExpand(cat.id)}
+                    className={cn(
+                      "flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-slate-800/60 select-none cursor-pointer transition-colors",
+                      isExpanded && "border-b border-[#DFE3EB]/60 dark:border-slate-800/60",
+                    )}
+                  >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      {/* Accordion Expand/Collapse Minus/Plus Button */}
+                      {/* 1. Parent Category Checkbox (Aligned vertically with child checkboxes) */}
+                      <input
+                        type="checkbox"
+                        checked={isAllChecked}
+                        ref={(el) => {
+                          if (el) el.indeterminate = isIndeterminate;
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => toggleCategoryAll(cat.id)}
+                        className="h-3.5 w-3.5 rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
+                      />
+
+                      {/* 2. Chevron Icon for Expand / Collapse (On the right of the checkbox) */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -446,33 +463,26 @@ export function TooltipWidgetSettingsModal({
                           toggleCategoryExpand(cat.id);
                         }}
                         title={isExpanded ? "Collapse section" : "Expand section"}
-                        className="flex h-4 w-4 items-center justify-center rounded border border-[#DFE3EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-[#0089FF] hover:text-[#0089FF] transition-colors cursor-pointer shrink-0"
+                        className="p-0.5 rounded hover:bg-slate-200/70 dark:hover:bg-slate-700/70 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer shrink-0"
                       >
-                        {isExpanded ? (
-                          <Minus className="h-3 w-3 stroke-[2.5]" />
-                        ) : (
-                          <Plus className="h-3 w-3 stroke-[2.5]" />
-                        )}
+                        <ChevronDown
+                          className={cn(
+                            "h-3.5 w-3.5 transition-transform duration-150",
+                            !isExpanded && "-rotate-90",
+                          )}
+                        />
                       </button>
 
-                      {/* Parent Select All Checkbox & Category Label */}
-                      <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-slate-800 dark:text-slate-100 flex-1 min-w-0">
-                        <input
-                          type="checkbox"
-                          checked={isAllChecked}
-                          ref={(el) => {
-                            if (el) el.indeterminate = isIndeterminate;
-                          }}
-                          onChange={() => toggleCategoryAll(cat.id)}
-                          className="h-3.5 w-3.5 rounded border-[#DFE3EB] dark:border-slate-700 text-[#0089FF] accent-[#0089FF] cursor-pointer shrink-0"
-                        />
-                        <span className="truncate">{cat.label}</span>
-                      </label>
+                      {/* 3. Name of the widget (Beside the chevron icon) */}
+                      <span className="font-bold text-xs text-slate-800 dark:text-slate-100 truncate flex-1 min-w-0">
+                        {cat.label}
+                      </span>
                     </div>
 
                     {/* Single Drag Handle Icon (6-dots handle matching reference) */}
                     <div
                       title="Drag to reorder"
+                      onClick={(e) => e.stopPropagation()}
                       className="p-1 rounded text-slate-400 hover:text-[#0089FF] cursor-grab active:cursor-grabbing shrink-0"
                     >
                       <GripVertical className="h-4 w-4" />
@@ -481,17 +491,17 @@ export function TooltipWidgetSettingsModal({
 
                   {/* Widget Child Checkboxes */}
                   {isExpanded && (
-                    <div className="p-2 space-y-1 bg-white dark:bg-slate-900 animate-in fade-in duration-150">
+                    <div className="px-3 py-1.5 space-y-0.5 bg-white dark:bg-slate-900 animate-in fade-in duration-150">
                       {filteredItems.map((item) => {
                         const isChecked = localEnabled.includes(item.id);
                         return (
                           <label
                             key={item.id}
                             className={cn(
-                              "flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer transition-colors text-xs select-none",
+                              "flex items-center gap-2 py-1 px-1 -mx-1 rounded-md cursor-pointer transition-colors text-xs select-none hover:bg-slate-50 dark:hover:bg-slate-800/40",
                               isChecked
                                 ? "text-slate-900 dark:text-slate-100 font-medium"
-                                : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50",
+                                : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200",
                             )}
                           >
                             <input
