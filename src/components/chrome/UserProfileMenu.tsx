@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  Briefcase,
+  Building2,
   Check,
   ChevronDown,
   ChevronRight,
+  ChevronsUpDown,
   CreditCard,
   Download,
   Eye,
@@ -10,12 +13,16 @@ import {
   Globe,
   KeyRound,
   LayoutGrid,
+  LogIn,
   LogOut,
   Mail,
   Palette,
+  RotateCcw,
   Search,
   Shield,
+  Star,
   Trash2,
+  UserCheck,
   UserPlus,
   Users,
   Wallet,
@@ -216,45 +223,637 @@ const APPLICATIONS = [
   { id: "public-transportation", name: "Public Transportation" },
 ];
 
-interface Subuser {
+export type SubuserTier = "admin" | "reseller" | "company";
+
+export interface HierarchicalSubuser {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  role: "Admin" | "Dispatch Manager" | "Safety Officer" | "Viewer";
+  phone?: string;
+  type: "Admin-Subuser" | "Reseller-Subuser" | "Company-Subuser";
+  parentAccountName: string;
+  parentAccountType: "Admin" | "Reseller" | "Company";
+  role: string;
   status: "active" | "inactive";
-  branch: string;
+  branch?: string;
 }
 
-const INITIAL_SUBUSERS: Subuser[] = [
+export const HIERARCHICAL_SUBUSERS: HierarchicalSubuser[] = [
+  // 1. Admin Subusers
   {
-    id: "sub-1",
+    id: "sub-admin-1",
+    name: "Uffizio Demo Subuser",
+    email: "present@uffizio.com",
+    phone: "+91 99000 11223",
+    type: "Admin-Subuser",
+    parentAccountName: "Uffizio Demo Account",
+    parentAccountType: "Admin",
+    role: "System Administrator",
+    status: "active",
+    branch: "HQ - Ahmedabad",
+  },
+  {
+    id: "sub-admin-2",
+    name: "Master Admin Ops",
+    email: "admin.ops@uffizio.com",
+    phone: "+91 99000 44556",
+    type: "Admin-Subuser",
+    parentAccountName: "Uffizio Demo Account",
+    parentAccountType: "Admin",
+    role: "Global Operations",
+    status: "active",
+    branch: "HQ - Ahmedabad",
+  },
+
+  // 2. Reseller Subusers
+  {
+    id: "sub-reseller-1",
+    name: "Marketing Lead",
+    email: "marketing@reseller.com",
+    phone: "+91 98700 12345",
+    type: "Reseller-Subuser",
+    parentAccountName: "Uffizio Reseller",
+    parentAccountType: "Reseller",
+    role: "Marketing Manager",
+    status: "active",
+    branch: "Surat Hub",
+  },
+  {
+    id: "sub-reseller-2",
+    name: "Global Tech Partner",
+    email: "resellerdemo@globaltech.com",
+    phone: "+91 98700 67890",
+    type: "Reseller-Subuser",
+    parentAccountName: "Uffizio Reseller",
+    parentAccountType: "Reseller",
+    role: "Senior Reseller Partner",
+    status: "active",
+    branch: "Mumbai Central",
+  },
+  {
+    id: "sub-reseller-3",
+    name: "Sahaj Tech Support",
+    email: "resellerdemo2@sahaj.com",
+    phone: "+91 98700 54321",
+    type: "Reseller-Subuser",
+    parentAccountName: "Uffizio Reseller",
+    parentAccountType: "Reseller",
+    role: "Technical Support",
+    status: "active",
+    branch: "Pune Region",
+  },
+  {
+    id: "sub-reseller-4",
+    name: "Integration Test Engineer",
+    email: "device.test@uffizio.com",
+    phone: "+91 98700 99887",
+    type: "Reseller-Subuser",
+    parentAccountName: "Device Integration Testing",
+    parentAccountType: "Reseller",
+    role: "Hardware QA Lead",
+    status: "active",
+    branch: "Bangalore Lab",
+  },
+
+  // 3. Company Subusers
+  {
+    id: "sub-company-1",
     name: "Rajesh Sharma",
     email: "rajesh.ops@hpcompany.com",
     phone: "+91 98765 43210",
+    type: "Company-Subuser",
+    parentAccountName: "HP Company",
+    parentAccountType: "Company",
     role: "Dispatch Manager",
     status: "active",
     branch: "Valsad",
   },
   {
-    id: "sub-2",
+    id: "sub-company-2",
     name: "Suresh Patel",
     email: "suresh.safety@hpcompany.com",
     phone: "+91 98234 56789",
+    type: "Company-Subuser",
+    parentAccountName: "HP Company",
+    parentAccountType: "Company",
     role: "Safety Officer",
     status: "active",
     branch: "Surat",
   },
   {
-    id: "sub-3",
+    id: "sub-company-3",
     name: "Amit Desai",
     email: "amit.ops@hpcompany.com",
     phone: "+91 98111 22334",
-    role: "Viewer",
+    type: "Company-Subuser",
+    parentAccountName: "HP Company",
+    parentAccountType: "Company",
+    role: "Fleet Viewer",
     status: "active",
     branch: "Ahmedabad",
   },
+  {
+    id: "sub-company-4",
+    name: "7Sys Coordinator",
+    email: "7sys@demo.com",
+    phone: "+91 98111 77889",
+    type: "Company-Subuser",
+    parentAccountName: "Device Integration Testing",
+    parentAccountType: "Company",
+    role: "Fleet Coordinator",
+    status: "active",
+    branch: "Delhi Logistics",
+  },
+  {
+    id: "sub-company-5",
+    name: "Eagle Logistics Ops",
+    email: "ops@eaglescope.com",
+    phone: "+91 98111 99001",
+    type: "Company-Subuser",
+    parentAccountName: "Eagle Scope Logistics",
+    parentAccountType: "Company",
+    role: "Transport Supervisor",
+    status: "active",
+    branch: "Vadodara Hub",
+  },
 ];
+
+export interface SubuserTreeNode {
+  id: string;
+  name: string;
+  type: "account" | "subuser";
+  accountType?: "Admin" | "Reseller" | "Company";
+  subuserType?: "Admin-Subuser" | "Reseller-Subuser" | "Company-Subuser";
+  email?: string;
+  phone?: string;
+  role?: string;
+  status?: "active" | "inactive";
+  branch?: string;
+  subuserId?: string;
+  children?: SubuserTreeNode[];
+}
+
+export const ADMIN_TREE_DATA: SubuserTreeNode[] = [
+  {
+    id: "acc-admin-uffizio",
+    name: "Uffizio Demo Account",
+    type: "account",
+    accountType: "Admin",
+    children: [
+      {
+        id: "sub-admin-1",
+        name: "Uffizio Demo Subuser",
+        type: "subuser",
+        subuserType: "Admin-Subuser",
+        email: "present@uffizio.com",
+        phone: "+91 99000 11223",
+        role: "System Administrator",
+        status: "active",
+        branch: "HQ - Ahmedabad",
+        subuserId: "sub-admin-1",
+      },
+      {
+        id: "sub-admin-2",
+        name: "Master Admin Ops",
+        type: "subuser",
+        subuserType: "Admin-Subuser",
+        email: "admin.ops@uffizio.com",
+        phone: "+91 99000 44556",
+        role: "Global Operations",
+        status: "active",
+        branch: "HQ - Ahmedabad",
+        subuserId: "sub-admin-2",
+      },
+    ],
+  },
+];
+
+export const RESELLER_TREE_DATA: SubuserTreeNode[] = [
+  {
+    id: "acc-admin-uffizio",
+    name: "Uffizio Demo Account",
+    type: "account",
+    accountType: "Admin",
+    children: [
+      {
+        id: "acc-reseller-uffizio",
+        name: "Uffizio Reseller",
+        type: "account",
+        accountType: "Reseller",
+        children: [
+          {
+            id: "sub-reseller-1",
+            name: "Marketing Lead",
+            type: "subuser",
+            subuserType: "Reseller-Subuser",
+            email: "marketing@reseller.com",
+            phone: "+91 98700 12345",
+            role: "Marketing Manager",
+            status: "active",
+            branch: "Surat Hub",
+            subuserId: "sub-reseller-1",
+          },
+          {
+            id: "sub-reseller-2",
+            name: "Global Tech Partner",
+            type: "subuser",
+            subuserType: "Reseller-Subuser",
+            email: "resellerdemo@globaltech.com",
+            phone: "+91 98700 67890",
+            role: "Senior Reseller Partner",
+            status: "active",
+            branch: "Mumbai Central",
+            subuserId: "sub-reseller-2",
+          },
+          {
+            id: "sub-reseller-3",
+            name: "Sahaj Tech Support",
+            type: "subuser",
+            subuserType: "Reseller-Subuser",
+            email: "resellerdemo2@sahaj.com",
+            phone: "+91 98700 54321",
+            role: "Technical Support",
+            status: "active",
+            branch: "Pune Region",
+            subuserId: "sub-reseller-3",
+          },
+        ],
+      },
+      {
+        id: "acc-reseller-device-test",
+        name: "Device Integration Testing",
+        type: "account",
+        accountType: "Reseller",
+        children: [
+          {
+            id: "sub-reseller-4",
+            name: "Integration Test Engineer",
+            type: "subuser",
+            subuserType: "Reseller-Subuser",
+            email: "device.test@uffizio.com",
+            phone: "+91 98700 99887",
+            role: "Hardware QA Lead",
+            status: "active",
+            branch: "Bangalore Lab",
+            subuserId: "sub-reseller-4",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const COMPANY_TREE_DATA: SubuserTreeNode[] = [
+  {
+    id: "acc-reseller-uffizio",
+    name: "Uffizio Reseller",
+    type: "account",
+    accountType: "Reseller",
+    children: [
+      {
+        id: "acc-company-hp",
+        name: "HP Company",
+        type: "account",
+        accountType: "Company",
+        children: [
+          {
+            id: "sub-company-1",
+            name: "Rajesh Sharma",
+            type: "subuser",
+            subuserType: "Company-Subuser",
+            email: "rajesh.ops@hpcompany.com",
+            phone: "+91 98765 43210",
+            role: "Dispatch Manager",
+            status: "active",
+            branch: "Valsad",
+            subuserId: "sub-company-1",
+          },
+          {
+            id: "sub-company-2",
+            name: "Suresh Patel",
+            type: "subuser",
+            subuserType: "Company-Subuser",
+            email: "suresh.safety@hpcompany.com",
+            phone: "+91 98234 56789",
+            role: "Safety Officer",
+            status: "active",
+            branch: "Surat",
+            subuserId: "sub-company-2",
+          },
+          {
+            id: "sub-company-3",
+            name: "Amit Desai",
+            type: "subuser",
+            subuserType: "Company-Subuser",
+            email: "amit.ops@hpcompany.com",
+            phone: "+91 98111 22334",
+            role: "Fleet Viewer",
+            status: "active",
+            branch: "Ahmedabad",
+            subuserId: "sub-company-3",
+          },
+        ],
+      },
+      {
+        id: "acc-company-eagle",
+        name: "Eagle Scope Logistics",
+        type: "account",
+        accountType: "Company",
+        children: [
+          {
+            id: "sub-company-5",
+            name: "Eagle Logistics Ops",
+            type: "subuser",
+            subuserType: "Company-Subuser",
+            email: "ops@eaglescope.com",
+            phone: "+91 98111 99001",
+            role: "Transport Supervisor",
+            status: "active",
+            branch: "Vadodara Hub",
+            subuserId: "sub-company-5",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "acc-reseller-device-test",
+    name: "Device Integration Testing",
+    type: "account",
+    accountType: "Reseller",
+    children: [
+      {
+        id: "acc-company-device-test",
+        name: "Device Integration Testing (Company)",
+        type: "account",
+        accountType: "Company",
+        children: [
+          {
+            id: "sub-company-4",
+            name: "7Sys Coordinator",
+            type: "subuser",
+            subuserType: "Company-Subuser",
+            email: "7sys@demo.com",
+            phone: "+91 98111 77889",
+            role: "Fleet Coordinator",
+            status: "active",
+            branch: "Delhi Logistics",
+            subuserId: "sub-company-4",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export function countAllSubusers(nodes: SubuserTreeNode[]): number {
+  let count = 0;
+  for (const node of nodes) {
+    if (node.type === "subuser") {
+      count++;
+    }
+    if (node.children && node.children.length > 0) {
+      count += countAllSubusers(node.children);
+    }
+  }
+  return count;
+}
+
+export function getAllSubusersFromTree(nodes: SubuserTreeNode[]): HierarchicalSubuser[] {
+  const list: HierarchicalSubuser[] = [];
+  function traverse(node: SubuserTreeNode) {
+    if (node.type === "subuser" && node.subuserId) {
+      const match = HIERARCHICAL_SUBUSERS.find((s) => s.id === node.subuserId);
+      if (match && !list.some((s) => s.id === match.id)) {
+        list.push(match);
+      }
+    }
+    if (node.children) {
+      for (const child of node.children) {
+        traverse(child);
+      }
+    }
+  }
+  for (const n of nodes) {
+    traverse(n);
+  }
+  return list;
+}
+
+export function filterSubuserTree(
+  nodes: SubuserTreeNode[],
+  search: string,
+): SubuserTreeNode[] {
+  const q = search.trim().toLowerCase();
+  if (!q) return nodes;
+
+  function filterNode(node: SubuserTreeNode): SubuserTreeNode | null {
+    if (node.type === "subuser") {
+      const matches =
+        node.name.toLowerCase().includes(q) ||
+        (node.email && node.email.toLowerCase().includes(q)) ||
+        (node.role && node.role.toLowerCase().includes(q)) ||
+        (node.branch && node.branch.toLowerCase().includes(q)) ||
+        (node.subuserType && node.subuserType.toLowerCase().includes(q));
+      return matches ? node : null;
+    }
+
+    const accountMatches =
+      node.name.toLowerCase().includes(q) ||
+      (node.accountType && node.accountType.toLowerCase().includes(q));
+
+    const filteredChildren = (node.children || [])
+      .map(filterNode)
+      .filter((n): n is SubuserTreeNode => n !== null);
+
+    if (accountMatches) {
+      return node;
+    }
+
+    if (filteredChildren.length > 0) {
+      return {
+        ...node,
+        children: filteredChildren,
+      };
+    }
+
+    return null;
+  }
+
+  return nodes.map(filterNode).filter((n): n is SubuserTreeNode => n !== null);
+}
+
+function SubuserTreeItem({
+  node,
+  depth = 0,
+  selectedSubuserId,
+  defaultSubuserId,
+  activeSessionSubuserId,
+  appliedViewSubuserId,
+  collapsedAccountIds,
+  onToggleCollapse,
+  onSelectSubuser,
+  onDoubleClickSubuser,
+  searchActive,
+}: {
+  node: SubuserTreeNode;
+  depth?: number;
+  selectedSubuserId: string;
+  defaultSubuserId: string;
+  activeSessionSubuserId: string | null;
+  appliedViewSubuserId: string | null;
+  collapsedAccountIds: Record<string, boolean>;
+  onToggleCollapse: (id: string) => void;
+  onSelectSubuser: (id: string) => void;
+  onDoubleClickSubuser: (id: string) => void;
+  searchActive: boolean;
+}) {
+  if (node.type === "account") {
+    const isCollapsed = !searchActive && !!collapsedAccountIds[node.id];
+    const subuserCount = countAllSubusers(node.children || []);
+
+    const accountBadgeStyle =
+      node.accountType === "Admin"
+        ? "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+        : node.accountType === "Reseller"
+        ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800"
+        : "bg-sky-50 text-[#0089FF] dark:bg-sky-950/60 dark:text-sky-300 border-sky-200 dark:border-sky-800";
+
+    return (
+      <div className="select-none">
+        {/* Account Parent Header Row */}
+        <div
+          onClick={() => onToggleCollapse(node.id)}
+          className={cn(
+            "flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-colors group select-none",
+            depth === 0
+              ? "bg-muted/70 hover:bg-muted border border-border/70 font-semibold"
+              : "hover:bg-muted/40 font-medium",
+          )}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            {/* Chevron toggle button */}
+            <div className="h-5 w-5 rounded-md flex items-center justify-center text-muted-foreground group-hover:text-foreground transition-transform shrink-0">
+              {isCollapsed ? (
+                <ChevronRight className="h-3.5 w-3.5" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5" />
+              )}
+            </div>
+
+            {/* Account Name */}
+            <span className="text-xs text-foreground font-bold truncate">
+              {node.name}
+            </span>
+
+            {/* Subuser Count [ N ] */}
+            <span className="text-[11px] font-semibold text-muted-foreground px-1.5 py-0.5 rounded-md bg-background/90 border border-border/60 shrink-0">
+              [ {subuserCount} ]
+            </span>
+          </div>
+
+          {/* Account Role Badge on Right */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span
+              className={cn(
+                "text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0",
+                accountBadgeStyle,
+              )}
+            >
+              {node.accountType}
+            </span>
+          </div>
+        </div>
+
+        {/* Child Nodes (indented with tree guideline) */}
+        {!isCollapsed && node.children && node.children.length > 0 && (
+          <div className="border-l-2 border-border/70 ml-4.5 pl-3 py-1 space-y-1 my-1">
+            {node.children.map((child) => (
+              <SubuserTreeItem
+                key={child.id}
+                node={child}
+                depth={depth + 1}
+                selectedSubuserId={selectedSubuserId}
+                defaultSubuserId={defaultSubuserId}
+                activeSessionSubuserId={activeSessionSubuserId}
+                appliedViewSubuserId={appliedViewSubuserId}
+                collapsedAccountIds={collapsedAccountIds}
+                onToggleCollapse={onToggleCollapse}
+                onSelectSubuser={onSelectSubuser}
+                onDoubleClickSubuser={onDoubleClickSubuser}
+                searchActive={searchActive}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Subuser Child Row (Leaf)
+  const isSelected = selectedSubuserId === node.id;
+  const isDefault = defaultSubuserId === node.id;
+  const isActiveSession = activeSessionSubuserId === node.id;
+  const isAppliedView = appliedViewSubuserId === node.id;
+
+  const typeBadgeStyle =
+    node.subuserType === "Admin-Subuser"
+      ? "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+      : node.subuserType === "Reseller-Subuser"
+      ? "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200 dark:border-amber-800"
+      : "bg-sky-50 text-[#0089FF] dark:bg-sky-950/50 dark:text-sky-300 border-sky-200 dark:border-sky-800";
+
+  return (
+    <div
+      onClick={() => onSelectSubuser(node.id)}
+      onDoubleClick={() => onDoubleClickSubuser(node.id)}
+      className={cn(
+        "flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all select-none group border",
+        isSelected
+          ? "bg-[#0089FF]/8 hover:bg-[#0089FF]/12 border-[#0089FF]/50 shadow-2xs"
+          : "bg-card/40 hover:bg-muted/50 border-transparent hover:border-border/60",
+      )}
+    >
+      {/* Left: Radio + Subuser Name (single clean line, no avatar, no subtext, no active dot) */}
+      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+        {/* Custom Radio Button */}
+        <div
+          className={cn(
+            "h-4 w-4 rounded-full border flex items-center justify-center shrink-0 transition-all",
+            isSelected
+              ? "border-[#0089FF] bg-[#0089FF]"
+              : "border-muted-foreground/40 group-hover:border-[#0089FF]/60 bg-background",
+          )}
+        >
+          {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+        </div>
+
+        {/* Subuser Name */}
+        <span
+          className={cn(
+            "font-semibold text-xs truncate",
+            isSelected ? "text-[#0089FF]" : "text-foreground",
+          )}
+        >
+          {node.name}
+        </span>
+      </div>
+
+      {/* Right: Same alignment column as Admin / Reseller / Company */}
+      <div className="flex items-center gap-2 shrink-0">
+        {/* Subuser Type Badge - in the same alignment of the Admin */}
+        <span
+          className={cn(
+            "text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0",
+            typeBadgeStyle,
+          )}
+        >
+          {node.subuserType}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 /**
  * Standard Modal Shell matching the Trakzee 2.0 Design System:
@@ -381,16 +980,28 @@ export function UserProfileMenu() {
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
 
-  // Subuser State
-  const [subusers, setSubusers] = useState<Subuser[]>(INITIAL_SUBUSERS);
+  // Subuser Hierarchical & Session State
+  const [selectedTierTab, setSelectedTierTab] = useState<SubuserTier>("company");
   const [subuserSearch, setSubuserSearch] = useState("");
-  const [isAddingSubuser, setIsAddingSubuser] = useState(false);
-  const [newSubuserName, setNewSubuserName] = useState("");
-  const [newSubuserEmail, setNewSubuserEmail] = useState("");
-  const [newSubuserPhone, setNewSubuserPhone] = useState("");
-  const [newSubuserRole, setNewSubuserRole] =
-    useState<Subuser["role"]>("Dispatch Manager");
-  const [newSubuserBranch, setNewSubuserBranch] = useState("Valsad");
+  const [defaultSubuserId, setDefaultSubuserId] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("trakzee-default-subuser-id") || "sub-company-1";
+    }
+    return "sub-company-1";
+  });
+  const [activeSessionSubuserId, setActiveSessionSubuserId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("trakzee-active-subuser-id");
+    }
+    return null;
+  });
+  const [appliedViewSubuserId, setAppliedViewSubuserId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("trakzee-applied-view-subuser-id");
+    }
+    return null;
+  });
+  const [selectedSubuserId, setSelectedSubuserId] = useState<string>("sub-company-1");
 
   // Wallet State
   const [walletBalance, setWalletBalance] = useState(4850.0);
@@ -428,32 +1039,44 @@ export function UserProfileMenu() {
     toast.success(`Applied "${theme?.name || "Theme"}" theme`);
   };
 
-  const handleAddSubuser = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newSubuserName.trim() || !newSubuserEmail.trim()) {
-      toast.error("Please enter subuser name and email");
+  const handleLoginAsSubuser = () => {
+    if (!selectedSubuser) {
+      toast.error("Please select a subuser to login as");
       return;
     }
-    const created: Subuser = {
-      id: `sub-${Date.now()}`,
-      name: newSubuserName.trim(),
-      email: newSubuserEmail.trim(),
-      phone: newSubuserPhone.trim() || "+91 90000 00000",
-      role: newSubuserRole,
-      status: "active",
-      branch: newSubuserBranch,
-    };
-    setSubusers([created, ...subusers]);
-    setIsAddingSubuser(false);
-    setNewSubuserName("");
-    setNewSubuserEmail("");
-    setNewSubuserPhone("");
-    toast.success(`Subuser "${created.name}" created successfully`);
+    setActiveSessionSubuserId(selectedSubuser.id);
+    localStorage.setItem("trakzee-active-subuser-id", selectedSubuser.id);
+    toast.success(`Logged in as ${selectedSubuser.name} (${selectedSubuser.email})`);
+    setActiveModal(null);
   };
 
-  const handleDeleteSubuser = (id: string, name: string) => {
-    setSubusers(subusers.filter((s) => s.id !== id));
-    toast.info(`Subuser "${name}" removed`);
+  const handleApplyViewData = () => {
+    if (!selectedSubuser) {
+      toast.error("Please select a subuser to view data");
+      return;
+    }
+    setAppliedViewSubuserId(selectedSubuser.id);
+    localStorage.setItem("trakzee-applied-view-subuser-id", selectedSubuser.id);
+    toast.info(`Viewing data filtered for ${selectedSubuser.name} (${selectedSubuser.parentAccountName})`);
+    setActiveModal(null);
+  };
+
+  const handleSetAsDefault = () => {
+    if (!selectedSubuser) {
+      toast.error("Please select a subuser to set as default");
+      return;
+    }
+    setDefaultSubuserId(selectedSubuser.id);
+    localStorage.setItem("trakzee-default-subuser-id", selectedSubuser.id);
+    toast.success(`Set ${selectedSubuser.name} as default subuser. Will auto-login on every session.`);
+  };
+
+  const handleClearImpersonation = () => {
+    setActiveSessionSubuserId(null);
+    setAppliedViewSubuserId(null);
+    localStorage.removeItem("trakzee-active-subuser-id");
+    localStorage.removeItem("trakzee-applied-view-subuser-id");
+    toast.info("Returned to master account session");
   };
 
   const handleTopup = () => {
@@ -486,17 +1109,81 @@ export function UserProfileMenu() {
     return APPLICATIONS.filter((a) => a.name.toLowerCase().includes(q));
   }, [appSearch]);
 
-  const filteredSubusers = useMemo(() => {
-    const q = subuserSearch.trim().toLowerCase();
-    if (!q) return subusers;
-    return subusers.filter(
-      (s) =>
-        s.name.toLowerCase().includes(q) ||
-        s.email.toLowerCase().includes(q) ||
-        s.role.toLowerCase().includes(q) ||
-        s.branch.toLowerCase().includes(q),
+  // Active Tree Data & Filtering
+  const [collapsedAccountIds, setCollapsedAccountIds] = useState<Record<string, boolean>>({});
+
+  const activeTreeData = useMemo(() => {
+    if (selectedTierTab === "admin") return ADMIN_TREE_DATA;
+    if (selectedTierTab === "reseller") return RESELLER_TREE_DATA;
+    return COMPANY_TREE_DATA;
+  }, [selectedTierTab]);
+
+  const filteredTree = useMemo(() => {
+    return filterSubuserTree(activeTreeData, subuserSearch);
+  }, [activeTreeData, subuserSearch]);
+
+  const totalVisibleSubusers = useMemo(() => {
+    return countAllSubusers(filteredTree);
+  }, [filteredTree]);
+
+  const adminTabCount = useMemo(() => countAllSubusers(ADMIN_TREE_DATA), []);
+  const resellerTabCount = useMemo(() => countAllSubusers(RESELLER_TREE_DATA), []);
+  const companyTabCount = useMemo(() => countAllSubusers(COMPANY_TREE_DATA), []);
+
+  const selectedSubuser = useMemo(() => {
+    return (
+      HIERARCHICAL_SUBUSERS.find((s) => s.id === selectedSubuserId) ||
+      HIERARCHICAL_SUBUSERS[0] ||
+      null
     );
-  }, [subusers, subuserSearch]);
+  }, [selectedSubuserId]);
+
+  const activeSessionSubuser = useMemo(() => {
+    if (!activeSessionSubuserId) return null;
+    return (
+      HIERARCHICAL_SUBUSERS.find((s) => s.id === activeSessionSubuserId) || null
+    );
+  }, [activeSessionSubuserId]);
+
+  // Ensure selected subuser matches the active tab's reachable subusers
+  useEffect(() => {
+    const currentTabSubusers = getAllSubusersFromTree(activeTreeData);
+    if (
+      currentTabSubusers.length > 0 &&
+      !currentTabSubusers.some((s) => s.id === selectedSubuserId)
+    ) {
+      setSelectedSubuserId(currentTabSubusers[0].id);
+    }
+  }, [selectedTierTab, activeTreeData, selectedSubuserId]);
+
+  const isAllCollapsed = useMemo(() => {
+    return Object.values(collapsedAccountIds).filter(Boolean).length > 0;
+  }, [collapsedAccountIds]);
+
+  const handleToggleExpandAll = () => {
+    if (isAllCollapsed) {
+      setCollapsedAccountIds({});
+    } else {
+      const allAccIds: Record<string, boolean> = {};
+      const collect = (nodes: SubuserTreeNode[]) => {
+        for (const n of nodes) {
+          if (n.type === "account") {
+            allAccIds[n.id] = true;
+            if (n.children) collect(n.children);
+          }
+        }
+      };
+      collect(activeTreeData);
+      setCollapsedAccountIds(allAccIds);
+    }
+  };
+
+  const handleToggleAccount = (id: string) => {
+    setCollapsedAccountIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   return (
     <>
@@ -523,14 +1210,19 @@ export function UserProfileMenu() {
           <div className="px-3 py-2.5 mb-1 rounded-lg bg-muted/40 border border-border/40 select-none">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-2xs">
-                {userName}
+                {activeSessionSubuser ? activeSessionSubuser.name.slice(0, 2).toUpperCase() : userName}
               </div>
               <div className="min-w-0 flex-1 truncate">
-                <div className="text-xs font-bold text-foreground truncate">
-                  HP Company Admin
+                <div className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
+                  <span>{activeSessionSubuser ? activeSessionSubuser.name : "HP Company Admin"}</span>
+                  {activeSessionSubuser && (
+                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#0089FF]/10 text-[#0089FF]">
+                      Subuser
+                    </span>
+                  )}
                 </div>
                 <div className="text-[11px] text-muted-foreground truncate">
-                  {userEmail}
+                  {activeSessionSubuser ? activeSessionSubuser.email : userEmail}
                 </div>
               </div>
             </div>
@@ -575,7 +1267,6 @@ export function UserProfileMenu() {
             {/* 4. Set Subuser */}
             <DropdownMenuItem
               onClick={() => {
-                setIsAddingSubuser(false);
                 setSubuserSearch("");
                 setActiveModal("subuser");
               }}
@@ -585,9 +1276,16 @@ export function UserProfileMenu() {
                 <Users className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span>Set Subuser</span>
               </div>
-              <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
-                {subusers.length}
-              </span>
+              <div className="flex items-center gap-1.5">
+                {activeSessionSubuser && (
+                  <span className="text-[9.5px] font-bold text-[#0089FF] bg-[#0089FF]/10 px-1.5 py-0.5 rounded-full">
+                    Active
+                  </span>
+                )}
+                <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
+                  {HIERARCHICAL_SUBUSERS.length}
+                </span>
+              </div>
             </DropdownMenuItem>
 
             {/* 5. Applications Submenu */}
@@ -1603,204 +2301,244 @@ export function UserProfileMenu() {
       {activeModal === "subuser" && (
         <ModalShell
           title="Set Subuser"
-          maxWidth="max-w-2xl"
+          maxWidth="max-w-3xl"
           onClose={() => setActiveModal(null)}
         >
-          <div className="space-y-4">
-            {/* Action Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-              <div className="flex h-8 flex-1 max-w-sm items-center gap-1.5 rounded-md border border-input/80 bg-background px-2.5 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
+          <div className="space-y-3.5">
+            {/* Top Tier Navigation Tabs: Admin | Reseller | Company */}
+            <div className="border-b border-border/70 pb-0 select-none">
+              <div className="flex items-center gap-1 sm:gap-2">
+                {/* 1. Admin Tab */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTierTab("admin")}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2.5 text-xs font-bold cursor-pointer transition-all border-b-2 -mb-px !rounded-none focus:outline-none",
+                    selectedTierTab === "admin"
+                      ? "border-[#0089FF] text-[#0089FF]"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:border-border",
+                  )}
+                >
+                  <Shield className="h-3.5 w-3.5" />
+                  <span>Admin</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-bold px-1.5 py-0.5 rounded-full",
+                      selectedTierTab === "admin"
+                        ? "bg-[#0089FF] text-white"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {adminTabCount}
+                  </span>
+                </button>
+
+                {/* 2. Reseller Tab */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTierTab("reseller")}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2.5 text-xs font-bold cursor-pointer transition-all border-b-2 -mb-px !rounded-none focus:outline-none",
+                    selectedTierTab === "reseller"
+                      ? "border-[#0089FF] text-[#0089FF]"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:border-border",
+                  )}
+                >
+                  <Briefcase className="h-3.5 w-3.5" />
+                  <span>Reseller</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-bold px-1.5 py-0.5 rounded-full",
+                      selectedTierTab === "reseller"
+                        ? "bg-[#0089FF] text-white"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {resellerTabCount}
+                  </span>
+                </button>
+
+                {/* 3. Company Tab */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTierTab("company")}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2.5 text-xs font-bold cursor-pointer transition-all border-b-2 -mb-px !rounded-none focus:outline-none",
+                    selectedTierTab === "company"
+                      ? "border-[#0089FF] text-[#0089FF]"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:border-border",
+                  )}
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  <span>Company</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-bold px-1.5 py-0.5 rounded-full",
+                      selectedTierTab === "company"
+                        ? "bg-[#0089FF] text-white"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {companyTabCount}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Search & Actions Toolbar */}
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 flex-1 items-center gap-2 rounded-xl border border-input/80 bg-background px-3 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
                 <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <input
                   value={subuserSearch}
                   onChange={(e) => setSubuserSearch(e.target.value)}
-                  placeholder="Search subusers by name, email, branch..."
+                  placeholder={`Search ${selectedTierTab} hierarchy by subuser name, email, or account...`}
                   className="h-full flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none font-medium"
                 />
                 {subuserSearch && (
                   <button
                     type="button"
                     onClick={() => setSubuserSearch("")}
-                    className="rounded p-0.5 text-muted-foreground hover:text-foreground"
+                    className="rounded-full p-1 text-muted-foreground hover:text-foreground cursor-pointer"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 )}
               </div>
 
+              {/* Expand / Collapse All Toggle Button */}
               <button
                 type="button"
-                onClick={() => setIsAddingSubuser(!isAddingSubuser)}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#155dfc] px-3.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98 shrink-0"
+                onClick={handleToggleExpandAll}
+                title={isAllCollapsed ? "Expand All Branches" : "Collapse All Branches"}
+                className="h-9 px-3 rounded-xl border border-border/80 bg-card hover:bg-muted/80 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0 font-medium"
               >
-                <UserPlus className="h-3.5 w-3.5" />
-                <span>{isAddingSubuser ? "Cancel Form" : "Add Subuser"}</span>
+                <ChevronsUpDown className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">
+                  {isAllCollapsed ? "Expand All" : "Collapse All"}
+                </span>
+              </button>
+
+              {/* Refresh / Reset button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSubuserSearch("");
+                  setCollapsedAccountIds({});
+                  toast.info("Subuser directory refreshed");
+                }}
+                title="Refresh subuser list"
+                className="h-9 w-9 rounded-xl border border-border/80 bg-card hover:bg-muted/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
               </button>
             </div>
 
-            {/* Inline Add Subuser Form */}
-            {isAddingSubuser && (
-              <form
-                onSubmit={handleAddSubuser}
-                className="p-4 rounded-xl border border-[#0089FF]/40 bg-[#0089FF]/5 space-y-3 animate-in fade-in-0 duration-200"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    <Shield className="h-3.5 w-3.5 text-[#0089FF]" />
-                    <span>Create New Subuser</span>
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-foreground">
-                      Full Name *
-                    </label>
-                    <input
-                      required
-                      value={newSubuserName}
-                      onChange={(e) => setNewSubuserName(e.target.value)}
-                      placeholder="e.g. Ramesh Verma"
-                      className="h-8 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus-within:border-[#0089FF] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-foreground">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={newSubuserEmail}
-                      onChange={(e) => setNewSubuserEmail(e.target.value)}
-                      placeholder="e.g. ramesh@hpcompany.com"
-                      className="h-8 w-full rounded-md border border-input/80 bg-background px-2.5 text-xs font-semibold text-foreground focus-within:border-[#0089FF] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-foreground">
-                      Role / Permission Level
-                    </label>
-                    <SelectDropdown
-                      value={newSubuserRole}
-                      options={[
-                        "Admin",
-                        "Dispatch Manager",
-                        "Safety Officer",
-                        "Viewer",
-                      ]}
-                      onChange={(val) =>
-                        setNewSubuserRole(val as Subuser["role"])
-                      }
-                      triggerClassName="h-8"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-foreground">
-                      Assigned Branch
-                    </label>
-                    <SelectDropdown
-                      value={newSubuserBranch}
-                      options={[
-                        "Valsad",
-                        "Surat",
-                        "Ahmedabad",
-                        "Mumbai",
-                        "All Branches",
-                      ]}
-                      onChange={setNewSubuserBranch}
-                      triggerClassName="h-8"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingSubuser(false)}
-                    className="px-3 py-1 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-1 text-xs rounded-md bg-[#155dfc] hover:bg-[#124ecf] text-white font-semibold shadow-xs cursor-pointer"
-                  >
-                    Save Subuser
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* Subusers List Container */}
-            <div className="rounded-xl border border-border/80 bg-card overflow-hidden shadow-2xs divide-y divide-border/60 max-h-[340px] overflow-y-auto custom-scrollbar">
-              {filteredSubusers.map((sub) => (
-                <div
-                  key={sub.id}
-                  className="flex items-center justify-between p-3 hover:bg-muted/40 transition-colors select-none"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted border border-border/60 font-bold text-xs text-foreground">
-                      {sub.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-foreground truncate">
-                          {sub.name}
-                        </span>
-                        <span className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.2 text-[9.5px]">
-                          {sub.status}
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
-                        <Mail className="h-3 w-3" />
-                        <span>{sub.email}</span>
-                        <span>·</span>
-                        <span>{sub.branch}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="rounded-md border border-border/80 bg-background px-2.5 py-1 text-[11px] font-semibold text-foreground">
-                      {sub.role}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleDeleteSubuser(sub.id, sub.name)
-                      }
-                      aria-label={`Delete ${sub.name}`}
-                      className="p-1.5 rounded-md text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
+            {/* Hierarchical Subusers Tree View */}
+            <div className="rounded-xl border border-border/80 bg-card/60 p-2.5 shadow-2xs max-h-[380px] overflow-y-auto custom-scrollbar space-y-1.5">
+              {filteredTree.map((node) => (
+                <SubuserTreeItem
+                  key={node.id}
+                  node={node}
+                  depth={0}
+                  selectedSubuserId={selectedSubuserId}
+                  defaultSubuserId={defaultSubuserId}
+                  activeSessionSubuserId={activeSessionSubuserId}
+                  appliedViewSubuserId={appliedViewSubuserId}
+                  collapsedAccountIds={collapsedAccountIds}
+                  onToggleCollapse={handleToggleAccount}
+                  onSelectSubuser={(id) => setSelectedSubuserId(id)}
+                  onDoubleClickSubuser={(id) => {
+                    setSelectedSubuserId(id);
+                    handleLoginAsSubuser();
+                  }}
+                  searchActive={!!subuserSearch.trim()}
+                />
               ))}
 
-              {filteredSubusers.length === 0 && (
+              {filteredTree.length === 0 && (
                 <div className="p-8 text-center text-xs text-muted-foreground italic">
-                  No subusers found matching &ldquo;{subuserSearch}&rdquo;
+                  No accounts or subusers found matching &ldquo;{subuserSearch}&rdquo; in {selectedTierTab} tier
                 </div>
               )}
             </div>
 
-            {/* Footer */}
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border/70 mt-3">
-              <button
-                type="button"
-                onClick={() => setActiveModal(null)}
-                className="h-9 rounded-md bg-[#155dfc] px-6 text-xs font-semibold text-white shadow-xs transition-all hover:bg-[#124ecf] cursor-pointer active:scale-98"
-              >
-                Done
-              </button>
+            {/* Footer Toolbar according to UX terminology & modal standard */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border/70 mt-3 select-none">
+              {/* Left: Dismiss / Exit Action */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveModal(null)}
+                  className="h-9 px-4 text-xs rounded-xl border border-border/80 bg-background hover:bg-muted text-foreground font-medium cursor-pointer transition-all active:scale-98 shadow-2xs"
+                >
+                  Cancel
+                </button>
+
+                {activeSessionSubuserId && (
+                  <button
+                    type="button"
+                    onClick={handleClearImpersonation}
+                    className="h-9 px-3 text-xs font-semibold rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60 hover:bg-rose-100 transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-98"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    <span>Exit Subuser Session</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Right: Positive Action CTAs grouped by hierarchy */}
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                {/* 1. Default (Tertiary Action) */}
+                <button
+                  type="button"
+                  onClick={handleSetAsDefault}
+                  title="Make this subuser the default auto-login profile on every session"
+                  disabled={!selectedSubuser}
+                  className={cn(
+                    "h-9 px-3.5 text-xs rounded-xl border font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-98",
+                    defaultSubuserId === selectedSubuser?.id
+                      ? "border-amber-400 bg-amber-100/60 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300"
+                      : "border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100",
+                    !selectedSubuser && "opacity-50 cursor-not-allowed",
+                  )}
+                >
+                  <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                  <span>
+                    {defaultSubuserId === selectedSubuser?.id ? "Default Set" : "Default"}
+                  </span>
+                </button>
+
+                {/* 2. Apply (View Data) (Secondary CTA) */}
+                <button
+                  type="button"
+                  onClick={handleApplyViewData}
+                  title="Scope and view data for this subuser without full credential session switch"
+                  disabled={!selectedSubuser}
+                  className={cn(
+                    "h-9 px-3.5 text-xs rounded-xl border border-[#0089FF]/40 bg-sky-50 dark:bg-sky-950/40 text-[#0089FF] hover:bg-sky-100 font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-98",
+                    !selectedSubuser && "opacity-50 cursor-not-allowed",
+                  )}
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  <span>Apply (View Data)</span>
+                </button>
+
+                {/* 3. Login as Subuser (Primary CTA) */}
+                <button
+                  type="button"
+                  onClick={handleLoginAsSubuser}
+                  title="Login and switch session into this subuser account"
+                  disabled={!selectedSubuser}
+                  className={cn(
+                    "h-9 px-4 text-xs rounded-xl bg-[#0089FF] hover:bg-[#0072D6] text-white font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-98",
+                    !selectedSubuser && "opacity-50 cursor-not-allowed",
+                  )}
+                >
+                  <LogIn className="h-3.5 w-3.5 stroke-[2.5]" />
+                  <span>Login as Subuser</span>
+                </button>
+              </div>
             </div>
           </div>
         </ModalShell>
