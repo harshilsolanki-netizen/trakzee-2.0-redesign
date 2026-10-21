@@ -25,7 +25,8 @@ export function AvoidServiceInterruptionModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[92vw] max-w-[430px] p-0 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="w-[92vw] max-w-[430px] p-0 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 outline-none focus:outline-none focus-visible:outline-none"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-900/60">
@@ -121,7 +122,7 @@ export function AvoidServiceInterruptionModal({
           <button
             type="button"
             onClick={handleRechargeNow}
-            className="h-9 px-6 rounded-lg bg-[#0089FF] hover:bg-[#0076DC] text-white font-semibold text-xs shadow-xs shadow-[#0089FF]/20 hover:shadow-sm hover:shadow-[#0089FF]/30 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="h-9 px-6 rounded-lg bg-[#0089FF] hover:bg-[#0076DC] text-white font-semibold text-xs border-0 border-none outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 ring-0 ring-offset-0 shadow-sm active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
             Recharge Now
           </button>
