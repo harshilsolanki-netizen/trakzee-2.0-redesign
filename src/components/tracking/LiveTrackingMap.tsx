@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   Boxes,
   Calculator,
+  Check,
   ChevronLeft,
   ChevronRight,
   CircleDot,
@@ -55,6 +56,205 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+export interface MapSubOption {
+  id: string;
+  name: string;
+  url: string;
+  subdomains?: string;
+  attribution: string;
+  maxZoom?: number;
+}
+
+export interface MapProvider {
+  id: string;
+  name: string;
+  subOptions: MapSubOption[];
+}
+
+export const MAP_PROVIDERS: MapProvider[] = [
+  {
+    id: "osm",
+    name: "OSM",
+    subOptions: [
+      {
+        id: "osm-standard",
+        name: "OSM Standard",
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: "abc",
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      },
+      {
+        id: "osm-humanitarian",
+        name: "OSM Humanitarian",
+        url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+        subdomains: "abc",
+        attribution: '&copy; OpenStreetMap contributors, Humanitarian OpenStreetMap Team',
+        maxZoom: 19,
+      },
+      {
+        id: "osm-topo",
+        name: "OSM Topo",
+        url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+        subdomains: "abc",
+        attribution: '&copy; OpenStreetMap, SRTM | &copy; OpenTopoMap',
+        maxZoom: 17,
+      },
+      {
+        id: "osm-voyager",
+        name: "OSM Voyager",
+        url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        subdomains: "abcd",
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        maxZoom: 20,
+      },
+    ],
+  },
+  {
+    id: "bing",
+    name: "Bing",
+    subOptions: [
+      {
+        id: "bing-road",
+        name: "Bing Road",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{x}/{y}",
+        subdomains: "a",
+        attribution: "Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS",
+        maxZoom: 19,
+      },
+      {
+        id: "bing-aerial",
+        name: "Bing Aerial",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}",
+        subdomains: "a",
+        attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS",
+        maxZoom: 19,
+      },
+      {
+        id: "bing-hybrid",
+        name: "Bing Hybrid",
+        url: "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+        attribution: "Bing / Hybrid Imagery",
+        maxZoom: 20,
+      },
+    ],
+  },
+  {
+    id: "google",
+    name: "Google",
+    subOptions: [
+      {
+        id: "google-roadmap",
+        name: "Google Roadmap",
+        url: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+        attribution: "&copy; Google Maps",
+        maxZoom: 20,
+      },
+      {
+        id: "google-satellite",
+        name: "Google Satellite",
+        url: "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+        attribution: "&copy; Google Maps",
+        maxZoom: 20,
+      },
+      {
+        id: "google-hybrid",
+        name: "Google Hybrid",
+        url: "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+        attribution: "&copy; Google Maps",
+        maxZoom: 20,
+      },
+      {
+        id: "google-terrain",
+        name: "Google Terrain",
+        url: "https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}",
+        attribution: "&copy; Google Maps",
+        maxZoom: 20,
+      },
+    ],
+  },
+  {
+    id: "here",
+    name: "Here",
+    subOptions: [
+      {
+        id: "here-normal",
+        name: "Here Normal Day",
+        url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        subdomains: "abcd",
+        attribution: "&copy; HERE Maps &copy; OpenStreetMap",
+        maxZoom: 20,
+      },
+      {
+        id: "here-satellite",
+        name: "Here Satellite",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}",
+        subdomains: "a",
+        attribution: "&copy; HERE Satellite &copy; Esri",
+        maxZoom: 19,
+      },
+      {
+        id: "here-hybrid",
+        name: "Here Hybrid",
+        url: "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+        attribution: "&copy; HERE Hybrid",
+        maxZoom: 20,
+      },
+      {
+        id: "here-terrain",
+        name: "Here Terrain",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{x}/{y}",
+        subdomains: "a",
+        attribution: "&copy; HERE Terrain &copy; Esri",
+        maxZoom: 19,
+      },
+    ],
+  },
+  {
+    id: "tomtom",
+    name: "TomTom",
+    subOptions: [
+      {
+        id: "tomtom-basic",
+        name: "TomTom Basic",
+        url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        subdomains: "abcd",
+        attribution: "&copy; TomTom &copy; CARTO",
+        maxZoom: 20,
+      },
+      {
+        id: "tomtom-night",
+        name: "TomTom Night",
+        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        subdomains: "abcd",
+        attribution: "&copy; TomTom &copy; CARTO",
+        maxZoom: 20,
+      },
+    ],
+  },
+  {
+    id: "netstar",
+    name: "NETSTAR",
+    subOptions: [
+      {
+        id: "netstar-traffic",
+        name: "NETSTAR Traffic",
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: "abc",
+        attribution: "&copy; NETSTAR Telematics",
+        maxZoom: 19,
+      },
+      {
+        id: "netstar-hybrid",
+        name: "NETSTAR Hybrid",
+        url: "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+        attribution: "&copy; NETSTAR Hybrid",
+        maxZoom: 20,
+      },
+    ],
+  },
+];
 
 export const CLUSTERS_DATA = [
   {
@@ -214,6 +414,14 @@ export function LiveTrackingMap({
   className?: string;
 }) {
   const [mapStyle, setMapStyle] = useState<"streets" | "satellite" | "terrain" | "dark">("streets");
+  const [activeMapLayer, setActiveMapLayer] = useState<MapSubOption>(
+    MAP_PROVIDERS.find((p) => p.id === "google")?.subOptions[0] || MAP_PROVIDERS[0].subOptions[0]
+  );
+  const [isSelectMapOpen, setIsSelectMapOpen] = useState(false);
+  const [hoveredProviderId, setHoveredProviderId] = useState<string>("google");
+  const selectMapMenuRef = useRef<HTMLDivElement>(null);
+  const hoveredIndex = MAP_PROVIDERS.findIndex((p) => p.id === hoveredProviderId);
+  const hoveredProvider = MAP_PROVIDERS[hoveredIndex !== -1 ? hoveredIndex : 2];
   const [showClusters, setShowClusters] = useState(true);
   const [showObjectPath, setShowObjectPath] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
@@ -325,45 +533,45 @@ export function LiveTrackingMap({
     };
   }, []);
 
-  // Update Leaflet Tile Layer on mapStyle change
+  // Update Leaflet Tile Layer on activeMapLayer change
   useEffect(() => {
     if (!mapInstanceRef.current) return;
     if (tileLayerRef.current) {
       mapInstanceRef.current.removeLayer(tileLayerRef.current);
     }
 
-    const tileConfigs = {
-      streets: {
-        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        subdomains: "abc",
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      },
-      satellite: {
-        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}",
-        subdomains: "a",
-        attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS",
-      },
-      dark: {
-        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        subdomains: "abcd",
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-      },
-      terrain: {
-        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{x}/{y}",
-        subdomains: "a",
-        attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
-      },
-    };
-
-    const cfg = tileConfigs[mapStyle];
-    const layer = L.tileLayer(cfg.url, {
-      attribution: cfg.attribution,
-      subdomains: cfg.subdomains || "a",
-      maxZoom: 19,
+    const layer = L.tileLayer(activeMapLayer.url, {
+      attribution: activeMapLayer.attribution,
+      subdomains: activeMapLayer.subdomains || "abc",
+      maxZoom: activeMapLayer.maxZoom || 19,
     });
     layer.addTo(mapInstanceRef.current);
     tileLayerRef.current = layer;
-  }, [mapStyle]);
+  }, [activeMapLayer]);
+
+  // Close Select Map flyout on click outside or escape key
+  useEffect(() => {
+    if (!isSelectMapOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (selectMapMenuRef.current && !selectMapMenuRef.current.contains(e.target as Node)) {
+        setIsSelectMapOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsSelectMapOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isSelectMapOpen]);
 
   // Sync polyline active vehicle route path
   useEffect(() => {
@@ -844,28 +1052,133 @@ export function LiveTrackingMap({
         </TooltipProvider>
 
         {/* 2. Middle Card: GIS Tools Toolbar (44px Width) */}
-        <div className="w-[44px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-xl flex flex-col items-center gap-1 shrink-0 overflow-hidden">
+        <div className="w-[44px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-xl flex flex-col items-center gap-1 shrink-0 relative">
           <TooltipProvider delayDuration={150}>
-            {/* 1. Select Map */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setMapStyle((s) => (s === "streets" ? "satellite" : s === "satellite" ? "dark" : "streets"))
-                  }
-                  className={cn(
-                    "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
-                    mapStyle !== "streets"
-                      ? "bg-[#0089FF]/12 text-[#0089FF] shadow-xs"
-                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+            {/* 1. Select Map with Cascading Flyout Menu */}
+            <div className="relative shrink-0" ref={selectMapMenuRef}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSelectMapOpen((prev) => !prev);
+                      if (!isSelectMapOpen) {
+                        const curProv = MAP_PROVIDERS.find((p) =>
+                          p.subOptions.some((s) => s.id === activeMapLayer.id)
+                        );
+                        if (curProv) setHoveredProviderId(curProv.id);
+                      }
+                    }}
+                    className={cn(
+                      "w-[36px] h-[36px] rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0",
+                      isSelectMapOpen
+                        ? "bg-[#0089FF] text-white shadow-md shadow-sky-500/20"
+                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]",
+                    )}
+                  >
+                    <Layers className="h-4.5 w-4.5 stroke-[2]" />
+                  </button>
+                </TooltipTrigger>
+                {!isSelectMapOpen && (
+                  <TooltipContent side="left">Select Map ({activeMapLayer.name})</TooltipContent>
+                )}
+              </Tooltip>
+
+              {/* Select Map Cascading Menus */}
+              {isSelectMapOpen && (
+                <div className="absolute right-[calc(100%+10px)] top-0 z-50 select-none animate-in fade-in zoom-in-95 duration-150">
+                  {/* Secondary Submenu (Floats to the left of the hovered provider) */}
+                  {hoveredProvider && (
+                    <div
+                      style={{
+                        top: `${Math.min(
+                          41 + (hoveredIndex >= 0 ? hoveredIndex : 0) * 36,
+                          Math.max(41, 257 - (hoveredProvider.subOptions.length * 36 + 8))
+                        )}px`,
+                      }}
+                      className="absolute right-[calc(100%+6px)] w-[175px] bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl shadow-slate-900/15 overflow-hidden p-1 flex flex-col gap-0.5 shrink-0 animate-in fade-in-50 duration-100 before:absolute before:-right-2 before:top-0 before:bottom-0 before:w-3"
+                    >
+                      {hoveredProvider.subOptions.map((sub) => {
+                        const isActive = activeMapLayer.id === sub.id;
+                        return (
+                          <button
+                            key={sub.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveMapLayer(sub);
+                              if (sub.id.includes("satellite")) setMapStyle("satellite");
+                              else if (sub.id.includes("terrain")) setMapStyle("terrain");
+                              else if (sub.id.includes("night") || sub.id.includes("dark")) setMapStyle("dark");
+                              else setMapStyle("streets");
+                              toast.success(`Switched map layer to ${sub.name}`);
+                              setIsSelectMapOpen(false);
+                            }}
+                            className={cn(
+                              "w-full h-[34px] px-2.5 rounded-xl text-xs font-medium text-left flex items-center justify-between transition-colors cursor-pointer",
+                              isActive
+                                ? "bg-[#0089FF]/12 text-[#0089FF] font-semibold"
+                                : "text-slate-700 dark:text-slate-200 hover:bg-[#0089FF]/8 hover:text-[#0089FF]"
+                            )}
+                          >
+                            <span className="truncate">{sub.name}</span>
+                            {isActive && (
+                              <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0 ml-1.5 stroke-[2.5]" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
-                >
-                  <Layers className="h-4.5 w-4.5 stroke-[2]" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left">Select Map ({mapStyle.toUpperCase()})</TooltipContent>
-            </Tooltip>
+
+                  {/* Primary Menu (Select Map) */}
+                  <div className="w-[145px] bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl shadow-slate-900/15 overflow-hidden shrink-0">
+                    {/* Header */}
+                    <div className="bg-[#0089FF] text-white px-3.5 py-2.5 rounded-t-2xl flex items-center justify-between font-semibold text-xs tracking-wide">
+                      <span>Select Map</span>
+                      <Layers className="h-3.5 w-3.5 text-white/90" />
+                    </div>
+
+                    {/* Providers List */}
+                    <div className="p-1 flex flex-col gap-0.5">
+                      {MAP_PROVIDERS.map((provider) => {
+                        const isHovered = hoveredProviderId === provider.id;
+                        const hasActiveLayer = provider.subOptions.some((s) => s.id === activeMapLayer.id);
+                        return (
+                          <div
+                            key={provider.id}
+                            onMouseEnter={() => setHoveredProviderId(provider.id)}
+                            onClick={() => setHoveredProviderId(provider.id)}
+                            className={cn(
+                              "h-[34px] px-2.5 rounded-xl text-xs font-medium flex items-center justify-between cursor-pointer transition-all group",
+                              isHovered
+                                ? "bg-[#0089FF]/12 text-[#0089FF] font-semibold"
+                                : hasActiveLayer
+                                ? "text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800"
+                                : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]"
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <ChevronLeft
+                                className={cn(
+                                  "h-3.5 w-3.5 stroke-[2.5] transition-transform",
+                                  isHovered
+                                    ? "text-[#0089FF] -translate-x-0.5"
+                                    : "text-slate-400 group-hover:text-[#0089FF]"
+                                )}
+                              />
+                              <span className="truncate">{provider.name}</span>
+                            </div>
+                            {hasActiveLayer && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#0089FF] shrink-0" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* 2. Remove Cluster */}
             <Tooltip>
