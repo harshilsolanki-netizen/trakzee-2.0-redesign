@@ -1092,8 +1092,8 @@ export function LiveTrackingMap({
                     <div
                       style={{
                         top: `${Math.min(
-                          41 + (hoveredIndex >= 0 ? hoveredIndex : 0) * 36,
-                          Math.max(41, 257 - (hoveredProvider.subOptions.length * 36 + 8))
+                          4 + (hoveredIndex >= 0 ? hoveredIndex : 0) * 36,
+                          Math.max(4, 224 - (hoveredProvider.subOptions.length * 36 + 8))
                         )}px`,
                       }}
                       className="absolute right-[calc(100%+6px)] w-[175px] bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl shadow-slate-900/15 overflow-hidden p-1 flex flex-col gap-0.5 shrink-0 animate-in fade-in-50 duration-100 before:absolute before:-right-2 before:top-0 before:bottom-0 before:w-3"
@@ -1130,51 +1130,42 @@ export function LiveTrackingMap({
                     </div>
                   )}
 
-                  {/* Primary Menu (Select Map) */}
-                  <div className="w-[145px] bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl shadow-slate-900/15 overflow-hidden shrink-0">
-                    {/* Header */}
-                    <div className="bg-[#0089FF] text-white px-3.5 py-2.5 rounded-t-2xl flex items-center justify-between font-semibold text-xs tracking-wide">
-                      <span>Select Map</span>
-                      <Layers className="h-3.5 w-3.5 text-white/90" />
-                    </div>
-
-                    {/* Providers List */}
-                    <div className="p-1 flex flex-col gap-0.5">
-                      {MAP_PROVIDERS.map((provider) => {
-                        const isHovered = hoveredProviderId === provider.id;
-                        const hasActiveLayer = provider.subOptions.some((s) => s.id === activeMapLayer.id);
-                        return (
-                          <div
-                            key={provider.id}
-                            onMouseEnter={() => setHoveredProviderId(provider.id)}
-                            onClick={() => setHoveredProviderId(provider.id)}
-                            className={cn(
-                              "h-[34px] px-2.5 rounded-xl text-xs font-medium flex items-center justify-between cursor-pointer transition-all group",
-                              isHovered
-                                ? "bg-[#0089FF]/12 text-[#0089FF] font-semibold"
-                                : hasActiveLayer
-                                ? "text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800"
-                                : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]"
-                            )}
-                          >
-                            <div className="flex items-center gap-2">
-                              <ChevronLeft
-                                className={cn(
-                                  "h-3.5 w-3.5 stroke-[2.5] transition-transform",
-                                  isHovered
-                                    ? "text-[#0089FF] -translate-x-0.5"
-                                    : "text-slate-400 group-hover:text-[#0089FF]"
-                                )}
-                              />
-                              <span className="truncate">{provider.name}</span>
-                            </div>
-                            {hasActiveLayer && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#0089FF] shrink-0" />
-                            )}
+                  {/* Primary Menu (Providers List) */}
+                  <div className="w-[145px] bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl shadow-slate-900/15 overflow-hidden p-1 flex flex-col gap-0.5 shrink-0">
+                    {MAP_PROVIDERS.map((provider) => {
+                      const isHovered = hoveredProviderId === provider.id;
+                      const hasActiveLayer = provider.subOptions.some((s) => s.id === activeMapLayer.id);
+                      return (
+                        <div
+                          key={provider.id}
+                          onMouseEnter={() => setHoveredProviderId(provider.id)}
+                          onClick={() => setHoveredProviderId(provider.id)}
+                          className={cn(
+                            "h-[34px] px-2.5 rounded-xl text-xs font-medium flex items-center justify-between cursor-pointer transition-all group",
+                            isHovered
+                              ? "bg-[#0089FF]/12 text-[#0089FF] font-semibold"
+                              : hasActiveLayer
+                              ? "text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800"
+                              : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF]"
+                          )}
+                        >
+                          <div className="flex items-center gap-2">
+                            <ChevronLeft
+                              className={cn(
+                                "h-3.5 w-3.5 stroke-[2.5] transition-transform",
+                                isHovered
+                                  ? "text-[#0089FF] -translate-x-0.5"
+                                  : "text-slate-400 group-hover:text-[#0089FF]"
+                              )}
+                            />
+                            <span className="truncate">{provider.name}</span>
                           </div>
-                        );
-                      })}
-                    </div>
+                          {hasActiveLayer && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#0089FF] shrink-0" />
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
