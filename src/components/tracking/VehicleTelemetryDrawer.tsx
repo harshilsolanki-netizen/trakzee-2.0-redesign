@@ -53,8 +53,10 @@ import {
   Wrench,
   X,
   Zap,
+  Bluetooth,
+  Pin,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { STATUS_META, type FleetObject } from "@/data/fleet";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -72,14 +74,16 @@ import {
 import { AddItemModal } from "./AddItemModal";
 import { TpmsDrawerCards } from "./TpmsDrawerCards";
 import { EngineParametersCard } from "./EngineParametersCard";
+import { BleDrawerCards } from "./BleDrawerCards";
 import { TpmsIcon, EngineIcon } from "./AutomotiveIcons";
 import { VehicleModeModal, type VehicleModeData } from "./VehicleModeModal";
 import { CustomDateRangeModal } from "./CustomDateRangeModal";
 
 const DRAWER_TABS = [
-  { id: "details", label: "Details", icon: MapPin },
-  { id: "tpms", label: "TPMS", icon: TpmsIcon },
+  { id: "details", label: "Live", icon: MapPin },
   { id: "engine", label: "Engine Parameters", icon: EngineIcon },
+  { id: "ble", label: "BLE", icon: Bluetooth },
+  { id: "tpms", label: "TPMS", icon: TpmsIcon },
 ] as const;
 
 function formatDuration(raw?: string): string {
@@ -178,7 +182,38 @@ export function VehicleTelemetryDrawer({
   } | null;
   className?: string;
 }) {
-  const [activeDrawerTab, setActiveDrawerTab] = useState<"details" | "tpms" | "engine">("details");
+  const [pinnedDrawerTab, setPinnedDrawerTab] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("trakzee_pinned_tooltip_tab");
+      if (saved && ["live", "details", "engine", "ble", "tpms"].includes(saved)) {
+        return saved === "live" ? "details" : saved;
+      }
+    }
+    return "details";
+  });
+
+  const [activeDrawerTab, setActiveDrawerTab] = useState<"details" | "tpms" | "engine" | "ble">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("trakzee_pinned_tooltip_tab");
+      if (saved === "engine") return "engine";
+      if (saved === "tpms") return "tpms";
+      if (saved === "ble") return "ble";
+      if (saved === "live" || saved === "details") return "details";
+    }
+    return "details";
+  });
+
+  // Restore pinned default tooltip view whenever vehicle changes or drawer opens
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("trakzee_pinned_tooltip_tab");
+      if (saved && ["live", "details", "engine", "ble", "tpms"].includes(saved)) {
+        const resolved = saved === "live" ? "details" : saved;
+        setPinnedDrawerTab(resolved);
+        setActiveDrawerTab(resolved as any);
+      }
+    }
+  }, [vehicle.id]);
   const [showWidgetSettings, setShowWidgetSettings] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showModeModal, setShowModeModal] = useState<boolean>(false);
@@ -336,23 +371,47 @@ export function VehicleTelemetryDrawer({
             <div className="flex items-center gap-1 min-w-0">
               {DRAWER_TABS.map((tab) => {
                 const isActive = activeDrawerTab === tab.id;
+                const isPinned = (pinnedDrawerTab === "live" ? "details" : pinnedDrawerTab) === tab.id;
                 const IconComp = tab.icon;
 
                 return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    title={tab.label}
-                    onClick={() => setActiveDrawerTab(tab.id as any)}
-                    className={cn(
-                      "h-8 w-8 flex items-center justify-center rounded-xl transition-all cursor-pointer shrink-0 active:scale-95",
-                      isActive
-                        ? "bg-[#0089FF] text-white shadow-2xs"
-                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
+                  <div key={tab.id} className="relative shrink-0">
+                    <button
+                      type="button"
+                      title={
+                        isPinned
+                          ? `${tab.label} (Pinned Default View) · Click to switch`
+                          : `${tab.label} · Click to switch (Right-click to pin as default)`
+                      }
+                      onClick={() => setActiveDrawerTab(tab.id as any)}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        const nextPinned = tab.id === "details" ? "live" : tab.id;
+                        setPinnedDrawerTab(tab.id);
+                        if (typeof window !== "undefined") {
+                          localStorage.setItem("trakzee_pinned_tooltip_tab", nextPinned);
+                        }
+                        toast.success(`${tab.label} pinned as default tooltip view`);
+                      }}
+                      className={cn(
+                        "h-8 w-8 flex items-center justify-center rounded-xl transition-all cursor-pointer shrink-0 active:scale-95",
+                        isActive
+                          ? "bg-[#0089FF] text-white shadow-2xs"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
+                      )}
+                    >
+                      <IconComp className={cn("h-4 w-4 stroke-[2]", isActive && "fill-current")} />
+                    </button>
+
+                    {isPinned && (
+                      <span
+                        className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-500 text-white shadow-xs pointer-events-none ring-2 ring-white dark:ring-slate-900"
+                        title={`${tab.label} is pinned as default view`}
+                      >
+                        <Pin className="h-2 w-2 fill-white rotate-45" />
+                      </span>
                     )}
-                  >
-                    <IconComp className={cn("h-4 w-4 stroke-[2]", isActive && "fill-current")} />
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -375,7 +434,7 @@ export function VehicleTelemetryDrawer({
         <div
           className={cn(
             "flex-1 min-h-0 w-full pointer-events-auto",
-            activeDrawerTab === "engine"
+            activeDrawerTab === "engine" || activeDrawerTab === "ble"
               ? "flex flex-col h-full overflow-hidden"
               : "overflow-y-auto overflow-x-hidden space-y-2 custom-scrollbar py-0.5 pr-2"
           )}
@@ -384,6 +443,8 @@ export function VehicleTelemetryDrawer({
             <TpmsDrawerCards vehicle={vehicle} onClose={onClose} />
           ) : activeDrawerTab === "engine" ? (
             <EngineParametersCard vehicle={vehicle} />
+          ) : activeDrawerTab === "ble" ? (
+            <BleDrawerCards vehicle={vehicle} onClose={onClose} />
           ) : (
             (isHealthOnly
               ? ["health_score"]
@@ -1969,6 +2030,12 @@ export function VehicleTelemetryDrawer({
         onClose={() => setShowWidgetSettings(false)}
         enabledWidgets={enabledWidgets}
         onApply={(updated) => setEnabledWidgets(updated)}
+        pinnedTab={pinnedDrawerTab === "details" ? "live" : pinnedDrawerTab}
+        onPinTabChange={(tabId) => {
+          const resolved = tabId === "live" ? "details" : tabId;
+          setPinnedDrawerTab(resolved);
+          setActiveDrawerTab(resolved as any);
+        }}
       />
 
       {/* Add Item Modal (Matching Reference Screenshot media_1791274007892.png 1:1) */}

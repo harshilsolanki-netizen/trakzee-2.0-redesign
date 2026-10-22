@@ -269,12 +269,32 @@ export function TrackingPage() {
       snapshotUrl: "/telematics/cargo_hold.png",
     },
   ]);
-  const [isVideoMatrixMode, setIsVideoMatrixMode] = useState(false);
+  const [pinnedVideoView, setPinnedVideoView] = useState<"map_video" | "matrix" | null>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("trakzee_pinned_video_view");
+      if (saved === "matrix" || saved === "map_video") return saved;
+    }
+    return null;
+  });
+
+  const [isVideoMatrixMode, setIsVideoMatrixMode] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("trakzee_pinned_video_view");
+      return saved === "matrix";
+    }
+    return false;
+  });
   const [isMapVideoPanelOpen, setIsMapVideoPanelOpen] = useState(false);
 
-  // Sync Video Telematics Right Panel visibility with activeTab
+  // Sync Video Telematics Right Panel visibility with activeTab & restore pinned default view
   useEffect(() => {
     if (activeTab === "video_telematics") {
+      const saved = localStorage.getItem("trakzee_pinned_video_view");
+      if (saved === "matrix") {
+        setIsVideoMatrixMode(true);
+      } else if (saved === "map_video") {
+        setIsVideoMatrixMode(false);
+      }
       setIsMapVideoPanelOpen(true);
     } else {
       setIsMapVideoPanelOpen(false);
@@ -293,6 +313,14 @@ export function TrackingPage() {
     });
     setIntercomDevice(null);
     setPlaybackHistoryDevice(null);
+    if (!isMapVideoPanelOpen) {
+      const saved = localStorage.getItem("trakzee_pinned_video_view");
+      if (saved === "matrix") {
+        setIsVideoMatrixMode(true);
+      } else if (saved === "map_video") {
+        setIsVideoMatrixMode(false);
+      }
+    }
     setIsMapVideoPanelOpen(true);
     setActiveTab("video_telematics");
   };
@@ -520,7 +548,18 @@ export function TrackingPage() {
             onStartResize={() => setIsResizing(true)}
             onResetWidth={() => setCustomWidth(null)}
             activeTab={activeTab as any}
-            onTabChange={(tab) => setActiveTab(tab)}
+            onTabChange={(tab) => {
+              setActiveTab(tab);
+              if (tab === "video_telematics") {
+                const saved = localStorage.getItem("trakzee_pinned_video_view");
+                if (saved === "matrix") {
+                  setIsVideoMatrixMode(true);
+                } else if (saved === "map_video") {
+                  setIsVideoMatrixMode(false);
+                }
+                setIsMapVideoPanelOpen(true);
+              }
+            }}
             onOpenVideoChannel={handleOpenVideoChannel}
             onOpenIntercom={(dev) => {
               setIntercomDevice(dev);
@@ -584,6 +623,15 @@ export function TrackingPage() {
             }}
             isMatrixMode={isVideoMatrixMode}
             onToggleMatrixMode={(enabled) => setIsVideoMatrixMode(enabled)}
+            pinnedView={pinnedVideoView}
+            onTogglePinView={(view) => {
+              setPinnedVideoView(view);
+              if (view) {
+                localStorage.setItem("trakzee_pinned_video_view", view);
+              } else {
+                localStorage.removeItem("trakzee_pinned_video_view");
+              }
+            }}
             onOpenIntercom={(dev) => {
               setIntercomDevice(dev);
               setPlaybackHistoryDevice(null);

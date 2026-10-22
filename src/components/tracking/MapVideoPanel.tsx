@@ -28,6 +28,7 @@ import {
   ZoomOut,
   RotateCcw,
   Radio,
+  Pin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -327,6 +328,8 @@ interface MapVideoPanelProps {
   onCloseIntercom?: () => void;
   onOpenIntercom?: (device: IntercomDevice) => void;
   className?: string;
+  pinnedView?: "map_video" | "matrix" | null;
+  onTogglePinView?: (view: "map_video" | "matrix" | null) => void;
 }
 
 export function MapVideoPanel({
@@ -339,10 +342,52 @@ export function MapVideoPanel({
   onCloseIntercom,
   onOpenIntercom,
   className,
+  pinnedView: propPinnedView,
+  onTogglePinView,
 }: MapVideoPanelProps) {
   // Layout Modes: "stack" (side panel), "1x1", "2x2", "2x3" (asymmetric matrix), "3x3"
-  const [internalLayoutMode, setInternalLayoutMode] = useState<"stack" | "1x1" | "2x2" | "2x3" | "3x3">("stack");
+  const [internalLayoutMode, setInternalLayoutMode] = useState<"stack" | "1x1" | "2x2" | "2x3" | "3x3">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("trakzee_matrix_layout_mode") as any;
+      if (saved && ["1x1", "2x2", "2x3", "3x3"].includes(saved)) return saved;
+    }
+    return "stack";
+  });
   const [internalMatrixMode, setInternalMatrixMode] = useState(false);
+
+  // Pinned Default View state ("map_video" or "matrix")
+  const [internalPinnedView, setInternalPinnedView] = useState<"map_video" | "matrix" | null>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("trakzee_pinned_video_view");
+      if (saved === "matrix" || saved === "map_video") return saved;
+    }
+    return null;
+  });
+
+  const pinnedView = propPinnedView !== undefined ? propPinnedView : internalPinnedView;
+
+  const handleTogglePin = (view: "map_video" | "matrix") => {
+    const nextView = pinnedView === view ? null : view;
+    if (typeof window !== "undefined") {
+      if (nextView) {
+        localStorage.setItem("trakzee_pinned_video_view", nextView);
+        toast.success(
+          nextView === "matrix"
+            ? "Matrix View pinned as default view"
+            : "Map + Video pinned as default view"
+        );
+      } else {
+        localStorage.removeItem("trakzee_pinned_video_view");
+        toast.info(
+          view === "matrix"
+            ? "Matrix View unpinned. Default view reset."
+            : "Map + Video unpinned. Default view reset."
+        );
+      }
+    }
+    setInternalPinnedView(nextView);
+    onTogglePinView?.(nextView);
+  };
 
   const isMatrixMode = propIsMatrixMode ?? internalMatrixMode;
   const layoutMode = isMatrixMode ? (internalLayoutMode === "stack" ? "2x3" : internalLayoutMode) : "stack";
@@ -775,45 +820,177 @@ export function MapVideoPanel({
     >
       {/* 1. Main Header Bar: 2 View Tabs (Map + Video & Matrix View) matching Object Panel Tabs */}
       <div className="flex items-center justify-between px-2.5 py-2 bg-white dark:bg-slate-900 shrink-0 border-b border-slate-200 dark:border-slate-800">
-        {/* Left: 2 View Tabs */}
+        {/* Left: 2 View Tabs with Pin as Default View */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           {/* Tab 1: Map + Video View */}
-          <button
-            type="button"
-            onClick={() => {
-              setMatrixModeState(false);
-              setInternalLayoutMode("stack");
-            }}
-            title="Map + Video"
-            className={cn(
-              "h-8 flex items-center justify-center rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-98",
-              !isMatrixMode
-                ? "bg-[#0089FF] text-white hover:bg-[#0070d6] px-3 gap-1.5"
-                : "w-8 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-            )}
-          >
-            <MapPin className="h-3.5 w-3.5 stroke-[2.2] shrink-0" />
-            {!isMatrixMode && <span>Map + Video</span>}
-          </button>
+          {!isMatrixMode ? (
+            <div className="h-8 flex items-center rounded-lg text-xs font-semibold shadow-2xs transition-all shrink-0 bg-[#0089FF] text-white pl-2.5 pr-1 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setMatrixModeState(false);
+                  setInternalLayoutMode("stack");
+                }}
+                className="flex items-center gap-1.5 cursor-pointer hover:opacity-95 active:scale-98 transition-all"
+                title="Map + Video View"
+              >
+                <MapPin className="h-3.5 w-3.5 stroke-[2.2] shrink-0" />
+                <span>Map + Video</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleTogglePin("map_video");
+                }}
+                title={
+                  pinnedView === "map_video"
+                    ? "Map + Video is pinned as default view (Click to unpin)"
+                    : "Pin Map + Video as default view (opens automatically on tab open)"
+                }
+                aria-label={
+                  pinnedView === "map_video"
+                    ? "Unpin Map + Video as default view"
+                    : "Pin Map + Video as default view"
+                }
+                className={cn(
+                  "h-6 w-6 rounded-md flex items-center justify-center transition-all cursor-pointer ml-0.5",
+                  pinnedView === "map_video"
+                    ? "bg-white/25 text-amber-300 hover:bg-white/35 shadow-2xs"
+                    : "text-white/70 hover:text-white hover:bg-white/15"
+                )}
+              >
+                <Pin
+                  className={cn(
+                    "h-3 w-3 transition-transform",
+                    pinnedView === "map_video"
+                      ? "fill-amber-300 text-amber-300 rotate-45"
+                      : "-rotate-12"
+                  )}
+                />
+              </button>
+            </div>
+          ) : (
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setMatrixModeState(false);
+                  setInternalLayoutMode("stack");
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  handleTogglePin("map_video");
+                }}
+                title={
+                  pinnedView === "map_video"
+                    ? "Map + Video (Pinned Default) · Click to switch (Right-click to unpin)"
+                    : "Map + Video · Click to switch (Right-click to pin as default)"
+                }
+                className="h-8 w-8 flex items-center justify-center rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer shrink-0 active:scale-98"
+              >
+                <MapPin className="h-3.5 w-3.5 stroke-[2.2] shrink-0" />
+              </button>
+
+              {pinnedView === "map_video" && (
+                <span
+                  className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-500 text-white shadow-xs pointer-events-none ring-2 ring-white dark:ring-slate-900"
+                  title="Map + Video is pinned as default view"
+                >
+                  <Pin className="h-2 w-2 fill-white rotate-45" />
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Tab 2: Matrix View */}
-          <button
-            type="button"
-            onClick={() => {
-              setMatrixModeState(true);
-              if (internalLayoutMode === "stack") setInternalLayoutMode("2x3");
-            }}
-            title="Matrix View"
-            className={cn(
-              "h-8 flex items-center justify-center rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-98",
-              isMatrixMode
-                ? "bg-[#0089FF] text-white hover:bg-[#0070d6] px-3 gap-1.5"
-                : "w-8 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-            )}
-          >
-            <LayoutGrid className="h-3.5 w-3.5 stroke-[2.2] shrink-0" />
-            {isMatrixMode && <span>Matrix View</span>}
-          </button>
+          {isMatrixMode ? (
+            <div className="h-8 flex items-center rounded-lg text-xs font-semibold shadow-2xs transition-all shrink-0 bg-[#0089FF] text-white pl-2.5 pr-1 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setMatrixModeState(true);
+                  if (internalLayoutMode === "stack") {
+                    const saved = (typeof window !== "undefined" && localStorage.getItem("trakzee_matrix_layout_mode")) as any;
+                    setInternalLayoutMode(saved || "2x3");
+                  }
+                }}
+                className="flex items-center gap-1.5 cursor-pointer hover:opacity-95 active:scale-98 transition-all"
+                title="Matrix View"
+              >
+                <LayoutGrid className="h-3.5 w-3.5 stroke-[2.2] shrink-0" />
+                <span>Matrix View</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleTogglePin("matrix");
+                }}
+                title={
+                  pinnedView === "matrix"
+                    ? "Matrix View is pinned as default view (Click to unpin)"
+                    : "Pin Matrix View as default view (opens automatically on tab open)"
+                }
+                aria-label={
+                  pinnedView === "matrix"
+                    ? "Unpin Matrix View as default view"
+                    : "Pin Matrix View as default view"
+                }
+                className={cn(
+                  "h-6 w-6 rounded-md flex items-center justify-center transition-all cursor-pointer ml-0.5",
+                  pinnedView === "matrix"
+                    ? "bg-white/25 text-amber-300 hover:bg-white/35 shadow-2xs"
+                    : "text-white/70 hover:text-white hover:bg-white/15"
+                )}
+              >
+                <Pin
+                  className={cn(
+                    "h-3 w-3 transition-transform",
+                    pinnedView === "matrix"
+                      ? "fill-amber-300 text-amber-300 rotate-45"
+                      : "-rotate-12"
+                  )}
+                />
+              </button>
+            </div>
+          ) : (
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setMatrixModeState(true);
+                  if (internalLayoutMode === "stack") {
+                    const saved = (typeof window !== "undefined" && localStorage.getItem("trakzee_matrix_layout_mode")) as any;
+                    setInternalLayoutMode(saved || "2x3");
+                  }
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  handleTogglePin("matrix");
+                }}
+                title={
+                  pinnedView === "matrix"
+                    ? "Matrix View (Pinned Default) · Click to switch (Right-click to unpin)"
+                    : "Matrix View · Click to switch (Right-click to pin as default)"
+                }
+                className="h-8 w-8 flex items-center justify-center rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer shrink-0 active:scale-98"
+              >
+                <LayoutGrid className="h-3.5 w-3.5 stroke-[2.2] shrink-0" />
+              </button>
+
+              {pinnedView === "matrix" && (
+                <span
+                  className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-500 text-white shadow-xs pointer-events-none ring-2 ring-white dark:ring-slate-900"
+                  title="Matrix View is pinned as default view"
+                >
+                  <Pin className="h-2 w-2 fill-white rotate-45" />
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right Header Action Controls: Close All */}

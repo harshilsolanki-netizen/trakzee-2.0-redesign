@@ -13,6 +13,7 @@ import {
   Thermometer,
   Video,
   X,
+  Pin,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -160,11 +161,9 @@ export const DEFAULT_ENABLED_WIDGETS = TOOLTIP_WIDGET_CATEGORIES.flatMap((cat) =
 
 const PIN_TABS = [
   { id: "live", label: "Live", icon: MapPin },
-  { id: "tpms", label: "TPMS", icon: TpmsIcon },
-  { id: "engine", label: "Engine Param", icon: EngineIcon },
+  { id: "engine", label: "Engine Parameters", icon: EngineIcon },
   { id: "ble", label: "BLE", icon: Bluetooth },
-  { id: "video", label: "Video Telematics", icon: Video },
-  { id: "sensors", label: "Sensors", icon: Thermometer },
+  { id: "tpms", label: "TPMS", icon: TpmsIcon },
 ];
 
 export function TooltipWidgetSettingsModal({
@@ -172,14 +171,54 @@ export function TooltipWidgetSettingsModal({
   onClose,
   enabledWidgets = DEFAULT_ENABLED_WIDGETS,
   onApply,
+  pinnedTab: propPinnedTab,
+  onPinTabChange,
 }: {
   open: boolean;
   onClose: () => void;
   enabledWidgets?: string[];
   onApply: (activeWidgetIds: string[]) => void;
+  pinnedTab?: string | null;
+  onPinTabChange?: (tabId: string) => void;
 }) {
   const [mounted, setMounted] = useState(false);
-  const [activePinTab, setActivePinTab] = useState("live");
+  const [internalPinnedTab, setInternalPinnedTab] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("trakzee_pinned_tooltip_tab");
+      if (saved && ["live", "engine", "ble", "tpms"].includes(saved)) {
+        return saved;
+      }
+    }
+    return "live";
+  });
+
+  const pinnedTab = propPinnedTab !== undefined && propPinnedTab !== null ? propPinnedTab : internalPinnedTab;
+  const [activePinTab, setActivePinTab] = useState<string>(pinnedTab);
+
+  useEffect(() => {
+    if (open) {
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("trakzee_pinned_tooltip_tab");
+        if (saved && ["live", "engine", "ble", "tpms"].includes(saved)) {
+          setInternalPinnedTab(saved);
+          setActivePinTab(saved);
+        }
+      }
+    }
+  }, [open]);
+
+  const handleTogglePinTab = (tabId: string) => {
+    const nextPinned = pinnedTab === tabId ? "live" : tabId;
+    setInternalPinnedTab(nextPinned);
+    setActivePinTab(nextPinned);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("trakzee_pinned_tooltip_tab", nextPinned);
+    }
+    const label = PIN_TABS.find((t) => t.id === nextPinned)?.label || nextPinned;
+    toast.success(`${label} pinned as default tooltip view`);
+    onPinTabChange?.(nextPinned);
+  };
+
   const [localEnabled, setLocalEnabled] = useState<string[]>(enabledWidgets);
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<TooltipWidgetCategory[]>(TOOLTIP_WIDGET_CATEGORIES);
@@ -307,21 +346,62 @@ export function TooltipWidgetSettingsModal({
             {PIN_TABS.map((tab) => {
               const IconComp = tab.icon;
               const isActive = activePinTab === tab.id;
+              const isPinned = pinnedTab === tab.id;
+
               return (
-                <button
+                <div
                   key={tab.id}
-                  type="button"
-                  onClick={() => setActivePinTab(tab.id)}
                   className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium shadow-2xs transition-all cursor-pointer shrink-0 active:scale-98",
+                    "flex items-center rounded-lg text-[11px] font-medium shadow-2xs transition-all shrink-0 border select-none",
                     isActive
-                      ? "bg-[#0089FF] text-white font-semibold"
-                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-[#DFE3EB] dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700",
+                      ? "bg-[#0089FF] text-white border-[#0070d6] font-semibold pl-2.5 pr-1 py-1 gap-1.5"
+                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-[#DFE3EB] dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 pl-2.5 pr-1 py-1 gap-1.5",
                   )}
                 >
-                  <IconComp className={cn("h-3 w-3 stroke-[2]", isActive ? "text-white" : "text-slate-500")} />
-                  <span className="whitespace-nowrap">{tab.label}</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActivePinTab(tab.id);
+                      handleTogglePinTab(tab.id);
+                    }}
+                    className="flex items-center gap-1.5 cursor-pointer active:scale-98"
+                    title={`Set ${tab.label} as default view`}
+                  >
+                    <IconComp className={cn("h-3.5 w-3.5 stroke-[2]", isActive ? "text-white" : "text-slate-500")} />
+                    <span className="whitespace-nowrap">{tab.label}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTogglePinTab(tab.id);
+                    }}
+                    title={
+                      isPinned
+                        ? `${tab.label} is pinned as default tooltip view (Click to change)`
+                        : `Pin ${tab.label} as default tooltip view (opens automatically)`
+                    }
+                    aria-label={`Pin ${tab.label} as default tooltip view`}
+                    className={cn(
+                      "h-5 w-5 rounded-md flex items-center justify-center cursor-pointer transition-all ml-0.5",
+                      isPinned
+                        ? isActive
+                          ? "bg-white/25 text-amber-300 hover:bg-white/35 shadow-2xs"
+                          : "bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-300"
+                        : isActive
+                          ? "text-white/70 hover:text-white hover:bg-white/15"
+                          : "text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700",
+                    )}
+                  >
+                    <Pin
+                      className={cn(
+                        "h-2.5 w-2.5 transition-transform",
+                        isPinned ? "fill-amber-400 text-amber-400 rotate-45" : "-rotate-12",
+                      )}
+                    />
+                  </button>
+                </div>
               );
             })}
           </div>
