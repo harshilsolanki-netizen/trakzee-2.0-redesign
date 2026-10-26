@@ -60,6 +60,7 @@ import {
 import { SelectDropdown, type DropdownOption } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 import { useLayoutMode } from "@/lib/useLayoutMode";
+import { useSidebarState } from "@/lib/useSidebarState";
 import {
   Tooltip,
   TooltipContent,
@@ -1679,6 +1680,7 @@ export function TireFilterDrawer({
   onReset: () => void;
   allTires: TireItem[];
 }) {
+  const { isCollapsed } = useSidebarState();
   const [draftCompany, setDraftCompany] = useState(
     filters.companies.length === 1
       ? filters.companies[0]
@@ -1708,6 +1710,7 @@ export function TireFilterDrawer({
       : filters.condition || "All"
   );
 
+  // Sync draft when opened
   useEffect(() => {
     if (open) {
       setDraftCompany(
@@ -1741,6 +1744,17 @@ export function TireFilterDrawer({
     }
   }, [open, filters]);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && open) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
   const companyOptions = useMemo(() => ["All", ...COMPANY_OPTIONS], []);
   const branchOptions = useMemo(() => ["All", ...BRANCH_OPTIONS], []);
   const brandOptions = useMemo(() => ["All", ...TIRE_BRAND_OPTIONS], []);
@@ -1752,11 +1766,11 @@ export function TireFilterDrawer({
       branch: draftBranch,
       brand: draftBrand,
       condition: draftCondition,
-      status: "All",
       companies: draftCompany === "All" ? [...COMPANY_OPTIONS] : [draftCompany],
       branches: draftBranch === "All" ? [...BRANCH_OPTIONS] : [draftBranch],
       brands: draftBrand === "All" ? [...TIRE_BRAND_OPTIONS] : [draftBrand],
       conditions: draftCondition === "All" ? [...TIRE_CONDITION_OPTIONS] : [draftCondition],
+      status: "All",
       statuses: [...TIRE_STATUS_OPTIONS],
     });
     onClose();
@@ -1773,101 +1787,122 @@ export function TireFilterDrawer({
     toast.info("Filters reset to default");
   };
 
-  if (!open) return null;
-
   return (
-    <aside className="w-[320px] xl:w-[350px] shrink-0 border-l border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full z-10 select-none animate-in slide-in-from-right duration-200">
-      {/* Header */}
-      <header className="flex h-11 items-center justify-between border-b border-[#DFE3EB] dark:border-slate-800 px-4 bg-white dark:bg-slate-900 select-none shrink-0">
-        <h2 className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white">
-          Filter Options
-        </h2>
+    <>
+      {/* Side Panel Backdrop with layer blur in the background matching Reference */}
+      {open ? (
         <button
           type="button"
-          aria-label="Close filter"
+          aria-label="Close filter panel"
           onClick={onClose}
-          className="rounded-md p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </header>
+          className={cn(
+            "fixed top-[45px] bottom-0 right-0 z-40 bg-black/40 backdrop-blur-sm transition-all duration-300 cursor-pointer animate-in fade-in duration-200",
+            isCollapsed ? "left-0 sm:left-[60px]" : "left-0 sm:left-[200px]"
+          )}
+        />
+      ) : null}
 
-      {/* Drawer Body */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs custom-scrollbar">
-        {/* 1. Company */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Company <span className="text-slate-400 font-normal">:</span>
-          </label>
-          <SelectDropdown
-            value={draftCompany}
-            options={companyOptions}
-            onChange={(val) => {
-              setDraftCompany(val);
-              setDraftBranch("All");
-            }}
-            placeholder="Select Company"
-          />
+      {/* Floating Side Panel Drawer matching Reference */}
+      <aside
+        aria-hidden={!open}
+        aria-label="Tire filter options"
+        className={cn(
+          "fixed right-0 top-[45px] bottom-0 z-50 flex w-full max-w-[360px] xl:max-w-[380px] flex-col border-l border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl transition-transform duration-300 ease-out overflow-hidden select-none",
+          open ? "translate-x-0" : "pointer-events-none translate-x-full"
+        )}
+      >
+        {/* Header */}
+        <header className="flex h-14 items-center justify-between border-b border-[#DFE3EB] dark:border-slate-800 px-5 bg-white dark:bg-slate-900 select-none shrink-0">
+          <h2 className="text-[16px] font-semibold tracking-tight text-slate-900 dark:text-white truncate">
+            Filter Options
+          </h2>
+          <button
+            type="button"
+            aria-label="Close filter"
+            onClick={onClose}
+            className="rounded-md p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </header>
+
+        {/* Drawer Body */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs custom-scrollbar">
+          {/* 1. Company */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Company <span className="text-slate-400 font-normal">:</span>
+            </label>
+            <SelectDropdown
+              value={draftCompany}
+              options={companyOptions}
+              onChange={(val) => {
+                setDraftCompany(val);
+                setDraftBranch("All");
+              }}
+              placeholder="Select Company"
+            />
+          </div>
+
+          {/* 2. Branch */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Branch <span className="text-slate-400 font-normal">:</span>
+            </label>
+            <SelectDropdown
+              value={draftBranch}
+              options={branchOptions}
+              onChange={setDraftBranch}
+              placeholder="Select Branch"
+            />
+          </div>
+
+          {/* 3. Tire Brand */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Tire Brand <span className="text-slate-400 font-normal">:</span>
+            </label>
+            <SelectDropdown
+              value={draftBrand}
+              options={brandOptions}
+              onChange={setDraftBrand}
+              placeholder="Select Tire Brand"
+            />
+          </div>
+
+          {/* 4. Tire Condition */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Tire Condition <span className="text-slate-400 font-normal">:</span>
+            </label>
+            <SelectDropdown
+              value={draftCondition}
+              options={conditionOptions}
+              onChange={setDraftCondition}
+              placeholder="Select Tire Condition"
+            />
+          </div>
         </div>
 
-        {/* 2. Branch */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Branch <span className="text-slate-400 font-normal">:</span>
-          </label>
-          <SelectDropdown
-            value={draftBranch}
-            options={branchOptions}
-            onChange={setDraftBranch}
-            placeholder="Select Branch"
-          />
-        </div>
-
-        {/* 3. Tire Brand */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Tire Brand <span className="text-slate-400 font-normal">:</span>
-          </label>
-          <SelectDropdown
-            value={draftBrand}
-            options={brandOptions}
-            onChange={setDraftBrand}
-            placeholder="Select Tire Brand"
-          />
-        </div>
-
-        {/* 4. Tire Condition */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Tire Condition <span className="text-slate-400 font-normal">:</span>
-          </label>
-          <SelectDropdown
-            value={draftCondition}
-            options={conditionOptions}
-            onChange={setDraftCondition}
-            placeholder="Select Tire Condition"
-          />
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="flex h-12 items-center justify-between border-t border-[#DFE3EB] dark:border-slate-800 px-4 bg-white dark:bg-slate-900 select-none shrink-0">
-        <button
-          type="button"
-          onClick={handleDrawerReset}
-          className="h-8 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs"
-        >
-          Reset
-        </button>
-        <button
-          type="button"
-          onClick={handleDrawerApply}
-          className="h-8 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white transition-colors cursor-pointer shadow-xs active:scale-98"
-        >
-          Apply
-        </button>
-      </footer>
-    </aside>
+        {/* Footer */}
+        <footer className="flex h-14 items-center justify-between border-t border-[#DFE3EB] dark:border-slate-800 px-5 bg-white dark:bg-slate-900 select-none shrink-0">
+          <button
+            type="button"
+            onClick={handleDrawerReset}
+            className="h-8 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs"
+          >
+            Reset
+          </button>
+          <button
+            type="button"
+            onClick={handleDrawerApply}
+            className="h-8 rounded-md bg-[#0089FF] hover:bg-[#0070d6] px-5 text-xs font-semibold text-white transition-colors cursor-pointer shadow-xs active:scale-98"
+          >
+            Apply
+          </button>
+        </footer>
+      </aside>
+    </>
   );
 }
 

@@ -45,6 +45,7 @@ import {
 import { SelectDropdown, type DropdownOption } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 import { useLayoutMode } from "@/lib/useLayoutMode";
+import { useSidebarState } from "@/lib/useSidebarState";
 import {
   Tooltip,
   TooltipContent,
@@ -1901,6 +1902,7 @@ export function AlertFilterDrawer({
   onReset: () => void;
   allAlerts: AlertRuleItem[];
 }) {
+  const { isCollapsed } = useSidebarState();
   const [draftCompany, setDraftCompany] = useState(
     filters.companies.length === 1
       ? filters.companies[0]
@@ -2024,7 +2026,10 @@ export function AlertFilterDrawer({
       {/* Backdrop blur overlay */}
       {open && (
         <div
-          className="fixed inset-0 top-[45px] z-30 bg-black/40 backdrop-blur-xs transition-opacity duration-200 animate-in fade-in-0"
+          className={cn(
+            "fixed top-[45px] bottom-0 right-0 z-40 bg-black/40 backdrop-blur-sm transition-all duration-300 cursor-pointer animate-in fade-in duration-200",
+            isCollapsed ? "left-0 sm:left-[60px]" : "left-0 sm:left-[200px]"
+          )}
           onClick={onClose}
         />
       )}
@@ -2032,7 +2037,7 @@ export function AlertFilterDrawer({
       {/* Slide-over Drawer Panel matching Report Side Panel */}
       <aside
         className={cn(
-          "fixed right-0 top-[45px] bottom-0 z-40 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+          "fixed right-0 top-[45px] bottom-0 z-50 flex w-full max-w-[420px] xl:max-w-[430px] flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "pointer-events-none translate-x-full",
         )}
       >
