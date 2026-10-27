@@ -40,6 +40,9 @@ import {
   type ChartTreeItem,
 } from "@/data/charts";
 import { cn } from "@/lib/utils";
+import { useSideMenuViewMode } from "@/lib/useSideMenuViewMode";
+import { SideMenuFullView, type FullViewCategory } from "./SideMenuFullView";
+import { LayoutGrid } from "lucide-react";
 
 const CATEGORY_ICONS: Record<
   ChartCategory,
@@ -108,6 +111,45 @@ export function ChartsMenu({ collapsed }: { collapsed?: boolean }) {
     }
     return "distance";
   }, [location.search, open]);
+
+  const { sideMenuViewMode, setSideMenuViewMode } = useSideMenuViewMode();
+
+  const fullViewCategories = useMemo<FullViewCategory[]>(() => {
+    const descMap: Record<string, string> = {
+      activity: "Distance traveled, operational duration, velocity, and battery metrics.",
+      alert: "Event alerts, speed violations, fence breaches, and security warnings.",
+      fuel: "Fuel level monitoring, consumption rate, fill events, and drain anomalies.",
+      adblue: "Diesel exhaust fluid tank telemetry, consumption indices, and dosing rates.",
+      expense: "Operational costs, maintenance expenditures, tolls, and parking logs.",
+      tire: "TPMS tire pressure curves, axle heat distribution, and tread health.",
+      temperature: "Multi-zone cargo temperature logs and thermal threshold breach alerts.",
+      load: "Axle weight readings, payload distribution, and overload warnings.",
+      pressure_gauge: "Hydraulic pressure, pneumatic sensor readings, and line pressure.",
+      rotation: "Mixer drum rotational velocity, direction of rotation, and duty cycles.",
+      bms: "Battery Management System voltages, cell temperatures, and state of charge.",
+      rpm: "Engine RPM patterns, peak revving events, and powertrain efficiency.",
+      depth: "Liquid depth gauges, tank capacity telemetry, and submersible sensors.",
+      flow_meter: "Fluid dispensing rates, meter totalizers, and flow consistency.",
+    };
+    return CHART_CATEGORIES.map((cat) => {
+      const Icon = CATEGORY_ICONS[cat.category] || Activity;
+      const desc = descMap[cat.category] || "Telemetry metrics and historical sensor trends.";
+      return {
+        id: cat.category,
+        label: cat.label,
+        icon: Icon,
+        countLabel: `${cat.items.length} Metrics available`,
+        description: desc,
+        items: cat.items.map((item) => ({
+          id: item.id,
+          name: item.label,
+          category: item.categoryLabel,
+        })),
+        primaryActionLabel: "Explore Telemetry",
+      };
+    });
+  }, []);
+
 
   // Sync active category on open
   useEffect(() => {
@@ -231,7 +273,30 @@ export function ChartsMenu({ collapsed }: { collapsed?: boolean }) {
         triggerButton
       )}
 
-      {open && (
+      {open && sideMenuViewMode === "full" && (
+        <SideMenuFullView
+          title="Telemetry Charts Explorer"
+          subtitle="Explore all 14 core telematics and sensor categories"
+          collapsed={collapsed}
+          categories={fullViewCategories}
+          activeItemId={currentChartId}
+          onSelectItem={(item) => {
+            const chartItem = ALL_CHARTS.find((c) => c.id === item.id);
+            if (chartItem) handleSelectChart(chartItem);
+          }}
+          onConfigureModule={(cat) => {
+            const firstItem = cat.items[0];
+            if (firstItem) {
+              const chartItem = ALL_CHARTS.find((c) => c.id === firstItem.id);
+              if (chartItem) handleSelectChart(chartItem);
+            }
+          }}
+          onClose={() => setOpen(false)}
+          searchPlaceholder="Search 40+ charts & telemetry metrics..."
+        />
+      )}
+
+      {open && sideMenuViewMode === "standard" && (
         <>
           {/* Backdrop for outside click dismiss with blur effect */}
           <div
@@ -265,9 +330,20 @@ export function ChartsMenu({ collapsed }: { collapsed?: boolean }) {
                     <X className="h-3 w-3" />
                   </button>
                 ) : (
-                  <span className="text-[10px] font-mono text-slate-500 bg-slate-800/60 border border-slate-700/50 px-1.5 py-0.5 rounded">
-                    44 Charts
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[10px] font-mono text-slate-500 bg-slate-800/60 border border-slate-700/50 px-1.5 py-0.5 rounded">
+                      44 Charts
+                    </span>
+                    <button
+                      type="button"
+                      title="Switch to Full View"
+                      onClick={() => setSideMenuViewMode("full")}
+                      className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-800/60 hover:bg-[#0089FF] hover:text-white border border-slate-700/50 text-[10px] font-semibold text-slate-400 transition-colors cursor-pointer"
+                    >
+                      <LayoutGrid className="h-3 w-3" />
+                      <span>Full</span>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

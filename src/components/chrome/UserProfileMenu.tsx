@@ -43,6 +43,7 @@ import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { cn } from "@/lib/utils";
 import { getStoredLayoutMode, setStoredLayoutMode, type ScreenLayoutMode } from "@/lib/useLayoutMode";
 import { getStoredTrackingViewMode, setStoredTrackingViewMode, type TrackingViewMode } from "@/lib/useTrackingViewMode";
+import { type SideMenuViewMode, getStoredSideMenuViewMode, setStoredSideMenuViewMode } from "@/lib/useSideMenuViewMode";
 import { useAuth } from "@/auth/AuthContext";
 
 type UserModalKind =
@@ -933,7 +934,9 @@ export function UserProfileMenu() {
     }
   });
 
-  const [customisationTab, setCustomisationTab] = useState<"color" | "layout" | "ui" | "trackingView">("color");
+  const [customisationTab, setCustomisationTab] = useState<"color" | "layout" | "sideMenu" | "ui" | "trackingView">("color");
+  const [activeSideMenuViewMode, setActiveSideMenuViewMode] = useState<SideMenuViewMode>(() => getStoredSideMenuViewMode());
+  const [draftSideMenuViewMode, setDraftSideMenuViewMode] = useState<SideMenuViewMode>(activeSideMenuViewMode);
   const [activeLayoutMode, setActiveLayoutMode] = useState<ScreenLayoutMode>(() => getStoredLayoutMode());
   const [draftLayoutMode, setDraftLayoutMode] = useState<ScreenLayoutMode>(activeLayoutMode);
   const [activeTrackingViewMode, setActiveTrackingViewMode] = useState<TrackingViewMode>(() => getStoredTrackingViewMode());
@@ -969,6 +972,7 @@ export function UserProfileMenu() {
       setDraftUiStyle(activeUiStyle);
       setDraftLayoutMode(activeLayoutMode);
       setDraftTrackingViewMode(activeTrackingViewMode);
+      setDraftSideMenuViewMode(activeSideMenuViewMode);
       setCustomisationTab("color");
     }
   }, [activeModal, activeThemeId, activeUiStyle, activeTrackingViewMode]);
@@ -1665,6 +1669,20 @@ export function UserProfileMenu() {
               <button
                 type="button"
                 role="tab"
+                aria-selected={customisationTab === "sideMenu"}
+                onClick={() => setCustomisationTab("sideMenu")}
+                className={cn(
+                  "pb-2.5 text-xs font-semibold cursor-pointer transition-all border-b-2 -mb-px !rounded-none line-tab focus:outline-none",
+                  customisationTab === "sideMenu"
+                    ? "border-[#0089FF] text-[#0089FF]"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Side Menu View
+              </button>
+              <button
+                type="button"
+                role="tab"
                 aria-selected={customisationTab === "ui"}
                 onClick={() => setCustomisationTab("ui")}
                 className={cn(
@@ -1985,6 +2003,199 @@ export function UserProfileMenu() {
               </div>
             )}
 
+            {/* TAB: SIDE MENU VIEW */}
+            {customisationTab === "sideMenu" && (
+              <div className="space-y-3.5 animate-in fade-in-50 duration-150">
+                <div>
+                  <h3 className="font-bold text-xs text-foreground">
+                    Side Menu Tab View
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Choose how the side menu tabs (Reports, Charts, Settings) open and display their options.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                  {/* 1. Standard View Card (Image 1) */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setDraftSideMenuViewMode("standard")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setDraftSideMenuViewMode("standard");
+                      }
+                    }}
+                    className={cn(
+                      "relative rounded-xl border p-3.5 text-left cursor-pointer transition-all duration-150 bg-card hover:shadow-md select-none flex flex-col justify-between group",
+                      draftSideMenuViewMode === "standard"
+                        ? "border-[#0089FF] ring-2 ring-[#0089FF]/30 shadow-sm"
+                        : "border-border/80 hover:border-border",
+                    )}
+                  >
+                    {draftSideMenuViewMode === "standard" && (
+                      <div className="absolute top-3 right-3 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-[#0089FF] text-white shadow-xs z-10">
+                        <Check className="h-3 w-3 stroke-[3]" />
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs font-bold text-foreground">Standard View</h4>
+                        <span className="text-[10px] font-semibold text-[#0089FF] bg-[#0089FF]/10 px-2 py-0.5 rounded-full">
+                          Floating Flyout
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                        Compact floating popover anchored next to the sidebar menu item with layer blur backdrop.
+                      </p>
+
+                      {/* Visual UI Mockup representing Image 1 */}
+                      <div className="mt-3 rounded-lg border border-border/70 bg-[#070D1E] p-2.5 overflow-hidden">
+                        <div className="flex items-start gap-2">
+                          {/* Mini Sidebar */}
+                          <div className="w-5 shrink-0 flex flex-col items-center gap-1.5 py-1 border-r border-slate-800">
+                            <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                            <span className="w-3.5 h-3.5 rounded bg-[#0089FF] text-[7px] text-white flex items-center justify-center font-bold">
+                              ≡
+                            </span>
+                            <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                          </div>
+
+                          {/* Mini Floating Flyout Popover */}
+                          <div className="flex-1 rounded-md border border-slate-700/80 bg-[#0B1736] p-1.5 shadow-xl">
+                            {/* Search */}
+                            <div className="h-3 rounded bg-slate-900 border border-slate-700/60 mb-1 flex items-center px-1">
+                              <span className="h-1.5 w-8 rounded-full bg-slate-600" />
+                            </div>
+                            {/* 2-Column */}
+                            <div className="flex gap-1">
+                              <div className="w-1/2 space-y-0.5 border-r border-slate-800 pr-1">
+                                <div className="h-2 rounded bg-[#0089FF]/20 px-1 flex items-center">
+                                  <span className="h-1 w-6 rounded-full bg-[#0089FF]" />
+                                </div>
+                                <div className="h-2 rounded px-1 flex items-center">
+                                  <span className="h-1 w-5 rounded-full bg-slate-600" />
+                                </div>
+                              </div>
+                              <div className="w-1/2 space-y-0.5 pl-0.5">
+                                <div className="h-2 rounded bg-slate-800/60 px-1 flex items-center justify-between">
+                                  <span className="h-1 w-5 rounded-full bg-slate-400" />
+                                  <span className="text-[6px] text-slate-500">›</span>
+                                </div>
+                                <div className="h-2 rounded px-1 flex items-center justify-between">
+                                  <span className="h-1 w-6 rounded-full bg-slate-500" />
+                                  <span className="text-[6px] text-slate-500">›</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-border/50 text-[10.5px] text-muted-foreground flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#0089FF]" />
+                      <span>Best for quick in-place lookups without hiding the screen</span>
+                    </div>
+                  </div>
+
+                  {/* 2. Full View Card (Image 2) */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setDraftSideMenuViewMode("full")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setDraftSideMenuViewMode("full");
+                      }
+                    }}
+                    className={cn(
+                      "relative rounded-xl border p-3.5 text-left cursor-pointer transition-all duration-150 bg-card hover:shadow-md select-none flex flex-col justify-between group",
+                      draftSideMenuViewMode === "full"
+                        ? "border-[#0089FF] ring-2 ring-[#0089FF]/30 shadow-sm"
+                        : "border-border/80 hover:border-border",
+                    )}
+                  >
+                    {draftSideMenuViewMode === "full" && (
+                      <div className="absolute top-3 right-3 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-[#0089FF] text-white shadow-xs z-10">
+                        <Check className="h-3 w-3 stroke-[3]" />
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs font-bold text-foreground">Full View</h4>
+                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                          Full Canvas
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                        Expansive multi-column grid of rich category cards with complete item lists and configure actions.
+                      </p>
+
+                      {/* Visual UI Mockup representing Image 2 */}
+                      <div className="mt-3 rounded-lg border border-border/70 bg-[#070D1E] p-2.5 overflow-hidden">
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {/* Mini Card 1 */}
+                          <div className="rounded border border-slate-700/70 bg-[#0C152B] p-1 space-y-1">
+                            <div className="flex items-center gap-1">
+                              <span className="w-2.5 h-2.5 rounded bg-blue-500/30 text-[#0089FF] flex items-center justify-center text-[6px]">📊</span>
+                              <span className="h-1 w-6 rounded bg-slate-300" />
+                            </div>
+                            <div className="space-y-0.5 pt-0.5">
+                              <div className="h-1 w-full rounded bg-slate-700" />
+                              <div className="h-1 w-4/5 rounded bg-slate-700" />
+                            </div>
+                            <div className="h-2 rounded bg-slate-800 border border-slate-700/60 flex items-center justify-center mt-1">
+                              <span className="h-0.5 w-6 rounded bg-slate-400" />
+                            </div>
+                          </div>
+
+                          {/* Mini Card 2 */}
+                          <div className="rounded border border-slate-700/70 bg-[#0C152B] p-1 space-y-1">
+                            <div className="flex items-center gap-1">
+                              <span className="w-2.5 h-2.5 rounded bg-blue-500/30 text-[#0089FF] flex items-center justify-center text-[6px]">📍</span>
+                              <span className="h-1 w-7 rounded bg-slate-300" />
+                            </div>
+                            <div className="space-y-0.5 pt-0.5">
+                              <div className="h-1 w-full rounded bg-slate-700" />
+                              <div className="h-1 w-3/4 rounded bg-slate-700" />
+                            </div>
+                            <div className="h-2 rounded bg-slate-800 border border-slate-700/60 flex items-center justify-center mt-1">
+                              <span className="h-0.5 w-6 rounded bg-slate-400" />
+                            </div>
+                          </div>
+
+                          {/* Mini Card 3 */}
+                          <div className="rounded border border-slate-700/70 bg-[#0C152B] p-1 space-y-1">
+                            <div className="flex items-center gap-1">
+                              <span className="w-2.5 h-2.5 rounded bg-blue-500/30 text-[#0089FF] flex items-center justify-center text-[6px]">⚡</span>
+                              <span className="h-1 w-5 rounded bg-slate-300" />
+                            </div>
+                            <div className="space-y-0.5 pt-0.5">
+                              <div className="h-1 w-full rounded bg-slate-700" />
+                              <div className="h-1 w-4/5 rounded bg-slate-700" />
+                            </div>
+                            <div className="h-2 rounded bg-slate-800 border border-slate-700/60 flex items-center justify-center mt-1">
+                              <span className="h-0.5 w-6 rounded bg-slate-400" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-border/50 text-[10.5px] text-muted-foreground flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <span>Best for comprehensive exploration & complete category discovery</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* TAB 2: UI ELEMENTS */}
             {customisationTab === "ui" && (
               <div className="space-y-3 animate-in fade-in-50 duration-150">
@@ -2264,6 +2475,7 @@ export function UserProfileMenu() {
                   applyUiStyle(activeUiStyle);
                   setStoredLayoutMode(activeLayoutMode);
                   setStoredTrackingViewMode(activeTrackingViewMode);
+                  setStoredSideMenuViewMode(activeSideMenuViewMode);
                   setActiveModal(null);
                 }}
                 className="px-4 py-2 text-xs rounded-md border border-border/80 bg-background hover:bg-muted font-medium text-foreground cursor-pointer transition-all active:scale-98 shadow-2xs"
@@ -2281,6 +2493,8 @@ export function UserProfileMenu() {
                   applyUiStyle(draftUiStyle);
                   setStoredLayoutMode(draftLayoutMode);
                   setStoredTrackingViewMode(draftTrackingViewMode);
+                  setActiveSideMenuViewMode(draftSideMenuViewMode);
+                  setStoredSideMenuViewMode(draftSideMenuViewMode);
                   toast.success(
                     `Saved customisation: ${draftTrackingViewMode === "tree" ? "Tree List View" : "Standard View"} enabled`,
                   );

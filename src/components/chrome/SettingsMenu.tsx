@@ -40,6 +40,9 @@ import {
   type SettingTreeItem,
 } from "@/data/settings";
 import { cn } from "@/lib/utils";
+import { useSideMenuViewMode } from "@/lib/useSideMenuViewMode";
+import { SideMenuFullView, type FullViewCategory } from "./SideMenuFullView";
+import { LayoutGrid } from "lucide-react";
 
 const CATEGORY_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   general: Sliders,
@@ -77,6 +80,29 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
 
   const isSettingsRoute = location.pathname.startsWith("/setting");
   const currentTab = search?.tab || "vehicle";
+  const { sideMenuViewMode, setSideMenuViewMode } = useSideMenuViewMode();
+
+  const fullViewCategories = useMemo<FullViewCategory[]>(() => {
+    const descMap: Record<string, string> = {"general":"Company profile, branch structures, users, roles, and organizational hierarchy.","master":"Vehicles, drivers, sensors, SIM cards, trailers, and device calibrations.","customized":"Automated alert rules, geofence zones, points of interest, and route lines.","system":"Security audit logs, system parameters, API keys, and platform integrations.","address_geofence":"Geofence boundary polygons, landmark addresses, and spatial definitions.","job":"Field dispatch jobs, workflow states, task templates, and driver assignments.","tire":"Tire inventory, pressure threshold profiles, and axle configuration standards.","trailer":"Trailer assets, coupling hardware, and chassis registration records.","block":"Vehicle immobilizer controls, engine kill switches, and anti-theft rules.","technician":"Field service technicians, repair team dispatch, and workshop assignments.","billing":"Billing cycles, payment gateways, invoice templates, and license packages.","parts_master":"Spare parts catalogue, inventory stock alerts, and maintenance items.","bulk_action":"Mass vehicle import/export, batch firmware commands, and bulk updates.","compliance":"Statutory fleet certifications, emission norms, and regulatory checks.","fuel":"Fuel sensor calibration charts, tank capacity lookup, and fuel type configs.","developers":"REST APIs, Webhooks, telemetry streaming sockets, and developer keys.","cs":"Customer success channels, ticketing setup, and customer care workflows."};
+    return SETTING_CATEGORIES.map((cat) => {
+      const Icon = CATEGORY_ICONS[cat.category] || Sliders;
+      const desc = descMap[cat.category] || "Configuration profiles, master definitions, and administrative settings.";
+      return {
+        id: cat.category,
+        label: cat.label,
+        icon: Icon,
+        countLabel: `${cat.items.length} Modules available`,
+        description: desc,
+        items: cat.items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          category: item.categoryLabel,
+        })),
+        primaryActionLabel: "Configure Module",
+      };
+    });
+  }, []);
+
   const currentCategory = search?.category || "general";
 
   // Automatically switch active category to current category when opened
@@ -202,7 +228,30 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
         triggerButton
       )}
 
-      {open && (
+      {open && sideMenuViewMode === "full" && (
+        <SideMenuFullView
+          title="Settings & Configuration Explorer"
+          subtitle="Explore all system preferences, fleet masters, and administrative modules"
+          collapsed={collapsed}
+          categories={fullViewCategories}
+          activeItemId={currentTab}
+          onSelectItem={(item) => {
+            const settingItem = ALL_SETTINGS.find((s) => s.id === item.id);
+            if (settingItem) handleSelectSetting(settingItem);
+          }}
+          onConfigureModule={(cat) => {
+            const firstItem = cat.items[0];
+            if (firstItem) {
+              const settingItem = ALL_SETTINGS.find((s) => s.id === firstItem.id);
+              if (settingItem) handleSelectSetting(settingItem);
+            }
+          }}
+          onClose={() => setOpen(false)}
+          searchPlaceholder="Search 60+ settings, master rules, configs..."
+        />
+      )}
+
+      {open && sideMenuViewMode === "standard" && (
         <>
           {/* Backdrop for outside click dismiss with blur effect */}
           <div
@@ -236,9 +285,20 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
                     <X className="h-3 w-3" />
                   </button>
                 ) : (
-                  <span className="text-[10px] font-mono text-slate-500 bg-slate-800/60 border border-slate-700/50 px-1.5 py-0.5 rounded">
-                    70+ Settings
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[10px] font-mono text-slate-500 bg-slate-800/60 border border-slate-700/50 px-1.5 py-0.5 rounded">
+                      70+ Settings
+                    </span>
+                    <button
+                      type="button"
+                      title="Switch to Full View"
+                      onClick={() => setSideMenuViewMode("full")}
+                      className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-800/60 hover:bg-[#0089FF] hover:text-white border border-slate-700/50 text-[10px] font-semibold text-slate-400 transition-colors cursor-pointer"
+                    >
+                      <LayoutGrid className="h-3 w-3" />
+                      <span>Full</span>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

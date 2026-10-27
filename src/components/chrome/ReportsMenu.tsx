@@ -48,9 +48,13 @@ import {
   REPORT_CATEGORIES,
   ALL_REPORTS,
   findReport,
+  REPORT_CATEGORY_DESCRIPTIONS,
   type ReportCategoryNode,
   type ReportTreeItem,
 } from "@/data/reports";
+import { useSideMenuViewMode } from "@/lib/useSideMenuViewMode";
+import { SideMenuFullView, type FullViewCategory } from "./SideMenuFullView";
+import { LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const REPORT_CATEGORY_ICONS: Record<
@@ -135,6 +139,31 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
 
   const isReportsRoute = location.pathname.startsWith("/report");
   const currentReportType = search?.type || "travel";
+  const { sideMenuViewMode, setSideMenuViewMode } = useSideMenuViewMode();
+
+  const fullViewCategories = useMemo<FullViewCategory[]>(() => {
+    return REPORT_CATEGORIES.map((cat) => {
+      const Icon = REPORT_CATEGORY_ICONS[cat.category] || FileText;
+      const desc =
+        REPORT_CATEGORY_DESCRIPTIONS[cat.category] ||
+        "Comprehensive reports, analytics, and operational metrics.";
+      return {
+        id: cat.category,
+        label: cat.label,
+        icon: Icon,
+        countLabel: `${cat.items.length} Reports available`,
+        description: desc,
+        items: cat.items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          to: item.to,
+        })),
+        primaryActionLabel: "Configure Module",
+      };
+    });
+  }, []);
+
 
   const favoriteItems = useMemo(() => {
     return (favorites ?? []).map(findReport).filter(Boolean) as ReportTreeItem[];
@@ -275,7 +304,25 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
         triggerButton
       )}
 
-      {open && (
+      {open && sideMenuViewMode === "full" && (
+        <SideMenuFullView
+          title="Reports Explorer"
+          subtitle="Explore all 23 telematics and operations categories"
+          collapsed={collapsed}
+          categories={fullViewCategories}
+          activeItemId={currentReportType}
+          onSelectItem={handleSelectReport}
+          onConfigureModule={(cat) => {
+            const firstItem = cat.items[0];
+            if (firstItem) {
+              handleSelectReport(firstItem as ReportTreeItem);
+            }
+          }}
+          onClose={() => setOpen(false)}
+        />
+      )}
+
+      {open && sideMenuViewMode === "standard" && (
         <>
           {/* Backdrop for outside click dismiss with blur effect */}
           <div
@@ -309,9 +356,20 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
                     <X className="h-3 w-3" />
                   </button>
                 ) : (
-                  <span className="text-[10px] font-mono text-slate-500 bg-slate-800/60 border border-slate-700/50 px-1.5 py-0.5 rounded">
-                    105 Reports
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[10px] font-mono text-slate-500 bg-slate-800/60 border border-slate-700/50 px-1.5 py-0.5 rounded">
+                      105 Reports
+                    </span>
+                    <button
+                      type="button"
+                      title="Switch to Full View"
+                      onClick={() => setSideMenuViewMode("full")}
+                      className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-800/60 hover:bg-[#0089FF] hover:text-white border border-slate-700/50 text-[10px] font-semibold text-slate-400 transition-colors cursor-pointer"
+                    >
+                      <LayoutGrid className="h-3 w-3" />
+                      <span>Full</span>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
