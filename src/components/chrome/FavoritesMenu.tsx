@@ -123,7 +123,8 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
         setOpen((prev) => !prev);
       }}
       className={cn(
-        "group flex w-full h-10 items-center rounded-xl px-2.5 transition-colors duration-200 cursor-pointer select-none overflow-hidden",
+        "group flex w-full h-10 items-center rounded-xl transition-colors duration-200 cursor-pointer select-none overflow-hidden",
+        collapsed ? "justify-center px-0" : "px-2.5",
         open
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
@@ -134,7 +135,7 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
           className={cn(
             "h-5 w-5 shrink-0 transition-transform duration-200",
             open
-              ? "fill-white text-white scale-105"
+              ? "fill-white text-white"
               : hasFavorites
               ? "fill-amber-400 text-amber-400 group-hover:scale-105"
               : "text-slate-400 group-hover:text-white group-hover:scale-105"
@@ -145,7 +146,7 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
         className={cn(
           "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
           collapsed
-            ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none"
+            ? "w-0 max-w-0 opacity-0 m-0 p-0 pointer-events-none"
             : "max-w-[130px] opacity-100 translate-x-0 ml-3"
         )}
       >

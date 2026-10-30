@@ -7,6 +7,7 @@ import {
   Copy,
   FileText,
   History,
+  MapPin,
   Maximize2,
   MessageSquare,
   Mic,
@@ -764,71 +765,170 @@ export function ZioPanel({
                 </div>
               </div>
 
-              {/* 4 Action / Suggestion Cards */}
+              {/* Action / Suggestion Cards (Dynamically changes based on active tab: Ask Zio vs Artifacts) */}
               <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3.5 w-full max-w-[800px]">
-                <button
-                  type="button"
-                  onClick={() => sendMessage("Provide me the travel report")}
-                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
-                >
-                  <div className="h-7 w-7 rounded-lg bg-sky-50 dark:bg-sky-950/40 flex items-center justify-center text-[#0089FF] mb-2">
-                    <Truck className="h-3.5 w-3.5 text-[#0089FF]" />
-                  </div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
-                    Travel Report
-                  </span>
-                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
-                    Summary & Trip History...
-                  </span>
-                </button>
+                {activeTab === "ask" ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => sendMessage("Provide me the travel report")}
+                      className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                    >
+                      <div className="h-7 w-7 rounded-lg bg-sky-50 dark:bg-sky-950/40 flex items-center justify-center text-[#0089FF] mb-2">
+                        <Truck className="h-3.5 w-3.5 text-[#0089FF]" />
+                      </div>
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                        Travel Report
+                      </span>
+                      <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                        Summary & Trip History...
+                      </span>
+                    </button>
 
-                <button
-                  type="button"
-                  onClick={() => sendMessage("Provide me the fuel report of the last 15 days")}
-                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
-                >
-                  <div className="h-7 w-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 mb-2">
-                    <BarChart3 className="h-3.5 w-3.5" />
-                  </div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
-                    Fuel Report (15 Days)
-                  </span>
-                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
-                    Fill-drain & telemetry...
-                  </span>
-                </button>
+                    <button
+                      type="button"
+                      onClick={() => sendMessage("Provide me the fuel report of the last 15 days")}
+                      className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                    >
+                      <div className="h-7 w-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 mb-2">
+                        <BarChart3 className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                        Fuel Report (15 Days)
+                      </span>
+                      <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                        Fill-drain & telemetry...
+                      </span>
+                    </button>
 
-                <button
-                  type="button"
-                  onClick={() => sendMessage("Show me the idle report by driver")}
-                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
-                >
-                  <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
-                    <FileText className="h-3.5 w-3.5" />
-                  </div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
-                    Idle Report
-                  </span>
-                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
-                    Idle time by driver...
-                  </span>
-                </button>
+                    <button
+                      type="button"
+                      onClick={() => sendMessage("Show me the idle report by driver")}
+                      className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                    >
+                      <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
+                        <FileText className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                        Idle Report
+                      </span>
+                      <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                        Idle time by driver...
+                      </span>
+                    </button>
 
-                <button
-                  type="button"
-                  onClick={() => sendMessage("Give me daily briefing on what needs attention today")}
-                  className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
-                >
-                  <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
-                    <AlignLeft className="h-3.5 w-3.5" />
-                  </div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
-                    Daily Briefing
-                  </span>
-                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
-                    What needs attention today
-                  </span>
-                </button>
+                    <button
+                      type="button"
+                      onClick={() => sendMessage("Give me daily briefing on what needs attention today")}
+                      className="group flex flex-col items-start p-3 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                    >
+                      <div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 mb-2">
+                        <AlignLeft className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                        Daily Briefing
+                      </span>
+                      <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                        What needs attention today
+                      </span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* Artifacts Tab: 4 Cards matching user reference */}
+                    <button
+                      type="button"
+                      onClick={() => sendMessage("Show my saved artifacts, reports, and dashboards")}
+                      className="group flex flex-col items-start p-3.5 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                    >
+                      <svg
+                        className="h-5 w-5 text-slate-500 mb-2.5 transition-colors group-hover:text-[#0089FF]"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect width="18" height="18" x="3" y="3" rx="4" />
+                        <line x1="8" x2="16" y1="9" y2="9" />
+                        <line x1="8" x2="13" y1="14" y2="14" />
+                      </svg>
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                        My Artifacts
+                      </span>
+                      <span className="text-[10.5px] text-slate-400 dark:text-slate-500 truncate w-full mt-0.5">
+                        Saved reports, dashboards and ...
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => sendMessage("Show available templates and ready-made starting points")}
+                      className="group flex flex-col items-start p-3.5 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                    >
+                      <svg
+                        className="h-5 w-5 text-slate-500 mb-2.5 transition-colors group-hover:text-[#0089FF]"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="6" x2="6" y1="12" y2="18" />
+                        <line x1="12" x2="12" y1="6" y2="18" />
+                        <line x1="18" x2="18" y1="13" y2="18" />
+                      </svg>
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                        Templates
+                      </span>
+                      <span className="text-[10.5px] text-slate-400 dark:text-slate-500 truncate w-full mt-0.5">
+                        Ready-made starting points
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => sendMessage("Show my scheduled reports and auto-refresh deliveries")}
+                      className="group flex flex-col items-start p-3.5 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                    >
+                      <svg
+                        className="h-5 w-5 text-slate-500 mb-2.5 transition-colors group-hover:text-[#0089FF]"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="4" x2="17" y1="8" y2="8" />
+                        <line x1="4" x2="17" y1="13" y2="13" />
+                        <line x1="4" x2="11" y1="18" y2="18" />
+                      </svg>
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                        Scheduled
+                      </span>
+                      <span className="text-[10.5px] text-slate-400 dark:text-slate-500 truncate w-full mt-0.5">
+                        Auto-refresh and delivery
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => sendMessage("Show shared artifacts and access permissions")}
+                      className="group flex flex-col items-start p-3.5 rounded-xl border border-slate-200/80 bg-white dark:bg-slate-900 hover:border-[#0089FF]/40 hover:shadow-md transition-all text-left cursor-pointer"
+                    >
+                      <MapPin className="h-5 w-5 text-slate-500 mb-2.5 transition-colors group-hover:text-[#0089FF]" strokeWidth={1.8} />
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0089FF] transition-colors leading-tight">
+                        Shared
+                      </span>
+                      <span className="text-[10.5px] text-slate-400 dark:text-slate-500 truncate w-full mt-0.5">
+                        Access and permissions
+                      </span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           ) : (

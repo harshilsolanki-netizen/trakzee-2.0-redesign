@@ -282,6 +282,20 @@
   animation: spinClockwise 1.2s linear infinite !important;
 }
 
+@keyframes borderRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-border-rotate {
+  animation: borderRotate 4s linear infinite;
+}
+
+
 /* =========================================================================
    UI Elements Style Customization (Compact vs Rounded)
    Targeted to: Interactive Buttons, Inputs/Search, Dropdowns, Tags/Badges

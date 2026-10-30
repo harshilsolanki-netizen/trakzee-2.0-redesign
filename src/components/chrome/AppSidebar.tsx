@@ -14,7 +14,6 @@ import {
   PinOff,
   Settings,
   ShoppingCart,
-  Sparkles,
   Star,
 } from "lucide-react";
 import { useState, type ComponentType } from "react";
@@ -23,6 +22,7 @@ import { ChartsMenu } from "@/components/chrome/ChartsMenu";
 import { FavoritesMenu } from "@/components/chrome/FavoritesMenu";
 import { ReportsMenu } from "@/components/chrome/ReportsMenu";
 import { SettingsMenu } from "@/components/chrome/SettingsMenu";
+import { ZioIcon } from "@/components/zio/ZioLogo";
 import {
   Popover,
   PopoverContent,
@@ -110,19 +110,20 @@ export function AppSidebar() {
 
         {/* Navigation Items */}
         <div className="flex-1 w-full flex flex-col gap-2.5 overflow-y-auto overflow-x-hidden custom-scrollbar py-1">
-          {/* AI Navigation Tab */}
+          {/* AI / Zio Navigation Tab */}
           <Link
             to="/zio"
             activeOptions={{ exact: false }}
             className="w-full flex"
-            aria-label="AI"
+            aria-label="Zio"
           >
             {({ isActive }) => (
               <SidebarItem
-                label="AI"
-                icon={Sparkles}
+                label="Zio"
+                icon={ZioIcon}
                 active={isActive}
                 collapsed={isCollapsed}
+                iconClassName={!isActive ? "text-[#0089FF] group-hover:text-white" : "text-white"}
               />
             )}
           </Link>
@@ -324,12 +325,14 @@ export function SidebarItem({
   icon: Icon,
   active,
   collapsed,
+  iconClassName,
   onClick,
 }: {
   label: string;
   icon: ComponentType<{ className?: string }>;
   active?: boolean;
   collapsed?: boolean;
+  iconClassName?: string;
   onClick?: () => void;
 }) {
   const buttonEl = (
@@ -337,7 +340,8 @@ export function SidebarItem({
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex w-full h-10 items-center rounded-xl px-2.5 transition-colors duration-200 cursor-pointer select-none overflow-hidden",
+        "group flex w-full h-10 items-center rounded-xl transition-colors duration-200 cursor-pointer select-none overflow-hidden",
+        collapsed ? "justify-center px-0" : "px-2.5",
         active
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
@@ -347,7 +351,10 @@ export function SidebarItem({
         <Icon
           className={cn(
             "h-5 w-5 shrink-0 transition-transform duration-200",
-            active ? "text-white scale-105" : "text-slate-400 group-hover:text-white group-hover:scale-105"
+            active
+              ? "text-white"
+              : "text-slate-400 group-hover:text-white group-hover:scale-105",
+            iconClassName
           )}
         />
       </div>
@@ -355,7 +362,7 @@ export function SidebarItem({
         className={cn(
           "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
           collapsed
-            ? "max-w-0 opacity-0 -translate-x-2 pointer-events-none"
+            ? "w-0 max-w-0 opacity-0 m-0 p-0 pointer-events-none"
             : "max-w-[130px] opacity-100 translate-x-0 ml-3"
         )}
       >
