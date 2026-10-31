@@ -347,12 +347,62 @@ export function ReportPage() {
     return columnSettings.columns
       .filter((c) => !c.isGroupHeader && c.showable)
       .map((c) => {
-        if (c.id === "idleVsInactive") {
-          return { ...c, label: chartConfig.header };
+        let col = c;
+        if (col.id === "idleVsInactive") {
+          col = { ...col, label: chartConfig.header };
         }
-        return c;
+        // Ensure known column groups are preserved
+        if ((col.id === "avgSpeed" || col.id === "maxSpeed") && !col.group) {
+          col = { ...col, group: "Speed" };
+        }
+        if ((col.id === "costDistance" || col.id === "costDuration") && !col.group) {
+          col = { ...col, group: "Cost based on" };
+        }
+        return col;
       });
   }, [columnSettings.columns, chartConfig.header]);
+
+  // Group contiguous visible columns by `col.group` for 2-tier table header
+  const headerGroups = useMemo(() => {
+    type GroupItem =
+      | { type: "single"; col: ColumnConfigItem; colIdx: number }
+      | {
+          type: "group";
+          name: string;
+          items: { col: ColumnConfigItem; colIdx: number }[];
+        };
+
+    const groups: GroupItem[] = [];
+    let currentGroup: {
+      type: "group";
+      name: string;
+      items: { col: ColumnConfigItem; colIdx: number }[];
+    } | null = null;
+
+    visibleColumns.forEach((col, colIdx) => {
+      if (col.group) {
+        if (currentGroup && currentGroup.name === col.group) {
+          currentGroup.items.push({ col, colIdx });
+        } else {
+          currentGroup = {
+            type: "group",
+            name: col.group,
+            items: [{ col, colIdx }],
+          };
+          groups.push(currentGroup);
+        }
+      } else {
+        currentGroup = null;
+        groups.push({ type: "single", col, colIdx });
+      }
+    });
+
+    return groups;
+  }, [visibleColumns]);
+
+  const hasGroupedHeaders = useMemo(() => {
+    return headerGroups.some((g) => g.type === "group");
+  }, [headerGroups]);
 
   // Column resizing state with persistent storage
   const [colWidths, setColWidths] = useState<Record<string, number>>(() => {
@@ -1071,53 +1121,118 @@ export function ReportPage() {
         {level === 0 ? (
             <table className="w-full min-w-[1000px] text-xs border-collapse">
               <thead className="sticky top-0 z-20 shadow-xs">
-                {/* Column Titles Header Row */}
-                <tr className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 h-[38px]">
+                {/* Column Titles Header Row (Row 1: Standalone headers with rowSpan=2 + Group categories with colSpan) */}
+                <tr className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 select-none">
                   <th
                     scope="col"
-                    className="sticky left-0 z-30 w-10 min-w-[40px] max-w-[40px] bg-white dark:bg-slate-900 px-3 py-2 text-center text-slate-500 font-bold border-b border-[#DFE3EB] dark:border-slate-700"
+                    rowSpan={hasGroupedHeaders ? 2 : 1}
+                    className="sticky left-0 z-30 w-10 min-w-[40px] max-w-[40px] bg-white dark:bg-slate-900 px-3 py-2 text-center text-slate-500 font-bold border-b border-[#DFE3EB] dark:border-slate-700 align-middle"
                   >
                     #
                   </th>
-                  {visibleColumns.map((c, colIdx) => {
-                    const isFrozen = colIdx < frozenCount;
-                    const leftOffset = isFrozen
-                      ? getStickyLeftOffset(colIdx)
-                      : undefined;
-                    const w =
-                      colWidths[c.id] || DEFAULT_COLUMN_WIDTHS[c.id] || 110;
+                  {headerGroups.map((groupItem, gIdx) => {
+                    if (groupItem.type === "single") {
+                      const { col: c, colIdx } = groupItem;
+                      const isFrozen = colIdx < frozenCount;
+                      const leftOffset = isFrozen ? getStickyLeftOffset(colIdx) : undefined;
+                      const w = colWidths[c.id] || DEFAULT_COLUMN_WIDTHS[c.id] || 110;
 
-                    if (c.id === "idleVsInactive") {
+                      if (c.id === "idleVsInactive") {
+                        return (
+                          <th
+                            key={c.id}
+                            scope="col"
+                            rowSpan={hasGroupedHeaders ? 2 : 1}
+                            style={{
+                              width: w + "px",
+                              minWidth: w + "px",
+                              maxWidth: w + "px",
+                              left: leftOffset,
+                            }}
+                            title={c.label}
+                            className={cn(
+                              "group relative px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 overflow-hidden text-ellipsis whitespace-nowrap select-none text-left bg-white dark:bg-slate-800 border-b border-[#DFE3EB] dark:border-slate-700 align-middle",
+                              isFrozen &&
+                                cn(
+                                  "sticky z-30 bg-white dark:bg-slate-800",
+                                  colIdx === frozenCount - 1 && "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
+                                ),
+                            )}
+                          >
+                            <div className="flex items-center justify-between gap-1 overflow-hidden">
+                              <span className="truncate">{c.label}</span>
+                              <ProgressComparisonOverlay
+                                config={chartConfig}
+                                onSave={setChartConfig}
+                              />
+                            </div>
+
+                            {/* Interactive Drag Resizer Handle */}
+                            <div
+                              role="separator"
+                              onMouseDown={(e) => startResize(c.id, e)}
+                              onClick={(e) => e.stopPropagation()}
+                              className={cn(
+                                "absolute right-0 top-0 bottom-0 w-2.5 cursor-col-resize z-40 transition-colors",
+                                "hover:bg-blue-400/80 active:bg-blue-500",
+                                resizingCol === c.id && "bg-blue-400",
+                              )}
+                              title="Drag to resize column"
+                            />
+                          </th>
+                        );
+                      }
+
                       return (
                         <th
                           key={c.id}
                           scope="col"
+                          rowSpan={hasGroupedHeaders ? 2 : 1}
                           style={{
                             width: w + "px",
                             minWidth: w + "px",
                             maxWidth: w + "px",
                             left: leftOffset,
                           }}
+                          onClick={() => {
+                            if (c.sortable) {
+                              toggleSort(c.id);
+                            }
+                          }}
                           title={c.label}
                           className={cn(
-                            "group relative  px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100  overflow-hidden text-ellipsis whitespace-nowrap select-none text-left bg-white dark:bg-slate-800",
+                            "group relative px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100 overflow-hidden text-ellipsis whitespace-nowrap select-none bg-white dark:bg-slate-800 border-b border-[#DFE3EB] dark:border-slate-700 align-middle",
+                            c.numeric ? "text-right" : "text-left",
+                            c.sortable && "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/60",
                             isFrozen &&
                               cn(
                                 "sticky z-30 bg-white dark:bg-slate-800",
-                                colIdx === frozenCount - 1 &&
-                                   "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
+                                colIdx === frozenCount - 1 && "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
                               ),
                           )}
                         >
-                          <div className="flex items-center justify-between gap-1 overflow-hidden">
+                          <div
+                            className={cn(
+                              "flex items-center gap-1 overflow-hidden",
+                              c.numeric ? "justify-end flex-row-reverse" : "justify-start",
+                            )}
+                          >
                             <span className="truncate">{c.label}</span>
-                            <ProgressComparisonOverlay
-                              config={chartConfig}
-                              onSave={setChartConfig}
-                            />
+                            {isFrozen && (
+                              <Pin
+                                className="h-3 w-3 fill-blue-600 text-blue-600 shrink-0"
+                                title="Pinned column on left"
+                              />
+                            )}
+                            {c.sortable &&
+                              (sort.key === c.id ? (
+                                <ArrowUp className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                              ) : (
+                                <ArrowDown className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                              ))}
                           </div>
 
-                          {/* Interactive Drag Resizer Handle matching Jira/Modern tables */}
+                          {/* Interactive Drag Resizer Handle */}
                           <div
                             role="separator"
                             onMouseDown={(e) => startResize(c.id, e)}
@@ -1133,74 +1248,110 @@ export function ReportPage() {
                       );
                     }
 
+                    // Group Category Header (e.g. "Speed" or "Cost based on")
+                    const isFirstItemFrozen = groupItem.items[0].colIdx < frozenCount;
+                    const groupLeftOffset = isFirstItemFrozen
+                      ? getStickyLeftOffset(groupItem.items[0].colIdx)
+                      : undefined;
+
                     return (
                       <th
-                        key={c.id}
-                        scope="col"
+                        key={`group-${groupItem.name}-${gIdx}`}
+                        colSpan={groupItem.items.length}
+                        scope="colgroup"
                         style={{
-                          width: w + "px",
-                          minWidth: w + "px",
-                          maxWidth: w + "px",
-                          left: leftOffset,
+                          left: groupLeftOffset,
                         }}
-                        onClick={() => {
-                          if (c.sortable) {
-                            toggleSort(c.id);
-                          }
-                        }}
-                        title={c.label}
                         className={cn(
-                          "group relative  px-2.5 py-2 font-bold text-slate-900 dark:text-slate-100  overflow-hidden text-ellipsis whitespace-nowrap select-none bg-white dark:bg-slate-800",
-                          c.numeric ? "text-right" : "text-left",
-                          c.sortable && "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/60",
-                          isFrozen &&
-                            cn(
-                              "sticky z-30 bg-white dark:bg-slate-800",
-                              colIdx === frozenCount - 1 &&
-                                "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
-                            ),
+                          "text-center font-bold text-[11px] uppercase tracking-wider select-none",
+                          "bg-slate-100/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 border-b border-l border-r border-[#DFE3EB] dark:border-slate-700 py-1.5 px-2",
+                          isFirstItemFrozen && "sticky z-30",
                         )}
                       >
-                        <div
-                          className={cn(
-                            "flex items-center gap-1 overflow-hidden",
-                            c.numeric
-                              ? "justify-end flex-row-reverse"
-                              : "justify-start",
-                          )}
-                        >
-                          <span className="truncate">{c.label}</span>
-                          {isFrozen && (
-                            <Pin
-                              className="h-3 w-3 fill-blue-600 text-blue-600 shrink-0"
-                              title="Pinned column on left"
-                            />
-                          )}
-                          {c.sortable &&
-                            (sort.key === c.id ? (
-                              <ArrowUp className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
-                            ) : (
-                              <ArrowDown className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
-                            )
-                          )}
+                        <div className="flex items-center justify-center gap-1.5 py-0.5">
+                          <span className="font-bold tracking-wider">{groupItem.name}</span>
                         </div>
-
-                        {/* Interactive Drag Resizer Handle matching Jira/Modern tables */}
-                        <div
-                          role="separator"
-                          onMouseDown={(e) => startResize(c.id, e)}
-                          onClick={(e) => e.stopPropagation()}
-                          className={cn(
-                            "absolute right-0 top-0 bottom-0 w-2.5 cursor-col-resize z-40 transition-colors",
-                            "hover:bg-blue-400/80 active:bg-blue-500",
-                            resizingCol === c.id && "bg-blue-400",
-                          )}
-                          title="Drag to resize column"
-                        />
                       </th>
                     );
                   })}
                 </tr>
+
+                {/* Sub-Column Titles Row (Row 2: Only renders sub-columns for grouped categories like AVG, MAX, Distance, Duration) */}
+                {hasGroupedHeaders && (
+                  <tr className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold tracking-wider text-[11px] uppercase border-b border-[#DFE3EB] dark:border-slate-700 select-none">
+                    {headerGroups
+                      .filter((g): g is Extract<typeof g, { type: "group" }> => g.type === "group")
+                      .flatMap((group) =>
+                        group.items.map((item, itemIdx) => ({
+                          ...item,
+                          isFirstInGroup: itemIdx === 0,
+                        }))
+                      )
+                      .map(({ col: c, colIdx, isFirstInGroup }) => {
+                        const isFrozen = colIdx < frozenCount;
+                        const leftOffset = isFrozen ? getStickyLeftOffset(colIdx) : undefined;
+                        const w = colWidths[c.id] || DEFAULT_COLUMN_WIDTHS[c.id] || 110;
+
+                        return (
+                          <th
+                            key={c.id}
+                            scope="col"
+                            style={{
+                              width: w + "px",
+                              minWidth: w + "px",
+                              maxWidth: w + "px",
+                              left: leftOffset,
+                            }}
+                            onClick={() => {
+                              if (c.sortable) {
+                                toggleSort(c.id);
+                              }
+                            }}
+                            title={c.label}
+                            className={cn(
+                              "group relative px-2.5 py-1.5 font-bold text-slate-900 dark:text-slate-100 overflow-hidden text-ellipsis whitespace-nowrap select-none bg-white dark:bg-slate-800 border-b border-r border-[#DFE3EB] dark:border-slate-700 text-[10.5px]",
+                              isFirstInGroup && "border-l border-[#DFE3EB] dark:border-slate-700",
+                              c.numeric ? "text-right" : "text-left",
+                              c.sortable && "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/60",
+                              isFrozen &&
+                                cn(
+                                  "sticky z-30 bg-white dark:bg-slate-800",
+                                  colIdx === frozenCount - 1 && "shadow-[2px_0_4px_rgba(0,0,0,0.12)]",
+                                ),
+                            )}
+                          >
+                            <div
+                              className={cn(
+                                "flex items-center gap-1 overflow-hidden",
+                                c.numeric ? "justify-end flex-row-reverse" : "justify-start",
+                              )}
+                            >
+                              <span className="truncate">{c.label}</span>
+                              {c.sortable &&
+                                (sort.key === c.id ? (
+                                  <ArrowUp className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                                ) : (
+                                  <ArrowDown className="h-3 w-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                                ))}
+                            </div>
+
+                            {/* Interactive Drag Resizer Handle */}
+                            <div
+                              role="separator"
+                              onMouseDown={(e) => startResize(c.id, e)}
+                              onClick={(e) => e.stopPropagation()}
+                              className={cn(
+                                "absolute right-0 top-0 bottom-0 w-2.5 cursor-col-resize z-40 transition-colors",
+                                "hover:bg-blue-400/80 active:bg-blue-500",
+                                resizingCol === c.id && "bg-blue-400",
+                              )}
+                              title="Drag to resize column"
+                            />
+                          </th>
+                        );
+                      })}
+                  </tr>
+                )}
 
                 {/* Overall Totals / Summary Row */}
                 <tr className="bg-card dark:bg-slate-900 text-[11px] font-bold text-foreground border-b border-[#DFE3EB] dark:border-slate-700 h-[38px]">
@@ -1215,13 +1366,24 @@ export function ReportPage() {
                     const w =
                       colWidths[col.id] || DEFAULT_COLUMN_WIDTHS[col.id] || 110;
 
-                    const frozenSummaryClass = isFrozen
+                    const isGroupCol = Boolean(col.group);
+                    const isFirstGroupCol =
+                      isGroupCol && !visibleColumns[colIdx - 1]?.group;
+                    const groupBorderClass = isGroupCol
                       ? cn(
-                          "sticky z-20 bg-card dark:bg-slate-900 shadow-xs",
-                          colIdx === frozenCount - 1 &&
-                            "shadow-[2px_0_4px_rgba(0,0,0,0.08)]",
+                          "border-r border-[#DFE3EB] dark:border-slate-700",
+                          isFirstGroupCol &&
+                            "border-l border-[#DFE3EB] dark:border-slate-700",
                         )
                       : "";
+
+                    const frozenSummaryClass = cn(
+                      isFrozen && "sticky z-20 bg-card dark:bg-slate-900 shadow-xs",
+                      isFrozen &&
+                        colIdx === frozenCount - 1 &&
+                        "shadow-[2px_0_4px_rgba(0,0,0,0.08)]",
+                      groupBorderClass,
+                    );
 
                     const commonProps = {
                       style: {
@@ -1424,11 +1586,25 @@ export function ReportPage() {
                       <td className="w-10 min-w-[40px] max-w-[40px] px-3 py-2 text-center">
                         <Skeleton className="h-4 w-5 mx-auto rounded bg-slate-200/80 dark:bg-slate-800/80" />
                       </td>
-                      {visibleColumns.map((col) => (
-                        <td key={col.id} className="px-2.5 py-2">
-                          <Skeleton className="h-4 w-full rounded bg-slate-200/80 dark:bg-slate-800/80" />
-                        </td>
-                      ))}
+                      {visibleColumns.map((col, cIdx) => {
+                        const isGroupCol = Boolean(col.group);
+                        const isFirstGroupCol =
+                          isGroupCol && !visibleColumns[cIdx - 1]?.group;
+                        return (
+                          <td
+                            key={col.id}
+                            className={cn(
+                              "px-2.5 py-2",
+                              isGroupCol &&
+                                "border-r border-[#DFE3EB] dark:border-slate-700",
+                              isFirstGroupCol &&
+                                "border-l border-[#DFE3EB] dark:border-slate-700",
+                            )}
+                          >
+                            <Skeleton className="h-4 w-full rounded bg-slate-200/80 dark:bg-slate-800/80" />
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))
                 ) : !loaded ? (
@@ -1786,12 +1962,23 @@ function ReportRow({
     const leftOffset = isFrozen ? getStickyLeftOffset(colIdx) : undefined;
     const w = colWidths[col.id] || DEFAULT_COLUMN_WIDTHS[col.id] || 110;
 
-    const frozenClass = isFrozen
+    const isGroupCol = Boolean(col.group);
+    const isFirstGroupCol = isGroupCol && !columns[colIdx - 1]?.group;
+    const groupCellBorder = isGroupCol
       ? cn(
-          "sticky z-10 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/90 shadow-xs",
-          colIdx === frozenCount - 1 && "shadow-[2px_0_4px_rgba(0,0,0,0.08)]",
+          "border-r border-[#DFE3EB] dark:border-slate-700",
+          isFirstGroupCol && "border-l border-[#DFE3EB] dark:border-slate-700",
         )
       : "";
+
+    const frozenClass = cn(
+      isFrozen &&
+        "sticky z-10 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/90 shadow-xs",
+      isFrozen &&
+        colIdx === frozenCount - 1 &&
+        "shadow-[2px_0_4px_rgba(0,0,0,0.08)]",
+      groupCellBorder,
+    );
 
     const cellStyle = {
       width: w + "px",
