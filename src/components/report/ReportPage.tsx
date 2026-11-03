@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useLocation, useSearch } from "@tanstack/react-router";
+import { useLocation, useNavigate, useSearch } from "@tanstack/react-router";
 import { FavoriteToggle } from "@/components/chrome/FavoritesMenu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DriverJobSummaryReport } from "@/components/report/DriverJobSummaryReport";
@@ -59,6 +59,7 @@ import { ProgressComparisonOverlay } from "@/components/report/ProgressCompariso
 import { ScheduleModal } from "@/components/report/ScheduleModal";
 import { ExportPopover } from "@/components/report/ExportPopover";
 import { TablePaginationBar } from "@/components/common/TablePaginationBar";
+import { MediaGalleryReport } from "@/components/report/MediaGalleryReport";
 import { TemperatureSummaryReport } from "@/components/report/TemperatureSummaryReport";
 import {
   DropdownMenu,
@@ -211,18 +212,29 @@ function formatMetricDisplay(row: TravelRow, metricName: string): string {
 }
 
 export function ReportPage() {
+  const navigate = useNavigate();
   const { isSingle } = useLayoutMode();
   const search = useSearch({ strict: false }) as { type?: string };
-  const searchType = search?.type || "travel";
+  const searchType = search?.type || "today-activity";
 
   // Multi-Report Tabs State
   const [tabs, setTabs] = useState<ReportTab[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = localStorage.getItem("trakzee_report_tabs_v4");
+        const saved = localStorage.getItem("trakzee_report_tabs_v5");
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            if (!parsed.some((t: any) => t.reportId === "media-gallery")) {
+              parsed.splice(1, 0, {
+                id: "tab-media-gallery",
+                reportId: "media-gallery",
+                title: "Media Gallery",
+                isFavorite: false,
+              });
+            }
+            return parsed;
+          }
         }
       } catch {}
     }
@@ -230,29 +242,56 @@ export function ReportPage() {
   });
 
   const [activeTabId, setActiveTabId] = useState<string>(() => {
-    return DEFAULT_REPORT_TABS[0]?.id || "tab-travel-1";
+    const existing = tabs.find((t) => t.reportId === searchType);
+    return existing ? existing.id : (tabs[0]?.id || "tab-today-activity");
   });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem("trakzee_report_tabs_v4", JSON.stringify(tabs));
+        localStorage.setItem("trakzee_report_tabs_v5", JSON.stringify(tabs));
       } catch {}
     }
   }, [tabs]);
 
+  // Synchronize tabs when search URL type changes
+  useEffect(() => {
+    if (!searchType) return;
+    const existing = tabs.find((t) => t.reportId === searchType);
+    if (existing) {
+      setActiveTabId(existing.id);
+    } else {
+      const rep = findReport(searchType);
+      const newTab: ReportTab = {
+        id: `tab-${searchType}`,
+        reportId: searchType,
+        title: rep?.name || searchType,
+        isFavorite: false,
+      };
+      setTabs((prev) => [...prev, newTab]);
+      setActiveTabId(newTab.id);
+    }
+  }, [searchType]);
+
   const activeTab = useMemo(
     () =>
       tabs.find((t) => t.id === activeTabId) ||
+      tabs.find((t) => t.reportId === searchType) ||
       tabs[0] ||
       DEFAULT_REPORT_TABS[0],
-    [tabs, activeTabId],
+    [tabs, activeTabId, searchType],
   );
+
+  const currentReportId = isSingle ? searchType : (activeTab?.reportId || searchType);
 
   const handleAddTab = (reportItem: { id: string; name: string }) => {
     const existing = tabs.find((t) => t.reportId === reportItem.id);
     if (existing) {
       setActiveTabId(existing.id);
+      navigate({
+        to: "/report",
+        search: { type: existing.reportId } as Record<string, unknown>,
+      });
       return;
     }
     const newTab: ReportTab = {
@@ -263,6 +302,10 @@ export function ReportPage() {
     };
     setTabs((prev) => [...prev, newTab]);
     setActiveTabId(newTab.id);
+    navigate({
+      to: "/report",
+      search: { type: newTab.reportId } as Record<string, unknown>,
+    });
   };
 
   const handleCloseTab = (tabId: string) => {
@@ -270,7 +313,14 @@ export function ReportPage() {
     const nextTabs = tabs.filter((t) => t.id !== tabId);
     setTabs(nextTabs);
     if (activeTabId === tabId) {
-      setActiveTabId(nextTabs[0]?.id || "");
+      const nextActive = nextTabs[0];
+      setActiveTabId(nextActive?.id || "");
+      if (nextActive) {
+        navigate({
+          to: "/report",
+          search: { type: nextActive.reportId } as Record<string, unknown>,
+        });
+      }
     }
   };
 
@@ -783,6 +833,7 @@ export function ReportPage() {
   );
 
   const reportMeta =
+    findReport(currentReportId) ||
     findReport(searchType) ||
     findReport("today-activity") ||
     findReport("travel");
@@ -847,21 +898,70 @@ export function ReportPage() {
       <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-slate-900 rounded-xl border border-[#DFE3EB]/80 dark:border-slate-800 shadow-2xs">
       {/* 1. Conditional Header: Tabbed View vs Single Screen View (matching reference media_1789714484140.png) */}
       {!isSingle ? (
-        <>
-          {/* TABBED MODE: Multi-Report Tab Bar */}
-          <ReportTabStrip
-            tabs={tabs}
-            activeTabId={activeTabId}
-            level={level}
-            onGoBack={goBack}
-            onSelectTab={(tabId) => setActiveTabId(tabId)}
-            onCloseTab={handleCloseTab}
-            onAddTab={handleAddTab}
-            onToggleFavorite={handleToggleFavorite}
-          />
+        <ReportTabStrip
+          tabs={tabs}
+          activeTabId={activeTabId}
+          level={level}
+          onGoBack={goBack}
+          onSelectTab={(tabId) => {
+            setActiveTabId(tabId);
+            const selected = tabs.find((t) => t.id === tabId);
+            if (selected) {
+              navigate({
+                to: "/report",
+                search: { type: selected.reportId } as Record<string, unknown>,
+              });
+            }
+          }}
+          onCloseTab={handleCloseTab}
+          onAddTab={handleAddTab}
+          onToggleFavorite={handleToggleFavorite}
+        />
+      ) : (
+        /* Title Row for Single View */
+        <div className="flex items-center justify-between px-5 pt-5 pb-2.5 select-none shrink-0 bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-2">
+            {level > 0 ? (
+              <button
+                type="button"
+                onClick={goBack}
+                className="p-1 -ml-1 rounded text-slate-700 dark:text-slate-200 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                title="Go Back"
+              >
+                <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleToggleFavorite(activeTab?.id || activeTabId)}
+                className="p-1 -ml-1 rounded text-slate-400 hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                title={activeTab?.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+              >
+                <Star
+                  className={cn(
+                    "h-5 w-5 transition-colors",
+                    activeTab?.isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-400 stroke-[2]"
+                  )}
+                />
+              </button>
+            )}
+            <h1 className="text-[24px] font-medium text-slate-900 dark:text-white tracking-tight">
+              {level === 0 ? (activeTab?.title || reportMeta?.name || "Vehicle") : LEVEL_TITLE[level]}
+            </h1>
+          </div>
+        </div>
+      )}
 
-          {/* Tabbed Toolbar */}
-          <div className="relative z-20 flex min-h-[48px] items-center justify-between gap-4 bg-white dark:bg-slate-900 px-5 pt-3.5 pb-3.5 shrink-0 select-none">
+      {/* 2. Main Content Area: Media Gallery vs Standard Activity Report */}
+      {currentReportId === "media-gallery" ? (
+        <MediaGalleryReport />
+      ) : (
+        <>
+          {/* Standard Report Toolbar */}
+          {!isSingle ? (
+            <>
+              {/* Tabbed Toolbar */}
+              <div className="relative z-10 flex min-h-[48px] items-center justify-between gap-4 bg-white dark:bg-slate-900 px-5 pt-3.5 pb-3.5 shrink-0 select-none">
             {/* Left: Quick Filters */}
             <div className="flex items-center min-w-0 flex-1 overflow-x-auto scrollbar-none gap-2.5">
               <ReportQuickFilterBar
@@ -971,40 +1071,6 @@ export function ReportPage() {
         </>
       ) : (
         <>
-          {/* SINGLE SCREEN VIEW (Matches Reference Image media_1789714484140.png) */}
-          {/* Title Row */}
-          <div className="flex items-center justify-between px-5 pt-5 pb-2.5 select-none shrink-0 bg-white dark:bg-slate-900">
-            <div className="flex items-center gap-2">
-              {level > 0 ? (
-                <button
-                  type="button"
-                  onClick={goBack}
-                  className="p-1 -ml-1 rounded text-slate-700 dark:text-slate-200 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
-                  title="Go Back"
-                >
-                  <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleToggleFavorite(activeTab?.id || activeTabId)}
-                  className="p-1 -ml-1 rounded text-slate-400 hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
-                  title={activeTab?.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
-                >
-                  <Star
-                    className={cn(
-                      "h-5 w-5 transition-colors",
-                      activeTab?.isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-400 stroke-[2]"
-                    )}
-                  />
-                </button>
-              )}
-              <h1 className="text-[24px] font-medium text-slate-900 dark:text-white tracking-tight">
-                {level === 0 ? (activeTab?.title || reportMeta?.name || "Vehicle") : LEVEL_TITLE[level]}
-              </h1>
-            </div>
-          </div>
-
           {/* Single Screen Toolbar Row */}
           <div className="relative z-20 flex min-h-[48px] items-center justify-between gap-4 bg-white dark:bg-slate-900 px-5 pt-1 pb-3.5 shrink-0 select-none">
             {/* Left: Quick Filters */}
@@ -1752,6 +1818,8 @@ export function ReportPage() {
         }}
         onExport={(f, s, m) => handleExport(f, s, m)}
       />
+      </>
+      )}
     </div>
 
 

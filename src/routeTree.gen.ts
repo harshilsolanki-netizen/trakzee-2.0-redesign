@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as ComponentsRouteImport } from './routes/components'
+import { Route as FuelDashboardRouteImport } from './routes/fuel-dashboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RechargeRouteImport } from './routes/recharge'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as SettingRouteImport } from './routes/setting'
+import { Route as TemperatureDashboardRouteImport } from './routes/temperature-dashboard'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as ZioRouteImport } from './routes/zio'
 
@@ -32,6 +34,11 @@ const ChartsRoute = ChartsRouteImport.update({
 const ComponentsRoute = ComponentsRouteImport.update({
   id: '/components',
   path: '/components',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FuelDashboardRoute = FuelDashboardRouteImport.update({
+  id: '/fuel-dashboard',
+  path: '/fuel-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -54,6 +61,11 @@ const SettingRoute = SettingRouteImport.update({
   path: '/setting',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TemperatureDashboardRoute = TemperatureDashboardRouteImport.update({
+  id: '/temperature-dashboard',
+  path: '/temperature-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrackingRoute = TrackingRouteImport.update({
   id: '/tracking',
   path: '/tracking',
@@ -69,10 +81,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
   '/components': typeof ComponentsRoute
+  '/fuel-dashboard': typeof FuelDashboardRoute
   '/login': typeof LoginRoute
   '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
   '/setting': typeof SettingRoute
+  '/temperature-dashboard': typeof TemperatureDashboardRoute
   '/tracking': typeof TrackingRoute
   '/zio': typeof ZioRoute
 }
@@ -80,10 +94,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
   '/components': typeof ComponentsRoute
+  '/fuel-dashboard': typeof FuelDashboardRoute
   '/login': typeof LoginRoute
   '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
   '/setting': typeof SettingRoute
+  '/temperature-dashboard': typeof TemperatureDashboardRoute
   '/tracking': typeof TrackingRoute
   '/zio': typeof ZioRoute
 }
@@ -92,10 +108,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
   '/components': typeof ComponentsRoute
+  '/fuel-dashboard': typeof FuelDashboardRoute
   '/login': typeof LoginRoute
   '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
   '/setting': typeof SettingRoute
+  '/temperature-dashboard': typeof TemperatureDashboardRoute
   '/tracking': typeof TrackingRoute
   '/zio': typeof ZioRoute
 }
@@ -105,10 +123,12 @@ export interface FileRouteTypes {
     | '/'
     | '/charts'
     | '/components'
+    | '/fuel-dashboard'
     | '/login'
     | '/recharge'
     | '/report'
     | '/setting'
+    | '/temperature-dashboard'
     | '/tracking'
     | '/zio'
   fileRoutesByTo: FileRoutesByTo
@@ -116,10 +136,12 @@ export interface FileRouteTypes {
     | '/'
     | '/charts'
     | '/components'
+    | '/fuel-dashboard'
     | '/login'
     | '/recharge'
     | '/report'
     | '/setting'
+    | '/temperature-dashboard'
     | '/tracking'
     | '/zio'
   id:
@@ -127,10 +149,12 @@ export interface FileRouteTypes {
     | '/'
     | '/charts'
     | '/components'
+    | '/fuel-dashboard'
     | '/login'
     | '/recharge'
     | '/report'
     | '/setting'
+    | '/temperature-dashboard'
     | '/tracking'
     | '/zio'
   fileRoutesById: FileRoutesById
@@ -139,10 +163,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChartsRoute: typeof ChartsRoute
   ComponentsRoute: typeof ComponentsRoute
+  FuelDashboardRoute: typeof FuelDashboardRoute
   LoginRoute: typeof LoginRoute
   RechargeRoute: typeof RechargeRoute
   ReportRoute: typeof ReportRoute
   SettingRoute: typeof SettingRoute
+  TemperatureDashboardRoute: typeof TemperatureDashboardRoute
   TrackingRoute: typeof TrackingRoute
   ZioRoute: typeof ZioRoute
 }
@@ -168,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/components'
       fullPath: '/components'
       preLoaderRoute: typeof ComponentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fuel-dashboard': {
+      id: '/fuel-dashboard'
+      path: '/fuel-dashboard'
+      fullPath: '/fuel-dashboard'
+      preLoaderRoute: typeof FuelDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -198,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/temperature-dashboard': {
+      id: '/temperature-dashboard'
+      path: '/temperature-dashboard'
+      fullPath: '/temperature-dashboard'
+      preLoaderRoute: typeof TemperatureDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tracking': {
       id: '/tracking'
       path: '/tracking'
@@ -219,10 +259,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChartsRoute: ChartsRoute,
   ComponentsRoute: ComponentsRoute,
+  FuelDashboardRoute: FuelDashboardRoute,
   LoginRoute: LoginRoute,
   RechargeRoute: RechargeRoute,
   ReportRoute: ReportRoute,
   SettingRoute: SettingRoute,
+  TemperatureDashboardRoute: TemperatureDashboardRoute,
   TrackingRoute: TrackingRoute,
   ZioRoute: ZioRoute,
 }

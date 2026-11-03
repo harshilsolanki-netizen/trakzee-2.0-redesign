@@ -16,6 +16,18 @@ export type ReportCategoryNode = {
 /** All 23 categories from the Trakzee Reports Menu Tree */
 export const REPORT_CATEGORIES: ReportCategoryNode[] = [
   {
+    category: "safety-video",
+    label: "Safety & Video Telematics",
+    items: [
+      {
+        id: "media-gallery",
+        name: "Media Gallery",
+        category: "Safety & Video Telematics",
+        to: "/report?type=media-gallery",
+      },
+    ],
+  },
+  {
     category: "activity",
     label: "Activity",
     items: [
@@ -24,6 +36,12 @@ export const REPORT_CATEGORIES: ReportCategoryNode[] = [
         name: "Today Activity",
         category: "Activity",
         to: "/report?type=today-activity",
+      },
+      {
+        id: "media-gallery",
+        name: "Media Gallery",
+        category: "Activity",
+        to: "/report?type=media-gallery",
       },
       {
         id: "travel",

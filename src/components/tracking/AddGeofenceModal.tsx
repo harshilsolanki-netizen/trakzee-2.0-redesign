@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
@@ -602,8 +603,10 @@ export function AddGeofenceModal({
   // Pure hue background color for gradient canvas
   const hueBgColor = `hsl(${hue}, 100%, 50%)`;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 select-none">
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 select-none">
       <div className="relative w-full max-w-7xl lg:max-w-[1380px] h-[88vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
         {/* 1. Modal Header Bar (Exact Height 56px) */}
         <div className="flex h-[56px] items-center justify-between px-6 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 shrink-0">
@@ -665,7 +668,7 @@ export function AddGeofenceModal({
                     <SelectTrigger className="w-full h-9 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:border-[#0089FF] font-medium">
                       <SelectValue placeholder="Select Company" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-[150]">
                       <SelectItem value="Ha Company">Ha Company</SelectItem>
                       <SelectItem value="HP Company">HP Company</SelectItem>
                       <SelectItem value="Surya Travels">Surya Travels</SelectItem>
@@ -698,7 +701,7 @@ export function AddGeofenceModal({
                     <SelectTrigger className="w-full h-9 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:border-[#0089FF] font-medium">
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-[150]">
                       <SelectItem value="Area">Area</SelectItem>
                       <SelectItem value="Warehouse / Plant">Warehouse / Plant</SelectItem>
                       <SelectItem value="Security Area">Security Area</SelectItem>
@@ -778,7 +781,7 @@ export function AddGeofenceModal({
                       <SelectTrigger className="w-full h-9 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:border-[#0089FF] font-medium">
                         <SelectValue placeholder="Group" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[150]">
                         <SelectItem value="Ha Company Geofences">Ha Company Geofences</SelectItem>
                         <SelectItem value="Plant Operations">Plant Operations</SelectItem>
                         <SelectItem value="Logistics Sectors">Logistics Sectors</SelectItem>
@@ -798,7 +801,7 @@ export function AddGeofenceModal({
                       <SelectTrigger className="w-full h-9 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:border-[#0089FF] font-medium">
                         <SelectValue placeholder="Type" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[150]">
                         <SelectItem value="Polygon Zone">Polygon</SelectItem>
                         <SelectItem value="Circular Zone">Circle</SelectItem>
                         <SelectItem value="Rectangle Zone">Rectangle</SelectItem>
@@ -1244,7 +1247,7 @@ export function AddGeofenceModal({
                     <SelectTrigger className="w-full h-9 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:border-[#0089FF] font-medium">
                       <SelectValue placeholder="Select Company" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-[150]">
                       <SelectItem value="Ha Company">Ha Company</SelectItem>
                       <SelectItem value="HP Company">HP Company</SelectItem>
                       <SelectItem value="Surya Travels">Surya Travels</SelectItem>
@@ -1320,7 +1323,7 @@ export function AddGeofenceModal({
                     <SelectTrigger className="w-full h-9 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:border-[#0089FF] font-medium">
                       <SelectValue placeholder="Select Some Options" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-[150]">
                       <SelectItem value="Ha Company Geofences">Ha Company Geofences</SelectItem>
                       <SelectItem value="Plant Operations">Plant Operations</SelectItem>
                       <SelectItem value="Logistics Sectors">Logistics Sectors</SelectItem>
@@ -1341,7 +1344,7 @@ export function AddGeofenceModal({
                     <SelectTrigger className="w-full h-9 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:border-[#0089FF] font-medium">
                       <SelectValue placeholder="-- select --" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-[150]">
                       <SelectItem value="Polygon Zone">Polygon</SelectItem>
                       <SelectItem value="Circular Zone">Circle</SelectItem>
                       <SelectItem value="Rectangle Zone">Rectangle</SelectItem>
@@ -1662,7 +1665,7 @@ export function AddGeofenceModal({
                     <SelectTrigger className="h-10 text-xs rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 font-semibold">
                       <SelectValue placeholder="Select Company" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-[150]">
                       <SelectItem value="Ha Company">Ha Company</SelectItem>
                       <SelectItem value="HP Company">HP Company</SelectItem>
                     </SelectContent>
@@ -1677,7 +1680,7 @@ export function AddGeofenceModal({
                     <SelectTrigger className="h-10 text-xs rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 font-semibold">
                       <SelectValue placeholder="Select Group" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-[150]">
                       <SelectItem value="Ha Company Geofences">Ha Company Geofences</SelectItem>
                       <SelectItem value="Plant Operations">Plant Operations</SelectItem>
                     </SelectContent>
@@ -1760,6 +1763,7 @@ export function AddGeofenceModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -19,6 +19,7 @@ import {
 import { useState, type ComponentType } from "react";
 import { toast } from "sonner";
 import { ChartsMenu } from "@/components/chrome/ChartsMenu";
+import { DashboardMenu } from "@/components/chrome/DashboardMenu";
 import { FavoritesMenu } from "@/components/chrome/FavoritesMenu";
 import { ReportsMenu } from "@/components/chrome/ReportsMenu";
 import { SettingsMenu } from "@/components/chrome/SettingsMenu";
@@ -132,21 +133,7 @@ export function AppSidebar() {
           <FavoritesMenu collapsed={isCollapsed} />
 
           {/* 2. Dashboard */}
-          <Link
-            to="/"
-            activeOptions={{ exact: true }}
-            className="w-full flex"
-            aria-label="Dashboard"
-          >
-            {({ isActive }) => (
-              <SidebarItem
-                label="Dashboard"
-                icon={LayoutDashboard}
-                active={isActive}
-                collapsed={isCollapsed}
-              />
-            )}
-          </Link>
+          <DashboardMenu collapsed={isCollapsed} />
 
           {/* 3. Tracking */}
           <Link

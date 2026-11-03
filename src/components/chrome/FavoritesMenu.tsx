@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { useMemo, useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { useDashboard } from "@/dashboard/store";
 import { findReport, type ReportItem } from "@/data/reports";
@@ -179,20 +180,21 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
         triggerButton
       )}
 
-      {open && (
-        <>
-          {/* Backdrop for outside click dismiss with blur effect */}
-          <div
-            className={cn("fixed inset-0 top-[45px] z-40 bg-black/40 backdrop-blur-sm transition-all animate-in fade-in duration-200", collapsed ? "left-[60px]" : "left-[200px]")}
-            onClick={() => setOpen(false)}
-          />
+      {open && typeof document !== "undefined" && (
+        createPortal(
+          <>
+            {/* Backdrop for outside click dismiss with blur effect */}
+            <div
+              className={cn("fixed inset-0 top-[45px] z-40 bg-black/40 backdrop-blur-sm transition-all animate-in fade-in duration-200", collapsed ? "left-[60px]" : "left-[200px]")}
+              onClick={() => setOpen(false)}
+            />
 
-          {/* Top-Anchored Flyout Panel positioned beside the Favourites tab on top */}
-          <div
-            ref={menuRef}
-            style={{ top: `${menuTop}px` }}
-            className={cn("fixed z-50 flex flex-col w-[320px] max-h-[calc(100vh-120px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
-          >
+            {/* Top-Anchored Flyout Panel positioned beside the Favourites tab on top */}
+            <div
+              ref={menuRef}
+              style={{ top: `${menuTop}px` }}
+              className={cn("fixed z-50 flex flex-col w-[320px] max-h-[calc(100vh-120px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
+            >
             {/* Search Bar */}
             <div className="border-b border-slate-800/80 bg-slate-950/60 p-2.5">
               <div className="relative flex items-center rounded-lg border border-slate-700/60 bg-slate-900/80 px-2.5 py-1.5 focus-within:border-blue-500 transition-all">
@@ -287,8 +289,9 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
               </div>
             )}
           </div>
-        </>
-      )}
+        </>,
+        document.body
+      ))}
     </div>
   );
 }

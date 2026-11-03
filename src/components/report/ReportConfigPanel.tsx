@@ -1,4 +1,6 @@
 import {
+  Bookmark,
+  BookmarkPlus,
   Check,
   ChevronDown,
   ChevronRight,
@@ -8,6 +10,7 @@ import {
   RotateCcw,
   Search,
   SlidersHorizontal,
+  Trash2,
   Truck,
   X,
 } from "lucide-react";
@@ -74,6 +77,65 @@ export const DEFAULT_FILTERS: ReportFilters = {
   models: [],
   objects: [],
 };
+
+export interface SavedFilterPreset {
+  id: string;
+  name: string;
+  createdAt: string;
+  filters: Partial<ReportFilters>;
+}
+
+export const DEFAULT_SAVED_PRESETS: SavedFilterPreset[] = [
+  {
+    id: "preset-hp-fleet",
+    name: "HP Branch Heavy Fleet",
+    createdAt: "2026-10-15",
+    filters: {
+      companies: ["FleetCorp"],
+      branches: ["HP Branch 1"],
+      types: ["Truck"],
+      distanceCompare: "Greater Than",
+      distanceValue: "50",
+      durationCompare: "Greater Than",
+      durationUnit: "Hour",
+      durationValue: "2",
+      objects: ["v1", "v2"],
+    },
+  },
+  {
+    id: "preset-long-distance",
+    name: "Long Distance Haul (>100km)",
+    createdAt: "2026-10-28",
+    filters: {
+      durationCompare: "Greater Than",
+      durationUnit: "Hour",
+      durationValue: "4",
+      distanceCompare: "Greater Than",
+      distanceValue: "100",
+      objects: [],
+    },
+  },
+];
+
+function getFilterSummaryText(f: Partial<ReportFilters>): string {
+  const parts = [];
+  if (f.objects && f.objects.length > 0) {
+    parts.push(`${f.objects.length} vehicles`);
+  }
+  if (f.branches && f.branches.length > 0) {
+    parts.push(f.branches.join(", "));
+  }
+  if (f.types && f.types.length > 0) {
+    parts.push(f.types.join(", "));
+  }
+  if (f.distanceValue) {
+    parts.push(`Dist ${f.distanceCompare === "Greater Than" ? ">" : "<"} ${f.distanceValue}km`);
+  }
+  if (f.durationValue) {
+    parts.push(`Dur ${f.durationCompare === "Greater Than" ? ">" : "<"} ${f.durationValue}${f.durationUnit ? f.durationUnit.charAt(0).toLowerCase() : "h"}`);
+  }
+  return parts.length > 0 ? parts.join(" • ") : "All vehicles (no extra filters)";
+}
 
 export type ExportFormat = "XLS" | "PDF" | "CSV";
 export type ExportScope = "summary" | "detail";
@@ -433,6 +495,104 @@ export function ReportConfigPanel({
   // Filter Overlay Popover State
   const [filterOverlayOpen, setFilterOverlayOpen] = useState(false);
 
+  // Saved Filters State
+  const [savedFilters, setSavedFilters] = useState<SavedFilterPreset[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("trakzee_report_saved_filters");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to read saved filters from localStorage", e);
+      }
+    }
+    return DEFAULT_SAVED_PRESETS;
+  });
+
+  const [selectedSavedFilterId, setSelectedSavedFilterId] = useState<string | null>(null);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [savePresetName, setSavePresetName] = useState("");
+
+  // Sync savedFilters to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("trakzee_report_saved_filters", JSON.stringify(savedFilters));
+    } catch (e) {
+      console.error("Failed to write saved filters to localStorage", e);
+    }
+  }, [savedFilters]);
+
+  const selectedSavedFilter = useMemo(() => {
+    return savedFilters.find((f) => f.id === selectedSavedFilterId) || null;
+  }, [savedFilters, selectedSavedFilterId]);
+
+  const handleApplySavedPreset = (preset: SavedFilterPreset) => {
+    setSelectedSavedFilterId(preset.id);
+    onChange({
+      ...preset.filters,
+    });
+    toast.success(`Loaded filter preset: "${preset.name}"`);
+  };
+
+  const handleSavePresetSubmit = () => {
+    const trimmed = savePresetName.trim();
+    if (!trimmed) {
+      toast.error("Please enter a preset name");
+      return;
+    }
+
+    const existingIndex = savedFilters.findIndex(
+      (f) => f.name.toLowerCase() === trimmed.toLowerCase()
+    );
+
+    const newPreset: SavedFilterPreset = {
+      id: existingIndex >= 0 ? savedFilters[existingIndex].id : `preset-${Date.now()}`,
+      name: trimmed,
+      createdAt: new Date().toISOString().slice(0, 10),
+      filters: {
+        companies: filters.companies || [],
+        branches: filters.branches || [],
+        groups: filters.groups || [],
+        types: filters.types || [],
+        brands: filters.brands || [],
+        models: filters.models || [],
+        durationCompare: filters.durationCompare,
+        durationUnit: filters.durationUnit,
+        durationValue: filters.durationValue,
+        distanceCompare: filters.distanceCompare,
+        distanceValue: filters.distanceValue,
+        objects: filters.objects || [],
+      },
+    };
+
+    if (existingIndex >= 0) {
+      const next = [...savedFilters];
+      next[existingIndex] = newPreset;
+      setSavedFilters(next);
+      toast.success(`Updated preset: "${trimmed}"`);
+    } else {
+      setSavedFilters([newPreset, ...savedFilters]);
+      toast.success(`Filter preset "${trimmed}" saved`);
+    }
+
+    setSelectedSavedFilterId(newPreset.id);
+    setIsSaveModalOpen(false);
+    setSavePresetName("");
+  };
+
+  const handleDeletePreset = (id: string, name: string) => {
+    setSavedFilters((prev) => prev.filter((p) => p.id !== id));
+    if (selectedSavedFilterId === id) {
+      setSelectedSavedFilterId(null);
+    }
+    toast.success(`Deleted preset: "${name}"`);
+  };
+
   // 1. Company Options
   const companyOptions = useMemo(() => {
     return COMPANIES.filter((c) => c !== "All");
@@ -686,6 +846,7 @@ export function ReportConfigPanel({
   };
 
   const handleReset = () => {
+    setSelectedSavedFilterId(null);
     onChange({
       companies: [],
       branches: [],
@@ -761,6 +922,60 @@ export function ReportConfigPanel({
 
         {/* Main Body: Scrollable with top filter bar, chips, vehicle list box, and form dropdowns below */}
         <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4 custom-scrollbar">
+          {/* 0. Saved Filter Presets Dropdown Bar */}
+          <div className="rounded-xl border border-border/80 bg-slate-50/70 dark:bg-slate-900/40 p-2.5 shadow-2xs space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Bookmark className="h-3.5 w-3.5 text-[#0089FF]" />
+                <span className="text-[11px] font-semibold text-foreground">Saved Filter Preset</span>
+              </div>
+              {selectedSavedFilter ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Active Preset
+                </span>
+              ) : (
+                <span className="text-[10px] font-medium text-muted-foreground/70 italic">
+                  Custom / Unsaved
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <div className="relative flex-1 min-w-0">
+                <SelectDropdown
+                  value={selectedSavedFilter?.name || ""}
+                  options={savedFilters.map((f) => f.name)}
+                  onChange={(presetName) => {
+                    const match = savedFilters.find((f) => f.name === presetName);
+                    if (match) {
+                      handleApplySavedPreset(match);
+                    }
+                  }}
+                  placeholder={
+                    savedFilters.length > 0
+                      ? `Select saved preset (${savedFilters.length} available)...`
+                      : "No saved presets yet"
+                  }
+                />
+              </div>
+
+              {selectedSavedFilter && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedSavedFilterId(null);
+                    toast.info("Unlinked saved preset (filters kept)");
+                  }}
+                  title="Unlink active preset"
+                  className="h-9 px-2 text-[11px] font-medium rounded-lg border border-border/80 bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+                >
+                  Unlink
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* 1. Top Search Bar with Embedded Filter/Edit Button */}
           <div className="relative shrink-0">
             <div className="flex h-9 items-center gap-2 rounded-lg border border-input/80 bg-background px-3 shadow-2xs focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] hover:border-[#0089FF]/60 transition-all">
@@ -1183,24 +1398,228 @@ export function ReportConfigPanel({
         </div>
 
         {/* Standardized Drawer Footer matching Schedule Report reference (h-[56px]) */}
-        <footer className="flex h-[56px] items-center justify-between border-t border-border px-6 bg-background select-none shrink-0">
-          <button
-            type="button"
-            onClick={handleReset}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs active:scale-98"
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-slate-400" />
-            <span>Reset</span>
-          </button>
+        <footer className="flex h-[56px] items-center justify-between border-t border-border px-5 bg-background select-none shrink-0 gap-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setSavePresetName(selectedSavedFilter ? `${selectedSavedFilter.name} (Copy)` : "");
+                setIsSaveModalOpen(true);
+              }}
+              title="Save current filters as preset"
+              className="h-9 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs active:scale-98 shrink-0"
+            >
+              Save Filter
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(true)}
+              disabled={savedFilters.length === 0}
+              title={savedFilters.length === 0 ? "No saved filters to delete" : "Delete saved filter presets"}
+              className={cn(
+                "h-9 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs active:scale-98 shrink-0",
+                savedFilters.length === 0 && "opacity-50 cursor-not-allowed hover:bg-white dark:hover:bg-slate-900"
+              )}
+            >
+              Delete Filter
+            </button>
+          </div>
 
           <button
             type="button"
             onClick={handleDrawerApply}
-            className="h-9 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] px-6 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98"
+            className="h-9 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] px-5 sm:px-6 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98 shrink-0"
           >
             Apply Filters
           </button>
         </footer>
+        {/* Save Filter Overlay */}
+        {isSaveModalOpen && (
+          <div className="absolute inset-0 z-50 bg-background/95 backdrop-blur-md flex flex-col justify-between p-5 animate-in fade-in duration-200">
+            <div className="space-y-4">
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-[#0089FF]/10 text-[#0089FF] flex items-center justify-center">
+                    <BookmarkPlus className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Save Filter Preset</h3>
+                    <p className="text-[11px] text-muted-foreground">Save current criteria for quick one-click reuse</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsSaveModalOpen(false)}
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Input */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">Preset Name *</label>
+                <input
+                  type="text"
+                  autoFocus
+                  value={savePresetName}
+                  onChange={(e) => setSavePresetName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSavePresetSubmit();
+                  }}
+                  placeholder="e.g. HP Branch Heavy Fleet"
+                  className="h-9 w-full rounded-lg border border-input bg-background px-3 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#0089FF] focus:ring-2 focus:ring-[#0089FF]/20 transition-all"
+                />
+              </div>
+
+              {/* Summary of current active filters */}
+              <div className="space-y-1.5 rounded-lg border border-border/70 bg-muted/30 p-3">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
+                  Current Filter Summary
+                </span>
+                <p className="text-xs font-medium text-foreground">
+                  {getFilterSummaryText(filters)}
+                </p>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-background border border-border text-foreground font-mono">
+                    {filters.objects?.length || 0} Vehicles Selected
+                  </span>
+                  {filters.branches?.length ? (
+                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-background border border-border text-foreground">
+                      {filters.branches.length} Branches
+                    </span>
+                  ) : null}
+                  {filters.types?.length ? (
+                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-background border border-border text-foreground">
+                      {filters.types.join(", ")}
+                    </span>
+                  ) : null}
+                  {filters.distanceValue ? (
+                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-background border border-border text-foreground">
+                      Dist {filters.distanceCompare} {filters.distanceValue} km
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
+              <button
+                type="button"
+                onClick={() => setIsSaveModalOpen(false)}
+                className="h-9 px-4 rounded-lg border border-input bg-background hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSavePresetSubmit}
+                disabled={!savePresetName.trim()}
+                className="h-9 px-5 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] disabled:opacity-50 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs"
+              >
+                Save Filter Preset
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Filter Overlay */}
+        {isDeleteModalOpen && (
+          <div className="absolute inset-0 z-50 bg-background/95 backdrop-blur-md flex flex-col justify-between p-5 animate-in fade-in duration-200">
+            <div className="space-y-4 flex-1 min-h-0 flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-border shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center">
+                    <Trash2 className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Delete Filter Presets</h3>
+                    <p className="text-[11px] text-muted-foreground">Select any preset you want to permanently remove</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Preset List */}
+              <div className="flex-1 min-h-0 overflow-y-auto space-y-2 py-1 custom-scrollbar">
+                {savedFilters.length === 0 ? (
+                  <div className="py-12 text-center space-y-2">
+                    <Bookmark className="h-8 w-8 text-muted-foreground/40 mx-auto" />
+                    <p className="text-xs font-semibold text-muted-foreground">No saved filter presets</p>
+                    <p className="text-[11px] text-muted-foreground/70">
+                      Configure your filters and click "Save Filter" to create one.
+                    </p>
+                  </div>
+                ) : (
+                  savedFilters.map((preset) => {
+                    const isActive = selectedSavedFilterId === preset.id;
+                    return (
+                      <div
+                        key={preset.id}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg border transition-all",
+                          isActive
+                            ? "border-[#0089FF]/60 bg-[#0089FF]/5"
+                            : "border-border/80 bg-card hover:border-border"
+                        )}
+                      >
+                        <div className="flex-1 min-w-0 pr-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-foreground truncate">
+                              {preset.name}
+                            </span>
+                            {isActive && (
+                              <span className="text-[9px] font-bold text-[#0089FF] bg-[#0089FF]/10 px-1.5 py-0.2 rounded-full border border-[#0089FF]/20">
+                                Active
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                            {getFilterSummaryText(preset.filters)}
+                          </p>
+                          <span className="text-[9px] text-muted-foreground/60 block mt-0.5">
+                            Saved {preset.createdAt}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePreset(preset.id, preset.name)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-900/40 transition-colors cursor-pointer shrink-0 active:scale-95"
+                          title={`Delete "${preset.name}"`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end pt-4 border-t border-border shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="h-9 px-5 rounded-lg bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-200 text-xs font-semibold text-white dark:text-slate-900 transition-colors cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}
       </aside>
     </>
   );

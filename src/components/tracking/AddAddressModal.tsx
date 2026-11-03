@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { X, Search } from "lucide-react";
@@ -265,8 +266,10 @@ export function AddAddressModal({
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 select-none">
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 select-none">
       <div className="relative w-full max-w-7xl lg:max-w-[1380px] h-[88vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
         {/* Modern Clean Header Bar */}
         <div className="flex h-14 items-center justify-between px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0">
@@ -301,7 +304,7 @@ export function AddAddressModal({
                   <SelectTrigger className="w-full h-9 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:border-[#0089FF]">
                     <SelectValue placeholder="Select company" />
                   </SelectTrigger>
-                  <SelectContent className="z-[60]">
+                  <SelectContent className="z-[150]">
                     <SelectItem value="All">All Companies</SelectItem>
                     <SelectItem value="Ha Company">Ha Company</SelectItem>
                     <SelectItem value="Surat Branch">Surat Branch</SelectItem>
@@ -335,7 +338,7 @@ export function AddAddressModal({
                   <SelectTrigger className="w-full h-9 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:border-[#0089FF]">
                     <SelectValue placeholder="Select address type" />
                   </SelectTrigger>
-                  <SelectContent className="z-[60]">
+                  <SelectContent className="z-[150]">
                     <SelectItem value="Financial / Bank">Financial / Bank</SelectItem>
                     <SelectItem value="Tech Hub">Tech Hub</SelectItem>
                     <SelectItem value="Logistics Hub">Logistics Hub</SelectItem>
@@ -446,6 +449,7 @@ export function AddAddressModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

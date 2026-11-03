@@ -24,9 +24,15 @@ export type ReportTab = {
 
 export const DEFAULT_REPORT_TABS: ReportTab[] = [
   {
-    id: "tab-travel-1",
+    id: "tab-today-activity",
     reportId: "today-activity",
-    title: "Travel Summary",
+    title: "Today Activity",
+    isFavorite: false,
+  },
+  {
+    id: "tab-media-gallery",
+    reportId: "media-gallery",
+    title: "Media Gallery",
     isFavorite: false,
   },
   {
