@@ -48,6 +48,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { TablePaginationBar } from "@/components/common/TablePaginationBar";
 import {
   Select,
   SelectContent,
@@ -1237,6 +1238,22 @@ export function MediaGalleryReport() {
     toast.success("Media Gallery data reset to default demo state");
   };
 
+  
+  // Pagination state: default 8 cards per view (2 rows x 4 columns)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
+
+  // Reset to page 1 on status filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
+
+  // Paginated incidents
+  const paginatedIncidents = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredIncidents.slice(start, start + pageSize);
+  }, [filteredIncidents, currentPage, pageSize]);
+
   // Open Player Modal
   const openPlayer = (incident: MediaIncident) => {
     setActiveIncidentForPlayer(incident);
@@ -1248,7 +1265,7 @@ export function MediaGalleryReport() {
   return (
     <div className="relative flex flex-1 min-h-0 flex-col overflow-hidden bg-slate-50/60 dark:bg-slate-950">
       {/* Top Filter & Control Bar */}
-      <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-3 select-none">
+      <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-[#DFE3EB] dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-2 select-none">
         {/* Left Section: Select All + Filter Chips */}
         <div className="flex items-center flex-wrap gap-3">
           {/* Select All Checkbox */}
@@ -1310,91 +1327,11 @@ export function MediaGalleryReport() {
               Reviewed ({reviewedCount})
             </button>
           </div>
-
-          {/* Category Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-1.5 h-8 px-2.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                <span>Category: {categoryFilter === "all" ? "All" : categoryFilter}</span>
-                <ChevronDown className="h-3 w-3 opacity-60" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-40">
-              <DropdownMenuItem onClick={() => setCategoryFilter("all")}>All Categories</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCategoryFilter("ADAS")}>ADAS</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCategoryFilter("DMS")}>DMS</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCategoryFilter("Security")}>Security</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Vehicle Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-1.5 h-8 px-2.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                <Car className="h-3 w-3 text-slate-400" />
-                <span>Vehicle: {vehicleFilter === "all" ? "All" : vehicleFilter}</span>
-                <ChevronDown className="h-3 w-3 opacity-60" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-              <DropdownMenuItem onClick={() => setVehicleFilter("all")}>All Vehicles</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {uniqueVehicles.map((v) => (
-                <DropdownMenuItem key={v} onClick={() => setVehicleFilter(v)}>
-                  {v}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Right Section: Search & Actions */}
-        <div className="flex items-center gap-2">
-          {/* Search Box */}
-          <div className="relative flex items-center h-8 w-56 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-[#0089FF]/20 focus-within:border-[#0089FF] transition-all">
-            <Search className="h-3.5 w-3.5 text-slate-400 ml-2.5 pointer-events-none shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search vehicle, driver, event..."
-              className="w-full bg-transparent px-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
-          </div>
-
-          {/* Reset Demo Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={handleResetDemoData}
-                className="flex items-center justify-center h-8 w-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-[#0089FF] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Reset Demo Incidents</TooltipContent>
-          </Tooltip>
         </div>
       </div>
 
       {/* Main Grid Scroll Area */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-5">
+      <div className="flex-1 min-h-0 flex flex-col overflow-y-auto p-2.5 sm:p-3">
         {filteredIncidents.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="h-12 w-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3">
@@ -1420,8 +1357,15 @@ export function MediaGalleryReport() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 pb-20">
-            {filteredIncidents.map((incident) => {
+          <div
+            className={cn(
+              "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 flex-1 min-h-0",
+              paginatedIncidents.length <= 8
+                ? "lg:grid-rows-2 lg:h-full"
+                : "auto-rows-[minmax(210px,1fr)]",
+            )}
+          >
+            {paginatedIncidents.map((incident) => {
               const isSelected = selectedIds.has(incident.id);
               const isReviewed = incident.status === "reviewed";
 
@@ -1430,14 +1374,14 @@ export function MediaGalleryReport() {
                   key={incident.id}
                   onClick={() => toggleSelectOne(incident.id)}
                   className={cn(
-                    "group relative flex flex-col rounded-xl overflow-hidden border transition-all duration-200 bg-white dark:bg-slate-900 select-none shadow-2xs hover:shadow-md cursor-pointer",
+                    "group relative flex flex-col h-full min-h-0 rounded-xl overflow-hidden border transition-all duration-200 bg-white dark:bg-slate-900 select-none shadow-2xs hover:shadow-md cursor-pointer",
                     isSelected
                       ? "border-[#0089FF] ring-2 ring-[#0089FF]/20"
                       : "border-[#DFE3EB] dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700",
                   )}
                 >
                   {/* Top: Video Thumbnail Container */}
-                  <div className="relative aspect-video w-full bg-slate-950 overflow-hidden">
+                  <div className="relative flex-1 min-h-[95px] w-full bg-slate-950 overflow-hidden">
                     <img
                       src={incident.thumbnail}
                       alt={incident.title}
@@ -1448,7 +1392,7 @@ export function MediaGalleryReport() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none" />
 
                     {/* Top-Left: Card Selection Checkbox & Channel Badge */}
-                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 z-10">
+                    <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
                       <div
                         onClick={(e) => toggleSelectOne(incident.id, e)}
                         className={cn(
@@ -1466,7 +1410,7 @@ export function MediaGalleryReport() {
                     </div>
 
                     {/* Top-Right: Review Status Badge (Unreviewed red / Reviewed green) */}
-                    <div className="absolute top-2.5 right-2.5 z-10">
+                    <div className="absolute top-2 right-2 z-10">
                       {isReviewed ? (
                         <span className="flex items-center gap-1 rounded-full bg-emerald-500/90 text-white px-2 py-0.5 text-[10px] font-bold shadow-xs backdrop-blur-xs">
                           <Check className="h-2.5 w-2.5 stroke-[3]" />
@@ -1488,32 +1432,32 @@ export function MediaGalleryReport() {
                       }}
                       title="Play Incident Video"
                       aria-label="Play Video"
-                      className="absolute inset-0 m-auto flex h-11 w-11 items-center justify-center rounded-full bg-white/20 hover:bg-[#0089FF] border border-white/40 text-white backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer z-10"
+                      className="absolute inset-0 m-auto flex h-8 w-8 items-center justify-center rounded-full bg-white/20 hover:bg-[#0089FF] border border-white/40 text-white backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer z-10"
                     >
-                      <Play className="h-5 w-5 fill-white text-white ml-0.5" />
+                      <Play className="h-3.5 w-3.5 fill-white text-white ml-0.5" />
                     </button>
 
                     {/* Bottom-Left: File Size */}
-                    <div className="absolute bottom-2 left-2.5 flex items-center gap-1.5 text-[10px] font-medium text-white/90 z-10">
+                    <div className="absolute bottom-1.5 left-2 flex items-center gap-1.5 text-[10px] font-medium text-white/90 z-10">
                       <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
                       <span>{incident.fileSize}</span>
                     </div>
 
                     {/* Bottom-Right: Codec */}
-                    <div className="absolute bottom-2 right-2.5 text-[10px] font-mono font-medium text-white/80 z-10">
+                    <div className="absolute bottom-1.5 right-2 text-[9.5px] font-mono font-medium text-white/80 z-10">
                       {incident.format}
                     </div>
                   </div>
 
                   {/* Bottom: Incident Card Information */}
-                  <div className="flex flex-col p-3 bg-white dark:bg-slate-900 gap-1.5">
+                  <div className="flex flex-col p-2.5 bg-white dark:bg-slate-900 gap-1 shrink-0">
                     {/* Row 1: Title + Category Tag + Review Button */}
                     <div className="flex items-center justify-between gap-1">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="font-bold text-[13px] text-slate-900 dark:text-slate-100 truncate">
+                        <span className="font-bold text-xs sm:text-[12.5px] text-slate-900 dark:text-slate-100 truncate">
                           {incident.title}
                         </span>
-                        <span className="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shrink-0">
+                        <span className="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[9px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shrink-0">
                           {incident.category}
                         </span>
                       </div>
@@ -1525,7 +1469,7 @@ export function MediaGalleryReport() {
                             type="button"
                             onClick={(e) => openReviewModal(incident, e)}
                             className={cn(
-                              "flex items-center gap-1 px-3 py-1 rounded text-xs font-semibold cursor-pointer shadow-2xs transition-colors shrink-0",
+                              "flex items-center gap-1 px-2 py-0.5 rounded text-[10.5px] font-semibold cursor-pointer shadow-2xs transition-colors shrink-0",
                               isReviewed
                                 ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                                 : "bg-[#0089FF] hover:bg-blue-600 text-white",
@@ -1551,17 +1495,17 @@ export function MediaGalleryReport() {
 
                     {/* Row 2: Vehicle Number + Driver */}
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
+                      <span className="font-mono font-bold text-[11px] text-slate-700 dark:text-slate-300">
                         {incident.vehicleNo}
                       </span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
+                      <span className="text-[10.5px] text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
                         {incident.driver}
                       </span>
                     </div>
 
                     {/* Row 3: Date & Time Range + Action Icons */}
-                    <div className="flex items-center justify-between gap-1 pt-1 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
-                      <span className="truncate text-[10px]">
+                    <div className="flex items-center justify-between gap-1 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
+                      <span className="truncate text-[9.5px]">
                         {incident.dateTimeRange}
                       </span>
 
@@ -1577,7 +1521,7 @@ export function MediaGalleryReport() {
                               }}
                               className="p-1 rounded text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                             >
-                              <ImageIcon className="h-3.5 w-3.5" />
+                              <ImageIcon className="h-3 w-3" />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent>View Snapshot</TooltipContent>
@@ -1593,7 +1537,7 @@ export function MediaGalleryReport() {
                               }}
                               className="p-1 rounded text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                             >
-                              <MapPin className="h-3.5 w-3.5" />
+                              <MapPin className="h-3 w-3" />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent>View Location</TooltipContent>
@@ -1611,7 +1555,7 @@ export function MediaGalleryReport() {
                               }}
                               className="p-1 rounded text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                             >
-                              <Download className="h-3.5 w-3.5" />
+                              <Download className="h-3 w-3" />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent>Download Evidence</TooltipContent>
@@ -1626,9 +1570,30 @@ export function MediaGalleryReport() {
         )}
       </div>
 
+      
+      {/* Horizontal divider */}
+      <div className="mx-5 border-b border-[#DFE3EB] dark:border-slate-800 shrink-0" />
+
+      {/* Standard Application Bottom Frame with Centered Theme Pagination & Total Records */}
+      <TablePaginationBar
+        page={currentPage}
+        pageSize={pageSize}
+        totalRows={filteredIncidents.length}
+        pageSizeOptions={[8, 12, 16, 24]}
+        itemLabel="records"
+        showReset={false}
+        showExport={false}
+        showRange={true}
+        onPageChange={(p) => setCurrentPage(p)}
+        onPageSizeChange={(s) => {
+          setPageSize(s);
+          setCurrentPage(1);
+        }}
+      />
+
       {/* FLOATING BULK ACTION TOOLBAR (Matches Screenshots 2 & 3) */}
       {selectedIds.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#0B1528] dark:bg-slate-900 text-white px-3.5 py-2 rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-md animate-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#0B1528] dark:bg-slate-900 text-white px-3.5 py-2 rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-md animate-in slide-in-from-bottom-5 duration-200">
           {/* Selected Count Pill */}
           <div className="flex items-center gap-1.5 bg-[#0089FF] text-white px-3 py-1 rounded-lg text-xs font-bold tracking-wide shadow-xs">
             <span>{selectedIds.size} Selected</span>

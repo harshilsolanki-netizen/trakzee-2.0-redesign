@@ -38,6 +38,7 @@ export interface TablePaginationBarProps {
   downloadLabel?: string;
   className?: string;
   disabled?: boolean;
+  showRange?: boolean;
 }
 
 export function TablePaginationBar({
@@ -56,6 +57,7 @@ export function TablePaginationBar({
   downloadLabel = "Download",
   className,
   disabled = false,
+  showRange = false,
 }: TablePaginationBarProps) {
   const [pageSizeOpen, setPageSizeOpen] = useState(false);
   const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
@@ -106,7 +108,22 @@ export function TablePaginationBar({
       {/* 1. Left Section: Total count */}
       <div className="flex items-center min-w-[140px]">
         <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 tabular-nums select-none">
-          {totalRows.toLocaleString()} {itemLabel}
+          {showRange ? (
+            <>
+              Showing{" "}
+              <span className="font-bold text-slate-900 dark:text-slate-100">
+                {totalRows === 0 ? 0 : (page - 1) * pageSize + 1}–
+                {Math.min(page * pageSize, totalRows)}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold text-slate-900 dark:text-slate-100">
+                {totalRows.toLocaleString()}
+              </span>{" "}
+              {itemLabel}
+            </>
+          ) : (
+            `${totalRows.toLocaleString()} ${itemLabel}`
+          )}
         </span>
       </div>
 

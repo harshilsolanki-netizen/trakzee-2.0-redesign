@@ -5,6 +5,10 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronsUpDown,
+  Download,
+  FileCode,
+  FileSpreadsheet,
+  FileText,
   Maximize2,
   Minimize2,
   RotateCcw,
@@ -16,6 +20,12 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   BRANCHES,
   COMPANIES,
@@ -1409,7 +1419,7 @@ export function ReportConfigPanel({
               title="Save current filters as preset"
               className="h-9 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs active:scale-98 shrink-0"
             >
-              Save Filter
+              Save
             </button>
 
             <button
@@ -1422,17 +1432,81 @@ export function ReportConfigPanel({
                 savedFilters.length === 0 && "opacity-50 cursor-not-allowed hover:bg-white dark:hover:bg-slate-900"
               )}
             >
-              Delete Filter
+              Delete
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleDrawerApply}
-            className="h-9 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] px-5 sm:px-6 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98 shrink-0"
-          >
-            Apply Filters
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Export CTA Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  title="Export report in XLS, PDF, or CSV format"
+                  className="h-9 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs active:scale-98 shrink-0 flex items-center gap-1.5"
+                >
+                  <Download className="h-3.5 w-3.5 text-slate-500" />
+                  <span>Export</span>
+                  <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                side="top"
+                sideOffset={8}
+                className="w-36 p-1 rounded-lg border border-border/80 bg-popover/95 backdrop-blur-md shadow-lg select-none z-50 animate-in fade-in-0 zoom-in-95"
+              >
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (onExport) {
+                      onExport("XLS", "summary");
+                    } else {
+                      toast.success("Exporting report as XLS...");
+                    }
+                  }}
+                  className="flex items-center gap-2 px-2.5 py-2 text-xs font-medium rounded-md cursor-pointer text-foreground hover:bg-muted transition-colors"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>XLS</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (onExport) {
+                      onExport("PDF", "summary");
+                    } else {
+                      window.print();
+                      toast.success("Print dialog opened for PDF export");
+                    }
+                  }}
+                  className="flex items-center gap-2 px-2.5 py-2 text-xs font-medium rounded-md cursor-pointer text-foreground hover:bg-muted transition-colors"
+                >
+                  <FileText className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                  <span>PDF</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (onExport) {
+                      onExport("CSV", "summary");
+                    } else {
+                      toast.success("Exporting report as CSV...");
+                    }
+                  }}
+                  className="flex items-center gap-2 px-2.5 py-2 text-xs font-medium rounded-md cursor-pointer text-foreground hover:bg-muted transition-colors"
+                >
+                  <FileCode className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>CSV</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <button
+              type="button"
+              onClick={handleDrawerApply}
+              className="h-9 rounded-lg bg-[#0089FF] hover:bg-[#0070d6] px-5 sm:px-6 text-xs font-semibold text-white transition-all cursor-pointer shadow-xs active:scale-98 shrink-0"
+            >
+              Apply
+            </button>
+          </div>
         </footer>
         {/* Save Filter Overlay */}
         {isSaveModalOpen && (
@@ -1557,7 +1631,7 @@ export function ReportConfigPanel({
                     <Bookmark className="h-8 w-8 text-muted-foreground/40 mx-auto" />
                     <p className="text-xs font-semibold text-muted-foreground">No saved filter presets</p>
                     <p className="text-[11px] text-muted-foreground/70">
-                      Configure your filters and click "Save Filter" to create one.
+                      Configure your filters and click "Save" to create one.
                     </p>
                   </div>
                 ) : (
