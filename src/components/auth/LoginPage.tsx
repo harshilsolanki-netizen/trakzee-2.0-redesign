@@ -36,6 +36,9 @@ export function LoginPage() {
 
       if (success) {
         navigate({ to: "/" });
+        if (typeof window !== "undefined" && window.location.pathname === "/login") {
+          window.location.href = "/";
+        }
       } else {
         setErrorMessage(
           `Invalid credentials. Please use ID: ${AUTH_CREDENTIALS.id} and Pass: ${AUTH_CREDENTIALS.password}`,

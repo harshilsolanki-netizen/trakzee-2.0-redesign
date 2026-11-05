@@ -19,6 +19,7 @@ import { FollowVehiclesPanel } from "@/components/tracking/FollowVehiclesPanel";
 import { ShareLocationModal } from "@/components/tracking/ShareLocationModal";
 import { NavigationModeModal, type NavigationRoute } from "@/components/tracking/NavigationModeModal";
 import { FindNearByModal } from "@/components/tracking/FindNearByModal";
+import { AIPriorityFeed } from "@/components/tracking/AIPriorityFeed";
 import { type VehicleModeData } from "@/components/tracking/VehicleModeModal";
 import { fleetObjects, type FleetObject } from "@/data/fleet";
 import { useZio } from "@/zio/ZioContext";
@@ -715,6 +716,16 @@ export function TrackingPage() {
           />
         </div>
       )}
+
+      {/* 4.3 Floating AI Priority Feed Overlay (Over Live Map, Matching Reference with Real-time AI Animations) */}
+      <AIPriorityFeed
+        vehicles={vehiclesList}
+        onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
+        onTraceVehicle={handleTraceVehicle}
+        onOpenDashcam={(v) => setDashcamVehicle(v)}
+        isTelemetryDrawerOpen={isTelemetryDrawerOpen}
+        isHealthTelemetryOnly={isHealthTelemetryOnly}
+      />
 
       {/* 4. Floating Route Playback Bar (when active) */}
       {playbackOpen && selectedVehicle && (

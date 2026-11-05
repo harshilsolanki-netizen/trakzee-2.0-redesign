@@ -1,4 +1,4 @@
-import { Car, MapPin, TriangleAlert, User, X } from "lucide-react";
+import { AlertTriangle, Car, MapPin, TriangleAlert, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useSidebarState } from "@/lib/useSidebarState";
@@ -300,6 +300,42 @@ export function NotificationPanel({
         ) : (
           /* Announcements tab */
           <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3.5">
+            <article
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent("trakzee:show-announcement", {
+                    detail: {
+                      id: "ann-server-maint",
+                      title: "Server Maintenance",
+                      message:
+                        "The server will be undergoing scheduled maintenance for 10 minutes. Live GPS tracking, telemetry, and report exports will resume automatically once completed.",
+                      timestamp: "04-11-2026 05:20:00 PM",
+                      type: "maintenance",
+                      duration: "10 min",
+                      isNew: true,
+                    },
+                  })
+                );
+                onOpenChange(false);
+              }}
+              className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3.5 shadow-2xs hover:border-amber-500/60 transition-all cursor-pointer group"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-foreground group-hover:text-amber-600 transition-colors">
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                  Server Maintenance
+                </span>
+                <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] px-1.5 py-0.5 rounded font-semibold">
+                  10 min
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                The server will be undergoing scheduled maintenance for 10 minutes. Live GPS tracking and telemetry services will resume automatically.
+              </p>
+              <span className="mt-2 block text-[10px] text-muted-foreground font-mono">
+                04-11-2026 05:20:00 PM
+              </span>
+            </article>
             <article className="rounded-lg border border-border bg-card p-3.5 shadow-2xs">
               <p className="text-xs font-bold text-foreground">
                 Scheduled maintenance

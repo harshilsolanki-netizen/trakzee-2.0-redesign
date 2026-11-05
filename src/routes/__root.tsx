@@ -2,13 +2,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
+  useNavigate,
   createRootRouteWithContext,
   useRouter,
   useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { Bell, Search } from "lucide-react";
+import { Bell, CloudDownload, Search } from "lucide-react";
+import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { AppSidebar } from "@/components/chrome/AppSidebar";
@@ -18,13 +20,22 @@ import { ZioLogo } from "@/components/zio/ZioLogo";
 import { AskZioTopBarButton } from "@/components/zio/AskZioCTA";
 import { ZioPanel } from "@/components/zio/ZioPanel";
 import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { DashboardProvider } from "@/dashboard/store";
 import { ZioProvider, useZio } from "@/zio/ZioContext";
+import { CloudDownloadProvider } from "@/components/cloud/CloudDownloadContext";
+import { CloudDownloadTopBarButton } from "@/components/cloud/CloudDownloadTopBarButton";
+import { SupportHeadsetIcon } from "@/components/icons/SupportHeadsetIcon";
 import { cn } from "@/lib/utils";
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import { LoginPage } from "@/components/auth/LoginPage";
 import { AvoidServiceInterruptionModal } from "@/components/recharge/AvoidServiceInterruptionModal";
+import { AnnouncementsOverlay } from "@/components/announcements/AnnouncementsOverlay";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -149,8 +160,10 @@ function RootComponent() {
         <AuthProvider>
           <DashboardProvider>
             <ZioProvider>
-              <AppLayout />
-              <Toaster position="bottom-right" />
+              <CloudDownloadProvider>
+                <AppLayout />
+                <Toaster position="bottom-right" />
+              </CloudDownloadProvider>
             </ZioProvider>
           </DashboardProvider>
         </AuthProvider>
@@ -236,12 +249,18 @@ function AppLayout() {
         open={showInterruptionModal && !location.pathname.startsWith("/recharge")}
         onOpenChange={setShowInterruptionModal}
       />
+
+      {/* Announcements Overlay Menu matching reference */}
+      <AnnouncementsOverlay />
     </div>
   );
 }
 
 function TopBar() {
   const [notifOpen, setNotifOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useRouterState({ select: (s) => s.location });
+  const isCloudDownload = location.pathname.startsWith("/cloud-download");
 
   return (
     <header className="flex h-[45px] shrink-0 items-center gap-3 bg-nav px-3.5 text-nav-foreground">
@@ -260,18 +279,55 @@ function TopBar() {
         {/* Divider 1 */}
         <div className="h-4.5 w-px bg-white/20" />
 
+        {/* Cloud Download Action - Shows animated progress ring & percentage when downloading */}
+        <CloudDownloadTopBarButton />
+
+        {/* Support Action */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label="Support"
+              onClick={() => {
+                toast.success("Support center opened", {
+                  description: "Connecting you with an Uffizio technical specialist...",
+                });
+              }}
+              className="relative flex h-[30px] w-[30px] items-center justify-center rounded-md text-nav-foreground/90 transition-colors duration-150 hover:bg-white/10 hover:text-white cursor-pointer"
+            >
+              <SupportHeadsetIcon className="h-[18px] w-[18px]" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="bottom"
+            className="bg-[#18191b] text-white text-xs px-2.5 py-1 rounded shadow-xl border border-white/10 font-medium"
+          >
+            Support
+          </TooltipContent>
+        </Tooltip>
+
         {/* Notifications Button */}
-        <button
-          type="button"
-          aria-label="Notifications"
-          onClick={() => setNotifOpen(true)}
-          className="relative rounded-md p-1.5 text-nav-foreground/90 transition-colors duration-150 hover:bg-white/10 hover:text-white cursor-pointer"
-        >
-          <Bell className="h-4 w-4" />
-          <span className="absolute -top-0.5 -right-0.5 rounded-full bg-danger px-1 text-[8.5px] font-semibold text-white leading-tight">
-            16
-          </span>
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label="Notifications"
+              onClick={() => setNotifOpen(true)}
+              className="relative rounded-md p-1.5 text-nav-foreground/90 transition-colors duration-150 hover:bg-white/10 hover:text-white cursor-pointer"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="absolute -top-0.5 -right-0.5 rounded-full bg-danger px-1 text-[8.5px] font-semibold text-white leading-tight">
+                16
+              </span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="bottom"
+            className="bg-[#18191b] text-white text-xs px-2.5 py-1 rounded shadow-xl border border-white/10 font-medium"
+          >
+            Notifications (16)
+          </TooltipContent>
+        </Tooltip>
 
         {/* Divider 2 */}
         <div className="h-4.5 w-px bg-white/20" />

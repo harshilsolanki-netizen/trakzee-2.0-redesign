@@ -598,3 +598,74 @@ table td button:has(svg.lucide-chevron-down) {
 .flip-card-back {
   transform: rotateY(180deg);
 }
+
+/* =========================================================================
+   AI Priority Feed Glowing Keyframe Animations
+   ========================================================================= */
+@keyframes aiShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-ai-shimmer {
+  animation: aiShimmer 3.2s ease-in-out infinite;
+}
+
+@keyframes aiAlertPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45), 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(225, 29, 72, 0), 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.animate-ai-alert-pulse {
+  animation: aiAlertPulse 2.4s ease-in-out infinite;
+}
+
+/* Smooth, Soft Ambient Breathing Aura for AI Priority Feed */
+@keyframes overlaySmoothGlow {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.99);
+    filter: blur(20px);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.02);
+    filter: blur(28px);
+  }
+}
+
+.animate-overlay-smooth-glow {
+  animation: overlaySmoothGlow 4.5s ease-in-out infinite;
+}
+
+/* Smooth, Delicate Light Radar Lines for AI Priority Feed Overlay */
+@keyframes overlaySmoothRadar {
+  0% {
+    transform: scale(0.99);
+    opacity: 0.45;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 0.16;
+  }
+  100% {
+    transform: scale(1.09);
+    opacity: 0;
+  }
+}
+
+.animate-radar-smooth-1 {
+  animation: overlaySmoothRadar 4.2s cubic-bezier(0.12, 0.88, 0.35, 1) infinite;
+}
+
+.animate-radar-smooth-2 {
+  animation: overlaySmoothRadar 4.2s cubic-bezier(0.12, 0.88, 0.35, 1) infinite 2.1s;
+}

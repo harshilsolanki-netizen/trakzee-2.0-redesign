@@ -6,6 +6,7 @@ import {
   Box,
   Briefcase,
   Calendar,
+  Bus,
   Caravan,
   Camera,
   Check,
@@ -87,6 +88,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useTrackingViewMode } from "@/lib/useTrackingViewMode";
 import { TrackingTreeView } from "./TrackingTreeView";
+import { ShuttleTrackingPanel, type ShuttleTrip } from "./ShuttleTrackingPanel";
 
 export type TrackingTab =
   | "object"
@@ -97,7 +99,8 @@ export type TrackingTab =
   | "health"
   | "trailer"
   | "beacon"
-  | "video_telematics";
+  | "video_telematics"
+  | "shuttle";
 
 export function FleetExplorerPanel({
   vehicles,
@@ -211,6 +214,7 @@ export function FleetExplorerPanel({
   const [openStatusSubmenuId, setOpenStatusSubmenuId] = useState<string | null>(null);
 
   // Job & Checkpoint Left Panel Detail View state
+  const [selectedShuttleTrip, setSelectedShuttleTrip] = useState<ShuttleTrip | null>(null);
   const [selectedJobDetail, setSelectedJobDetail] = useState<{
     id: string;
     code: string;
@@ -1818,6 +1822,33 @@ export function FleetExplorerPanel({
               <span>Back</span>
             </button>
           </div>
+        ) : (activeTab === "shuttle" && selectedShuttleTrip) ? (
+          <div className="flex items-center justify-between w-full min-w-0">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={() => setSelectedShuttleTrip(null)}
+                className="flex items-center gap-1.5 text-slate-800 dark:text-slate-100 hover:text-[#0089FF] dark:hover:text-[#0089FF] text-xs font-extrabold transition-all cursor-pointer shrink-0 active:scale-95 py-1 tracking-wide"
+                title="Back to Shuttle Trips"
+              >
+                <ChevronLeft className="h-4 w-4 stroke-[2.5] text-slate-600 dark:text-slate-400" />
+                <span className="font-bold">{selectedShuttleTrip.code}</span>
+              </button>
+
+              
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0 ml-2">
+              <button
+                type="button"
+                onClick={onOpenSettings}
+                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#0089FF] transition-colors cursor-pointer"
+                title="Settings"
+              >
+                <Settings className="h-4 w-4 stroke-[2.2]" />
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth flex-1 min-w-0 pr-1">
             {[
@@ -1829,6 +1860,7 @@ export function FleetExplorerPanel({
               { id: "trailer", label: "Trailer", icon: Truck },
               { id: "beacon", label: "Beacon", icon: Radio },
               { id: "video_telematics", label: "Video Telematics", icon: Video },
+              { id: "shuttle", label: "Shuttle", icon: Bus },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               const IconComp = tab.icon;
@@ -1855,7 +1887,7 @@ export function FleetExplorerPanel({
         )}
 
         {/* Right Action Buttons (Object & Column Settings) */}
-        {!selectedJobDetail && activeTab !== "health" && (
+        {!selectedJobDetail && activeTab !== "health" && !(activeTab === "shuttle" && selectedShuttleTrip) && (
           <div className="flex items-center gap-0.5 shrink-0 ml-1">
             <TooltipProvider delayDuration={150}>
               <Tooltip>
@@ -2775,7 +2807,7 @@ export function FleetExplorerPanel({
       ) : null}
 
       {/* 3. Search & Action Toolbar */}
-      {activeTab !== "health" && !(activeTab === "jobs" && selectedJobDetail) && (
+      {activeTab !== "health" && !(activeTab === "jobs" && selectedJobDetail) && activeTab !== "shuttle" && (
         <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 p-2 bg-white dark:bg-slate-900 shrink-0">
         {/* Select All Checkbox (Hidden on Health, Driver, and Jobs tabs) */}
         {activeTab !== "health" && activeTab !== "driver" && activeTab !== "jobs" && (
@@ -6945,6 +6977,11 @@ export function FleetExplorerPanel({
               </div>
             ))}
           </div>
+        )}
+
+        {/* Shuttle Tab View */}
+        {activeTab === "shuttle" && (
+          <ShuttleTrackingPanel query={query} selectedTrip={selectedShuttleTrip} onSelectTrip={setSelectedShuttleTrip} />
         )}
 
         {/* Video Cameras Tab View */}

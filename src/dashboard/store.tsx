@@ -238,7 +238,7 @@ const DEFAULT_STATE: State = {
     showNotes: true,
     autoExpandNewTabs: true,
   },
-  pinnedMoreItems: [],
+  pinnedMoreItems: ["setu"],
   favorites: ["today-activity"],
 };
 
@@ -341,8 +341,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
                 ? parsed.favorites
                 : DEFAULT_STATE.favorites,
             pinnedMoreItems: Array.isArray(parsed.pinnedMoreItems)
-              ? parsed.pinnedMoreItems
-              : [],
+              ? parsed.pinnedMoreItems.filter((id) => id !== "support" && id !== "setup")
+              : ["setu"],
           }));
         }
       }
@@ -571,9 +571,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     toggleMorePin: (id) =>
       setState((s) => ({
         ...s,
-        pinnedMoreItems: s.pinnedMoreItems.includes(id)
-          ? s.pinnedMoreItems.filter((i) => i !== id)
-          : [...s.pinnedMoreItems, id],
+        pinnedMoreItems: s.pinnedMoreItems.includes(id) ? [] : [id],
       })),
     resetAll: () => setState(DEFAULT_STATE),
   };
@@ -587,7 +585,38 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
 export function useDashboard() {
   const ctx = useContext(DashboardContext);
-  if (!ctx)
-    throw new Error("useDashboard must be used within DashboardProvider");
+  if (!ctx) {
+    console.warn("useDashboard accessed outside DashboardProvider; returning safe fallback");
+    return {
+      ...DEFAULT_STATE,
+      visibleTabs: DEFAULT_STATE.tabs,
+      hiddenTabs: [],
+      activeTab: DEFAULT_STATE.tabs[0]!,
+      canHide: () => false,
+      canDelete: () => false,
+      setActiveTab: () => {},
+      addTab: () => "",
+      renameTab: () => {},
+      togglePin: () => {},
+      hideTab: () => false,
+      showTab: () => {},
+      deleteTab: () => null,
+      restoreTab: () => {},
+      indexOfTab: () => 0,
+      moveTab: () => {},
+      reorderTabs: () => {},
+      setTabRange: () => {},
+      toggleWidget: () => {},
+      setTabWidgets: () => {},
+      moveWidget: () => {},
+      reorderWidgets: () => {},
+      setWidgetSize: () => {},
+      updateSettings: () => {},
+      toggleMorePin: () => {},
+      toggleFavorite: () => {},
+      isFavorite: () => false,
+      resetAll: () => {},
+    };
+  }
   return ctx;
 }

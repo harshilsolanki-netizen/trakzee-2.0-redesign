@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChartsRouteImport } from './routes/charts'
+import { Route as CloudDownloadRouteImport } from './routes/cloud-download'
 import { Route as ComponentsRouteImport } from './routes/components'
 import { Route as FuelDashboardRouteImport } from './routes/fuel-dashboard'
 import { Route as LoginRouteImport } from './routes/login'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const ChartsRoute = ChartsRouteImport.update({
   id: '/charts',
   path: '/charts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CloudDownloadRoute = CloudDownloadRouteImport.update({
+  id: '/cloud-download',
+  path: '/cloud-download',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComponentsRoute = ComponentsRouteImport.update({
@@ -80,6 +86,7 @@ const ZioRoute = ZioRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/cloud-download': typeof CloudDownloadRoute
   '/components': typeof ComponentsRoute
   '/fuel-dashboard': typeof FuelDashboardRoute
   '/login': typeof LoginRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/cloud-download': typeof CloudDownloadRoute
   '/components': typeof ComponentsRoute
   '/fuel-dashboard': typeof FuelDashboardRoute
   '/login': typeof LoginRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/cloud-download': typeof CloudDownloadRoute
   '/components': typeof ComponentsRoute
   '/fuel-dashboard': typeof FuelDashboardRoute
   '/login': typeof LoginRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/charts'
+    | '/cloud-download'
     | '/components'
     | '/fuel-dashboard'
     | '/login'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/charts'
+    | '/cloud-download'
     | '/components'
     | '/fuel-dashboard'
     | '/login'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/charts'
+    | '/cloud-download'
     | '/components'
     | '/fuel-dashboard'
     | '/login'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChartsRoute: typeof ChartsRoute
+  CloudDownloadRoute: typeof CloudDownloadRoute
   ComponentsRoute: typeof ComponentsRoute
   FuelDashboardRoute: typeof FuelDashboardRoute
   LoginRoute: typeof LoginRoute
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/charts'
       fullPath: '/charts'
       preLoaderRoute: typeof ChartsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cloud-download': {
+      id: '/cloud-download'
+      path: '/cloud-download'
+      fullPath: '/cloud-download'
+      preLoaderRoute: typeof CloudDownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/components': {
@@ -258,6 +278,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChartsRoute: ChartsRoute,
+  CloudDownloadRoute: CloudDownloadRoute,
   ComponentsRoute: ComponentsRoute,
   FuelDashboardRoute: FuelDashboardRoute,
   LoginRoute: LoginRoute,
