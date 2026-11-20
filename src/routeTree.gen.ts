@@ -17,6 +17,7 @@ import { Route as FuelDashboardRouteImport } from './routes/fuel-dashboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RechargeRouteImport } from './routes/recharge'
 import { Route as ReportRouteImport } from './routes/report'
+import { Route as SafetyDashboardRouteImport } from './routes/safety-dashboard'
 import { Route as SettingRouteImport } from './routes/setting'
 import { Route as TemperatureDashboardRouteImport } from './routes/temperature-dashboard'
 import { Route as TrackingRouteImport } from './routes/tracking'
@@ -62,6 +63,11 @@ const ReportRoute = ReportRouteImport.update({
   path: '/report',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SafetyDashboardRoute = SafetyDashboardRouteImport.update({
+  id: '/safety-dashboard',
+  path: '/safety-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingRoute = SettingRouteImport.update({
   id: '/setting',
   path: '/setting',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
+  '/safety-dashboard': typeof SafetyDashboardRoute
   '/setting': typeof SettingRoute
   '/temperature-dashboard': typeof TemperatureDashboardRoute
   '/tracking': typeof TrackingRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
+  '/safety-dashboard': typeof SafetyDashboardRoute
   '/setting': typeof SettingRoute
   '/temperature-dashboard': typeof TemperatureDashboardRoute
   '/tracking': typeof TrackingRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
+  '/safety-dashboard': typeof SafetyDashboardRoute
   '/setting': typeof SettingRoute
   '/temperature-dashboard': typeof TemperatureDashboardRoute
   '/tracking': typeof TrackingRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/recharge'
     | '/report'
+    | '/safety-dashboard'
     | '/setting'
     | '/temperature-dashboard'
     | '/tracking'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/recharge'
     | '/report'
+    | '/safety-dashboard'
     | '/setting'
     | '/temperature-dashboard'
     | '/tracking'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/recharge'
     | '/report'
+    | '/safety-dashboard'
     | '/setting'
     | '/temperature-dashboard'
     | '/tracking'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RechargeRoute: typeof RechargeRoute
   ReportRoute: typeof ReportRoute
+  SafetyDashboardRoute: typeof SafetyDashboardRoute
   SettingRoute: typeof SettingRoute
   TemperatureDashboardRoute: typeof TemperatureDashboardRoute
   TrackingRoute: typeof TrackingRoute
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/safety-dashboard': {
+      id: '/safety-dashboard'
+      path: '/safety-dashboard'
+      fullPath: '/safety-dashboard'
+      preLoaderRoute: typeof SafetyDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/setting': {
       id: '/setting'
       path: '/setting'
@@ -284,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RechargeRoute: RechargeRoute,
   ReportRoute: ReportRoute,
+  SafetyDashboardRoute: SafetyDashboardRoute,
   SettingRoute: SettingRoute,
   TemperatureDashboardRoute: TemperatureDashboardRoute,
   TrackingRoute: TrackingRoute,
