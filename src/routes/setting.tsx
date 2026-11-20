@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ObjectSettingPage } from "@/components/setting/ObjectSettingPage";
 import { AlertSettingPage } from "@/components/setting/AlertSettingPage";
 import { TireSettingPage } from "@/components/setting/TireSettingPage";
+import { ShuttleConfigurationPage } from "@/components/setting/ShuttleConfigurationPage";
+import { TripSchedulePage } from "@/components/setting/TripSchedulePage";
 
 type SettingSearchParams = {
   category?: string;
@@ -42,6 +44,24 @@ export const Route = createFileRoute("/setting")({
 
 function SettingRouteComponent() {
   const search = Route.useSearch();
+  if (
+    search.tab === "shuttle_configuration" ||
+    search.tab === "shuttle_config" ||
+    search.tab === "shuttle" ||
+    search.tab === "configuration" ||
+    search.tab === "setting_configuration"
+  ) {
+    return <ShuttleConfigurationPage />;
+  }
+  if (
+    search.tab === "trip_schedule" ||
+    search.tab === "trip_planning" ||
+    search.tab === "trip" ||
+    search.tab === "trip-schedule" ||
+    search.tab === "trip-planning"
+  ) {
+    return <TripSchedulePage />;
+  }
   if (search.tab === "alert") {
     return <AlertSettingPage />;
   }

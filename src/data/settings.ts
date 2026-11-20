@@ -258,6 +258,13 @@ export const SETTING_CATEGORIES: SettingCategoryNode[] = [
         description: "Custom event trigger rules & status lifecycle definitions",
       },
       {
+        id: "shuttle_configuration",
+        name: "Shuttle Configuration",
+        category: "master",
+        categoryLabel: "Master",
+        description: "Configure operational routes, attendance, booking rules & employee app parameters",
+      },
+      {
         id: "canned_messages",
         name: "Canned Messages",
         category: "master",
@@ -315,6 +322,13 @@ export const SETTING_CATEGORIES: SettingCategoryNode[] = [
     description: "Dispatch tasks, recurring schedules & assignments",
     icon: Briefcase,
     items: [
+      {
+        id: "trip_schedule",
+        name: "Trip Schedule",
+        category: "job",
+        categoryLabel: "Job",
+        description: "Plan automated passenger pickup and drop schedules, routes & checkpoints",
+      },
       {
         id: "job_category",
         name: "Job Category",
