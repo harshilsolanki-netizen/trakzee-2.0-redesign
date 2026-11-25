@@ -181,12 +181,24 @@ export function ChartsMenu({ collapsed }: { collapsed?: boolean }) {
     );
   }, [searchQuery]);
 
+  const [menuTop, setMenuTop] = useState<number>(220);
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Click outside and ESC listeners
+  // Update position adjacent to trigger and add outside/ESC listeners
   useEffect(() => {
     if (!open) return;
+
+    const updatePosition = () => {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        const estimatedHeight = menuRef.current?.offsetHeight || 380;
+        const maxTop = window.innerHeight - estimatedHeight - 15;
+        const top = Math.max(55, Math.min(rect.top, Math.max(55, maxTop)));
+        setMenuTop(top);
+      }
+    };
+    updatePosition();
     const handleClickOutside = (e: MouseEvent) => {
       if (
         menuRef.current &&
@@ -202,9 +214,13 @@ export function ChartsMenu({ collapsed }: { collapsed?: boolean }) {
     };
     document.addEventListener("mousedown", handleClickOutside);
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
     };
   }, [open]);
 
@@ -221,10 +237,19 @@ export function ChartsMenu({ collapsed }: { collapsed?: boolean }) {
       ref={triggerRef}
       type="button"
       aria-label="Charts"
-      onClick={() => setOpen((prev) => !prev)}
+      onClick={() => {
+        if (triggerRef.current) {
+          const rect = triggerRef.current.getBoundingClientRect();
+          const estimatedHeight = menuRef.current?.offsetHeight || 380;
+          const maxTop = window.innerHeight - estimatedHeight - 15;
+          const top = Math.max(55, Math.min(rect.top, Math.max(55, maxTop)));
+          setMenuTop(top);
+        }
+        setOpen((prev) => !prev);
+      }}
       className={cn(
         "group flex w-full h-10 items-center rounded-xl transition-colors duration-200 cursor-pointer select-none overflow-hidden",
-        collapsed ? "justify-center px-0" : "px-2.5",
+        collapsed ? "justify-center px-0" : "px-2.5 gap-3",
         open || isChartsRoute
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
@@ -310,10 +335,11 @@ export function ChartsMenu({ collapsed }: { collapsed?: boolean }) {
               onClick={() => setOpen(false)}
             />
 
-            {/* Bottom-Anchored Flyout Panel with 10px bottom & left margin */}
+            {/* Flyout Panel anchored beside the Charts trigger */}
             <div
               ref={menuRef}
-              className={cn("fixed bottom-[10px] z-50 flex flex-col w-auto min-w-[460px] max-w-[500px] max-h-[calc(100vh-65px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
+              style={{ top: `${menuTop}px` }}
+              className={cn("fixed z-50 flex flex-col w-auto min-w-[460px] max-w-[500px] max-h-[calc(100vh-80px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
             >
             {/* Search Header */}
             <div className="border-b border-slate-800/80 bg-slate-900/60 px-3 py-2.5">

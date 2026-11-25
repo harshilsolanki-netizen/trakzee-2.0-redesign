@@ -211,6 +211,14 @@
 }
 
 /* Modern Utility Classes */
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility field-label {
   font-weight: 600;
   color: var(--color-foreground);

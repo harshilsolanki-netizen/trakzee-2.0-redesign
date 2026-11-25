@@ -9,7 +9,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { Bell, CloudDownload, Search } from "lucide-react";
+import { Bell, CloudDownload, Headset, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -33,6 +33,7 @@ import { CloudDownloadTopBarButton } from "@/components/cloud/CloudDownloadTopBa
 import { SupportHeadsetIcon } from "@/components/icons/SupportHeadsetIcon";
 import { cn } from "@/lib/utils";
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
+import { useActiveApp } from "@/lib/useActiveApp";
 import { LoginPage } from "@/components/auth/LoginPage";
 import { AvoidServiceInterruptionModal } from "@/components/recharge/AvoidServiceInterruptionModal";
 import { AnnouncementsOverlay } from "@/components/announcements/AnnouncementsOverlay";
@@ -173,10 +174,17 @@ function RootComponent() {
 }
 
 function AppLayout() {
-  const { isAuthenticated } = useAuth();
-  const { isOpen, mode, openZio } = useZio();
+  const { isAuthenticated, isTrakzeeAuthenticated, isRosterAuthenticated } = useAuth();
+  const { isRoster } = useActiveApp();
+  const { isOpen, mode, openZio, closeZio } = useZio();
   const location = useRouterState({ select: (s) => s.location });
   const [showInterruptionModal, setShowInterruptionModal] = useState(true);
+
+  useEffect(() => {
+    if (isRoster && isOpen) {
+      closeZio();
+    }
+  }, [isRoster, isOpen, closeZio]);
 
   useEffect(() => {
     try {
@@ -193,15 +201,41 @@ function AppLayout() {
     return () => window.removeEventListener("open-avoid-service-interruption", handleOpenModal);
   }, []);
 
-  if (!isAuthenticated || location.pathname === "/login") {
-    return <LoginPage />;
+  const isLoginRoute = location.pathname === "/login";
+
+  if (isLoginRoute) {
+    const urlProduct =
+      typeof window !== "undefined"
+        ? (new URLSearchParams(window.location.search).get("product") as
+            | "trakzee"
+            | "roster"
+            | "roaster"
+            | null)
+        : null;
+    const resolvedProduct =
+      urlProduct === "roster" || urlProduct === "roaster"
+        ? "roster"
+        : urlProduct === "trakzee"
+        ? "trakzee"
+        : isRoster
+        ? "roster"
+        : "trakzee";
+    return <LoginPage product={resolvedProduct} />;
   }
 
-  const isZioStandaloneRoute = location.pathname.startsWith("/zio");
+  if (isRoster && !isRosterAuthenticated) {
+    return <LoginPage product="roster" />;
+  }
 
-  const isSidebar = isOpen && mode === "sidebar" && !isZioStandaloneRoute;
-  const isFloating = isOpen && mode === "floating" && !isZioStandaloneRoute;
-  const isFullscreen = isOpen && mode === "fullscreen" && !isZioStandaloneRoute;
+  if (!isRoster && (!isAuthenticated || !isTrakzeeAuthenticated)) {
+    return <LoginPage product="trakzee" />;
+  }
+
+  const isZioStandaloneRoute = !isRoster && location.pathname.startsWith("/zio");
+
+  const isSidebar = !isRoster && isOpen && mode === "sidebar" && !isZioStandaloneRoute;
+  const isFloating = !isRoster && isOpen && mode === "floating" && !isZioStandaloneRoute;
+  const isFullscreen = !isRoster && isOpen && mode === "fullscreen" && !isZioStandaloneRoute;
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-nav text-foreground">
@@ -250,8 +284,8 @@ function AppLayout() {
         onOpenChange={setShowInterruptionModal}
       />
 
-      {/* Announcements Overlay Menu matching reference */}
-      <AnnouncementsOverlay />
+      {/* Announcements Overlay Menu matching reference (Hidden on live tracking screen) */}
+      {!location.pathname.startsWith("/tracking") && <AnnouncementsOverlay />}
     </div>
   );
 }
@@ -261,6 +295,7 @@ function TopBar() {
   const navigate = useNavigate();
   const location = useRouterState({ select: (s) => s.location });
   const isCloudDownload = location.pathname.startsWith("/cloud-download");
+  const { isRoster } = useActiveApp();
 
   return (
     <header className="flex h-[45px] shrink-0 items-center gap-3 bg-nav px-3.5 text-nav-foreground">
@@ -273,11 +308,14 @@ function TopBar() {
         />
       </div>
       <div className="ml-auto flex items-center gap-2.5">
-        {/* Zio CTA in Header (Ahead of Notifications) */}
-        <AskZioTopBarButton />
-
-        {/* Divider 1 */}
-        <div className="h-4.5 w-px bg-white/20" />
+        {/* Zio CTA in Header (Hidden in Roaster Management) */}
+        {!isRoster && (
+          <>
+            <AskZioTopBarButton />
+            {/* Divider 1 */}
+            <div className="h-4.5 w-px bg-white/20" />
+          </>
+        )}
 
         {/* Cloud Download Action - Shows animated progress ring & percentage when downloading */}
         <CloudDownloadTopBarButton />
@@ -295,7 +333,7 @@ function TopBar() {
               }}
               className="relative flex h-[30px] w-[30px] items-center justify-center rounded-md text-nav-foreground/90 transition-colors duration-150 hover:bg-white/10 hover:text-white cursor-pointer"
             >
-              <SupportHeadsetIcon className="h-[18px] w-[18px]" />
+              <Headset className="h-[18px] w-[18px]" />
             </button>
           </TooltipTrigger>
           <TooltipContent

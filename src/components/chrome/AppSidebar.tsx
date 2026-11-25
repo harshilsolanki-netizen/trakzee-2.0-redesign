@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useDashboard } from "@/dashboard/store";
 import { useSidebarState } from "@/lib/useSidebarState";
+import { useActiveApp } from "@/lib/useActiveApp";
 import { cn } from "@/lib/utils";
 
 
@@ -98,6 +99,7 @@ function getAppIconComponent(name: string, iconName?: string) {
 export function AppSidebar() {
   const { pinnedMoreItems, toggleMorePin } = useDashboard();
   const { isCollapsed, toggleSidebar } = useSidebarState();
+  const { isRoster } = useActiveApp();
   const [moreOpen, setMoreOpen] = useState(false);
   const [hoveredAppId, setHoveredAppId] = useState<string | null>("keka");
   const [menuTop, setMenuTop] = useState(450);
@@ -177,30 +179,32 @@ export function AppSidebar() {
             )}
           >
             <span className="font-bold text-sm tracking-tight text-white font-sans truncate block">
-              Trakzee
+              {isRoster ? "Roaster" : "Trakzee"}
             </span>
           </div>
         </div>
 
         {/* Navigation Items */}
         <div className="flex-1 w-full flex flex-col gap-2.5 overflow-y-auto overflow-x-hidden custom-scrollbar py-1">
-          {/* AI / Zio Navigation Tab */}
-          <Link
-            to="/zio"
-            activeOptions={{ exact: false }}
-            className="w-full flex"
-            aria-label="Zio"
-          >
-            {({ isActive }) => (
-              <SidebarItem
-                label="Zio"
-                icon={ZioIcon}
-                active={isActive}
-                collapsed={isCollapsed}
-                iconClassName={!isActive ? "text-[#0089FF] group-hover:text-white" : "text-white"}
-              />
-            )}
-          </Link>
+          {/* AI / Zio Navigation Tab - Hidden in Roaster Management */}
+          {!isRoster && (
+            <Link
+              to="/zio"
+              activeOptions={{ exact: false }}
+              className="w-full flex"
+              aria-label="Zio"
+            >
+              {({ isActive }) => (
+                <SidebarItem
+                  label="Zio"
+                  icon={ZioIcon}
+                  active={isActive}
+                  collapsed={isCollapsed}
+                  iconClassName={!isActive ? "text-[#0089FF] group-hover:text-white" : "text-white"}
+                />
+              )}
+            </Link>
+          )}
 
           {/* 1. Favourites */}
           <FavoritesMenu collapsed={isCollapsed} />
@@ -228,51 +232,53 @@ export function AppSidebar() {
           {/* 4. Report */}
           <ReportsMenu collapsed={isCollapsed} />
 
-          {/* 5. Charts */}
-          <ChartsMenu collapsed={isCollapsed} />
+          {/* 5. Charts - Hidden in Roaster Management */}
+          {!isRoster && <ChartsMenu collapsed={isCollapsed} />}
 
           {/* 6. Setting */}
           <SettingsMenu collapsed={isCollapsed} />
 
-          {/* 7. Setu Navigation Tab (Replaces Support in Sidebar) */}
-          <div className="w-full flex">
-            <Link
-              to="/setting"
-              activeOptions={{ exact: false }}
-              className="w-full flex"
-              aria-label="Setu"
-              onClick={() => {
-                toast.success("Welcome to Setu", {
-                  description: "Explore telematics hardware, devices, and marketplace addons.",
-                });
-              }}
-            >
-              {({ isActive }) => (
-                <SidebarItem
-                  label="Setu"
-                  icon={ShoppingCart}
-                  active={isActive}
-                  collapsed={isCollapsed}
-                />
-              )}
-            </Link>
-          </div>
+          {/* 7. Setu Navigation Tab - Hidden in Roaster Management */}
+          {!isRoster && (
+            <div className="w-full flex">
+              <Link
+                to="/setting"
+                activeOptions={{ exact: false }}
+                className="w-full flex"
+                aria-label="Setu"
+                onClick={() => {
+                  toast.success("Welcome to Setu", {
+                    description: "Explore telematics hardware, devices, and marketplace addons.",
+                  });
+                }}
+              >
+                {({ isActive }) => (
+                  <SidebarItem
+                    label="Setu"
+                    icon={ShoppingCart}
+                    active={isActive}
+                    collapsed={isCollapsed}
+                  />
+                )}
+              </Link>
+            </div>
+          )}
 
-          {/* 8. More Apps Navigation Tab */}
-          <div ref={triggerRef} className="w-full flex">
-            <SidebarItem
-              label="More Apps"
-              icon={LayoutGrid}
-              active={moreOpen}
-              collapsed={isCollapsed}
-              onClick={() => {
-                setHoveredAppId("keka");
-                setMoreOpen((prev) => !prev);
-              }}
-            />
-          </div>
-
-
+          {/* 8. More Apps Navigation Tab - Hidden in Roaster Management */}
+          {!isRoster && (
+            <div ref={triggerRef} className="w-full flex">
+              <SidebarItem
+                label="More Apps"
+                icon={LayoutGrid}
+                active={moreOpen}
+                collapsed={isCollapsed}
+                onClick={() => {
+                  setHoveredAppId("keka");
+                  setMoreOpen((prev) => !prev);
+                }}
+              />
+            </div>
+          )}
         </div>
 
         {/* Bottom Section: Collapse Navigation Button [<] */}
@@ -420,7 +426,7 @@ export function SidebarItem({
       onClick={onClick}
       className={cn(
         "group flex w-full h-10 items-center rounded-xl transition-colors duration-200 cursor-pointer select-none overflow-hidden",
-        collapsed ? "justify-center px-0" : "px-2.5",
+        collapsed ? "justify-center px-0" : "px-2.5 gap-3",
         active
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"

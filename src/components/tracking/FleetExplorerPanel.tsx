@@ -2471,17 +2471,9 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "allocated" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1.5 leading-none">
-                <span
-                  className="h-1.5 w-1.5 rounded-full shrink-0"
-                  style={{
-                    backgroundColor: activeDriverStatus === "allocated" ? "#FFFFFF" : "#008446",
-                  }}
-                />
-                <span className="text-[13px] font-bold tabular-nums leading-none">
-                  {driverCounts.allocated}
-                </span>
-              </div>
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.allocated}
+              </span>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 ALLOCATED
               </span>
@@ -2507,17 +2499,9 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "not_allocated" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1.5 leading-none">
-                <span
-                  className="h-1.5 w-1.5 rounded-full shrink-0"
-                  style={{
-                    backgroundColor: activeDriverStatus === "not_allocated" ? "#FFFFFF" : "#C70036",
-                  }}
-                />
-                <span className="text-[13px] font-bold tabular-nums leading-none">
-                  {driverCounts.notAllocated}
-                </span>
-              </div>
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.notAllocated}
+              </span>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 NOT ALLOC
               </span>
@@ -2541,17 +2525,9 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "available" && "shadow-sm shadow-[#0089FF]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1.5 leading-none">
-                <span
-                  className="h-1.5 w-1.5 rounded-full shrink-0"
-                  style={{
-                    backgroundColor: activeDriverStatus === "available" ? "#FFFFFF" : "#0089FF",
-                  }}
-                />
-                <span className="text-[13px] font-bold tabular-nums leading-none">
-                  {driverCounts.available}
-                </span>
-              </div>
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.available}
+              </span>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 AVAILABLE
               </span>
@@ -2577,17 +2553,9 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "not_available" && "shadow-sm shadow-[#C46F37]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1.5 leading-none">
-                <span
-                  className="h-1.5 w-1.5 rounded-full shrink-0"
-                  style={{
-                    backgroundColor: activeDriverStatus === "not_available" ? "#FFFFFF" : "#C46F37",
-                  }}
-                />
-                <span className="text-[13px] font-bold tabular-nums leading-none">
-                  {driverCounts.notAvailable}
-                </span>
-              </div>
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.notAvailable}
+              </span>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 NOT AVAIL
               </span>
@@ -2611,17 +2579,9 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "on_leave" && "shadow-sm shadow-[#372AAC]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1.5 leading-none">
-                <span
-                  className="h-1.5 w-1.5 rounded-full shrink-0"
-                  style={{
-                    backgroundColor: activeDriverStatus === "on_leave" ? "#FFFFFF" : "#372AAC",
-                  }}
-                />
-                <span className="text-[13px] font-bold tabular-nums leading-none">
-                  {driverCounts.onLeave}
-                </span>
-              </div>
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.onLeave}
+              </span>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 ON LEAVE
               </span>
@@ -2641,17 +2601,12 @@ export function FleetExplorerPanel({
                 activeDriverStatus === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]",
               )}
             >
-              <div className="flex items-center gap-1.5 leading-none">
-                <span
-                  className="h-1.5 w-1.5 rounded-full shrink-0"
-                  style={{
-                    backgroundColor: activeDriverStatus === "all" ? "#FFFFFF" : "#64748B",
-                  }}
-                />
-                <span className="text-[13px] font-bold tabular-nums leading-none">
-                  {driverCounts.total}
-                </span>
-              </div>
+              <span className="text-[13px] font-bold tabular-nums leading-none">
+                {driverCounts.total}
+              </span>
+              <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                TOTAL
+              </span>
               <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                 TOTAL
               </span>
@@ -5297,10 +5252,10 @@ export function FleetExplorerPanel({
                                       className="flex items-center justify-between px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer select-none"
                                     >
                                       {/* Col 1: Status Dot (Identical size & styling to Object Panel) + Name & Plate */}
-                                      <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                         <span
                                           className={cn(
-                                            "h-2 w-2 rounded-full shrink-0 mt-1 shadow-2xs",
+                                            "h-2 w-2 rounded-full shrink-0 shadow-2xs",
                                             ringColor,
                                             dotColor,
                                           )}
@@ -5309,7 +5264,7 @@ export function FleetExplorerPanel({
                                           <span className={cn("font-bold text-xs truncate leading-tight", nameColor)}>
                                             {drv.name}
                                           </span>
-                                          <span className="text-[10px] font-mono font-extrabold text-slate-700 dark:text-slate-300 truncate leading-none mt-1">
+                                          <span className="text-[10px] font-mono font-extrabold text-slate-700 dark:text-slate-300 truncate leading-none mt-0.5">
                                             {drv.vehicle}
                                           </span>
                                         </div>

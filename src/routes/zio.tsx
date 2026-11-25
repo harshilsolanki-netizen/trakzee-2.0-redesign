@@ -1,7 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ZioPanel } from "@/components/zio/ZioPanel";
 
 export const Route = createFileRoute("/zio")({
+  beforeLoad: () => {
+    try {
+      if (
+        typeof window !== "undefined" &&
+        localStorage.getItem("trakzee-active-app-id") === "roster-management"
+      ) {
+        throw redirect({ to: "/report", search: { type: "stoppage" } });
+      }
+    } catch (e) {
+      if (e && typeof e === "object" && "to" in e) throw e;
+    }
+  },
   head: () => ({
     meta: [
       { title: "Zio AI Assistant — Fleet Safety & Telematics" },

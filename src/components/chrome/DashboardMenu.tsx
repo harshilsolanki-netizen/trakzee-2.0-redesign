@@ -38,22 +38,6 @@ const DASHBOARD_OPTIONS: DashboardOption[] = [
     iconBg: "bg-blue-500/15 border-blue-500/30",
   },
   {
-    id: "temperature",
-    title: "Temperature Dashboard",
-    path: "/temperature-dashboard",
-    icon: Thermometer,
-    iconColor: "text-cyan-400",
-    iconBg: "bg-cyan-500/15 border-cyan-500/30",
-  },
-  {
-    id: "fuel",
-    title: "Fuel Dashboard",
-    path: "/fuel-dashboard",
-    icon: Fuel,
-    iconColor: "text-emerald-400",
-    iconBg: "bg-emerald-500/15 border-emerald-500/30",
-  },
-  {
     id: "safety",
     title: "Safety Dashboard",
     path: "/safety-dashboard",
@@ -74,8 +58,6 @@ export function DashboardMenu({ collapsed }: { collapsed?: boolean }) {
 
   const isDashboardRoute =
     location.pathname === "/" ||
-    location.pathname.startsWith("/temperature-dashboard") ||
-    location.pathname.startsWith("/fuel-dashboard") ||
     location.pathname.startsWith("/safety-dashboard");
 
   // Click outside, ESC listeners, and trigger position update (open beside dashboard icon)
@@ -163,7 +145,7 @@ export function DashboardMenu({ collapsed }: { collapsed?: boolean }) {
       onClick={() => setOpen((prev) => !prev)}
       className={cn(
         "group flex w-full h-10 items-center rounded-xl transition-colors duration-200 cursor-pointer select-none overflow-hidden",
-        collapsed ? "justify-center px-0" : "px-2.5",
+        collapsed ? "justify-center px-0" : "px-2.5 gap-3",
         open || isDashboardRoute
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
@@ -261,7 +243,7 @@ export function DashboardMenu({ collapsed }: { collapsed?: boolean }) {
                     </button>
                   ) : (
                     <span className="text-[10px] font-mono text-slate-400 bg-slate-800/80 border border-slate-700/60 px-2 py-0.5 rounded-full shrink-0">
-                      4 Options
+                      {DASHBOARD_OPTIONS.length} Options
                     </span>
                   )}
                 </div>
@@ -328,7 +310,7 @@ export function DashboardMenu({ collapsed }: { collapsed?: boolean }) {
               <div className="flex items-center justify-between border-t border-slate-800/80 bg-slate-950/80 px-3.5 py-2 text-[10px] text-slate-400">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3 text-blue-400" />
-                  <span>4 Dashboard Workspaces</span>
+                  <span>{DASHBOARD_OPTIONS.length} Dashboard Workspaces</span>
                 </div>
                 <span className="text-slate-400 font-mono">Click to open</span>
               </div>

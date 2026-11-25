@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Briefcase,
   Building2,
@@ -205,6 +206,7 @@ export function applyUiStyle(style: UiElementStyle) {
 
 const APPLICATIONS = [
   { id: "hp-trakzee-premium", name: "HP Trakzee Premium", isPrimary: true },
+  { id: "roster-management", name: "Roaster Management", isNew: true, isTop: true },
   { id: "trakzee-standard", name: "Trakzee Standard" },
   { id: "hp-trakzee-mini", name: "HP Trakzee Mini" },
   { id: "smart-bus", name: "Smart Bus" },
@@ -215,7 +217,6 @@ const APPLICATIONS = [
   { id: "gridzee", name: "Gridzee" },
   { id: "logytrak", name: "LogyTrak" },
   { id: "petzee", name: "Petzee" },
-  { id: "roster-management", name: "Roster Management" },
   { id: "stealth-tracer", name: "Stealth Tracer" },
   { id: "taskeye", name: "TaskEye" },
   { id: "trakride", name: "TrakRide" },
@@ -910,6 +911,25 @@ function ModalShell({
 }
 
 export function UserProfileMenu() {
+  const navigate = useNavigate();
+  const { requireProductLogin } = useAuth();
+  const [activeAppId, setActiveAppId] = useState<string>(() => {
+    try {
+      if (typeof window !== "undefined" && window.location.pathname.startsWith("/roster")) {
+        return "roster-management";
+      }
+      return localStorage.getItem("trakzee-active-app-id") || "hp-trakzee-premium";
+    } catch {
+      return "hp-trakzee-premium";
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.pathname.startsWith("/roster")) {
+      setActiveAppId("roster-management");
+    }
+  }, []);
+
   const [activeModal, setActiveModal] = useState<UserModalKind>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [langSearch, setLangSearch] = useState("");
@@ -1110,7 +1130,11 @@ export function UserProfileMenu() {
   const filteredApps = useMemo(() => {
     const q = appSearch.trim().toLowerCase();
     if (!q) return APPLICATIONS;
-    return APPLICATIONS.filter((a) => a.name.toLowerCase().includes(q));
+    return APPLICATIONS.filter(
+      (a) =>
+        a.name.toLowerCase().includes(q) ||
+        (a.id === "roster-management" && ("roster".includes(q) || "roaster".includes(q)))
+    );
   }, [appSearch]);
 
   // Active Tree Data & Filtering
@@ -1328,22 +1352,49 @@ export function UserProfileMenu() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto space-y-0.5 pr-0.5 custom-scrollbar">
-                  {filteredApps.map((app) => (
-                    <DropdownMenuItem
-                      key={app.id}
-                      onClick={() => toast.info(`Switching to ${app.name}`)}
-                      className={cn(
-                        "px-2.5 py-1.5 cursor-pointer text-xs transition-colors hover:bg-muted/80 rounded-md flex items-center justify-between select-none",
-                        app.isPrimary &&
-                          "font-bold text-[#0089FF] bg-[#0089FF]/10 hover:bg-[#0089FF]/15",
-                      )}
-                    >
-                      <span className="truncate">{app.name}</span>
-                      {app.isPrimary && (
-                        <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0 ml-1.5" />
-                      )}
-                    </DropdownMenuItem>
-                  ))}
+                  {filteredApps.map((app) => {
+                    const isSelected = activeAppId === app.id;
+                    return (
+                      <DropdownMenuItem
+                        key={app.id}
+                        onClick={() => {
+                          setActiveAppId(app.id);
+                          try {
+                            localStorage.setItem("trakzee-active-app-id", app.id);
+                            window.dispatchEvent(new Event("trakzee-app-changed"));
+                          } catch {}
+                          if (app.id === "roster-management") {
+                            requireProductLogin("roster");
+                            toast.info("Switched to Roaster Management");
+                            navigate({ to: "/login", search: { product: "roster" } as any });
+                          } else if (app.id === "hp-trakzee-premium") {
+                            requireProductLogin("trakzee");
+                            toast.info("Switched to HP Trakzee Premium");
+                            navigate({ to: "/login", search: { product: "trakzee" } as any });
+                          } else {
+                            toast.info(`Switching to ${app.name}`);
+                          }
+                        }}
+                        className={cn(
+                          "px-2.5 py-1.5 cursor-pointer text-xs transition-colors hover:bg-muted/80 rounded-md flex items-center justify-between select-none",
+                          isSelected &&
+                            "font-bold text-[#0089FF] bg-[#0089FF]/10 hover:bg-[#0089FF]/15",
+                        )}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="truncate">{app.name}</span>
+                          {"isNew" in app && app.isNew && (
+                            <span className="text-[9px] px-1 py-0.2 rounded bg-blue-100 text-[#0089FF] dark:bg-blue-950 dark:text-blue-300 font-bold uppercase shrink-0">
+                              NEW
+                            </span>
+                          )}
+                        </div>
+                        {isSelected && (
+                          <Check className="h-3.5 w-3.5 text-[#0089FF] shrink-0 ml-1.5" />
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
                   {filteredApps.length === 0 && (
                     <div className="p-3 text-center text-xs text-muted-foreground italic">
                       No applications found

@@ -1,13 +1,77 @@
 import React, { useState } from "react";
 import { Lock, Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth, AUTH_CREDENTIALS } from "@/auth/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-export function LoginPage() {
+export interface LoginPageProps {
+  product?: "trakzee" | "roster";
+}
+
+export function RosterzLogo({ className }: { className?: string }) {
+  return (
+    <div className={cn("inline-flex items-center gap-2.5 select-none", className)}>
+      <svg
+        className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 text-[#00C2E8] drop-shadow-md"
+        viewBox="0 0 36 36"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M6 24C6 14.0589 14.0589 6 24 6C27.5 6 30.5 7.2 32.5 9.2C30 9.8 26 12 23 15C19.5 18.5 17 22.5 15.5 27C11.5 26.5 8 25 6 24Z"
+          fill="currentColor"
+        />
+        <path
+          d="M14 28.5C15 25 17.5 21.5 20.5 18.5C23.5 15.5 27 13.5 30.5 12.5C31.5 14.5 32 16.8 32 19.2C32 26 26.5 31.5 19.5 31.5C17.5 31.5 15.6 30.5 14 28.5Z"
+          fill="currentColor"
+          opacity="0.9"
+        />
+        <path
+          d="M8.5 26C13 25.5 19 22 24 16C27 12.5 29 9.5 29.5 8.5C24 9.5 17 14 12 20C9.5 23 8.8 24.8 8.5 26Z"
+          fill="#FFFFFF"
+          opacity="0.4"
+        />
+      </svg>
+      <span className="text-[22px] sm:text-[26px] font-bold tracking-tight text-[#00C2E8] drop-shadow-[0_2px_14px_rgba(0,194,232,0.4)] leading-none font-sans">
+        Rosterz Management
+      </span>
+    </div>
+  );
+}
+
+export function LoginPage({ product: propProduct }: LoginPageProps) {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useRouterState({ select: (s) => s.location });
+
+  const urlProduct =
+    typeof window !== "undefined"
+      ? (new URLSearchParams(window.location.search).get("product") as
+          | "trakzee"
+          | "roster"
+          | "roaster"
+          | null)
+      : null;
+
+  const resolvedUrlProduct =
+    urlProduct === "roaster" || urlProduct === "roster"
+      ? "roster"
+      : urlProduct === "trakzee"
+      ? "trakzee"
+      : null;
+
+  const currentProduct: "trakzee" | "roster" =
+    propProduct ||
+    resolvedUrlProduct ||
+    (location.pathname.startsWith("/roster") ? "roster" : null) ||
+    (typeof window !== "undefined" &&
+    localStorage.getItem("trakzee-active-app-id") === "roster-management"
+      ? "roster"
+      : "trakzee");
+
+  const isRoster = currentProduct === "roster";
+
   const [userId, setUserId] = useState("design.uffizio.com");
   const [password, setPassword] = useState("Design@123");
   const [showPassword, setShowPassword] = useState(false);
@@ -31,13 +95,18 @@ export function LoginPage() {
     setIsSubmitting(true);
 
     setTimeout(() => {
-      const success = login(userId, password, rememberMe);
+      const success = login(userId, password, rememberMe, currentProduct);
       setIsSubmitting(false);
 
       if (success) {
-        navigate({ to: "/" });
-        if (typeof window !== "undefined" && window.location.pathname === "/login") {
-          window.location.href = "/";
+        const destination = isRoster ? "/report?type=stoppage" : "/";
+        navigate({ to: destination as any });
+        if (
+          typeof window !== "undefined" &&
+          (window.location.pathname === "/login" ||
+            window.location.search.includes("product"))
+        ) {
+          window.location.href = destination;
         }
       } else {
         setErrorMessage(
@@ -52,8 +121,8 @@ export function LoginPage() {
       {/* ── FULLSCREEN HIGH-QUALITY BACKDROP (0 degradation) ── */}
       <div className="fixed inset-0 z-0">
         <img
-          src="/images/auth-truck-city.jpg"
-          alt="Trakzee Fleet Solution"
+          src={isRoster ? "/images/auth-roster-bus.jpg" : "/images/auth-truck-city.jpg"}
+          alt={isRoster ? "Rosterz Management Solution" : "Trakzee Fleet Solution"}
           className="h-full w-full object-cover object-center"
           loading="eager"
           decoding="sync"
@@ -67,17 +136,23 @@ export function LoginPage() {
       <div className="relative z-10 flex-1 flex flex-col justify-between self-stretch w-full py-2 sm:py-4">
         {/* Logo on the left side */}
         <div className="text-left">
-          <img
-            src="/images/trakzee-logo-white.png"
-            alt="Trakzee"
-            className="h-10 sm:h-12 xl:h-13 w-auto object-contain drop-shadow-2xl"
-          />
+          {isRoster ? (
+            <RosterzLogo />
+          ) : (
+            <img
+              src="/images/trakzee-logo-white.png"
+              alt="Trakzee"
+              className="h-10 sm:h-12 xl:h-13 w-auto object-contain drop-shadow-2xl"
+            />
+          )}
         </div>
 
         {/* Tagline on the left side (42px font, left-aligned) */}
         <div className="pt-16 pb-2 text-left max-w-xl">
           <h1 className="text-[28px] sm:text-[36px] xl:text-[42px] font-bold text-white tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)] leading-tight text-left">
-            One Platform. Complete Fleet Solution.
+            {isRoster
+              ? "Smarter Commutes. Happier Teams."
+              : "One Platform. Complete Fleet Solution."}
           </h1>
           <p className="text-[11px] text-slate-400/80 drop-shadow mt-2 text-left">
             © 2026 Uffizio. All rights reserved.
@@ -94,7 +169,9 @@ export function LoginPage() {
               Sign in to your account
             </h2>
             <p className="text-xs text-slate-500 font-medium text-left">
-              Enter your authorized credentials to access your fleet console
+              {isRoster
+                ? "Employee Transportation, Simplified."
+                : "Enter your authorized credentials to access your fleet console"}
             </p>
           </div>
 
@@ -126,7 +203,7 @@ export function LoginPage() {
                     setUserId(e.target.value);
                     if (errorMessage) setErrorMessage(null);
                   }}
-                  placeholder="e.g. design.uffizio.com"
+                  placeholder="design.uffizio.com"
                   autoComplete="username"
                   required
                   className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 shadow-2xs transition-all focus:border-[#0089FF] focus:outline-none focus:ring-2 focus:ring-[#0089FF]/20 text-left"
@@ -223,7 +300,9 @@ export function LoginPage() {
           {/* Footer Info: Left-Aligned */}
           <div className="text-left pt-2 border-t border-slate-100">
             <p className="text-[11px] text-slate-400 text-left">
-              Protected by Uffizio 256-bit Fleet Security Encryption
+              {isRoster
+                ? "Secure access to your employee transport workspace."
+                : "Protected by Uffizio 256-bit Fleet Security Encryption"}
             </p>
           </div>
         </div>

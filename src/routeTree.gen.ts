@@ -17,6 +17,7 @@ import { Route as FuelDashboardRouteImport } from './routes/fuel-dashboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RechargeRouteImport } from './routes/recharge'
 import { Route as ReportRouteImport } from './routes/report'
+import { Route as RosterManagementRouteImport } from './routes/roster-management'
 import { Route as SafetyDashboardRouteImport } from './routes/safety-dashboard'
 import { Route as SettingRouteImport } from './routes/setting'
 import { Route as TemperatureDashboardRouteImport } from './routes/temperature-dashboard'
@@ -63,6 +64,11 @@ const ReportRoute = ReportRouteImport.update({
   path: '/report',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RosterManagementRoute = RosterManagementRouteImport.update({
+  id: '/roster-management',
+  path: '/roster-management',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SafetyDashboardRoute = SafetyDashboardRouteImport.update({
   id: '/safety-dashboard',
   path: '/safety-dashboard',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
+  '/roster-management': typeof RosterManagementRoute
   '/safety-dashboard': typeof SafetyDashboardRoute
   '/setting': typeof SettingRoute
   '/temperature-dashboard': typeof TemperatureDashboardRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
+  '/roster-management': typeof RosterManagementRoute
   '/safety-dashboard': typeof SafetyDashboardRoute
   '/setting': typeof SettingRoute
   '/temperature-dashboard': typeof TemperatureDashboardRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/recharge': typeof RechargeRoute
   '/report': typeof ReportRoute
+  '/roster-management': typeof RosterManagementRoute
   '/safety-dashboard': typeof SafetyDashboardRoute
   '/setting': typeof SettingRoute
   '/temperature-dashboard': typeof TemperatureDashboardRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/recharge'
     | '/report'
+    | '/roster-management'
     | '/safety-dashboard'
     | '/setting'
     | '/temperature-dashboard'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/recharge'
     | '/report'
+    | '/roster-management'
     | '/safety-dashboard'
     | '/setting'
     | '/temperature-dashboard'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/recharge'
     | '/report'
+    | '/roster-management'
     | '/safety-dashboard'
     | '/setting'
     | '/temperature-dashboard'
@@ -192,6 +204,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RechargeRoute: typeof RechargeRoute
   ReportRoute: typeof ReportRoute
+  RosterManagementRoute: typeof RosterManagementRoute
   SafetyDashboardRoute: typeof SafetyDashboardRoute
   SettingRoute: typeof SettingRoute
   TemperatureDashboardRoute: typeof TemperatureDashboardRoute
@@ -257,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/roster-management': {
+      id: '/roster-management'
+      path: '/roster-management'
+      fullPath: '/roster-management'
+      preLoaderRoute: typeof RosterManagementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/safety-dashboard': {
       id: '/safety-dashboard'
       path: '/safety-dashboard'
@@ -304,6 +324,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RechargeRoute: RechargeRoute,
   ReportRoute: ReportRoute,
+  RosterManagementRoute: RosterManagementRoute,
   SafetyDashboardRoute: SafetyDashboardRoute,
   SettingRoute: SettingRoute,
   TemperatureDashboardRoute: TemperatureDashboardRoute,

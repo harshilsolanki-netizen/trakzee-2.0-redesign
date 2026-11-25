@@ -863,15 +863,7 @@ export function ShuttleTrackingPanel({
                   activeFilter === "running" && "shadow-sm shadow-[#008446]/25 font-bold scale-[1.02]"
                 )}
               >
-                <div className="flex items-center gap-1.5 leading-none">
-                  <span
-                    className="h-1.5 w-1.5 rounded-full shrink-0"
-                    style={{
-                      backgroundColor: activeFilter === "running" ? "#FFFFFF" : "#008446",
-                    }}
-                  />
-                  <span className="text-[13px] font-bold tabular-nums leading-none">21</span>
-                </div>
+                <span className="text-[13px] font-bold tabular-nums leading-none">21</span>
                 <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                   RUNNING
                 </span>
@@ -891,15 +883,7 @@ export function ShuttleTrackingPanel({
                   activeFilter === "completed" && "shadow-sm shadow-[#0089FF]/25 font-bold scale-[1.02]"
                 )}
               >
-                <div className="flex items-center gap-1.5 leading-none">
-                  <span
-                    className="h-1.5 w-1.5 rounded-full shrink-0"
-                    style={{
-                      backgroundColor: activeFilter === "completed" ? "#FFFFFF" : "#0089FF",
-                    }}
-                  />
-                  <span className="text-[13px] font-bold tabular-nums leading-none">2</span>
-                </div>
+                <span className="text-[13px] font-bold tabular-nums leading-none">2</span>
                 <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                   COMPLETED
                 </span>
@@ -919,15 +903,7 @@ export function ShuttleTrackingPanel({
                   activeFilter === "upcoming" && "shadow-sm shadow-[#C46F37]/25 font-bold scale-[1.02]"
                 )}
               >
-                <div className="flex items-center gap-1.5 leading-none">
-                  <span
-                    className="h-1.5 w-1.5 rounded-full shrink-0"
-                    style={{
-                      backgroundColor: activeFilter === "upcoming" ? "#FFFFFF" : "#C46F37",
-                    }}
-                  />
-                  <span className="text-[13px] font-bold tabular-nums leading-none">4</span>
-                </div>
+                <span className="text-[13px] font-bold tabular-nums leading-none">4</span>
                 <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                   UPCOMING
                 </span>
@@ -947,15 +923,7 @@ export function ShuttleTrackingPanel({
                   activeFilter === "failed" && "shadow-sm shadow-[#C70036]/25 font-bold scale-[1.02]"
                 )}
               >
-                <div className="flex items-center gap-1.5 leading-none">
-                  <span
-                    className="h-1.5 w-1.5 rounded-full shrink-0"
-                    style={{
-                      backgroundColor: activeFilter === "failed" ? "#FFFFFF" : "#C70036",
-                    }}
-                  />
-                  <span className="text-[13px] font-bold tabular-nums leading-none">19</span>
-                </div>
+                <span className="text-[13px] font-bold tabular-nums leading-none">19</span>
                 <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                   FAILED
                 </span>
@@ -975,15 +943,10 @@ export function ShuttleTrackingPanel({
                   activeFilter === "all" && "shadow-sm shadow-[#223344]/25 font-bold scale-[1.02]"
                 )}
               >
-                <div className="flex items-center gap-1.5 leading-none">
-                  <span
-                    className="h-1.5 w-1.5 rounded-full shrink-0"
-                    style={{
-                      backgroundColor: activeFilter === "all" ? "#FFFFFF" : "#64748B",
-                    }}
-                  />
-                  <span className="text-[13px] font-bold tabular-nums leading-none">48</span>
-                </div>
+                <span className="text-[13px] font-bold tabular-nums leading-none">48</span>
+                <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
+                  TOTAL
+                </span>
                 <span className="text-[10px] font-bold tracking-wide uppercase leading-tight mt-0.5">
                   TOTAL
                 </span>
@@ -1109,7 +1072,7 @@ export function ShuttleTrackingPanel({
           </div>
 
           {/* 4. Trips List (Scrollable) */}
-          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-slate-100 dark:divide-slate-800/60">
+          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar divide-y divide-slate-100 dark:divide-slate-800/60">
             {groupExpanded &&
               filteredTrips.map((trip) => {
                 const isExpanded = !!expandedTripIds[trip.id];
@@ -1124,12 +1087,12 @@ export function ShuttleTrackingPanel({
                       onClick={() => handleSelectTrip(trip)}
                       className="px-3 py-2 cursor-pointer transition-colors group flex items-start justify-between gap-2"
                     >
-                      <div className="flex items-start gap-1.5 min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
                         {/* Expand / Collapse chevron */}
                         <button
                           type="button"
                           onClick={(e) => toggleTripExpand(trip.id, e)}
-                          className="mt-0.5 p-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors shrink-0"
+                          className="p-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-700/60 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors shrink-0"
                         >
                           <ChevronDown
                             className={cn(
@@ -1142,7 +1105,7 @@ export function ShuttleTrackingPanel({
                         {/* Status colored dot */}
                         <span
                           className={cn(
-                            "h-2 w-2 rounded-full shrink-0 mt-1",
+                            "h-2 w-2 rounded-full shrink-0 shadow-2xs",
                             trip.dotColor === "red" && "bg-[#EF4444]",
                             trip.dotColor === "green" && "bg-[#10B981]",
                             trip.dotColor === "amber" && "bg-[#F59E0B]"
@@ -1154,7 +1117,7 @@ export function ShuttleTrackingPanel({
                           <div className="text-xs font-bold leading-tight text-slate-900 dark:text-slate-100 truncate group-hover:text-[#0089FF] transition-colors">
                             {trip.name}
                           </div>
-                          <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                             <span className="font-mono text-[#0089FF] font-semibold hover:underline">
                               {trip.code}
                             </span>
@@ -1274,7 +1237,7 @@ export function ShuttleTrackingPanel({
           {selectedTrip && (
             <div className="flex flex-col h-full min-h-0">
               {/* Scrollable Detail Body */}
-              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar divide-y divide-slate-100 dark:divide-slate-800">
                 {/* 1. Women Travelling Alert Banner */}
                 <div className="px-3 py-2 bg-rose-50/90 dark:bg-rose-950/40 border-b border-rose-200/60 dark:border-rose-900/40 flex items-center gap-2 text-rose-700 dark:text-rose-300 text-xs font-semibold">
                   <AlertTriangle className="h-3.5 w-3.5 text-rose-600 shrink-0 stroke-[2.2]" />
@@ -1446,7 +1409,7 @@ export function ShuttleTrackingPanel({
                     <span>Stop Time Line ({selectedTrip.stops.length} Stops)</span>
                   </div>
 
-                  <div className="p-3 space-y-3">
+                  <div className="p-3 pl-6 space-y-3">
                     {selectedTrip.stops.map((stop) => {
                       const isStopExpanded = !!expandedStopIds[stop.id];
 

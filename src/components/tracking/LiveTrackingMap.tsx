@@ -1,3 +1,4 @@
+import { type LiveVehicle } from "./LiveTrackingReferencePanel";
 import {
   Activity,
   AlertTriangle,
@@ -390,6 +391,10 @@ export function LiveTrackingMap({
   onOpenShare,
   onOpenFindNearBy,
   navigationRoute,
+  cleanView = false,
+  liveVehicles = [],
+  selectedLiveVehicleId = null,
+  checkedVehiclesMap,
   className,
 }: {
   selectedVehicle: FleetObject | null;
@@ -411,12 +416,19 @@ export function LiveTrackingMap({
   onOpenShare?: (vehicle?: FleetObject | null) => void;
   onOpenFindNearBy?: (vehicle?: FleetObject | null) => void;
   navigationRoute?: NavigationRoute | null;
+  cleanView?: boolean;
+  liveVehicles?: LiveVehicle[];
+  selectedLiveVehicleId?: string | null;
+  checkedVehiclesMap?: Record<string, boolean>;
   className?: string;
 }) {
   const [mapStyle, setMapStyle] = useState<"streets" | "satellite" | "terrain" | "dark">("streets");
-  const [activeMapLayer, setActiveMapLayer] = useState<MapSubOption>(
-    MAP_PROVIDERS.find((p) => p.id === "google")?.subOptions[0] || MAP_PROVIDERS[0].subOptions[0]
-  );
+  const [activeMapLayer, setActiveMapLayer] = useState<MapSubOption>(() => {
+    if (cleanView) {
+      return MAP_PROVIDERS.find((p) => p.id === "osm")?.subOptions[0] || MAP_PROVIDERS[0].subOptions[0];
+    }
+    return MAP_PROVIDERS.find((p) => p.id === "google")?.subOptions[0] || MAP_PROVIDERS[0].subOptions[0];
+  });
   const [isSelectMapOpen, setIsSelectMapOpen] = useState(false);
   const [hoveredProviderId, setHoveredProviderId] = useState<string>("google");
   const selectMapMenuRef = useRef<HTMLDivElement>(null);
@@ -442,6 +454,7 @@ export function LiveTrackingMap({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapElementRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const polylineRef = useRef<L.Polyline | null>(null);
   const navigationLayerRef = useRef<{ polyline: L.Polyline; marker: L.Marker } | null>(null);
@@ -454,8 +467,8 @@ export function LiveTrackingMap({
     if (typeof window === "undefined" || !mapElementRef.current || mapInstanceRef.current) return;
 
     const map = L.map(mapElementRef.current, {
-      center: [45.0000, 71.0000],
-      zoom: 5,
+      center: cleanView ? [21.1400, 72.7400] : [45.0000, 71.0000],
+      zoom: cleanView ? 12 : 5,
       zoomControl: false,
       attributionControl: false,
       scrollWheelZoom: true,
@@ -466,6 +479,7 @@ export function LiveTrackingMap({
     });
 
     mapInstanceRef.current = map;
+    setMapInstance(map);
 
     const syncPositions = () => {
       const coords: Record<string, { x: number; y: number }> = {};
@@ -500,8 +514,15 @@ export function LiveTrackingMap({
         } catch (_) {}
         navigationLayerRef.current = null;
       }
+      vehicleMarkersRef.current.forEach((marker) => {
+        try {
+          map.removeLayer(marker);
+        } catch (_) {}
+      });
+      vehicleMarkersRef.current.clear();
       map.remove();
       mapInstanceRef.current = null;
+      setMapInstance(null);
     };
   }, []);
 
@@ -581,7 +602,7 @@ export function LiveTrackingMap({
       polylineRef.current = null;
     }
 
-    if (showObjectPath) {
+    if (showObjectPath && !cleanView) {
       const routePoints: [number, number][] = [
         [51.1693, 71.4491],
         [49.8019, 73.1021],
@@ -780,6 +801,407 @@ export function LiveTrackingMap({
 
 
 
+
+  // Render 1:1 Trip Road Polyline, Checkpoints (04, 03, 02), Vehicle & Visited Card matching media_1795431048618_549a83d5.jpg
+  const tripRouteLayerRef = useRef<{ layers: L.Layer[] } | null>(null);
+
+  useEffect(() => {
+    const map = mapInstance || mapInstanceRef.current;
+    if (!map) return;
+
+    // Clean up any existing trip layers
+    if (tripRouteLayerRef.current) {
+      try {
+        tripRouteLayerRef.current.layers.forEach((l) => map.removeLayer(l));
+      } catch (_) {}
+      tripRouteLayerRef.current = null;
+    }
+
+    if (activeTab === "trip") {
+      const layers: L.Layer[] = [];
+
+      // 1. Continuous Asphalt Roadway (04 -> Car -> 03 -> 02) along smooth straight azimuth ~202°
+      const roadCoords: [number, number][] = [
+        [81.2, -79.0],  // Top-right heading
+        [78.0, -88.0],  // Checkpoint 04 (Amber)
+        [74.5, -94.2],  // White Car position
+        [72.5, -95.6],  // Checkpoint 03 (Green Visited)
+        [63.8, -96.2],  // Checkpoint 02 (Red)
+      ];
+
+      // Base Asphalt Road (Dark Slate / Charcoal with solid width 8)
+      const roadBase = L.polyline(roadCoords, {
+        color: "#334155",
+        weight: 8,
+        opacity: 0.96,
+        lineCap: "round",
+        lineJoin: "round",
+      }).addTo(map);
+      layers.push(roadBase);
+
+      // Road Center Dashed Divider Line (White dashes)
+      const roadDash = L.polyline(roadCoords, {
+        color: "#FFFFFF",
+        weight: 1.8,
+        dashArray: "7, 7",
+        opacity: 0.96,
+        lineCap: "round",
+        lineJoin: "round",
+      }).addTo(map);
+      layers.push(roadDash);
+
+      // Nearby Blue Alternating Route Line (1:1 with reference)
+      const blueRouteCoords: [number, number][] = [
+        [81.5, -96.0],
+        [78.8, -96.0],
+        [78.0, -104.5],
+        [76.0, -104.5],
+        [73.8, -96.0],
+      ];
+      const blueLine = L.polyline(blueRouteCoords, {
+        color: "#0089FF",
+        weight: 4.5,
+        opacity: 0.95,
+        lineCap: "round",
+        lineJoin: "round",
+      }).addTo(map);
+      layers.push(blueLine);
+
+      // 2. White Vehicle on Route (facing downwards along road heading ~200deg)
+      const carCoord: [number, number] = [74.5, -94.2];
+      const carIconHtml = `
+        <div style="transform: rotate(202deg); display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5)); pointer-events: auto;">
+          <svg width="22" height="42" viewBox="0 0 24 48" fill="none">
+            <rect x="2" y="4" width="20" height="40" rx="6" fill="#FFFFFF" stroke="#475569" stroke-width="1.5"/>
+            <rect x="4" y="14" width="16" height="8" rx="2" fill="#1E293B"/>
+            <rect x="4" y="28" width="16" height="6" rx="2" fill="#1E293B"/>
+            <circle cx="5.5" cy="8" r="1.5" fill="#EF4444"/>
+            <circle cx="18.5" cy="8" r="1.5" fill="#EF4444"/>
+            <circle cx="5.5" cy="40" r="1.5" fill="#F59E0B"/>
+            <circle cx="18.5" cy="40" r="1.5" fill="#F59E0B"/>
+          </svg>
+        </div>
+      `;
+      const carMarker = L.marker(carCoord, {
+        icon: L.divIcon({
+          className: "bg-transparent border-0",
+          html: carIconHtml,
+          iconSize: [22, 42],
+          iconAnchor: [11, 21],
+        }),
+      }).addTo(map);
+      layers.push(carMarker);
+
+      // 3. Numbered Checkpoint Markers (04 Amber, 03 Green Visited, 02 Red)
+      const checkpoints = [
+        { id: "04", coord: [78.0, -88.0] as [number, number], color: "#D97706", halo: "rgba(217, 119, 6, 0.4)" },
+        { id: "03", coord: [72.5, -95.6] as [number, number], color: "#10B981", halo: "rgba(16, 185, 129, 0.4)" },
+        { id: "02", coord: [63.8, -96.2] as [number, number], color: "#EF4444", halo: "rgba(239, 68, 68, 0.4)" },
+      ];
+
+      checkpoints.forEach((cp) => {
+        const cpHtml = `
+          <div style="position: relative; display: flex; align-items: center; justify-content: center; transform: translate(-50%, -50%); cursor: pointer;">
+            <div style="position: absolute; width: 34px; height: 34px; border-radius: 9999px; background: ${cp.halo}; box-shadow: 0 0 14px ${cp.halo};"></div>
+            <div style="width: 26px; height: 26px; border-radius: 9999px; background: ${cp.color}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.35); z-index: 2;">
+              ${cp.id}
+            </div>
+          </div>
+        `;
+        const marker = L.marker(cp.coord, {
+          icon: L.divIcon({
+            className: "bg-transparent border-0",
+            html: cpHtml,
+            iconSize: [34, 34],
+            iconAnchor: [17, 17],
+          }),
+        }).addTo(map);
+        layers.push(marker);
+      });
+
+      // 4. "Visited" Checkpoint Popup Card (attached beside checkpoint 03, matching reference)
+      const popupHtml = `
+        <div style="background: white; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.22), 0 8px 10px -6px rgba(0,0,0,0.12); border: 1px solid #E2E8F0; width: 220px; overflow: hidden; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; pointer-events: auto;">
+          <div style="background: #ECFDF5; padding: 7px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #D1FAE5;">
+            <span style="font-weight: 800; color: #008446; font-size: 12px;">Visited</span>
+            <span style="cursor: pointer; color: #94A3B8; font-size: 13px; font-weight: 700;">✕</span>
+          </div>
+          <div style="padding: 10px 12px;">
+            <div style="display: flex; gap: 8px; margin-bottom: 9px;">
+              <span style="background: #EFF6FF; color: #0089FF; border: 1px solid #BFDBFE; border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700;">Live</span>
+              <span style="color: #64748B; padding: 2px 6px; font-size: 10px; font-weight: 600; cursor: pointer;">Employee</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px; font-size: 10.5px;">
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Arrival time</span>
+                <span style="font-weight: 700; color: #0F172A;">08:00 AM</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Departure time</span>
+                <span style="font-weight: 700; color: #0F172A;">08:05 AM</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Actual halt</span>
+                <span style="font-weight: 700; color: #0F172A;">00:05</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">Position</span>
+                <span style="font-weight: 700; color: #0F172A; font-family: monospace; font-size: 9.5px;">125488.21, 5411245.23</span>
+              </div>
+            </div>
+            <div style="margin-top: 9px; padding-top: 7px; border-top: 1px solid #F1F5F9; font-size: 9.5px; color: #64748B; line-height: 1.35;">
+              12-A, Wambuech Street, Boston, MA
+            </div>
+          </div>
+        </div>
+      `;
+      const popupMarker = L.marker([72.5, -95.6], {
+        icon: L.divIcon({
+          className: "bg-transparent border-0",
+          html: popupHtml,
+          iconSize: [220, 160],
+          iconAnchor: [-16, 80],
+        }),
+      }).addTo(map);
+      layers.push(popupMarker);
+
+      tripRouteLayerRef.current = { layers };
+
+      // Set exact map view matching media_1795431048618_549a83d5.jpg
+      map.setView([72.0, -90.0], 4, { animate: false });
+    }
+
+    return () => {
+      if (tripRouteLayerRef.current && map) {
+        try {
+          tripRouteLayerRef.current.layers.forEach((l) => map.removeLayer(l));
+        } catch (_) {}
+        tripRouteLayerRef.current = null;
+      }
+    };
+  }, [mapInstance, activeTab]);
+
+  const vehicleMarkersRef = useRef<Map<string, L.Marker>>(new Map());
+
+  // Dynamic Leaflet vehicle pins with status colors, live pulse waves, speed badges, and labels
+  useEffect(() => {
+    const map = mapInstance || mapInstanceRef.current;
+    if (!map) return;
+
+    // In Trips view, hide general fleet vehicles so the trip route and checkpoints are clear
+    if (activeTab === "trip") {
+      vehicleMarkersRef.current.forEach((marker) => {
+        try {
+          map.removeLayer(marker);
+        } catch (_) {}
+      });
+      vehicleMarkersRef.current.clear();
+      return;
+    }
+
+    if (!liveVehicles || liveVehicles.length === 0) return;
+
+    // 1. Remove markers for unchecked or deleted vehicles
+    vehicleMarkersRef.current.forEach((marker, id) => {
+      const isChecked = checkedVehiclesMap ? checkedVehiclesMap[id] !== false : true;
+      const veh = liveVehicles.find((v) => v.id === id);
+      if (!isChecked || !veh || !veh.lat || !veh.lng) {
+        try {
+          map.removeLayer(marker);
+        } catch (_) {}
+        vehicleMarkersRef.current.delete(id);
+      }
+    });
+
+    // 2. Add or update markers for each checked vehicle
+    liveVehicles.forEach((veh) => {
+      const isChecked = checkedVehiclesMap ? checkedVehiclesMap[veh.id] !== false : true;
+      if (!isChecked || !veh.lat || !veh.lng) return;
+
+      const isSelected = veh.id === selectedLiveVehicleId;
+      const isRunning = veh.status === "running";
+      const isIdle = veh.status === "idle";
+      const isStopped = veh.status === "stopped";
+
+      const color = isRunning
+        ? "#10B981"
+        : isIdle
+        ? "#F59E0B"
+        : isStopped
+        ? "#EF4444"
+        : "#64748B";
+
+      const customHtml = `
+        <div class="custom-live-marker" style="position: relative; width: 34px; height: 34px; transform: translate(-50%, -50%); cursor: pointer; user-select: none;">
+          ${
+            isRunning
+              ? `<div style="position: absolute; inset: -4px; border-radius: 9999px; background: rgba(16, 185, 129, 0.4); animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>`
+              : ""
+          }
+          <div style="
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: ${isSelected ? "34px" : "28px"};
+            height: ${isSelected ? "34px" : "28px"};
+            border-radius: 9999px;
+            background: ${color};
+            border: 2.5px solid #FFFFFF;
+            box-shadow: ${
+              isSelected
+                ? "0 0 0 3px #0089FF, 0 8px 18px rgba(0, 137, 255, 0.5)"
+                : "0 4px 10px rgba(0, 0, 0, 0.25)"
+            };
+            transition: all 0.2s ease;
+          ">
+            <svg style="width: 15px; height: 15px; fill: none; stroke: #FFFFFF; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;" viewBox="0 0 24 24">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/>
+              <circle cx="7" cy="17" r="2" fill="#FFFFFF"/>
+              <circle cx="17" cy="17" r="2" fill="#FFFFFF"/>
+            </svg>
+          </div>
+          ${
+            isRunning && veh.speed > 0
+              ? `
+            <div style="
+              position: absolute;
+              top: -10px;
+              left: 50%;
+              transform: translateX(-50%);
+              background: #0F172A;
+              color: #10B981;
+              font-size: 9px;
+              font-weight: 800;
+              font-family: monospace;
+              padding: 1px 5px;
+              border-radius: 9999px;
+              border: 1px solid rgba(255,255,255,0.2);
+              white-space: nowrap;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            ">
+              ${veh.speed} km/h
+            </div>`
+              : ""
+          }
+          <div style="
+            position: absolute;
+            top: ${isSelected ? "34px" : "28px"};
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: #0F172A;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1.5px 6px;
+            border-radius: 4px;
+            border: 1px solid #DFE3EB;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            white-space: nowrap;
+            margin-top: 2px;
+            pointer-events: none;
+          ">
+            ${veh.name.split(" - ")[0]}
+          </div>
+        </div>
+      `;
+
+      const divIcon = L.divIcon({
+        className: "custom-leaflet-vehicle-pin",
+        html: customHtml,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+      });
+
+      const popupHtml = `
+        <div style="font-family: sans-serif; min-width: 210px; padding: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 6px;">
+            <span style="font-weight: 800; font-size: 12px; color: #0F172A;">${veh.name}</span>
+            <span style="background: ${color}22; color: ${color}; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 9999px; text-transform: uppercase;">
+              ${veh.status}
+            </span>
+          </div>
+          <div style="font-size: 11px; color: #475569; display: flex; flex-direction: column; gap: 3.5px;">
+            <div><strong>Speed:</strong> <span style="color: ${veh.speed > 0 ? "#10B981" : "#64748B"}; font-weight: 700;">${veh.speed} km/h</span></div>
+            <div><strong>Driver:</strong> ${veh.driver ? `${veh.driver} (${veh.driverSub || "—"})` : "—"}</div>
+            <div><strong>Location:</strong> ${veh.address || `${veh.lat.toFixed(4)}, ${veh.lng.toFixed(4)}`}</div>
+            <div><strong>Ignition:</strong> <span style="color: ${veh.ignition ? "#10B981" : "#94A3B8"}; font-weight: 600;">${veh.ignition ? "ON" : "OFF"}</span> | <strong>GPS:</strong> <span style="color: ${veh.gps ? "#10B981" : "#94A3B8"}; font-weight: 600;">${veh.gps ? "Connected" : "No Signal"}</span></div>
+          </div>
+        </div>
+      `;
+
+      let marker = vehicleMarkersRef.current.get(veh.id);
+      if (marker) {
+        marker.setIcon(divIcon);
+        marker.setLatLng([veh.lat, veh.lng]);
+        marker.setPopupContent(popupHtml);
+        if (!map.hasLayer(marker)) {
+          marker.addTo(map);
+        }
+      } else {
+        marker = L.marker([veh.lat, veh.lng], { icon: divIcon })
+          .addTo(map)
+          .bindPopup(popupHtml, { offset: [0, -18], closeButton: true });
+
+        marker.on("click", () => {
+          onSelectVehicle?.(veh.id);
+        });
+
+        vehicleMarkersRef.current.set(veh.id, marker);
+      }
+    });
+  }, [mapInstance, liveVehicles, checkedVehiclesMap, selectedLiveVehicleId, activeTab]);
+
+  // Smooth flyTo and popup open on vehicle selection
+  useEffect(() => {
+    const map = mapInstance || mapInstanceRef.current;
+    if (!map || !selectedLiveVehicleId || !liveVehicles) return;
+    const target = liveVehicles.find((v) => v.id === selectedLiveVehicleId);
+    if (target && target.lat && target.lng) {
+      map.flyTo([target.lat, target.lng], 15, {
+        duration: 1.2,
+        easeLinearity: 0.25,
+      });
+      const marker = vehicleMarkersRef.current.get(target.id);
+      if (marker) {
+        setTimeout(() => {
+          try {
+            marker.openPopup();
+          } catch (_) {}
+        }, 200);
+      }
+    }
+  }, [mapInstance, selectedLiveVehicleId]);
+
+  // Handle fleet center event
+  useEffect(() => {
+    const handleCenterFleet = () => {
+      if (!mapInstanceRef.current || !liveVehicles || liveVehicles.length === 0) return;
+      const coords = liveVehicles
+        .filter((v) => (checkedVehiclesMap ? checkedVehiclesMap[v.id] !== false : true) && v.lat && v.lng)
+        .map((v) => [v.lat!, v.lng!] as [number, number]);
+      if (coords.length > 0) {
+        const bounds = L.latLngBounds(coords);
+        mapInstanceRef.current.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+      }
+    };
+    window.addEventListener("map-center-fleet", handleCenterFleet);
+    return () => window.removeEventListener("map-center-fleet", handleCenterFleet);
+  }, [liveVehicles, checkedVehiclesMap]);
+
+  // Initial auto-fit fleet bounds once on map load
+  useEffect(() => {
+    const map = mapInstance || mapInstanceRef.current;
+    if (!map || !liveVehicles || liveVehicles.length === 0) return;
+    const coords = liveVehicles
+      .filter((v) => (checkedVehiclesMap ? checkedVehiclesMap[v.id] !== false : true) && v.lat && v.lng)
+      .map((v) => [v.lat!, v.lng!] as [number, number]);
+    if (coords.length > 0) {
+      const bounds = L.latLngBounds(coords);
+      map.fitBounds(bounds, { padding: [70, 70], maxZoom: 13 });
+    }
+  }, [mapInstance]);
+
   const leftOffset = isLeftPanelOpen ? leftPanelWidth + 24 : 16;
   const rightOffset = isTelemetryDrawerOpen ? 255 : 16;
   const healthBarCenterShift = Math.round((leftOffset - rightOffset) / 2);
@@ -799,7 +1221,7 @@ export function LiveTrackingMap({
       />
 
       {/* 2. Exact 40px Fixed Diameter Map Clusters with Hover Menu & Click Popover Overlay */}
-      {showClusters && (
+      {!cleanView && showClusters && (
         <>
           {CLUSTERS_DATA.map((cluster) => {
             const isHovered = hoveredClusterId === cluster.id;
@@ -1021,8 +1443,8 @@ export function LiveTrackingMap({
 
 
 
-      {/* 3. Right Floating Map Controls Vertical Stack (Hidden on vehicle health score page) */}
-      {!isHealthScorePage && (
+      {/* 3. Right Floating Map Controls Vertical Stack (Hidden on vehicle health score page or clean reference mode) */}
+      {!isHealthScorePage && !cleanView && (
         <div
           className={cn(
             "absolute top-2.5 z-20 flex flex-col items-center gap-2 transition-all duration-200 select-none",
@@ -1448,19 +1870,19 @@ export function LiveTrackingMap({
       </div>
       )}
 
-      {/* 4. Bottom Map Scale & Coordinates */}
+      {/* 4. Bottom Map Scale & Coordinates matching reference image */}
       <div
         style={{
-          right: isTelemetryDrawerOpen
+          right: isTelemetryDrawerOpen && !cleanView
             ? isHealthTelemetryOnly
               ? "316px"
               : "248px"
-            : "10px",
+            : "14px",
         }}
-        className="absolute bottom-3 z-10 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs px-3 py-1 rounded-xl border border-[#DFE3EB] dark:border-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 transition-all duration-300 shadow-sm"
+        className="absolute bottom-3 z-10 flex items-center gap-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs px-2.5 py-1 rounded-md border border-[#DFE3EB] dark:border-slate-800 text-[11px] font-sans text-slate-700 dark:text-slate-300 transition-all duration-300 shadow-2xs select-none"
       >
-        <span>0.05 km</span>
-        <div className="w-8 h-1 bg-slate-800 dark:bg-slate-200" />
+        <span className="font-semibold text-xs leading-none">0.5 km</span>
+        <div className="w-12 h-0.5 bg-slate-900 dark:bg-slate-200" />
       </div>
 
     </div>

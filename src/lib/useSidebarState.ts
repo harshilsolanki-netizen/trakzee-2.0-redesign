@@ -2,13 +2,15 @@ import { useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "trakzee-sidebar-collapsed";
 
-let isCollapsedState = false;
+let isCollapsedState = true;
 
 if (typeof window !== "undefined") {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored !== null) {
       isCollapsedState = JSON.parse(stored);
+    } else {
+      isCollapsedState = true;
     }
   } catch {}
 }
@@ -33,7 +35,7 @@ function getSnapshot() {
 }
 
 function getServerSnapshot() {
-  return false;
+  return true;
 }
 
 export function useSidebarState() {

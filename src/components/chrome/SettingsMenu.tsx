@@ -40,6 +40,13 @@ import {
   type SettingCategoryNode,
   type SettingTreeItem,
 } from "@/data/settings";
+import { useActiveApp } from "@/lib/useActiveApp";
+import {
+  ROSTER_SETTING_CATEGORIES,
+  ALL_ROSTER_SETTINGS,
+  type RosterSettingCategory,
+  type RosterSettingItem,
+} from "@/data/rosterMenus";
 import { cn } from "@/lib/utils";
 import { useSideMenuViewMode } from "@/lib/useSideMenuViewMode";
 import { SideMenuFullView, type FullViewCategory } from "./SideMenuFullView";
@@ -66,9 +73,11 @@ const CATEGORY_ICONS: Record<string, ComponentType<{ className?: string }>> = {
 };
 
 export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
+  const { isRoster } = useActiveApp();
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("general");
   const [searchQuery, setSearchQuery] = useState("");
+  const [menuTop, setMenuTop] = useState<number>(260);
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -80,7 +89,7 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
   };
 
   const isSettingsRoute = location.pathname.startsWith("/setting");
-  const currentTab = search?.tab || "vehicle";
+  const currentTab = search?.tab || (isRoster ? "shift" : "vehicle");
   const { sideMenuViewMode, setSideMenuViewMode } = useSideMenuViewMode();
 
   const fullViewCategories = useMemo<FullViewCategory[]>(() => {
@@ -110,15 +119,32 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
   useEffect(() => {
     if (open) {
       setSearchQuery("");
+      if (isRoster) {
+        if (!["general", "master", "contract"].includes(activeCategory)) {
+          setActiveCategory("general");
+        }
+        return;
+      }
       if (currentCategory && SETTING_CATEGORIES.some((c) => c.category === currentCategory)) {
         setActiveCategory(currentCategory);
       }
     }
-  }, [open, currentCategory]);
+  }, [open, currentCategory, isRoster]);
 
-  // Click outside and ESC listeners
+  // Update position adjacent to trigger and add outside/ESC listeners
   useEffect(() => {
     if (!open) return;
+
+    const updatePosition = () => {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        const estimatedHeight = menuRef.current?.offsetHeight || 380;
+        const maxTop = window.innerHeight - estimatedHeight - 15;
+        const top = Math.max(55, Math.min(rect.top, Math.max(55, maxTop)));
+        setMenuTop(top);
+      }
+    };
+    updatePosition();
     const handleClickOutside = (e: MouseEvent) => {
       if (
         menuRef.current &&
@@ -134,34 +160,63 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
     };
     document.addEventListener("mousedown", handleClickOutside);
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
     };
   }, [open]);
 
   const selectedCategoryNode: SettingCategoryNode = useMemo(() => {
+    if (isRoster) {
+      const match = ROSTER_SETTING_CATEGORIES.find((c) => c.category === activeCategory);
+      return (match || ROSTER_SETTING_CATEGORIES[0]) as unknown as SettingCategoryNode;
+    }
     return (
       SETTING_CATEGORIES.find((c) => c.category === activeCategory) ??
       SETTING_CATEGORIES[0]!
     );
-  }, [activeCategory]);
+  }, [activeCategory, isRoster]);
 
   // Global search across all setting items & descriptions
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
-    return ALL_SETTINGS.filter(
+    const pool = isRoster ? ALL_ROSTER_SETTINGS : ALL_SETTINGS;
+    return pool.filter(
       (s) =>
         s.name.toLowerCase().includes(q) ||
         s.categoryLabel.toLowerCase().includes(q) ||
         s.description.toLowerCase().includes(q) ||
         s.id.toLowerCase().includes(q),
     );
-  }, [searchQuery]);
+  }, [searchQuery, isRoster]);
 
-  const handleSelectSetting = (item: SettingTreeItem) => {
+  const handleSelectSetting = (item: SettingTreeItem | RosterSettingItem) => {
     setOpen(false);
+    if ("route" in item && item.route) {
+      navigate({ to: item.route as any });
+      return;
+    }
+    if (item.id === "trip_planning") {
+      navigate({ to: "/setting", search: { tab: "trip_planning" } as any });
+      return;
+    }
+    if (item.id === "shuttle" || item.id === "shuttle_configuration") {
+      navigate({ to: "/setting", search: { tab: "shuttle_configuration" } as any });
+      return;
+    }
+    if (item.id === "shift") {
+      navigate({ to: "/roster-management" as any });
+      return;
+    }
+    if (item.id === "alert") {
+      navigate({ to: "/setting", search: { tab: "alert" } as any });
+      return;
+    }
     navigate({
       to: "/setting",
       search: {
@@ -176,10 +231,19 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
       ref={triggerRef}
       type="button"
       aria-label="Setting"
-      onClick={() => setOpen((prev) => !prev)}
+      onClick={() => {
+        if (triggerRef.current) {
+          const rect = triggerRef.current.getBoundingClientRect();
+          const estimatedHeight = menuRef.current?.offsetHeight || 380;
+          const maxTop = window.innerHeight - estimatedHeight - 15;
+          const top = Math.max(55, Math.min(rect.top, Math.max(55, maxTop)));
+          setMenuTop(top);
+        }
+        setOpen((prev) => !prev);
+      }}
       className={cn(
         "group flex w-full h-10 items-center rounded-xl transition-colors duration-200 cursor-pointer select-none overflow-hidden",
-        collapsed ? "justify-center px-0" : "px-2.5",
+        collapsed ? "justify-center px-0" : "px-2.5 gap-3",
         open || isSettingsRoute
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
@@ -265,10 +329,11 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
               onClick={() => setOpen(false)}
             />
 
-            {/* Bottom-Anchored Flyout Panel with 10px bottom & left margin */}
+            {/* Flyout Panel anchored beside the Settings trigger */}
             <div
               ref={menuRef}
-              className={cn("fixed bottom-[10px] z-50 flex flex-col w-auto min-w-[460px] max-w-[500px] max-h-[calc(100vh-65px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
+              style={{ top: `${menuTop}px` }}
+              className={cn("fixed z-50 flex flex-col w-auto min-w-[460px] max-w-[500px] max-h-[calc(100vh-80px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
             >
             {/* Top Search & Filter Header */}
             <div className="border-b border-slate-800/80 bg-slate-900/60 px-3 py-2.5">
@@ -278,7 +343,7 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search 60+ settings, master rules, configs..."
+                  placeholder={isRoster ? "Search settings..." : "Search 60+ settings, master rules, configs..."}
                   className="h-full flex-1 bg-transparent text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none"
                   autoFocus
                 />
@@ -293,7 +358,7 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
                 ) : (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span className="text-[10px] font-mono text-slate-500 bg-slate-800/60 border border-slate-700/50 px-1.5 py-0.5 rounded">
-                      70+ Settings
+                      {isRoster ? "21 items" : "70+ Settings"}
                     </span>
                     <button
                       type="button"
@@ -359,8 +424,64 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
             ) : (
               /* 2-Column Categorized Cascading View */
               <div className="flex divide-x divide-slate-800/80 text-xs">
-                {/* Left Column: Categories List with Groups */}
+                {/* Left Column: Categories List */}
                 <div className="flex w-[215px] flex-col py-2 max-h-[72vh] overflow-y-auto overscroll-contain space-y-3 scrollbar-thin scrollbar-thumb-slate-800">
+                  {isRoster ? (
+                    <div className="space-y-0.5 px-1.5">
+                      {ROSTER_SETTING_CATEGORIES.map((cat) => {
+                        const Icon = cat.icon;
+                        const isActive = cat.category === selectedCategoryNode.category;
+
+                        return (
+                          <button
+                            key={cat.category}
+                            type="button"
+                            onMouseEnter={() => setActiveCategory(cat.category)}
+                            onClick={() => setActiveCategory(cat.category)}
+                            className={cn(
+                              "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition-all duration-100 cursor-pointer group",
+                              isActive
+                                ? "bg-blue-600/20 text-blue-300 font-semibold border border-blue-500/30 shadow-xs"
+                                : "text-slate-300 hover:bg-slate-800/60 hover:text-white border border-transparent",
+                            )}
+                          >
+                            <div className="flex min-w-0 items-center gap-2">
+                              <Icon
+                                className={cn(
+                                  "h-3.5 w-3.5 shrink-0 transition-colors",
+                                  isActive
+                                    ? "text-blue-400"
+                                    : "text-slate-400 group-hover:text-slate-200",
+                                )}
+                              />
+                              <span className="truncate">{cat.label}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span
+                                className={cn(
+                                  "text-[10px] font-mono px-1.5 py-0.2 rounded transition-colors",
+                                  isActive
+                                    ? "bg-blue-500/30 text-blue-200"
+                                    : "bg-slate-800/80 text-slate-400 group-hover:text-slate-300",
+                                )}
+                              >
+                                {cat.count ?? cat.items.length}
+                              </span>
+                              <ChevronRight
+                                className={cn(
+                                  "h-3 w-3 shrink-0 transition-transform",
+                                  isActive
+                                    ? "text-blue-400 translate-x-0.5"
+                                    : "text-slate-600 opacity-40",
+                                )}
+                              />
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <>
                   {SETTING_CATEGORY_GROUPS.map((group) => (
                     <div key={group.groupLabel} className="space-y-0.5 px-1.5">
                       <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -408,7 +529,7 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
                                     : "bg-slate-800/80 text-slate-400 group-hover:text-slate-300",
                                 )}
                               >
-                                {cat.items.length}
+                                {cat.count ?? cat.items.length}
                               </span>
                               <ChevronRight
                                 className={cn(
@@ -424,6 +545,8 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
                       })}
                     </div>
                   ))}
+                    </>
+                  )}
                 </div>
 
                 {/* Right Column: Sub-items List with Header & Precision Highlighting */}
@@ -431,16 +554,16 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
                   {/* Category Subtitle Header */}
                   <div className="px-3 pb-2 mb-1 border-b border-slate-800/60 flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
-                      {selectedCategoryNode.label} Configuration
+                      {isRoster ? selectedCategoryNode.label : `${selectedCategoryNode.label} Configuration`}
                     </span>
                     <span className="text-[10px] font-mono text-slate-400">
-                      {selectedCategoryNode.items.length} items
+                      {(selectedCategoryNode as any).count ?? selectedCategoryNode.items.length} items
                     </span>
                   </div>
 
                   {/* Sub-item List */}
                   <div className="space-y-0.5 px-1.5">
-                    {selectedCategoryNode.items.map((item: SettingTreeItem) => {
+                    {selectedCategoryNode.items.map((item: any) => {
                       const isSelected =
                         item.id === currentTab && isSettingsRoute;
 
@@ -452,16 +575,22 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
                           className={cn(
                             "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition-all duration-100 group cursor-pointer",
                             isSelected
-                              ? "bg-blue-600 text-white font-semibold shadow-md"
+                              ? "bg-[#0089FF] text-white font-semibold shadow-md shadow-[#0089FF]/30"
                               : "text-slate-300 hover:bg-slate-800/70 hover:text-white",
                           )}
                         >
                           <span className="font-medium truncate">{item.name}</span>
                           <div className="flex items-center gap-1 shrink-0">
+                            {item.badge && (
+                              <span className="text-[10px] font-mono text-slate-400 bg-slate-800/80 px-1.5 py-0.2 rounded flex items-center gap-0.5">
+                                {item.badge}
+                                <ChevronRight className="h-3 w-3" />
+                              </span>
+                            )}
                             {isSelected ? (
                               <Check className="h-3.5 w-3.5 text-white ml-1" />
                             ) : (
-                              <ArrowRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 ml-1" />
+                              !item.badge && <ArrowRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 ml-1" />
                             )}
                           </div>
                         </button>
@@ -476,7 +605,9 @@ export function SettingsMenu({ collapsed }: { collapsed?: boolean }) {
             <div className="flex items-center justify-between border-t border-slate-800/80 bg-slate-950/80 px-3 py-1.5 text-[10px] text-slate-400">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="h-3 w-3 text-blue-400" />
-                <span>17 Categories · 70+ Settings</span>
+                <span>
+                  {isRoster ? "3 Categories · 21 Items" : "17 Categories · 70+ Settings"}
+                </span>
               </div>
               <span className="text-slate-400 font-mono">Click to open</span>
             </div>

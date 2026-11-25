@@ -125,7 +125,7 @@ export function FavoritesMenu({ collapsed }: { collapsed?: boolean }) {
       }}
       className={cn(
         "group flex w-full h-10 items-center rounded-xl transition-colors duration-200 cursor-pointer select-none overflow-hidden",
-        collapsed ? "justify-center px-0" : "px-2.5",
+        collapsed ? "justify-center px-0" : "px-2.5 gap-3",
         open
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"

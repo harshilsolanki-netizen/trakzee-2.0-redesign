@@ -53,6 +53,11 @@ import {
   type ReportCategoryNode,
   type ReportTreeItem,
 } from "@/data/reports";
+import { useActiveApp } from "@/lib/useActiveApp";
+import {
+  ROSTER_REPORT_CATEGORIES,
+  ALL_ROSTER_REPORTS,
+} from "@/data/rosterMenus";
 import { useSideMenuViewMode } from "@/lib/useSideMenuViewMode";
 import { SideMenuFullView, type FullViewCategory } from "./SideMenuFullView";
 import { LayoutGrid } from "lucide-react";
@@ -131,6 +136,7 @@ const CATEGORY_GROUPS = [
 
 export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
   const { favorites = [], toggleFavorite, isFavorite } = useDashboard();
+  const { isRoster } = useActiveApp();
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("activity");
   const [searchQuery, setSearchQuery] = useState("");
@@ -165,7 +171,6 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
     });
   }, []);
 
-
   const favoriteItems = useMemo(() => {
     return (favorites ?? []).map(findReport).filter(Boolean) as ReportTreeItem[];
   }, [favorites]);
@@ -174,6 +179,12 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
   useEffect(() => {
     if (open) {
       setSearchQuery("");
+      if (isRoster) {
+        if (!["activity", "trip", "employee"].includes(activeCategory)) {
+          setActiveCategory("activity");
+        }
+        return;
+      }
       const currentReport = ALL_REPORTS.find((r) => r.id === currentReportType);
       if (currentReport) {
         const matchingCat = REPORT_CATEGORIES.find((c) =>
@@ -184,9 +195,13 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
         }
       }
     }
-  }, [open, currentReportType]);
+  }, [open, currentReportType, isRoster]);
 
   const selectedCategoryNode: ReportCategoryNode = useMemo(() => {
+    if (isRoster) {
+      const match = ROSTER_REPORT_CATEGORIES.find((c) => c.category === activeCategory);
+      return (match || ROSTER_REPORT_CATEGORIES[0]) as unknown as ReportCategoryNode;
+    }
     if (activeCategory === "favorites") {
       return {
         category: "favorites",
@@ -198,26 +213,39 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
       REPORT_CATEGORIES.find((c) => c.category === activeCategory) ??
       REPORT_CATEGORIES[0]!
     );
-  }, [activeCategory, favoriteItems]);
+  }, [activeCategory, favoriteItems, isRoster]);
 
-  // Global search filtering across all 105 reports
+  // Global search filtering
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
-    return ALL_REPORTS.filter(
+    const pool = isRoster ? ALL_ROSTER_REPORTS : ALL_REPORTS;
+    return pool.filter(
       (r) =>
         r.name.toLowerCase().includes(q) ||
         r.category.toLowerCase().includes(q) ||
         r.id.toLowerCase().includes(q),
     );
-  }, [searchQuery]);
+  }, [searchQuery, isRoster]);
 
+  const [menuTop, setMenuTop] = useState<number>(180);
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Click outside and ESC listeners
+  // Update position adjacent to trigger and add outside/ESC listeners
   useEffect(() => {
     if (!open) return;
+
+    const updatePosition = () => {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        const estimatedHeight = menuRef.current?.offsetHeight || 380;
+        const maxTop = window.innerHeight - estimatedHeight - 15;
+        const top = Math.max(55, Math.min(rect.top, Math.max(55, maxTop)));
+        setMenuTop(top);
+      }
+    };
+    updatePosition();
     const handleClickOutside = (e: MouseEvent) => {
       if (
         menuRef.current &&
@@ -233,9 +261,13 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
     };
     document.addEventListener("mousedown", handleClickOutside);
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
     };
   }, [open]);
 
@@ -252,10 +284,19 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
       ref={triggerRef}
       type="button"
       aria-label="Report"
-      onClick={() => setOpen((prev) => !prev)}
+      onClick={() => {
+        if (triggerRef.current) {
+          const rect = triggerRef.current.getBoundingClientRect();
+          const estimatedHeight = menuRef.current?.offsetHeight || 380;
+          const maxTop = window.innerHeight - estimatedHeight - 15;
+          const top = Math.max(55, Math.min(rect.top, Math.max(55, maxTop)));
+          setMenuTop(top);
+        }
+        setOpen((prev) => !prev);
+      }}
       className={cn(
         "group flex w-full h-10 items-center rounded-xl transition-colors duration-200 cursor-pointer select-none overflow-hidden",
-        collapsed ? "justify-center px-0" : "px-2.5",
+        collapsed ? "justify-center px-0" : "px-2.5 gap-3",
         open || isReportsRoute
           ? "bg-[#0089FF] text-white shadow-lg shadow-[#0089FF]/35 font-semibold"
           : "text-slate-400 hover:bg-white/10 hover:text-white font-medium"
@@ -336,10 +377,11 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
               onClick={() => setOpen(false)}
             />
 
-            {/* Bottom-Anchored Flyout Panel with 10px bottom & left margin */}
+            {/* Flyout Panel anchored beside the Report trigger */}
             <div
               ref={menuRef}
-              className={cn("fixed bottom-[10px] z-50 flex flex-col w-auto min-w-[480px] max-w-[530px] max-h-[calc(100vh-65px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
+              style={{ top: `${menuTop}px` }}
+              className={cn("fixed z-50 flex flex-col w-auto min-w-[480px] max-w-[530px] max-h-[calc(100vh-80px)] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0B1736]/98 p-0 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in slide-in-from-left-2 duration-150", collapsed ? "left-[70px]" : "left-[210px]")}
             >
             {/* Top Search & Filter Header */}
             <div className="border-b border-slate-800/80 bg-slate-900/60 px-3 py-2.5">
@@ -349,7 +391,7 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search 100+ fleet reports, metrics..."
+                  placeholder={isRoster ? "Search reports..." : "Search 100+ fleet reports, metrics..."}
                   className="h-full flex-1 bg-transparent text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none"
                   autoFocus
                 />
@@ -364,7 +406,7 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
                 ) : (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span className="text-[10px] font-mono text-slate-500 bg-slate-800/60 border border-slate-700/50 px-1.5 py-0.5 rounded">
-                      105 Reports
+                      {isRoster ? "11 items" : "105 Reports"}
                     </span>
                     <button
                       type="button"
@@ -447,8 +489,64 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
             ) : (
               /* 2-Column Categorized Cascading View */
               <div className="flex divide-x divide-slate-800/80 text-xs">
-                {/* Left Column: Categories List with Groups */}
+                {/* Left Column: Categories List */}
                 <div className="flex w-[215px] flex-col py-2 max-h-[72vh] overflow-y-auto overscroll-contain space-y-3 scrollbar-thin scrollbar-thumb-slate-800">
+                  {isRoster ? (
+                    <div className="space-y-0.5 px-1.5">
+                      {ROSTER_REPORT_CATEGORIES.map((cat) => {
+                        const Icon = cat.icon;
+                        const isActive = cat.category === selectedCategoryNode.category;
+
+                        return (
+                          <button
+                            key={cat.category}
+                            type="button"
+                            onMouseEnter={() => setActiveCategory(cat.category)}
+                            onClick={() => setActiveCategory(cat.category)}
+                            className={cn(
+                              "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition-all duration-100 cursor-pointer group",
+                              isActive
+                                ? "bg-blue-600/20 text-blue-300 font-semibold border border-blue-500/30 shadow-xs"
+                                : "text-slate-300 hover:bg-slate-800/60 hover:text-white border border-transparent",
+                            )}
+                          >
+                            <div className="flex min-w-0 items-center gap-2">
+                              <Icon
+                                className={cn(
+                                  "h-3.5 w-3.5 shrink-0 transition-colors",
+                                  isActive
+                                    ? "text-blue-400"
+                                    : "text-slate-400 group-hover:text-slate-200",
+                                )}
+                              />
+                              <span className="truncate">{cat.label}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span
+                                className={cn(
+                                  "text-[10px] font-mono px-1.5 py-0.2 rounded transition-colors",
+                                  isActive
+                                    ? "bg-blue-500/30 text-blue-200"
+                                    : "bg-slate-800/80 text-slate-400 group-hover:text-slate-300",
+                                )}
+                              >
+                                {cat.items.length}
+                              </span>
+                              <ChevronRight
+                                className={cn(
+                                  "h-3 w-3 shrink-0 transition-transform",
+                                  isActive
+                                    ? "text-blue-400 translate-x-0.5"
+                                    : "text-slate-600 opacity-40",
+                                )}
+                              />
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <>
                   {/* Favourites Shortcut if exists */}
                   {favoriteItems.length > 0 && (
                     <div className="space-y-0.5 px-1.5">
@@ -558,6 +656,8 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
                       })}
                     </div>
                   ))}
+                    </>
+                  )}
                 </div>
 
                 {/* Right Column: Sub-items List with Header & Star Action */}
@@ -597,6 +697,7 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
                             <span className="truncate">{item.name}</span>
                           </button>
                           <div className="flex items-center gap-1 shrink-0">
+                            {!isRoster && (
                             <button
                               type="button"
                               title={fav ? "Remove from favourites" : "Add to favourites"}
@@ -615,6 +716,7 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
                                 )}
                               />
                             </button>
+                            )}
                             {isSelected ? (
                               <Check className="h-3.5 w-3.5 shrink-0 text-white ml-0.5" />
                             ) : (
@@ -633,7 +735,9 @@ export function ReportsMenu({ collapsed }: { collapsed?: boolean }) {
             <div className="flex items-center justify-between border-t border-slate-800/80 bg-slate-950/80 px-3 py-1.5 text-[10px] text-slate-400">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="h-3 w-3 text-blue-400" />
-                <span>23 Categories · 105 Reports</span>
+                <span>
+                  {isRoster ? "3 Categories · 11 Items" : "23 Categories · 105 Reports"}
+                </span>
               </div>
               <span className="text-slate-400 font-mono">Click to open</span>
             </div>

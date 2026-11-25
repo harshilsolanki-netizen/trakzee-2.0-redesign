@@ -30,6 +30,7 @@ import { useLocation, useNavigate, useSearch } from "@tanstack/react-router";
 import { FavoriteToggle } from "@/components/chrome/FavoritesMenu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DriverJobSummaryReport } from "@/components/report/DriverJobSummaryReport";
+import { StoppageReport } from "@/components/report/StoppageReport";
 import { ReportQuickFilterBar } from "@/components/report/ReportQuickFilterBar";
 import {
   ReportTabStrip,
@@ -265,7 +266,7 @@ export function ReportPage() {
       const newTab: ReportTab = {
         id: `tab-${searchType}`,
         reportId: searchType,
-        title: rep?.name || searchType,
+        title: searchType === "stoppage" ? "Stoppage Summary" : (rep?.name || searchType),
         isFavorite: false,
       };
       setTabs((prev) => [...prev, newTab]);
@@ -283,6 +284,10 @@ export function ReportPage() {
   );
 
   const currentReportId = isSingle ? searchType : (activeTab?.reportId || searchType);
+  const isStoppageReport =
+    currentReportId === "stoppage" ||
+    currentReportId === "stoppage-summary" ||
+    currentReportId === "stoppage-detailed";
 
   const handleAddTab = (reportItem: { id: string; name: string }) => {
     const existing = tabs.find((t) => t.reportId === reportItem.id);
@@ -917,7 +922,7 @@ export function ReportPage() {
           onAddTab={handleAddTab}
           onToggleFavorite={handleToggleFavorite}
         />
-      ) : (
+      ) : isStoppageReport ? null : (
         /* Title Row for Single View */
         <div className="flex items-center justify-between px-5 pt-5 pb-2.5 select-none shrink-0 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-2">
@@ -952,9 +957,11 @@ export function ReportPage() {
         </div>
       )}
 
-      {/* 2. Main Content Area: Media Gallery vs Standard Activity Report */}
+      {/* 2. Main Content Area: Media Gallery vs Stoppage vs Standard Activity Report */}
       {currentReportId === "media-gallery" ? (
         <MediaGalleryReport />
+      ) : isStoppageReport ? (
+        <StoppageReport hideTitle={!isSingle} />
       ) : (
         <>
           {/* Standard Report Toolbar */}
@@ -2570,20 +2577,20 @@ function ReportRow({
       {open ? (
         <tr className="border-b border-border bg-surface-muted">
           <td colSpan={colSpan} className="px-6 py-2">
-            <table className="w-full text-[11px]">
+            <table className="w-full text-xs">
               <thead>
-                <tr className="text-left text-muted-foreground">
-                  <th className="py-1 font-medium">Date</th>
-                  <th className="py-1 font-medium">First ignition</th>
-                  <th className="py-1 font-medium">Start location</th>
-                  <th className="py-1 text-right font-medium">Distance</th>
-                  <th className="py-1 font-medium">Running</th>
-                  <th className="py-1 font-medium">Idle</th>
-                  <th className="py-1 font-medium">Stop</th>
-                  <th className="py-1 text-right font-medium">Alerts</th>
-                  <th className="py-1 font-medium">Last ignition</th>
-                  <th className="py-1 font-medium">End location</th>
-                  <th className="py-1 font-medium text-center">Playback</th>
+                <tr className="text-left text-xs font-semibold text-slate-700 dark:text-slate-200 border-b border-slate-200/70 dark:border-slate-700/70">
+                  <th className="py-1.5 font-semibold text-slate-700 dark:text-slate-200">Date</th>
+                  <th className="py-1.5 font-semibold text-slate-700 dark:text-slate-200">First ignition</th>
+                  <th className="py-1.5 font-semibold text-slate-700 dark:text-slate-200">Start location</th>
+                  <th className="py-1.5 text-right font-semibold text-slate-700 dark:text-slate-200">Distance</th>
+                  <th className="py-1.5 font-semibold text-slate-700 dark:text-slate-200">Running</th>
+                  <th className="py-1.5 font-semibold text-slate-700 dark:text-slate-200">Idle</th>
+                  <th className="py-1.5 font-semibold text-slate-700 dark:text-slate-200">Stop</th>
+                  <th className="py-1.5 text-right font-semibold text-slate-700 dark:text-slate-200">Alerts</th>
+                  <th className="py-1.5 font-semibold text-slate-700 dark:text-slate-200">Last ignition</th>
+                  <th className="py-1.5 font-semibold text-slate-700 dark:text-slate-200">End location</th>
+                  <th className="py-1.5 font-semibold text-center text-slate-700 dark:text-slate-200">Playback</th>
                 </tr>
               </thead>
               <tbody>
