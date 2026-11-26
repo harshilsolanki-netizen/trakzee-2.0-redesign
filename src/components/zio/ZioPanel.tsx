@@ -3,6 +3,7 @@ import {
   AlignLeft,
   ArrowLeft,
   BarChart3,
+  ChevronLeft,
   Clock,
   Copy,
   FileText,
@@ -21,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -366,6 +368,27 @@ export function ZioPanel({
 
   const mode = forcedMode || contextMode;
   const isFullscreen = mode === "fullscreen";
+  const navigate = useNavigate();
+
+  const handleBack = useCallback(() => {
+    if (isHistoryOpen) {
+      setIsHistoryOpen(false);
+      return;
+    }
+    if (isFullscreen) {
+      closeZio();
+      if (typeof window !== "undefined" && window.location.pathname.startsWith("/zio")) {
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          navigate({ to: "/tracking" });
+        }
+      }
+    } else {
+      closeZio();
+    }
+  }, [isHistoryOpen, setIsHistoryOpen, isFullscreen, closeZio, navigate]);
+
   const [input, setInput] = useState("");
   const [activeTab, setActiveTab] = useState<"ask" | "artifacts">("ask");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -505,18 +528,28 @@ export function ZioPanel({
         <header
           className={cn(
             "flex items-center justify-between border-b border-slate-100 bg-white/90 px-4 py-2.5 transition-all duration-300 ease-out shrink-0 select-none z-10",
-            isFullscreen && "px-6 py-3 border-transparent bg-transparent",
+            isFullscreen && "px-6 pt-5 pb-3 border-transparent bg-transparent",
           )}
         >
-        {/* Left header area: Show Title when in History view, clean empty space when in Chat view */}
-        <div className="flex items-center gap-2 min-w-0">
-          {isHistoryOpen && (
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
-              <History className="h-3.5 w-3.5 text-violet-600 shrink-0" />
-              <span>Chat History</span>
-            </div>
-          )}
-        </div>
+          {/* Left header area: Header title with back button according to our theme */}
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="p-1 -ml-1 rounded text-slate-700 dark:text-slate-200 hover:text-[#0089FF] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+              title="Go Back"
+            >
+              <ChevronLeft className={cn("stroke-[2.5]", isFullscreen ? "h-5 w-5" : "h-4 w-4")} />
+            </button>
+            <h1
+              className={cn(
+                "font-medium text-slate-900 dark:text-white tracking-tight truncate",
+                isFullscreen ? "text-[24px]" : "text-[16px] font-semibold"
+              )}
+            >
+              {isHistoryOpen ? "Chat History" : "Zio"}
+            </h1>
+          </div>
 
         {/* Right header controls: All action buttons consistently formatted */}
         <div className="flex items-center gap-1">
@@ -620,7 +653,7 @@ export function ZioPanel({
           {/* Close button */}
           <button
             type="button"
-            onClick={closeZio}
+            onClick={handleBack}
             aria-label="Close Zio"
             className="inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-violet-100 hover:text-slate-900 cursor-pointer"
           >
