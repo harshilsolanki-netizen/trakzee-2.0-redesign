@@ -205,7 +205,7 @@ export function TemperatureThermometer({
                 y={t.y + 3.2}
                 fontSize="9"
                 fontWeight="700"
-                fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
+                fontFamily="'Inter', sans-serif"
                 fill="#64748B"
                 className="dark:fill-slate-300 select-none"
               >
