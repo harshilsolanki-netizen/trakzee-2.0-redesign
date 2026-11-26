@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { FleetExplorerPanel } from "@/components/tracking/FleetExplorerPanel";
 import { LiveTrackingReferencePanel, INITIAL_LIVE_GROUPS, type LiveVehicle, type TrackingPanelTab } from "@/components/tracking/LiveTrackingReferencePanel";
+import { useActiveApp } from "@/lib/useActiveApp";
 import { LiveTrackingMap } from "@/components/tracking/LiveTrackingMap";
 import { VehicleTelemetryDrawer } from "@/components/tracking/VehicleTelemetryDrawer";
 import { RoutePlaybackBar } from "@/components/tracking/RoutePlaybackBar";
@@ -32,9 +34,10 @@ import { useNavigate } from "@tanstack/react-router";
 
 export function TrackingPage() {
   const navigate = useNavigate();
+  const { isRoster } = useActiveApp();
   const [vehiclesList, setVehiclesList] = useState<FleetObject[]>(fleetObjects);
   
-  // Real-time live vehicles state & GPS simulation
+  // Real-time live vehicles state & GPS simulation for Roaster Management
   const [liveVehicles, setLiveVehicles] = useState<LiveVehicle[]>(() =>
     INITIAL_LIVE_GROUPS.flatMap((g) => g.vehicles)
   );
@@ -49,8 +52,9 @@ export function TrackingPage() {
     return map;
   });
 
-  // Real-time live GPS simulation: moves running vehicles along Surat roads every 2.5s
+  // Real-time live GPS simulation for Roaster Management
   useEffect(() => {
+    if (!isRoster) return;
     const interval = setInterval(() => {
       setLiveVehicles((prev) =>
         prev.map((v) => {
@@ -64,7 +68,7 @@ export function TrackingPage() {
 
           // Real-time timestamp
           const now = new Date();
-          const pad = (n) => String(n).padStart(2, "0");
+          const pad = (n: number) => String(n).padStart(2, "0");
           const timeStr = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
           return {
@@ -79,7 +83,7 @@ export function TrackingPage() {
     }, 2500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isRoster]);
   const [isAddVehicleOpen, setIsAddVehicleOpen] = useState(false);
   const [selectedVehicleId, setSelectedVehicleIdState] = useState<
     string | null
@@ -429,7 +433,7 @@ export function TrackingPage() {
     });
   };
 
-  const DEFAULT_PANEL_WIDTH = 560;
+  const DEFAULT_PANEL_WIDTH = isRoster ? 560 : 630;
   const [customWidth, setCustomWidth] = useState<number | null>(null);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -440,9 +444,15 @@ export function TrackingPage() {
     if (!isResizing) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      // 60px is the collapsed sidebar width
-      const newWidth = Math.max(380, Math.min(1000, e.clientX - 60));
-      setCustomWidth(newWidth);
+      if (isRoster) {
+        // 60px is the collapsed sidebar width
+        const newWidth = Math.max(380, Math.min(1000, e.clientX - 60));
+        setCustomWidth(newWidth);
+      } else {
+        // 12px is the left padding from screen edge
+        const newWidth = Math.max(380, Math.min(1100, e.clientX - 12));
+        setCustomWidth(newWidth);
+      }
     };
 
     const handleMouseUp = () => {
@@ -525,39 +535,105 @@ export function TrackingPage() {
 
   return (
     <div className="relative h-full w-full overflow-hidden select-none bg-background flex">
-      {/* 1. Left Live Tracking Reference Panel (With 10px floating margin, 1:1 with live production) */}
+      {/* 1. Left Expandable Fleet Explorer (for Trakzee) or Live Tracking Reference Panel (for Roaster Management) */}
       {isLeftPanelOpen ? (
         <div className="absolute top-2.5 bottom-2.5 left-2.5 z-20 flex flex-col pointer-events-none animate-in slide-in-from-left-4 duration-200">
-          <LiveTrackingReferencePanel
-            onSelectVehicle={(v) => {
-              setSelectedLiveVehicleId(v.id);
-              setSelectedVehicleIdState(v.id);
-            }}
-            selectedVehicleId={selectedLiveVehicleId}
-            activeTab={trackingTab}
-            onTabChange={setTrackingTab}
-            onToggleCollapse={() => setIsLeftPanelOpen(false)}
-            isCollapsed={false}
-            liveVehicles={liveVehicles}
-            onLiveVehiclesChange={setLiveVehicles}
-            checkedVehiclesMap={checkedVehiclesMap}
-            onCheckedVehiclesChange={setCheckedVehiclesMap}
-            onCenterFleet={() => {
-              window.dispatchEvent(new CustomEvent("map-center-fleet"));
-            }}
-            panelWidth={panelWidth}
-            onStartResize={() => setIsResizing(true)}
-            onResetWidth={() => setCustomWidth(560)}
-            isResizing={isResizing}
-          />
+          {isRoster ? (
+            <LiveTrackingReferencePanel
+              onSelectVehicle={(v) => {
+                setSelectedLiveVehicleId(v.id);
+                setSelectedVehicleIdState(v.id);
+              }}
+              selectedVehicleId={selectedLiveVehicleId}
+              activeTab={trackingTab}
+              onTabChange={setTrackingTab}
+              onToggleCollapse={() => setIsLeftPanelOpen(false)}
+              isCollapsed={false}
+              liveVehicles={liveVehicles}
+              onLiveVehiclesChange={setLiveVehicles}
+              checkedVehiclesMap={checkedVehiclesMap}
+              onCheckedVehiclesChange={setCheckedVehiclesMap}
+              onCenterFleet={() => {
+                window.dispatchEvent(new CustomEvent("map-center-fleet"));
+              }}
+              panelWidth={panelWidth}
+              onStartResize={() => setIsResizing(true)}
+              onResetWidth={() => setCustomWidth(null)}
+              isResizing={isResizing}
+            />
+          ) : (
+            <FleetExplorerPanel
+              vehicles={vehiclesList}
+              selectedVehicleId={selectedVehicleId}
+              onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
+              checkedVehicleIds={checkedVehicleIds}
+              onToggleCheckVehicle={handleToggleCheckVehicle}
+              onToggleCheckGroup={handleToggleCheckGroup}
+              onToggleCheckAll={handleToggleCheckAll}
+              checkedGeofenceIds={checkedGeofenceIds}
+              onToggleCheckGeofence={handleToggleCheckGeofence}
+              onToggleCheckAllGeofences={handleToggleCheckAllGeofences}
+              selectedGeofenceId={selectedGeofenceId}
+              onSelectGeofence={(id) => setSelectedGeofenceId(id)}
+              onOpenDashcam={(v) => setDashcamVehicle(v)}
+              onOpenSettings={() => setSettingsModalOpen(true)}
+              onOpenTelemetry={(v, isHealthOnly, job) => {
+                setSelectedVehicleIdState(v.id);
+                setIsHealthTelemetryOnly(!!isHealthOnly);
+                setSelectedJobForDrawer(job || null);
+                setIsTelemetryDrawerOpen(true);
+              }}
+              onCloseTelemetry={() => setIsTelemetryDrawerOpen(false)}
+              onTraceVehicle={handleTraceVehicle}
+              onOpenAddVehicle={() => navigate({ to: "/setting", search: { action: "add" } })}
+              onOpenAddAddress={handleOpenAddAddress}
+              onOpenUploadAddress={() => setIsUploadAddressModalOpen(true)}
+              onOpenAddGeofence={handleOpenAddGeofence}
+              onToggleCollapse={() => setIsLeftPanelOpen(false)}
+              selectedColumns={selectedColumns}
+              onStartResize={() => setIsResizing(true)}
+              onResetWidth={() => setCustomWidth(null)}
+              activeTab={activeTab as any}
+              onTabChange={(tab) => {
+                setActiveTab(tab);
+                if (tab === "video_telematics") {
+                  const saved = localStorage.getItem("trakzee_pinned_video_view");
+                  if (saved === "matrix") {
+                    setIsVideoMatrixMode(true);
+                  } else if (saved === "map_video") {
+                    setIsVideoMatrixMode(false);
+                  }
+                  setIsMapVideoPanelOpen(true);
+                }
+              }}
+              onOpenVideoChannel={handleOpenVideoChannel}
+              onOpenIntercom={(dev) => {
+                setIntercomDevice(dev);
+                setPlaybackHistoryDevice(null);
+                setIsMapVideoPanelOpen(false);
+              }}
+              onOpenPlayback={(dev) => {
+                setPlaybackHistoryDevice(dev);
+                setIntercomDevice(null);
+                setIsMapVideoPanelOpen(false);
+              }}
+              style={{ width: `${panelWidth}px` }}
+              className={cn(
+                "relative h-full shadow-2xl pointer-events-auto border-[#DFE3EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl animate-in slide-in-from-left-4 duration-200",
+                isResizing
+                  ? "transition-none select-none cursor-col-resize"
+                  : "transition-[width,max-width,transform] duration-300 ease-in-out",
+              )}
+            />
+          )}
         </div>
       ) : (
         <div className="absolute left-0 top-[28px] z-30 animate-in slide-in-from-left duration-200">
           <button
             type="button"
             onClick={() => setIsLeftPanelOpen(true)}
-            className="flex h-10 w-5 items-center justify-center rounded-r-xl border border-l-0 border-[#DFE3EB] bg-white text-slate-600 shadow-md hover:bg-sky-50 hover:text-[#0089FF] transition-all cursor-pointer active:scale-95"
-            title="Expand Live Tracking Panel"
+            className="flex h-10 w-5 items-center justify-center rounded-r-xl border border-l-0 border-[#DFE3EB] dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-600 dark:text-slate-300 shadow-md hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-[#0089FF] dark:hover:text-[#0089FF] transition-all cursor-pointer active:scale-95"
+            title={isRoster ? "Expand Live Tracking Panel" : "Expand Object Panel"}
           >
             <ChevronRight className="h-4 w-4 stroke-[2.5]" />
           </button>
@@ -575,31 +651,66 @@ export function TrackingPage() {
         }}
       >
         <div className="absolute inset-0 z-0">
-          <LiveTrackingMap
-            selectedVehicle={selectedVehicle}
-            checkedVehicles={checkedVehicles}
-            checkedGeofenceIds={checkedGeofenceIds}
-            selectedGeofenceId={selectedGeofenceId}
-            onOpenPlayback={handleOpenPlayback}
-            isLeftPanelOpen={isLeftPanelOpen}
-            leftPanelWidth={isLeftPanelOpen ? panelWidth : 0}
-            isTelemetryDrawerOpen={false}
-            isHealthTelemetryOnly={false}
-            onToggleTelemetryDrawer={() => {}}
-            activeTab={trackingTab}
-            onSelectVehicle={(id) => {
-              setSelectedLiveVehicleId(id);
-              setSelectedVehicleIdState(id);
-            }}
-            onToggleFollowPanel={() => {}}
-            isFollowPanelOpen={false}
-            followedCount={0}
-            cleanView={true}
-            liveVehicles={liveVehicles}
-            selectedLiveVehicleId={selectedLiveVehicleId}
-            checkedVehiclesMap={checkedVehiclesMap}
-            className="h-full w-full rounded-none border-0 shadow-none"
-          />
+          {isRoster ? (
+            <LiveTrackingMap
+              selectedVehicle={selectedVehicle}
+              checkedVehicles={checkedVehicles}
+              checkedGeofenceIds={checkedGeofenceIds}
+              selectedGeofenceId={selectedGeofenceId}
+              onOpenPlayback={handleOpenPlayback}
+              isLeftPanelOpen={isLeftPanelOpen}
+              leftPanelWidth={isLeftPanelOpen ? panelWidth : 0}
+              isTelemetryDrawerOpen={false}
+              isHealthTelemetryOnly={false}
+              onToggleTelemetryDrawer={() => {}}
+              activeTab={trackingTab}
+              onSelectVehicle={(id) => {
+                setSelectedLiveVehicleId(id);
+                setSelectedVehicleIdState(id);
+              }}
+              onToggleFollowPanel={() => {}}
+              isFollowPanelOpen={false}
+              followedCount={0}
+              cleanView={true}
+              liveVehicles={liveVehicles}
+              selectedLiveVehicleId={selectedLiveVehicleId}
+              checkedVehiclesMap={checkedVehiclesMap}
+              className="h-full w-full rounded-none border-0 shadow-none"
+            />
+          ) : (
+            <LiveTrackingMap
+              selectedVehicle={selectedVehicle}
+              checkedVehicles={checkedVehicles}
+              checkedGeofenceIds={checkedGeofenceIds}
+              selectedGeofenceId={selectedGeofenceId}
+              onOpenPlayback={handleOpenPlayback}
+              isLeftPanelOpen={isLeftPanelOpen}
+              leftPanelWidth={panelWidth}
+              isTelemetryDrawerOpen={isTelemetryDrawerOpen}
+              isHealthTelemetryOnly={isHealthTelemetryOnly}
+              onToggleTelemetryDrawer={() =>
+                setIsTelemetryDrawerOpen((prev) => !prev)
+              }
+              activeTab={activeTab}
+              onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
+              onToggleFollowPanel={() => {
+                setIsFollowPanelOpen((prev) => {
+                  const next = !prev;
+                  if (next && followedVehicleIds.length === 0) {
+                    setFollowedVehicleIds([selectedVehicleId || "o1"]);
+                  }
+                  return next;
+                });
+              }}
+              isFollowPanelOpen={isFollowPanelOpen}
+              followedCount={followedVehicleIds.length}
+              onOpenShare={handleOpenShare}
+              onOpenFindNearBy={handleOpenFindNearBy}
+              navigationRoute={activeNavigationRoute}
+              cleanView={false}
+              className="h-full w-full rounded-none border-0 shadow-none"
+            />
+          )}
         </div>
       {/* 3. Right Floating Map + Video Live Camera Feeds Panel */}
       {isMapVideoPanelOpen && activeVideoFeeds.length > 0 && !intercomDevice && !playbackHistoryDevice && (
@@ -722,6 +833,18 @@ export function TrackingPage() {
             activeRoute={activeNavigationRoute}
           />
         </div>
+      )}
+
+      {/* 4.3 Floating AI Priority Feed Overlay (Over Live Map for Trakzee) */}
+      {!isRoster && (
+        <AIPriorityFeed
+          vehicles={vehiclesList}
+          onSelectVehicle={(id) => setSelectedVehicleIdState(id)}
+          onTraceVehicle={handleTraceVehicle}
+          onOpenDashcam={(v) => setDashcamVehicle(v)}
+          isTelemetryDrawerOpen={isTelemetryDrawerOpen}
+          isHealthTelemetryOnly={isHealthTelemetryOnly}
+        />
       )}
 
       {/* 4. Floating Route Playback Bar (when active) */}
